@@ -4,13 +4,13 @@ Le but de ce script est d'installer une base Arch Linux exactement comme MOI je 
 Vous n'aurez du coup pas beaucoup d'options de personnalisation. Donc si c'est ce que vous recherchez, passez votre chemin.  
 Ce script fonctionne uniquement sur un firmware UEFI.
 
-**ATTENTION : Actuellement ce script EFFACE COMPLÈTEMENT le disque spécifié.**
+Un partitionnement du disque spécifié sera proposé avec l'outil cfdisk.
 
-La base Arch Linux installée est construite de la façon suivante :  
-Sur le disque dur spécifié, deux partitions :
-- 1Go - EFI System, monté sur /boot/efi
-- Tout le reste - Linux Root, monté sur /
-- Un swapfile de taille égale à la RAM, appelé swapfile, localisé sur /
+Le script s'attend à avoir deux partitions seulement :
+- Une partition EFI System, elle sera montée sur /boot/efi
+- Une partition Linux Root, elle sera montée sur /
+
+Si la partition EFI doit être formatée elle le sera en vfat, sinon le script s'attend à ce que la partition EFI soit déjà formatée en vfat (C'est le cas pour windows 10 par exemple), la partition root sera formatée en ext4 et un swapfile de taille égale à la RAM, appelé swapfile, sera créé et placé à la racine de la partition Root.
 
 Paquets inclues dans la base :  
 *base base-devel linux linux-firmware man-db man-pages texinfo nano vim git curl zsh zsh-completions grml-zsh-config grub os-prober efibootmgr networkmanager xdg-user-dirs*
