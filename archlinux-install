@@ -50,10 +50,12 @@ while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
         FORMAT_EFI="N"
     fi
     read -p "Numéro de la partition ROOT ? : " ROOT_NUMBER
+    read -p "Taille du swapfile ? (Exemple: 8G) : " SWAPFILE_SIZE
     echo ""
     echo "Numéro de la partition EFI : $EFI_NUMBER"
     echo "Formater la partition EFI : $FORMAT_EFI"
     echo "Numéro de la partition ROOT : $ROOT_NUMBER"
+    echo "Taille du swapfile : $SWAPFILE_SIZE"
     read -p "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
 done
 
@@ -67,8 +69,8 @@ mkdir -p /mnt/boot/efi
 mount "${TARGET_DISK}${EFI_NUMBER}" /mnt/boot/efi
 
 # Création du swapfile de taille égale à la RAM
-echo "Création du swapfile de taille égale à la RAM..."
-fallocate -l $(free -h | grep 'Mem:' | awk '{print $2}')B /mnt/swapfile
+echo "Création du swapfile..."
+fallocate -l $SWAPFILE_SIZE /mnt/swapfile
 chmod 600 /mnt/swapfile
 mkswap /mnt/swapfile
 swapon /mnt/swapfile

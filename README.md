@@ -10,7 +10,7 @@ Le script s'attend à avoir deux partitions seulement :
 - Une partition EFI System, elle sera montée sur /boot/efi
 - Une partition Linux Root, elle sera montée sur /
 
-Si la partition EFI doit être formatée elle le sera en vfat, sinon le script s'attend à ce que la partition EFI soit déjà formatée en vfat (C'est le cas pour windows 10 par exemple), la partition root sera formatée en ext4 et un swapfile de taille égale à la RAM, appelé swapfile, sera créé et placé à la racine de la partition Root.
+Si la partition EFI doit être formatée elle le sera en vfat, sinon le script s'attend à ce que la partition EFI soit déjà formatée en vfat (C'est le cas pour windows 10 par exemple), la partition root sera formatée en ext4 et un swapfile de la taille spécifiée, appelé swapfile, sera créé et placé à la racine de la partition Root.
 
 Paquets inclues dans la base :  
 *base base-devel linux linux-firmware man-db man-pages texinfo nano vim git curl zsh zsh-completions grml-zsh-config grub os-prober efibootmgr networkmanager xdg-user-dirs*
@@ -21,8 +21,6 @@ Shell par défaut : ZSH avec la config GRML.
 # Utilisation
 
 ### Sur l'iso live de Arch Linux :
-pacman -Sy wget  
-wget https://github.com/rawleenc/archlinux-install/releases/download/{DERNIERE_VERSION}/archlinux-install  
-./archlinux-install  
+bash <(curl -L https://github.com/rawleenc/archlinux-install/releases/download/{DERNIERE_VERSION}/archlinux-install)
 
 Répondez aux questions et laissez la magie opérer ! ;)
