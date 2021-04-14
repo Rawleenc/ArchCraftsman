@@ -1,0 +1,126 @@
+#! /bin/bash
+[ "$UID" -eq 0 ] || { echo "This script must be run as root."; exit 1;}
+
+loadkeys fr-latin9
+USER_ANSWER="N"
+while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
+    fdisk -l
+    read -p "Sur quel disque installer Archlinux ? : " TARGET_DISK
+    read -p "Quel sera votre hostname : " HOSTNAME
+    read -p "Installer les microcodes Intel ? (o/N) : " INTEL_UCODE
+    read -p "Installer les microcodes AMD ? (o/N) : " AMD_UCODE
+    read -p "Votre timezone (Europe/Paris) : " TIMEZONE
+    read -p "Souhaitez vous ajouter un utilisateur ? (o/N) : " ADD_USER
+    if [ -z $INTEL_UCODE ]; then
+        INTEL_UCODE="N"
+    fi
+    if [ -z $AMD_UCODE ]; then
+        AMD_UCODE="N"
+    fi
+    if [ -z $TIMEZONE ]; then
+        TIMEZONE="Europe/Paris"
+    fi
+    if [ -z $ADD_USER ]; then
+        ADD_USER="N"
+    else
+        read -p "Quel nom d'utilisateur ? : " USER_NAME
+    fi
+    echo "Votre disque dur cible : $TARGET_DISK"
+    echo "Votre hostname : $HOSTNAME"
+    echo "Installer les microcodes Intel : $INTEL_UCODE"
+    echo "Installer les microcodes AMD : $AMD_UCODE"
+    echo "Votre timezone : $TIMEZONE"
+    echo "Ajouter un utilisateur : $ADD_USER"
+    if test "$ADD_USER" = "o" || test "$ADD_USER" = "O"; then
+        echo "Nom d'utilisateur : $USER_NAME"
+    fi
+    read -p "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
+done
+
+# Partitionnement
+echo "Partitionnement du disque cible..."
+fdisk $TARGET_DISK << FDISK_CMDS
+g
+n
+1
+ 
++1G
+t
+1
+n
+2
+ 
+ 
+w
+FDISK_CMDS
+
+mkfs.vfat "${TARGET_DISK}1"
+mkfs.ext4 "${TARGET_DISK}2"
+
+mount "${TARGET_DISK}2" /mnt
+mkdir -p /mnt/boot/efi
+mount "${TARGET_DISK}1" /mnt/boot/efi
+
+# Création du swapfile de taille égale à la RAM
+echo "Création du swapfile de taille égale à la RAM..."
+fallocate -l $(free -h | grep 'Mem:' | awk '{print $2}')B /mnt/swapfile
+chmod 600 /mnt/swapfile
+mkswap /mnt/swapfile
+swapon /mnt/swapfile
+
+# Mise à jour des mirroirs
+echo "Mise à jour des mirroirs..."
+reflector @/etc/xdg/reflector/reflector.conf
+
+# Installation de la base
+echo "Installation de la base..."
+pacstrap /mnt base base-devel linux linux-firmware man-db man-pages texinfo nano vim git curl zsh zsh-completions grml-zsh-config grub os-prober efibootmgr networkmanager xdg-user-dirs
+
+# Installation des microcodes
+if test "$INTEL_UCODE" = "o" || test "$INTEL_UCODE" = "O"; then
+    echo "Installation des microcodes Intel..."
+    pacstrap /mnt intel-ucode
+fi
+if test "$AMD_UCODE" = "o" || test "$AMD_UCODE" = "O"; then
+    echo "Installation des microcodes AMD..."
+    pacstrap /mnt amd-ucode
+fi
+
+# Configuration du système
+echo "Configuration du système..."
+genfstab -U /mnt >> /mnt/etc/fstab
+ln -sf /mnt/usr/share/zoneinfo/$TIMEZONE /mnt/etc/localtime
+sed -i "s|#en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|g" /mnt/etc/locale.gen
+sed -i "s|#en_US ISO-8859-1|en_US ISO-8859-1|g" /mnt/etc/locale.gen
+sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /mnt/etc/locale.gen
+sed -i "s|#fr_FR ISO-8859-1|fr_FR ISO-8859-1|g" /mnt/etc/locale.gen
+echo "LANG=fr_FR.UTF-8" > /mnt/etc/locale.conf
+echo "KEYMAP=fr-latin9" > /mnt/etc/vconsole.conf
+echo "FONT=eurlatgr" >> /mnt/etc/vconsole.conf
+echo $HOSTNAME > /mnt/etc/hostname
+echo "127.0.0.1 localhost" >> /mnt/etc/hosts
+echo "::1 localhost" >> /mnt/etc/hosts
+echo "127.0.1.1 $HOSTNAME.localdomain $HOSTNAME" >> /mnt/etc/hosts
+
+arch-chroot /mnt locale-gen
+arch-chroot /mnt systemctl enable NetworkManager
+arch-chroot /mnt mkinitcpio -P
+arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Arch Linux"
+arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+arch-chroot /mnt chsh --shell /bin/zsh 
+echo "Configuration du mot de passe root..."
+arch-chroot /mnt passwd
+if test "$ADD_USER" = "o" || test "$ADD_USER" = "O"; then
+    sed -i "s|# %wheel ALL=(ALL) ALL|%wheel ALL=(ALL) ALL|g" /mnt/etc/sudoers
+    arch-chroot /mnt useradd --shell=/bin/zsh --groups=wheel --create-home $USER_NAME
+    echo "Configuration du mot de passe pour l'utilisateur $USER_NAME..."
+    arch-chroot /mnt passwd $USER_NAME
+fi
+
+# Démontage des partitions
+echo "Démontage des partitions..."
+umount -l /mnt
+
+# Redémarrage du système
+echo "Redémarrage du système"
+reboot
