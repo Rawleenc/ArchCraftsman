@@ -41,9 +41,15 @@ done
 # Partitionnement
 echo "Partitionnement du disque cible..."
 cfdisk $TARGET_DISK
+PARTITIONS=( $(fdisk -l | grep '^/dev/nvme0n1*' | awk '{print $1}') )
 USER_ANSWER="N"
 while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
-    fdisk -l
+    echo "Partitions créées :"
+    INDEX=0
+    for partition in "${PARTITIONS[@]}"; do
+        let INDEX=${INDEX}+1
+        echo "Partition n°${INDEX} : $(fdisk -l | grep $partition)"
+    done
     read -p "Numéro de la partition EFI ? : " EFI_NUMBER
     read -p "Formater la partition EFI ? (o/N) : " FORMAT_EFI
     if [ -z $FORMAT_EFI ]; then
@@ -59,14 +65,17 @@ while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
     read -p "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
 done
 
-if test "$FORMAT_EFI" = "o" || test "$FORMAT_EFI" = "O"; then
-    mkfs.vfat "${TARGET_DISK}${EFI_NUMBER}"
-fi
-mkfs.ext4 "${TARGET_DISK}${ROOT_NUMBER}"
+let EFI_NUMBER=$EFI_NUMBER-1
+let ROOT_NUMBER=$ROOT_NUMBER-1
 
-mount "${TARGET_DISK}${ROOT_NUMBER}" /mnt
+if test "$FORMAT_EFI" = "o" || test "$FORMAT_EFI" = "O"; then
+    mkfs.vfat "${PARTITIONS[${EFI_NUMBER}]}"
+fi
+mkfs.ext4 "${PARTITIONS[${ROOT_NUMBER}]}"
+
+mount "${PARTITIONS[${ROOT_NUMBER}]}" /mnt
 mkdir -p /mnt/boot/efi
-mount "${TARGET_DISK}${EFI_NUMBER}" /mnt/boot/efi
+mount "${PARTITIONS[${EFI_NUMBER}]}" /mnt/boot/efi
 
 # Création du swapfile de taille égale à la RAM
 echo "Création du swapfile..."
@@ -96,7 +105,6 @@ fi
 # Configuration du système
 echo "Configuration du système..."
 genfstab -U /mnt >> /mnt/etc/fstab
-ln -sf /mnt/usr/share/zoneinfo/$TIMEZONE /mnt/etc/localtime
 sed -i "s|#en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|g" /mnt/etc/locale.gen
 sed -i "s|#en_US ISO-8859-1|en_US ISO-8859-1|g" /mnt/etc/locale.gen
 sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /mnt/etc/locale.gen
@@ -104,17 +112,18 @@ sed -i "s|#fr_FR ISO-8859-1|fr_FR ISO-8859-1|g" /mnt/etc/locale.gen
 echo "LANG=fr_FR.UTF-8" > /mnt/etc/locale.conf
 echo "KEYMAP=fr-latin9" > /mnt/etc/vconsole.conf
 echo "FONT=eurlatgr" >> /mnt/etc/vconsole.conf
-echo $HOSTNAME > /mnt/etc/hostname
+echo "$HOSTNAME" > /mnt/etc/hostname
 echo "127.0.0.1 localhost" >> /mnt/etc/hosts
 echo "::1 localhost" >> /mnt/etc/hosts
 echo "127.0.1.1 $HOSTNAME.localdomain $HOSTNAME" >> /mnt/etc/hosts
 
+arch-chroot /mnt ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
 arch-chroot /mnt locale-gen
 arch-chroot /mnt systemctl enable NetworkManager
 arch-chroot /mnt mkinitcpio -P
 arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Arch Linux"
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
-arch-chroot /mnt chsh --shell /bin/zsh 
+arch-chroot /mnt chsh --shell /bin/zsh
 echo "Configuration du mot de passe root..."
 arch-chroot /mnt passwd
 if test "$ADD_USER" = "o" || test "$ADD_USER" = "O"; then
