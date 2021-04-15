@@ -5,12 +5,12 @@ loadkeys fr-latin9
 USER_ANSWER="N"
 while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
     fdisk -l
-    read -p "Sur quel disque installer Archlinux ? : " TARGET_DISK
-    read -p "Quel sera votre hostname : " HOSTNAME
-    read -p "Installer les microcodes Intel ? (o/N) : " INTEL_UCODE
-    read -p "Installer les microcodes AMD ? (o/N) : " AMD_UCODE
-    read -p "Votre timezone (Europe/Paris) : " TIMEZONE
-    read -p "Souhaitez vous ajouter un utilisateur ? (o/N) : " ADD_USER
+    read -e -p "Sur quel disque installer Archlinux ? : " TARGET_DISK
+    read -e -p "Quel sera votre hostname : " HOSTNAME
+    read -e -p "Installer les microcodes Intel ? (o/N) : " INTEL_UCODE
+    read -e -p "Installer les microcodes AMD ? (o/N) : " AMD_UCODE
+    read -e -p "Votre timezone (Europe/Paris) : " TIMEZONE
+    read -e -p "Souhaitez vous ajouter un utilisateur ? (o/N) : " ADD_USER
     if [ -z $INTEL_UCODE ]; then
         INTEL_UCODE="N"
     fi
@@ -23,7 +23,7 @@ while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
     if [ -z $ADD_USER ]; then
         ADD_USER="N"
     else
-        read -p "Quel nom d'utilisateur ? : " USER_NAME
+        read -e -p "Quel nom d'utilisateur ? : " USER_NAME
     fi
     echo ""
     echo "Votre disque dur cible : $TARGET_DISK"
@@ -35,13 +35,13 @@ while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
     if test "$ADD_USER" = "o" || test "$ADD_USER" = "O"; then
         echo "Nom d'utilisateur : $USER_NAME"
     fi
-    read -p "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
+    read -e -p "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
 done
 
 # Partitionnement
 echo "Partitionnement du disque cible..."
 cfdisk $TARGET_DISK
-PARTITIONS=( $(fdisk -l | grep '^/dev/nvme0n1*' | awk '{print $1}') )
+PARTITIONS=( $(fdisk -l | grep ^${TARGET_DISK}* | awk '{print $1}') )
 USER_ANSWER="N"
 while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
     echo "Partitions créées :"
@@ -50,19 +50,19 @@ while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
         let INDEX=${INDEX}+1
         echo "Partition n°${INDEX} : $(fdisk -l | grep $partition)"
     done
-    read -p "Numéro de la partition EFI ? : " EFI_NUMBER
-    read -p "Formater la partition EFI ? (o/N) : " FORMAT_EFI
+    read -e -p "Numéro de la partition EFI ? : " EFI_NUMBER
+    read -e -p "Formater la partition EFI ? (o/N) : " FORMAT_EFI
     if [ -z $FORMAT_EFI ]; then
         FORMAT_EFI="N"
     fi
-    read -p "Numéro de la partition ROOT ? : " ROOT_NUMBER
-    read -p "Taille du swapfile ? (Exemple: 8G) : " SWAPFILE_SIZE
+    read -e -p "Numéro de la partition ROOT ? : " ROOT_NUMBER
+    read -e -p "Taille du swapfile ? (Exemple: 8G) : " SWAPFILE_SIZE
     echo ""
     echo "Numéro de la partition EFI : $EFI_NUMBER"
     echo "Formater la partition EFI : $FORMAT_EFI"
     echo "Numéro de la partition ROOT : $ROOT_NUMBER"
     echo "Taille du swapfile : $SWAPFILE_SIZE"
-    read -p "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
+    read -e -p "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
 done
 
 let EFI_NUMBER=$EFI_NUMBER-1
