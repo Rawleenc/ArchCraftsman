@@ -137,6 +137,4 @@ fi
 echo "Démontage des partitions..."
 umount -l /mnt
 
-# Redémarrage du système
-echo "Redémarrage du système"
-reboot
+echo "Installation terminée ! Vous pouvez redémarrer votre système."
