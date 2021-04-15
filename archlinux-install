@@ -52,7 +52,7 @@ function install()
     echo "::1 localhost" >> /mnt/etc/hosts
     echo "127.0.1.1 $HOSTNAME.localdomain $HOSTNAME" >> /mnt/etc/hosts
     
-    arch-chroot /mnt ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
+    arch-chroot /mnt ln -sf $TIMEZONE /etc/localtime
     arch-chroot /mnt locale-gen
     arch-chroot /mnt systemctl enable NetworkManager
     arch-chroot /mnt mkinitcpio -P
@@ -83,7 +83,7 @@ while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
     read -e -p "Quel sera votre hostname : " HOSTNAME
     read -e -p "Installer les microcodes Intel ? (o/N) : " INTEL_UCODE
     read -e -p "Installer les microcodes AMD ? (o/N) : " AMD_UCODE
-    read -e -p "Votre timezone (Europe/Paris) : " TIMEZONE
+    read -e -p "Votre timezone (/usr/share/zoneinfo/Europe/Paris) : " TIMEZONE
     read -e -p "Souhaitez vous ajouter un utilisateur ? (nom d'utilisateur, laissez vide si aucun) : " USER_NAME
     if [ -z $INTEL_UCODE ]; then
         INTEL_UCODE="N"
