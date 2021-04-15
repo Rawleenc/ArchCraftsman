@@ -94,7 +94,6 @@ while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
     if [ -z $TIMEZONE ]; then
         TIMEZONE="Europe/Paris"
     fi
-    fi
     echo ""
     echo "Votre disque dur cible : $TARGET_DISK"
     echo "Votre hostname : $HOSTNAME"
