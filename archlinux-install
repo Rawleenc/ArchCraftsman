@@ -57,16 +57,15 @@ while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
     fi
     read -e -p "Numéro de la partition ROOT ? : " ROOT_NUMBER
     read -e -p "Taille du swapfile ? (Exemple: 8G) : " SWAPFILE_SIZE
+    let EFI_NUMBER=$EFI_NUMBER-1
+    let ROOT_NUMBER=$ROOT_NUMBER-1
     echo ""
-    echo "Numéro de la partition EFI : $EFI_NUMBER"
+    echo "Partition EFI : ${PARTITIONS[${EFI_NUMBER}]}"
     echo "Formater la partition EFI : $FORMAT_EFI"
-    echo "Numéro de la partition ROOT : $ROOT_NUMBER"
+    echo "Partition ROOT : ${PARTITIONS[${ROOT_NUMBER}]}"
     echo "Taille du swapfile : $SWAPFILE_SIZE"
     read -e -p "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
 done
-
-let EFI_NUMBER=$EFI_NUMBER-1
-let ROOT_NUMBER=$ROOT_NUMBER-1
 
 if test "$FORMAT_EFI" = "o" || test "$FORMAT_EFI" = "O"; then
     mkfs.vfat "${PARTITIONS[${EFI_NUMBER}]}"
