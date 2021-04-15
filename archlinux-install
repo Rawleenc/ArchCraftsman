@@ -92,7 +92,7 @@ while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
         AMD_UCODE="N"
     fi
     if [ -z $TIMEZONE ]; then
-        TIMEZONE="Europe/Paris"
+        TIMEZONE="/usr/share/zoneinfo/Europe/Paris"
     fi
     echo ""
     echo "Votre disque dur cible : $TARGET_DISK"
