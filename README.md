@@ -21,6 +21,6 @@ Shell par défaut : ZSH avec la config GRML.
 # Utilisation
 
 ### Sur l'iso live de Arch Linux :
-bash <(curl -L https://github.com/rawleenc/archlinux-install/releases/download/1.4.0/archlinux-install)
+bash <(curl -L https://github.com/rawleenc/archlinux-install/releases/download/1.5.0/archlinux-install)
 
 Répondez aux questions et laissez la magie opérer ! ;)
