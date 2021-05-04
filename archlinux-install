@@ -1,4 +1,5 @@
-#! /bin/bash
+#!/usr/bin/env bash
+set -Eeuo pipefail
 [ "$UID" -eq 0 ] || { echo "This script must be run as root."; exit 1;}
 
 function install()
