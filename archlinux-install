@@ -126,8 +126,8 @@ while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
     fi
     read -e -p "Numéro de la partition ROOT ? : " ROOT_NUMBER
     read -e -p "Taille du swapfile ? (Exemple: 8G) : " SWAPFILE_SIZE
-    let EFI_NUMBER=$EFI_NUMBER-1
-    let ROOT_NUMBER=$ROOT_NUMBER-1
+    EFI_NUMBER=${EFI_NUMBER}-1
+    ROOT_NUMBER=${ROOT_NUMBER}-1
     echo ""
     echo "Partition EFI : ${PARTITIONS[${EFI_NUMBER}]}"
     echo "Formater la partition EFI : $FORMAT_EFI"
