@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 [ "$UID" -eq 0 ] || { echo "This script must be run as root."; exit 1;}
 
-function install()
+function install
 {
     if test "$FORMAT_EFI" = "o" || test "$FORMAT_EFI" = "O"; then
         mkfs.vfat "${PARTITIONS[${EFI_NUMBER}]}"
