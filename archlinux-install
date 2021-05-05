@@ -82,7 +82,8 @@ function install
     
     # Démontage des partitions
     print-step "Démontage des partitions..."
-    umount -l /mnt
+    swapoff
+    umount -R /mnt
     echo ""
     print-step "Installation terminée ! Vous pouvez redémarrer votre système."
 }
@@ -91,7 +92,7 @@ loadkeys fr-latin9
 USER_ANSWER="N"
 while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
     print-step "Paramétrage du système : "
-    fdisk -l | grep "Disk /"
+    parted -l
     read -e -p "Sur quel disque installer Archlinux ? : " TARGET_DISK
     read -e -p "Quel sera votre hostname : " HOSTNAME
     read -e -p "Installer les microcodes Intel ? (o/N) : " INTEL_UCODE
@@ -117,6 +118,7 @@ while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
     if [ ! -z $USER_NAME ]; then
         print-sub-step "  * Nom de l'utilisateur supplémentaire : $USER_NAME"
     fi
+    echo ""
     read -e -p "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
 done
 
@@ -147,6 +149,7 @@ while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
     print-sub-step "  * Formater la partition EFI : $FORMAT_EFI"
     print-sub-step "  * Partition ROOT : ${PARTITIONS[${ROOT_NUMBER}]}"
     print-sub-step "  * Taille du swapfile : $SWAPFILE_SIZE"
+    echo ""
     read -e -p "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
 done
 
