@@ -10,14 +10,6 @@ function print-step {
 function print-sub-step {
   echo -e "${CYAN}$1${NOCOLOR}"
 }
-function read-step {
-  printf "${GREEN}$1${NOCOLOR} "
-  read -e $2
-}
-function read-sub-step {
-  printf "${CYAN}$1${NOCOLOR} "
-  read -e $2
-}
 
 function install
 {
@@ -100,12 +92,12 @@ USER_ANSWER="N"
 while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
     print-step "Paramétrage du système : "
     fdisk -l | grep "Disk /"
-    read-sub-step "  * Sur quel disque installer Archlinux ? : " TARGET_DISK
-    read-sub-step "  * Quel sera votre hostname : " HOSTNAME
-    read-sub-step "  * Installer les microcodes Intel ? (o/N) : " INTEL_UCODE
-    read-sub-step "  * Installer les microcodes AMD ? (o/N) : " AMD_UCODE
-    read-sub-step "  * Votre timezone (/usr/share/zoneinfo/Europe/Paris) : " TIMEZONE
-    read-sub-step "  * Souhaitez vous ajouter un utilisateur ? (nom d'utilisateur, laissez vide si aucun) : " USER_NAME
+    read -e -p "Sur quel disque installer Archlinux ? : " TARGET_DISK
+    read -e -p "Quel sera votre hostname : " HOSTNAME
+    read -e -p "Installer les microcodes Intel ? (o/N) : " INTEL_UCODE
+    read -e -p "Installer les microcodes AMD ? (o/N) : " AMD_UCODE
+    read -e -p "Votre timezone (/usr/share/zoneinfo/Europe/Paris) : " TIMEZONE
+    read -e -p "Souhaitez vous ajouter un utilisateur ? (nom d'utilisateur, laissez vide si aucun) : " USER_NAME
     if [ -z $INTEL_UCODE ]; then
         INTEL_UCODE="N"
     fi
@@ -125,8 +117,7 @@ while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
     if [ ! -z $USER_NAME ]; then
         print-sub-step "  * Nom de l'utilisateur supplémentaire : $USER_NAME"
     fi
-    echo ""
-    read-step "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
+    read -e -p "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
 done
 
 # Partitionnement
@@ -141,13 +132,13 @@ while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
         let INDEX=${INDEX}+1
         print-sub-step "  * Partition n°${INDEX} : $(fdisk -l | grep $partition)"
     done
-    read-sub-step "Numéro de la partition EFI ? : " EFI_NUMBER
-    read-sub-step "Formater la partition EFI ? (o/N) : " FORMAT_EFI
+    read -e -p "Numéro de la partition EFI ? : " EFI_NUMBER
+    read -e -p "Formater la partition EFI ? (o/N) : " FORMAT_EFI
     if [ -z $FORMAT_EFI ]; then
         FORMAT_EFI="N"
     fi
-    read-sub-step "Numéro de la partition ROOT ? : " ROOT_NUMBER
-    read-sub-step "Taille du swapfile ? (Exemple: 8G) : " SWAPFILE_SIZE
+    read -e -p "Numéro de la partition ROOT ? : " ROOT_NUMBER
+    read -e -p "Taille du swapfile ? (Exemple: 8G) : " SWAPFILE_SIZE
     EFI_NUMBER=${EFI_NUMBER}-1
     ROOT_NUMBER=${ROOT_NUMBER}-1
     echo ""
@@ -156,8 +147,7 @@ while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
     print-sub-step "  * Formater la partition EFI : $FORMAT_EFI"
     print-sub-step "  * Partition ROOT : ${PARTITIONS[${ROOT_NUMBER}]}"
     print-sub-step "  * Taille du swapfile : $SWAPFILE_SIZE"
-    echo ""
-    read-step "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
+    read -e -p "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
 done
 
 install
