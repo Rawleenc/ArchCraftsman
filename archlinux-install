@@ -92,7 +92,7 @@ loadkeys fr-latin9
 USER_ANSWER="N"
 while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
     print-step "Paramétrage du système : "
-    parted -l
+    fdisk -l
     read -e -p "Sur quel disque installer Archlinux ? : " TARGET_DISK
     read -e -p "Quel sera votre hostname : " HOSTNAME
     read -e -p "Installer les microcodes Intel ? (o/N) : " INTEL_UCODE
