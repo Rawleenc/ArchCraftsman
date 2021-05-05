@@ -93,6 +93,7 @@ USER_ANSWER="N"
 while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
     print-step "Paramétrage du système : "
     fdisk -l
+    echo ""
     read -e -p "Sur quel disque installer Archlinux ? : " TARGET_DISK
     read -e -p "Quel sera votre hostname : " HOSTNAME
     read -e -p "Installer les microcodes Intel ? (o/N) : " INTEL_UCODE
@@ -134,6 +135,7 @@ while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
         let INDEX=${INDEX}+1
         print-sub-step "  * Partition n°${INDEX} : $(fdisk -l | grep $partition)"
     done
+    echo ""
     read -e -p "Numéro de la partition EFI ? : " EFI_NUMBER
     read -e -p "Formater la partition EFI ? (o/N) : " FORMAT_EFI
     if [ -z $FORMAT_EFI ]; then
