@@ -88,7 +88,9 @@ function install
     
     # Démontage des partitions
     print-step "Démontage des partitions..."
-    swapoff /mnt/swapfile
+    if [ ! -z $SWAPFILE_SIZE ]; then
+        swapoff /mnt/swapfile
+    fi
     umount -R /mnt
     echo ""
     print-step "Installation terminée ! Vous pouvez redémarrer votre système."
