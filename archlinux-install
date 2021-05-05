@@ -71,8 +71,6 @@ function install
     arch-chroot /mnt locale-gen
     print-step "Configuration du réseau..."
     arch-chroot /mnt systemctl enable NetworkManager
-    print-step "Génération de l'initramfs..."
-    arch-chroot /mnt mkinitcpio -P
     print-step "Installation et configuration du grub..."
     arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Arch Linux"
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
@@ -137,7 +135,7 @@ cfdisk $TARGET_DISK
 PARTITIONS=( $(fdisk -l | grep ^${TARGET_DISK}* | awk '{print $1}') )
 USER_ANSWER="N"
 while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
-    print-step "Partitions créées :"
+    print-step "Partitions du disk cible détectées :"
     INDEX=0
     for partition in "${PARTITIONS[@]}"; do
         let INDEX=${INDEX}+1
