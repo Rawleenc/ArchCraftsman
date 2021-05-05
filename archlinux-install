@@ -11,10 +11,12 @@ function print-sub-step {
   echo -e "${CYAN}$1${NOCOLOR}"
 }
 function read-step {
-  read -e -p "${GREEN}$1${NOCOLOR}" $2
+  printf "${GREEN}$1${NOCOLOR} "
+  read -e $2
 }
 function read-sub-step {
-  read -e -p "${CYAN}$1${NOCOLOR}" $2
+  printf "${CYAN}$1${NOCOLOR} "
+  read -e $2
 }
 
 function install
