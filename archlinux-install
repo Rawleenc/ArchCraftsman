@@ -158,7 +158,9 @@ while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
     print-sub-step "  * Partition EFI : ${PARTITIONS[${EFI_NUMBER}]}"
     print-sub-step "  * Formater la partition EFI : $FORMAT_EFI"
     print-sub-step "  * Partition ROOT : ${PARTITIONS[${ROOT_NUMBER}]}"
-    print-sub-step "  * Taille du swapfile : $SWAPFILE_SIZE"
+    if [ ! -z $SWAPFILE_SIZE ]; then
+        print-sub-step "  * Taille du swapfile : $SWAPFILE_SIZE"
+    fi
     echo ""
     read -e -p "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
 done
