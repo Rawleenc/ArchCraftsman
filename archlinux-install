@@ -25,11 +25,13 @@ function install
     mount "${PARTITIONS[${EFI_NUMBER}]}" /mnt/boot/efi
     
     # Création du swapfile de taille égale à la RAM
-    print-step "Création du swapfile..."
-    fallocate -l $SWAPFILE_SIZE /mnt/swapfile
-    chmod 600 /mnt/swapfile
-    mkswap /mnt/swapfile
-    swapon /mnt/swapfile
+    if [ ! -z $SWAPFILE_SIZE ]; then
+        print-step "Création et activation du swapfile..."
+        fallocate -l $SWAPFILE_SIZE /mnt/swapfile
+        chmod 600 /mnt/swapfile
+        mkswap /mnt/swapfile
+        swapon /mnt/swapfile
+    fi
     
     # Mise à jour des mirroirs
     print-step "Mise à jour des mirroirs..."
@@ -64,15 +66,19 @@ function install
     echo "::1 localhost" >> /mnt/etc/hosts
     echo "127.0.1.1 $HOSTNAME.localdomain $HOSTNAME" >> /mnt/etc/hosts
     
+    print-step "Configuration des locales..."
     arch-chroot /mnt ln -sf $TIMEZONE /etc/localtime
     arch-chroot /mnt locale-gen
+    print-step "Configuration du réseau..."
     arch-chroot /mnt systemctl enable NetworkManager
+    print-step "Génération de l'initramfs..."
     arch-chroot /mnt mkinitcpio -P
+    print-step "Installation et configuration du grub..."
     arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Arch Linux"
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
-    arch-chroot /mnt chsh --shell /bin/zsh
-    print-step "Configuration du mot de passe root..."
+    print-step "Configuration du compte root..."
     arch-chroot /mnt passwd
+    arch-chroot /mnt chsh --shell /bin/zsh
     if [ ! -z $USER_NAME ]; then
         sed -i "s|# %wheel ALL=(ALL) ALL|%wheel ALL=(ALL) ALL|g" /mnt/etc/sudoers
         arch-chroot /mnt useradd --shell=/bin/zsh --groups=wheel --create-home $USER_NAME
@@ -82,7 +88,7 @@ function install
     
     # Démontage des partitions
     print-step "Démontage des partitions..."
-    swapoff
+    swapoff /mnt/swapfile
     umount -R /mnt
     echo ""
     print-step "Installation terminée ! Vous pouvez redémarrer votre système."
@@ -142,7 +148,7 @@ while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
         FORMAT_EFI="N"
     fi
     read -e -p "Numéro de la partition ROOT ? : " ROOT_NUMBER
-    read -e -p "Taille du swapfile ? (Exemple: 8G) : " SWAPFILE_SIZE
+    read -e -p "Taille du swapfile ? (Exemple: 8G, laissez vide si aucun) : " SWAPFILE_SIZE
     EFI_NUMBER=${EFI_NUMBER}-1
     ROOT_NUMBER=${ROOT_NUMBER}-1
     echo ""
