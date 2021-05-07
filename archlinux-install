@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -Eeuo pipefail
+set -Eeo pipefail
 [ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
 
 GREEN="\033[0;32m"
