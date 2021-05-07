@@ -1,14 +1,98 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 [ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
+
 GREEN="\033[0;32m"
 CYAN="\033[0;36m"
 NOCOLOR="\033[0m"
+
 function print-step {
-  echo -e "${GREEN}$1${NOCOLOR}"
+    echo -e "${GREEN}$1${NOCOLOR}"
 }
+
 function print-sub-step {
-  echo -e "${CYAN}$1${NOCOLOR}"
+    echo -e "${CYAN}$1${NOCOLOR}"
+}
+
+function live-setup {
+    print-step "Configuration de l'environnement live..."
+    loadkeys fr-latin9
+    sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /etc/locale.gen
+    locale-gen
+    localectl set-locale fr_FR.UTF-8
+    unset LANG
+    source /etc/profile.d/locale.sh
+}
+
+function user-input {
+    
+    USER_ANSWER="N"
+    while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
+        print-step "Paramétrage du système : "
+        fdisk -l
+        echo ""
+        read -e -p "Sur quel disque installer Archlinux ? : " TARGET_DISK
+        read -e -p "Quel sera votre hostname : " HOSTNAME
+        read -e -p "Installer les microcodes Intel ? (o/N) : " INTEL_UCODE
+        read -e -p "Installer les microcodes AMD ? (o/N) : " AMD_UCODE
+        read -e -p "Votre timezone (/usr/share/zoneinfo/Europe/Paris) : " TIMEZONE
+        read -e -p "Souhaitez vous ajouter un utilisateur ? (nom d'utilisateur, laissez vide si aucun) : " USER_NAME
+        if [ -z $INTEL_UCODE ]; then
+            INTEL_UCODE="N"
+        fi
+        if [ -z $AMD_UCODE ]; then
+            AMD_UCODE="N"
+        fi
+        if [ -z $TIMEZONE ]; then
+            TIMEZONE="/usr/share/zoneinfo/Europe/Paris"
+        fi
+        echo ""
+        print-step "Récapitulatif des choix :"
+        print-sub-step "  * Votre disque dur cible : $TARGET_DISK"
+        print-sub-step "  * Votre hostname : $HOSTNAME"
+        print-sub-step "  * Installer les microcodes Intel : $INTEL_UCODE"
+        print-sub-step "  * Installer les microcodes AMD : $AMD_UCODE"
+        print-sub-step "  * Votre timezone : $TIMEZONE"
+        if [ ! -z $USER_NAME ]; then
+            print-sub-step "  * Nom de l'utilisateur supplémentaire : $USER_NAME"
+        fi
+        echo ""
+        read -e -p "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
+    done
+    
+    # Partitionnement
+    print-step "Partitionnement du disque cible..."
+    cfdisk $TARGET_DISK
+    PARTITIONS=( $(fdisk -l | grep ^${TARGET_DISK}* | awk '{print $1}') )
+    USER_ANSWER="N"
+    while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
+        print-step "Partitions du disk cible détectées :"
+        INDEX=0
+        for partition in "${PARTITIONS[@]}"; do
+            let INDEX=${INDEX}+1
+            print-sub-step "  * Partition n°${INDEX} : $(fdisk -l | grep $partition)"
+        done
+        echo ""
+        read -e -p "Numéro de la partition EFI ? : " EFI_NUMBER
+        read -e -p "Formater la partition EFI ? (o/N) : " FORMAT_EFI
+        if [ -z $FORMAT_EFI ]; then
+            FORMAT_EFI="N"
+        fi
+        read -e -p "Numéro de la partition ROOT ? : " ROOT_NUMBER
+        read -e -p "Taille du swapfile ? (Exemple: 8G, laissez vide si aucun) : " SWAPFILE_SIZE
+        EFI_NUMBER=${EFI_NUMBER}-1
+        ROOT_NUMBER=${ROOT_NUMBER}-1
+        echo ""
+        print-step "Récapitulatif des choix :"
+        print-sub-step "  * Partition EFI : ${PARTITIONS[${EFI_NUMBER}]}"
+        print-sub-step "  * Formater la partition EFI : $FORMAT_EFI"
+        print-sub-step "  * Partition ROOT : ${PARTITIONS[${ROOT_NUMBER}]}"
+        if [ ! -z $SWAPFILE_SIZE ]; then
+            print-sub-step "  * Taille du swapfile : $SWAPFILE_SIZE"
+        fi
+        echo ""
+        read -e -p "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
+    done
 }
 
 function install
@@ -94,73 +178,6 @@ function install
     print-step "Installation terminée ! Vous pouvez redémarrer votre système."
 }
 
-loadkeys fr-latin9
-USER_ANSWER="N"
-while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
-    print-step "Paramétrage du système : "
-    fdisk -l
-    echo ""
-    read -e -p "Sur quel disque installer Archlinux ? : " TARGET_DISK
-    read -e -p "Quel sera votre hostname : " HOSTNAME
-    read -e -p "Installer les microcodes Intel ? (o/N) : " INTEL_UCODE
-    read -e -p "Installer les microcodes AMD ? (o/N) : " AMD_UCODE
-    read -e -p "Votre timezone (/usr/share/zoneinfo/Europe/Paris) : " TIMEZONE
-    read -e -p "Souhaitez vous ajouter un utilisateur ? (nom d'utilisateur, laissez vide si aucun) : " USER_NAME
-    if [ -z $INTEL_UCODE ]; then
-        INTEL_UCODE="N"
-    fi
-    if [ -z $AMD_UCODE ]; then
-        AMD_UCODE="N"
-    fi
-    if [ -z $TIMEZONE ]; then
-        TIMEZONE="/usr/share/zoneinfo/Europe/Paris"
-    fi
-    echo ""
-    print-step "Récapitulatif des choix :"
-    print-sub-step "  * Votre disque dur cible : $TARGET_DISK"
-    print-sub-step "  * Votre hostname : $HOSTNAME"
-    print-sub-step "  * Installer les microcodes Intel : $INTEL_UCODE"
-    print-sub-step "  * Installer les microcodes AMD : $AMD_UCODE"
-    print-sub-step "  * Votre timezone : $TIMEZONE"
-    if [ ! -z $USER_NAME ]; then
-        print-sub-step "  * Nom de l'utilisateur supplémentaire : $USER_NAME"
-    fi
-    echo ""
-    read -e -p "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
-done
-
-# Partitionnement
-print-step "Partitionnement du disque cible..."
-cfdisk $TARGET_DISK
-PARTITIONS=( $(fdisk -l | grep ^${TARGET_DISK}* | awk '{print $1}') )
-USER_ANSWER="N"
-while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
-    print-step "Partitions du disk cible détectées :"
-    INDEX=0
-    for partition in "${PARTITIONS[@]}"; do
-        let INDEX=${INDEX}+1
-        print-sub-step "  * Partition n°${INDEX} : $(fdisk -l | grep $partition)"
-    done
-    echo ""
-    read -e -p "Numéro de la partition EFI ? : " EFI_NUMBER
-    read -e -p "Formater la partition EFI ? (o/N) : " FORMAT_EFI
-    if [ -z $FORMAT_EFI ]; then
-        FORMAT_EFI="N"
-    fi
-    read -e -p "Numéro de la partition ROOT ? : " ROOT_NUMBER
-    read -e -p "Taille du swapfile ? (Exemple: 8G, laissez vide si aucun) : " SWAPFILE_SIZE
-    EFI_NUMBER=${EFI_NUMBER}-1
-    ROOT_NUMBER=${ROOT_NUMBER}-1
-    echo ""
-    print-step "Récapitulatif des choix :"
-    print-sub-step "  * Partition EFI : ${PARTITIONS[${EFI_NUMBER}]}"
-    print-sub-step "  * Formater la partition EFI : $FORMAT_EFI"
-    print-sub-step "  * Partition ROOT : ${PARTITIONS[${ROOT_NUMBER}]}"
-    if [ ! -z $SWAPFILE_SIZE ]; then
-        print-sub-step "  * Taille du swapfile : $SWAPFILE_SIZE"
-    fi
-    echo ""
-    read -e -p "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
-done
-
+live-setup
+user-input
 install
