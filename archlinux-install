@@ -17,6 +17,7 @@ function print-sub-step {
 function live-setup {
     print-step "Configuration de l'environnement live..."
     loadkeys fr-latin9
+    setfont eurlatgr
     sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /etc/locale.gen
     locale-gen
     localectl set-locale fr_FR.UTF-8
