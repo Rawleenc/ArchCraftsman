@@ -30,7 +30,7 @@ function live-setup {
     source /etc/profile.d/locale.sh
 }
 
-function user-input {
+function install {
     
     USER_ANSWER="N"
     while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
@@ -134,11 +134,9 @@ function user-input {
         echo ""
         read -e -p "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
     done
-}
 
-function install
-{
     print-step "Formatage et montage des partitions..."
+    echo "${PARTITIONS[@]}"
     for partition in "${PARTITIONS[@]}"; do
         if test "${PART_TYPE[${partition}]}" = "EFI"; then
             if test "$FORMAT_EFI" = "o" || test "$FORMAT_EFI" = "O"; then
@@ -224,5 +222,4 @@ function install
 }
 
 live-setup
-user-input
 install
