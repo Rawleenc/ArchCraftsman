@@ -74,6 +74,8 @@ function install {
     declare -A PART_MOUNT_POINT
     USER_ANSWER="N"
     while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
+        EFI_OK="N"
+        ROOT_OK="N"
         print-step "Partitions du disk cible détectées :"
         INDEX=0
         for partition in "${PARTITIONS[@]}"; do
@@ -102,13 +104,13 @@ function install {
             let INDEX=${INDEX}+1
         done
         read -e -p "Taille du swapfile ? (Exemple: 8G, laissez vide si aucun) : " SWAPFILE_SIZE
-        if [ -z $EFI_OK ]; then
+        if test "$EFI_OK" = "N"; then
             echo ""
             print_error "  /!\ La partitions EFI est requise à l'installation du système."
             echo ""
             continue
         fi
-        if [ -z $ROOT_OK ]; then
+        if test "$ROOT_OK" = "N"; then
             echo ""
             print_error "  /!\ La partitions Root est requise à l'installation du système."
             echo ""
