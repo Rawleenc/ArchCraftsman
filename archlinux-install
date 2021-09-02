@@ -146,7 +146,7 @@ function install {
     for partition in "${PARTITIONS[@]}"; do
         if test "${PART_TYPE[${partition}]}" = "EFI"; then
             if test "$FORMAT_EFI" = "o" || test "$FORMAT_EFI" = "O"; then
-                mkfs.vfat "${EFI_PARTITION}"
+                mkfs.vfat "${partition}"
             fi
             mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
             mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
