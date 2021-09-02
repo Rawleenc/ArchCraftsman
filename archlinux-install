@@ -136,15 +136,24 @@ function install {
     done
 
     print-step "Formatage et montage des partitions..."
-    echo "${PARTITIONS[@]}"
+    for partition in "${PARTITIONS[@]}"; do
+        if test "${PART_TYPE[${partition}]}" = "ROOT"; then
+            mkfs.ext4 "${partition}"
+            mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
+            mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
+        fi
+    done
     for partition in "${PARTITIONS[@]}"; do
         if test "${PART_TYPE[${partition}]}" = "EFI"; then
             if test "$FORMAT_EFI" = "o" || test "$FORMAT_EFI" = "O"; then
-                mkfs.vfat "${partition}"
+                mkfs.vfat "${EFI_PARTITION}"
             fi
             mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
             mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
-        else
+        fi
+    done
+    for partition in "${PARTITIONS[@]}"; do
+        if test "${PART_TYPE[${partition}]}" = "HOME" || test "${PART_TYPE[${partition}]}" = "OTHER"; then
             mkfs.ext4 "${partition}"
             mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
             mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
