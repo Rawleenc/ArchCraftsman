@@ -81,17 +81,19 @@ function user-input {
             read -e -p "Quel est le rôle de cette partition ? (1: EFI, 2: Root, 3: Home, 4: Autre (choix par défaut)) : " TYPE
             if test "$TYPE" = "1"; then
                 PART_TYPE["$partition"]="EFI"
-                PART_MOUNT_POINT["$partition"]="/mnt/boot/efi"
+                PART_MOUNT_POINT["$partition"]="/boot/efi"
                 read -e -p "Formater la partition EFI ? (o/N) : " FORMAT_EFI
                 if [ -z $FORMAT_EFI ]; then
                     FORMAT_EFI="N"
                 fi
+                EFI_OK="o"
             elif test "$TYPE" = "2"; then
                 PART_TYPE["$partition"]="ROOT"
-                PART_MOUNT_POINT["$partition"]="/mnt"
+                PART_MOUNT_POINT["$partition"]="/"
+                ROOT_OK="o"
             elif test "$TYPE" = "3"; then
                 PART_TYPE["$partition"]="HOME"
-                PART_MOUNT_POINT["$partition"]="/mnt/home"
+                PART_MOUNT_POINT["$partition"]="/home"
             else
                 PART_TYPE["$partition"]="OTHER"
                 read -e -p "Quel est le point de montage de cette partition ? : " MOUNT_POINT
@@ -100,13 +102,13 @@ function user-input {
             let INDEX=${INDEX}+1
         done
         read -e -p "Taille du swapfile ? (Exemple: 8G, laissez vide si aucun) : " SWAPFILE_SIZE
-        if [ -z $EFI_NUMBER ]; then
+        if [ -z $EFI_OK ]; then
             echo ""
             print_error "  /!\ La partitions EFI est requise à l'installation du système."
             echo ""
             continue
         fi
-        if [ -z $ROOT_NUMBER ]; then
+        if [ -z $ROOT_OK ]; then
             echo ""
             print_error "  /!\ La partitions Root est requise à l'installation du système."
             echo ""
@@ -118,7 +120,7 @@ function user-input {
             if test "${PART_TYPE[${partition}]}" = "EFI"; then
                 print-sub-step "  * Partition EFI : ${partition} (point de montage : ${PART_MOUNT_POINT[${partition}]})"
                 print-sub-step "  * Formater la partition EFI : $FORMAT_EFI"
-            elif test "${PART_TYPE[${partition}]}" = "EFI"; then
+            elif test "${PART_TYPE[${partition}]}" = "ROOT"; then
                 print-sub-step "  * Partition ROOT : ${partition} (point de montage : ${PART_MOUNT_POINT[${partition}]})"
             elif test "${PART_TYPE[${partition}]}" = "HOME"; then
                 print-sub-step "  * Partition Home : ${partition} (point de montage : ${PART_MOUNT_POINT[${partition}]})"
@@ -142,12 +144,12 @@ function install
             if test "$FORMAT_EFI" = "o" || test "$FORMAT_EFI" = "O"; then
                 mkfs.vfat "${partition}"
             fi
-            mkdir -p ${PART_MOUNT_POINT[${partition}]}
-            mount "${partition}" ${PART_MOUNT_POINT[${partition}]}
+            mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
+            mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
         else
             mkfs.ext4 "${partition}"
-            mkdir -p ${PART_MOUNT_POINT[${partition}]}
-            mount "${partition}" ${PART_MOUNT_POINT[${partition}]}
+            mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
+            mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
         fi
     done
     
