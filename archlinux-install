@@ -5,7 +5,7 @@ set -Eeo pipefail
 RED="\033[0;31m"
 GREEN="\033[0;32m"
 CYAN="\033[0;36m"
-YELLOW="\033[1;33m"
+ORANGE="\033[0;33m"
 NOCOLOR="\033[0m"
 
 function print_error {
@@ -24,7 +24,7 @@ function print-sub-step {
 }
 
 function prompt {
-    read -e -p "$(echo -e ${YELLOW}"$1"${NOCOLOR})" $2
+    read -e -p "$(echo -e ${ORANGE}"$1"${NOCOLOR})" $2
 }
 
 function install {
