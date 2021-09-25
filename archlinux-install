@@ -24,7 +24,7 @@ function print-sub-step {
 }
 
 function prompt {
-    read -e -p $'${CYAN}$1${NOCOLOR}' $2
+    read -e -p "$(echo -e ${YELLOW}"$1"${NOCOLOR})" $2
 }
 
 function install {
