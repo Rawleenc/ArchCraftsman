@@ -20,8 +20,11 @@ function print-sub-step {
 }
 
 function install {
+    print-step "Welcome to archlinux-install script !"
+    echo ""
     USER_ANSWER="N"
     while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
+        print-step "Environment configuration : "
         read -e -p "Choose your installation's language (1: FR, other: EN) : " LANGUAGE
         if [ -z $LANGUAGE ]; then
             LANGUAGE="en"
@@ -35,6 +38,7 @@ function install {
         if [ -z $KEYMAP ]; then
             KEYMAP="fr-latin9"
         fi
+        echo ""
         print-step "Summary of choices :"
         print-sub-step "  * Your installation's language : $LANGUAGE"
         print-sub-step "  * Your installation's keymap : $KEYMAP"
@@ -205,23 +209,23 @@ function install {
     
     # Installation of the base
     print-step "Installation of the base..."
-    pkgs=(base base-devel linux-firmware man-db man-pages texinfo nano vim git curl zsh zsh-completions grml-zsh-config grub os-prober efibootmgr networkmanager xdg-user-dirs terminus-font)
+    pkgs=("base" "base-devel" "linux-firmware" "man-db" "man-pages" "texinfo" "nano" "vim" "git" "curl" "zsh" "zsh-completions" "grml-zsh-config" "grub" "os-prober" "efibootmgr" "networkmanager" "xdg-user-dirs" "terminus-font")
     if test "$INTEL_UCODE" = "y" || test "$INTEL_UCODE" = "Y"; then
-        pkgs+=intel-ucode
+        pkgs+=( "intel-ucode" )
     fi
     if test "$AMD_UCODE" = "y" || test "$AMD_UCODE" = "Y"; then
-        pkgs+=amd-ucode
+        pkgs+=( "amd-ucode" )
     fi
     if test "$LTS_KERNEL" = "y" || test "$LTS_KERNEL" = "Y"; then
-        pkgs+=linux-lts
+        pkgs+=( "linux-lts" )
     else
-        pkgs+=linux
+        pkgs+=( "linux" )
     fi
     if test "$NVIDIA_DRIVER" = "y" || test "$NVIDIA_DRIVER" = "Y"; then
         if test "$LTS_KERNEL" = "y" || test "$LTS_KERNEL" = "Y"; then
-            pkgs+=nvidia-lts
+            pkgs+=( "nvidia-lts" )
         else
-            pkgs+=nvidia
+            pkgs+=( "nvidia" )
         fi
     fi
     pacstrap /mnt ${pkgs[@]}
