@@ -253,15 +253,22 @@ function install {
     print-step "Installation and configuration of the grub..."
     arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Arch Linux"
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
-    print-step "Root account configuration..."
-    arch-chroot /mnt chsh --shell /bin/zsh
-    arch-chroot /mnt passwd
-    if [ ! -z $USER_NAME ]; then
-        sed -i "s|# %wheel ALL=(ALL) ALL|%wheel ALL=(ALL) ALL|g" /mnt/etc/sudoers
-        arch-chroot /mnt useradd --shell=/bin/zsh --groups=wheel --create-home $USER_NAME
-        print-step "Password configuration for the user $USER_NAME..."
-        arch-chroot /mnt passwd $USER_NAME
-    fi
+
+    USER_ANSWER="N"
+    while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
+        print-step "Users configuration..."
+        print-sub-step "  * Root account configuration..."
+        arch-chroot /mnt chsh --shell /bin/zsh
+        arch-chroot /mnt passwd
+        if [ ! -z $USER_NAME ]; then
+            sed -i "s|# %wheel ALL=(ALL) ALL|%wheel ALL=(ALL) ALL|g" /mnt/etc/sudoers
+            arch-chroot /mnt useradd --shell=/bin/zsh --groups=wheel --create-home $USER_NAME
+            print-sub-step "  * Password configuration for the user $USER_NAME..."
+            arch-chroot /mnt passwd $USER_NAME
+        fi
+        echo ""
+        read -e -p "Is the users configuration correct ? (y/N) : " USER_ANSWER
+    done
     
     # Démontage des partitions
     print-step "Unmounting partitions..."
