@@ -8,7 +8,7 @@ CYAN="\033[0;36m"
 NOCOLOR="\033[0m"
 
 function print_error {
-  echo -e "${RED}$1${NOCOLOR}"
+    echo -e "${RED}$1${NOCOLOR}"
 }
 
 function print-step {
@@ -19,30 +19,42 @@ function print-sub-step {
     echo -e "${CYAN}$1${NOCOLOR}"
 }
 
-function live-setup {
-    print-step "Configuration de l'environnement live..."
-    loadkeys fr-latin9
-    setfont eurlatgr
-    sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /etc/locale.gen
-    locale-gen
-    localectl set-locale fr_FR.UTF-8
-    unset LANG
-    source /etc/profile.d/locale.sh
-}
-
 function install {
+    USER_ANSWER="N"
+    while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
+        read -e -p "Choose your installation's language (1: FR, other: EN) : " LANGUAGE
+        if [ -z $LANGUAGE ]; then
+            LANGUAGE="en"
+        fi
+        if test "$LANGUAGE" = "1"; then
+            LANGUAGE="fr"
+        else
+            LANGUAGE="en"
+        fi
+        read -e -p "Type your installation's keymap (default: fr-latin9) : " KEYMAP
+        if [ -z $KEYMAP ]; then
+            KEYMAP="fr-latin9"
+        fi
+        print-step "Summary of choices :"
+        print-sub-step "  * Your installation's language : $LANGUAGE"
+        print-sub-step "  * Your installation's keymap : $KEYMAP"
+        echo ""
+        read -e -p "Is the information correct ? (y/N) : " USER_ANSWER
+    done
     
     USER_ANSWER="N"
-    while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
-        print-step "Paramétrage du système : "
+    while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
+        print-step "System configuration : "
         fdisk -l
         echo ""
-        read -e -p "Sur quel disque installer Archlinux ? : " TARGET_DISK
-        read -e -p "Quel sera votre hostname : " HOSTNAME
-        read -e -p "Installer les microcodes Intel ? (o/N) : " INTEL_UCODE
-        read -e -p "Installer les microcodes AMD ? (o/N) : " AMD_UCODE
-        read -e -p "Votre timezone (/usr/share/zoneinfo/Europe/Paris) : " TIMEZONE
-        read -e -p "Souhaitez vous ajouter un utilisateur ? (nom d'utilisateur, laissez vide si aucun) : " USER_NAME
+        read -e -p "On which disk should Archlinux be installed ? : " TARGET_DISK
+        read -e -p "What will be your hostname : " HOSTNAME
+        read -e -p "Install Intel microcode ? (y/N) : " INTEL_UCODE
+        read -e -p "Install AMD microcode ? (y/N) : " AMD_UCODE
+        read -e -p "Install LTS Linux kernel ? (y/N) : " LTS_KERNEL
+        read -e -p "Install proprietary Nvidia driver ? (y/N) : " NVIDIA_DRIVER
+        read -e -p "Your timezone (/usr/share/zoneinfo/Europe/Paris) : " TIMEZONE
+        read -e -p "Would you like to add a user? (username, leave blank if none) : " USER_NAME
         if [ -z $INTEL_UCODE ]; then
             INTEL_UCODE="N"
         fi
@@ -53,91 +65,98 @@ function install {
             TIMEZONE="/usr/share/zoneinfo/Europe/Paris"
         fi
         echo ""
-        print-step "Récapitulatif des choix :"
-        print-sub-step "  * Votre disque dur cible : $TARGET_DISK"
-        print-sub-step "  * Votre hostname : $HOSTNAME"
-        print-sub-step "  * Installer les microcodes Intel : $INTEL_UCODE"
-        print-sub-step "  * Installer les microcodes AMD : $AMD_UCODE"
-        print-sub-step "  * Votre timezone : $TIMEZONE"
+        print-step "Summary of choices :"
+        print-sub-step "  * Your target drive : $TARGET_DISK"
+        print-sub-step "  * Your hostname : $HOSTNAME"
+        print-sub-step "  * Installing Intel microcode : $INTEL_UCODE"
+        print-sub-step "  * Installing AMD microcode : $AMD_UCODE"
+        print-sub-step "  * Install LTS Linux kernel : $LTS_KERNEL"
+        print-sub-step "  * Install proprietary Nvidia driver : $NVIDIA_DRIVER"
+        print-sub-step "  * Your timezone : $TIMEZONE"
         if [ ! -z $USER_NAME ]; then
-            print-sub-step "  * Nom de l'utilisateur supplémentaire : $USER_NAME"
+            print-sub-step "  * Additional user name : $USER_NAME"
         fi
         echo ""
-        read -e -p "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
+        read -e -p "Is the informations correct ? (y/N) : " USER_ANSWER
     done
     
-    # Partitionnement
-    print-step "Partitionnement du disque cible..."
+    # Partitioning
+    print-step "Partitioning the target drive..."
     cfdisk $TARGET_DISK
     declare -a PARTITIONS=( $(fdisk -l | grep ^${TARGET_DISK}* | awk '{print $1}') )
     declare -A PART_TYPE
     declare -A PART_MOUNT_POINT
     USER_ANSWER="N"
-    while test "$USER_ANSWER" != "o" && test "$USER_ANSWER" != "O"; do
+    while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
         EFI_OK="N"
         ROOT_OK="N"
-        print-step "Partitions du disk cible détectées :"
+        print-step "Detected target drive partitions :"
         INDEX=0
         for partition in "${PARTITIONS[@]}"; do
             print-sub-step "  * Partition : $(fdisk -l | grep $partition)"
-            read -e -p "Quel est le rôle de cette partition ? (1: EFI, 2: Root, 3: Home, 4: Autre (choix par défaut)) : " TYPE
+            read -e -p "What is the role of this partition ? (1: EFI, 2: Root, 3: Home, 4: Other (default choice)) : " TYPE
             if test "$TYPE" = "1"; then
                 PART_TYPE["$partition"]="EFI"
                 PART_MOUNT_POINT["$partition"]="/boot/efi"
-                read -e -p "Formater la partition EFI ? (o/N) : " FORMAT_EFI
+                read -e -p "Format the EFI partition ? (y/N) : " FORMAT_EFI
                 if [ -z $FORMAT_EFI ]; then
                     FORMAT_EFI="N"
                 fi
-                EFI_OK="o"
-            elif test "$TYPE" = "2"; then
+                EFI_OK="y"
+                elif test "$TYPE" = "2"; then
                 PART_TYPE["$partition"]="ROOT"
                 PART_MOUNT_POINT["$partition"]="/"
-                ROOT_OK="o"
-            elif test "$TYPE" = "3"; then
+                ROOT_OK="y"
+                elif test "$TYPE" = "3"; then
                 PART_TYPE["$partition"]="HOME"
                 PART_MOUNT_POINT["$partition"]="/home"
+                read -e -p "Format the Home partition ? (y/N) : " FORMAT_HOME
+                if [ -z $FORMAT_HOME ]; then
+                    FORMAT_HOME="N"
+                fi
             else
                 PART_TYPE["$partition"]="OTHER"
-                read -e -p "Quel est le point de montage de cette partition ? : " MOUNT_POINT
+                read -e -p "What is the mounting point of this partition ? : " MOUNT_POINT
                 PART_MOUNT_POINT["$partition"]="$MOUNT_POINT"
             fi
             let INDEX=${INDEX}+1
         done
-        read -e -p "Taille du swapfile ? (Exemple: 8G, laissez vide si aucun) : " SWAPFILE_SIZE
+        read -e -p "Swapfile size ? (Example: 8G, leave empty if none) : " SWAPFILE_SIZE
         if test "$EFI_OK" = "N"; then
             echo ""
-            print_error "  /!\ La partitions EFI est requise à l'installation du système."
+            print_error "  /!\ The EFI partition is required for system installation."
             echo ""
             continue
         fi
         if test "$ROOT_OK" = "N"; then
             echo ""
-            print_error "  /!\ La partitions Root est requise à l'installation du système."
+            print_error "  /!\ The Root partition is required for system installation."
             echo ""
             continue
         fi
         echo ""
-        print-step "Récapitulatif des choix :"
+        print-step "Summary of choices :"
         for partition in "${PARTITIONS[@]}"; do
             if test "${PART_TYPE[${partition}]}" = "EFI"; then
-                print-sub-step "  * Partition EFI : ${partition} (point de montage : ${PART_MOUNT_POINT[${partition}]})"
-                print-sub-step "  * Formater la partition EFI : $FORMAT_EFI"
-            elif test "${PART_TYPE[${partition}]}" = "ROOT"; then
-                print-sub-step "  * Partition ROOT : ${partition} (point de montage : ${PART_MOUNT_POINT[${partition}]})"
-            elif test "${PART_TYPE[${partition}]}" = "HOME"; then
-                print-sub-step "  * Partition Home : ${partition} (point de montage : ${PART_MOUNT_POINT[${partition}]})"
-            elif test "${PART_TYPE[${partition}]}" = "OTHER"; then
-                print-sub-step "  * Autre partition : ${partition} (point de montage : ${PART_MOUNT_POINT[${partition}]})"
+                print-sub-step "  * EFI partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
+                print-sub-step "  * Format the EFI partition : $FORMAT_EFI"
+                elif test "${PART_TYPE[${partition}]}" = "ROOT"; then
+                print-sub-step "  * ROOT partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
+                elif test "${PART_TYPE[${partition}]}" = "HOME"; then
+                print-sub-step "  * Home partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
+                print-sub-step "  * Format the Home partition : $FORMAT_HOME"
+                elif test "${PART_TYPE[${partition}]}" = "OTHER"; then
+                print-sub-step "  * Other partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
             fi
         done
         if [ ! -z $SWAPFILE_SIZE ]; then
-            print-sub-step "  * Taille du swapfile : $SWAPFILE_SIZE"
+            print-sub-step "  * Swapfile size : $SWAPFILE_SIZE"
         fi
         echo ""
-        read -e -p "Les informations sont-elles correctes ? (o/N) : " USER_ANSWER
+        read -e -p "Is the informations correct ? (y/N) : " USER_ANSWER
     done
-
-    print-step "Formatage et montage des partitions..."
+    
+    print-step "Formatting and mounting partitions..."
     for partition in "${PARTITIONS[@]}"; do
         if test "${PART_TYPE[${partition}]}" = "ROOT"; then
             mkfs.ext4 "${partition}"
@@ -147,7 +166,7 @@ function install {
     done
     for partition in "${PARTITIONS[@]}"; do
         if test "${PART_TYPE[${partition}]}" = "EFI"; then
-            if test "$FORMAT_EFI" = "o" || test "$FORMAT_EFI" = "O"; then
+            if test "$FORMAT_EFI" = "y" || test "$FORMAT_EFI" = "Y"; then
                 mkfs.vfat "${partition}"
             fi
             mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
@@ -155,82 +174,103 @@ function install {
         fi
     done
     for partition in "${PARTITIONS[@]}"; do
-        if test "${PART_TYPE[${partition}]}" = "HOME" || test "${PART_TYPE[${partition}]}" = "OTHER"; then
+        if test "${PART_TYPE[${partition}]}" = "HOME"; then
+            if test "$FORMAT_HOME" = "y" || test "$FORMAT_HOME" = "Y"; then
+                mkfs.ext4 "${partition}"
+            fi
+            mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
+            mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
+        fi
+    done
+    for partition in "${PARTITIONS[@]}"; do
+        if test "${PART_TYPE[${partition}]}" = "OTHER"; then
             mkfs.ext4 "${partition}"
             mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
             mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
         fi
     done
     
-    # Création du swapfile de taille spécifiée
+    # Creation and activation of the swapfile
     if [ ! -z $SWAPFILE_SIZE ]; then
-        print-step "Création et activation du swapfile..."
+        print-step "Creation and activation of the swapfile..."
         fallocate -l $SWAPFILE_SIZE /mnt/swapfile
         chmod 600 /mnt/swapfile
         mkswap /mnt/swapfile
         swapon /mnt/swapfile
     fi
     
-    # Mise à jour des mirroirs
-    print-step "Mise à jour des mirroirs..."
+    # Updating mirrors
+    print-step "Updating mirrors..."
     reflector @/etc/xdg/reflector/reflector.conf
     
-    # Installation de la base
-    print-step "Installation de la base..."
-    pacstrap /mnt base base-devel linux linux-firmware man-db man-pages texinfo nano vim git curl zsh zsh-completions grml-zsh-config grub os-prober efibootmgr networkmanager xdg-user-dirs
-    
-    # Installation des microcodes
-    if test "$INTEL_UCODE" = "o" || test "$INTEL_UCODE" = "O"; then
-        print-sub-step "  * Installation des microcodes Intel..."
-        pacstrap /mnt intel-ucode
+    # Installation of the base
+    print-step "Installation of the base..."
+    pkgs=(base base-devel linux-firmware man-db man-pages texinfo nano vim git curl zsh zsh-completions grml-zsh-config grub os-prober efibootmgr networkmanager xdg-user-dirs terminus-font)
+    if test "$INTEL_UCODE" = "y" || test "$INTEL_UCODE" = "Y"; then
+        pkgs+=intel-ucode
     fi
-    if test "$AMD_UCODE" = "o" || test "$AMD_UCODE" = "O"; then
-        print-sub-step "  * Installation des microcodes AMD..."
-        pacstrap /mnt amd-ucode
+    if test "$AMD_UCODE" = "y" || test "$AMD_UCODE" = "Y"; then
+        pkgs+=amd-ucode
     fi
+    if test "$LTS_KERNEL" = "y" || test "$LTS_KERNEL" = "Y"; then
+        pkgs+=linux-lts
+    else
+        pkgs+=linux
+    fi
+    if test "$NVIDIA_DRIVER" = "y" || test "$NVIDIA_DRIVER" = "Y"; then
+        if test "$LTS_KERNEL" = "y" || test "$LTS_KERNEL" = "Y"; then
+            pkgs+=nvidia-lts
+        else
+            pkgs+=nvidia
+        fi
+    fi
+    pacstrap /mnt ${pkgs[@]}
     
-    # Configuration du système
-    print-step "Configuration du système..."
+    # System configuration
+    print-step "System configuration..."
     genfstab -U /mnt >> /mnt/etc/fstab
     sed -i "s|#en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|g" /mnt/etc/locale.gen
     sed -i "s|#en_US ISO-8859-1|en_US ISO-8859-1|g" /mnt/etc/locale.gen
-    sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /mnt/etc/locale.gen
-    sed -i "s|#fr_FR ISO-8859-1|fr_FR ISO-8859-1|g" /mnt/etc/locale.gen
-    echo "LANG=fr_FR.UTF-8" > /mnt/etc/locale.conf
-    echo "KEYMAP=fr-latin9" > /mnt/etc/vconsole.conf
-    echo "FONT=eurlatgr" >> /mnt/etc/vconsole.conf
+    if test "$LANGUAGE" = "fr"; then
+        sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /mnt/etc/locale.gen
+        sed -i "s|#fr_FR ISO-8859-1|fr_FR ISO-8859-1|g" /mnt/etc/locale.gen
+        echo "LANG=fr_FR.UTF-8" > /mnt/etc/locale.conf
+    else
+        echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
+    fi
+    echo "KEYMAP=$KEYMAP" > /mnt/etc/vconsole.conf
+    echo "FONT=ter-v16b" >> /mnt/etc/vconsole.conf
     echo "$HOSTNAME" > /mnt/etc/hostname
     echo "127.0.0.1 localhost" >> /mnt/etc/hosts
     echo "::1 localhost" >> /mnt/etc/hosts
     echo "127.0.1.1 $HOSTNAME.localdomain $HOSTNAME" >> /mnt/etc/hosts
     
-    print-step "Configuration des locales..."
+    print-step "Locales configuration..."
     arch-chroot /mnt ln -sf $TIMEZONE /etc/localtime
     arch-chroot /mnt locale-gen
-    print-step "Configuration du réseau..."
+    print-step "Network configuration..."
     arch-chroot /mnt systemctl enable NetworkManager
-    print-step "Installation et configuration du grub..."
+    print-step "Installation and configuration of the grub..."
     arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Arch Linux"
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
-    print-step "Configuration du compte root..."
+    print-step "Root account configuration..."
     arch-chroot /mnt chsh --shell /bin/zsh
     arch-chroot /mnt passwd
     if [ ! -z $USER_NAME ]; then
         sed -i "s|# %wheel ALL=(ALL) ALL|%wheel ALL=(ALL) ALL|g" /mnt/etc/sudoers
         arch-chroot /mnt useradd --shell=/bin/zsh --groups=wheel --create-home $USER_NAME
-        print-step "Configuration du mot de passe pour l'utilisateur $USER_NAME..."
+        print-step "Password configuration for the user $USER_NAME..."
         arch-chroot /mnt passwd $USER_NAME
     fi
     
     # Démontage des partitions
-    print-step "Démontage des partitions..."
+    print-step "Unmounting partitions..."
     if [ ! -z $SWAPFILE_SIZE ]; then
         swapoff /mnt/swapfile
     fi
     umount -R /mnt
     echo ""
-    print-step "Installation terminée ! Vous pouvez redémarrer votre système."
+    print-step "Installation complete ! You can reboot your system."
 }
 
-live-setup
 install
