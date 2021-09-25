@@ -69,6 +69,12 @@ function install {
         if [ -z $AMD_UCODE ]; then
             AMD_UCODE="N"
         fi
+        if [ -z $LTS_KERNEL ]; then
+            LTS_KERNEL="N"
+        fi
+        if [ -z $NVIDIA_DRIVER ]; then
+            NVIDIA_DRIVER="N"
+        fi
         if [ -z $TIMEZONE ]; then
             TIMEZONE="/usr/share/zoneinfo/Europe/Paris"
         fi
