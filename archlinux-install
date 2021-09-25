@@ -8,10 +8,13 @@ CYAN="\033[0;36m"
 NOCOLOR="\033[0m"
 
 function print_error {
+    echo ""
     echo -e "${RED}$1${NOCOLOR}"
+    echo ""
 }
 
 function print-step {
+    echo ""
     echo -e "${GREEN}$1${NOCOLOR}"
 }
 
@@ -21,7 +24,6 @@ function print-sub-step {
 
 function install {
     print-step "Welcome to archlinux-install script !"
-    echo ""
     USER_ANSWER="N"
     while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
         print-step "Environment configuration : "
@@ -38,11 +40,9 @@ function install {
         if [ -z $KEYMAP ]; then
             KEYMAP="fr-latin9"
         fi
-        echo ""
         print-step "Summary of choices :"
         print-sub-step "  * Your installation's language : $LANGUAGE"
         print-sub-step "  * Your installation's keymap : $KEYMAP"
-        echo ""
         read -e -p "Is the information correct ? (y/N) : " USER_ANSWER
     done
     
@@ -50,7 +50,6 @@ function install {
     while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
         print-step "System configuration : "
         fdisk -l
-        echo ""
         read -e -p "On which disk should Archlinux be installed ? : " TARGET_DISK
         read -e -p "What will be your hostname : " HOSTNAME
         read -e -p "Install Intel microcode ? (y/N) : " INTEL_UCODE
@@ -68,7 +67,6 @@ function install {
         if [ -z $TIMEZONE ]; then
             TIMEZONE="/usr/share/zoneinfo/Europe/Paris"
         fi
-        echo ""
         print-step "Summary of choices :"
         print-sub-step "  * Your target drive : $TARGET_DISK"
         print-sub-step "  * Your hostname : $HOSTNAME"
@@ -80,7 +78,6 @@ function install {
         if [ ! -z $USER_NAME ]; then
             print-sub-step "  * Additional user name : $USER_NAME"
         fi
-        echo ""
         read -e -p "Is the informations correct ? (y/N) : " USER_ANSWER
     done
     
@@ -127,18 +124,13 @@ function install {
         done
         read -e -p "Swapfile size ? (Example: 8G, leave empty if none) : " SWAPFILE_SIZE
         if test "$EFI_OK" = "N"; then
-            echo ""
             print_error "  /!\ The EFI partition is required for system installation."
-            echo ""
             continue
         fi
         if test "$ROOT_OK" = "N"; then
-            echo ""
             print_error "  /!\ The Root partition is required for system installation."
-            echo ""
             continue
         fi
-        echo ""
         print-step "Summary of choices :"
         for partition in "${PARTITIONS[@]}"; do
             if test "${PART_TYPE[${partition}]}" = "EFI"; then
@@ -156,7 +148,6 @@ function install {
         if [ ! -z $SWAPFILE_SIZE ]; then
             print-sub-step "  * Swapfile size : $SWAPFILE_SIZE"
         fi
-        echo ""
         read -e -p "Is the informations correct ? (y/N) : " USER_ANSWER
     done
     
@@ -257,20 +248,26 @@ function install {
     print-step "Installation and configuration of the grub..."
     arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Arch Linux"
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
-
+    
+    set -Eeo pipefail
     USER_ANSWER="N"
+    SETUP_ONCE="N"
     while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
         print-step "Users configuration..."
         print-sub-step "  * Root account configuration..."
-        arch-chroot /mnt chsh --shell /bin/zsh
+        if test "$SETUP_ONCE" = "N"; then
+            arch-chroot /mnt chsh --shell /bin/zsh
+        fi
         arch-chroot /mnt passwd
         if [ ! -z $USER_NAME ]; then
-            sed -i "s|# %wheel ALL=(ALL) ALL|%wheel ALL=(ALL) ALL|g" /mnt/etc/sudoers
-            arch-chroot /mnt useradd --shell=/bin/zsh --groups=wheel --create-home $USER_NAME
+            if test "$SETUP_ONCE" = "N"; then
+                sed -i "s|# %wheel ALL=(ALL) ALL|%wheel ALL=(ALL) ALL|g" /mnt/etc/sudoers
+                arch-chroot /mnt useradd --shell=/bin/zsh --groups=wheel --create-home $USER_NAME
+            fi
             print-sub-step "  * Password configuration for the user $USER_NAME..."
             arch-chroot /mnt passwd $USER_NAME
         fi
-        echo ""
+        SETUP_ONCE="Y"
         read -e -p "Is the users configuration correct ? (y/N) : " USER_ANSWER
     done
     
@@ -280,7 +277,6 @@ function install {
         swapoff /mnt/swapfile
     fi
     umount -R /mnt
-    echo ""
     print-step "Installation complete ! You can reboot your system."
 }
 
