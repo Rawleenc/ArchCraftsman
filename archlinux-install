@@ -15,6 +15,7 @@ function print_error {
 }
 
 function print-step {
+    clear
     echo ""
     echo -e "${GREEN}$1${NOCOLOR}"
 }
@@ -28,7 +29,6 @@ function prompt {
 }
 
 function install {
-    clear
     print-step "Welcome to the archlinux-install script !"
     if [ ! -d "/sys/firmware/efi" ]; then
         BIOS="Y"
@@ -106,14 +106,14 @@ function install {
     done
 
     # Partitioning
-    print-step "Partitioning the target drive..."
-    cfdisk $TARGET_DISK
     declare -a PARTITIONS=($(fdisk -l | grep ^${TARGET_DISK}* | awk '{print $1}'))
     declare -A PART_TYPE
     declare -A PART_MOUNT_POINT
     declare -A PART_FORMAT
     USER_ANSWER="N"
     while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
+        print-step "Partitioning the target drive..."
+        cfdisk $TARGET_DISK
         EFI_OK="N"
         ROOT_OK="N"
         print-step "Detected target drive partitions :"
