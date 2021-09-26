@@ -1,26 +1,27 @@
-# Objectif
+# Purpose
 
-Le but de ce script est d'installer une base Arch Linux exactement comme MOI je l'aime, très rapidement.  
-Vous n'aurez du coup pas beaucoup d'options de personnalisation. Donc si c'est ce que vous recherchez, passez votre chemin.  
-Ce script fonctionne uniquement sur un firmware UEFI.
+The purpose of this script is to install an Arch Linux base very quickly. The customization options are therefore not numerous. However, some flexibility is still allowed.  
+This script supports both UEFI and BIOS.  
 
-Un partitionnement du disque spécifié sera proposé avec l'outil cfdisk.
+A manual partitioning of the target drive will be proposed with the cfdisk tool.
 
-Le script s'attend à avoir deux partitions seulement :
-- Une partition EFI System, elle sera montée sur /boot/efi
-- Une partition Linux Root, elle sera montée sur /
+You can create as many partitions as you want on the target drive except for the swap partition. Main partitions are the EFI partition, the Root partition and the Home partition.  
+You will have the possibility to choose to format or not the EFI and Home partitions, and for all other partitions, you will be able to choose the mount point and if you wish to format or not.
 
-Si la partition EFI doit être formatée elle le sera en vfat, sinon le script s'attend à ce que la partition EFI soit déjà formatée en vfat (C'est le cas pour windows 10 par exemple), la partition root sera formatée en ext4 et un swapfile de la taille spécifiée, appelé swapfile, sera créé et placé à la racine de la partition Root.
+If the EFI partition has to be formatted it will be formatted in vfat, otherwise the script expects the EFI partition to be already formatted in vfat (this is the case for windows 10 for example) and all other partitions will be formatted in ext4. Concerning the swap, a swapfile of the specified size, called swapfile, will be created and placed at the base of the Root partition.
 
-Paquets inclues dans la base :  
-*base base-devel linux linux-firmware man-db man-pages texinfo nano vim git curl zsh zsh-completions grml-zsh-config grub os-prober efibootmgr networkmanager xdg-user-dirs*
+Packages included in the base :  
+`base base-devel linux-firmware man-db man-pages texinfo nano vim git curl zsh zsh-completions grml-zsh-config grub os-prober efibootmgr networkmanager xdg-user-dirs`
 
-Shell par défaut : ZSH avec la config GRML.  
-Éventuellement un utilisateur supplémentaire, ajouté au groupe wheel et sudo configuré pour autoriser les membres du groupe wheel.
+Optional packages available :  
+`intel-ucode amd-ucode linux/linux-lts nvidia/nvidia-lts terminus-font`
 
-# Utilisation
+Default shell: ZSH with GRML config.  
+Optionally an additional user, added to the wheel group and sudo configured to allow members of the wheel group.
 
-### Sur l'iso live de Arch Linux :
-bash <(curl -L https://github.com/rawleenc/archlinux-install/releases/download/1.7.0/archlinux-install)
+# Usage
 
-Répondez aux questions et laissez la magie opérer ! ;)
+## On the Arch Linux live iso :
+bash <(curl -L github.com/rawleenc/archlinux-install/releases/download/1.7.0/archlinux-install)
+
+Answer the questions and let the magic happen ;)
