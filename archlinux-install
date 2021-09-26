@@ -51,9 +51,8 @@ function print-sub-step {
     echo -e "${CYAN}$1${NOCOLOR}"
 }
 
-function prompt {
+function prompt() {
     read -e -p "$(echo -e ${ORANGE}"$1"${NOCOLOR})" $2
-    2=`echo $2 | sed 's/ *$//g'`
 }
 
 function pause {
