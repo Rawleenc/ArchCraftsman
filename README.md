@@ -22,6 +22,32 @@ Optionally an additional user, added to the wheel group and sudo configured to a
 # Usage
 
 ## On the Arch Linux live iso :
+```bash
+bash <(curl -L github.com/rawleenc/archlinux-install/releases/download/2.0.0/archlinux-install)
+```
+
+If you wish to use the previous version, you can download the latest patch with this command :
+```bash
 bash <(curl -L github.com/rawleenc/archlinux-install/releases/download/1.7.0/archlinux-install)
+```
+*Keep in mind that the previous version maybe be quicker but it is in french only and provide less flexibiliy than the latest version.*
+
+If you wish to test the latest development version, follow these steps :
+```bash
+pacman -Sy unzip
+curl -L github.com/rawleenc/archlinux-install/archive/refs/heads/master.zip > master.zip
+unzip master.zip
+./archlinux-install-master/archlinux-install
+```
+*However, this is absolutely not recommended for any other purpose than tests.*
 
 Answer the questions and let the magic happen ;)
+
+# Disclaimer
+
+archlinux-install  Copyright (C) 2021  Rawleenc  
+
+This program comes with ABSOLUTELY NO WARRANTY; See the GNU General Public License for more details.  
+
+This is free software, and you are welcome to redistribute it
+under certain conditions; See the GNU General Public License for more details.  
