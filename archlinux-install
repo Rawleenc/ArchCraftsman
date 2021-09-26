@@ -34,7 +34,7 @@ function install {
     else
         BIOS="N"
     fi
-    print_error "  /!\ BIOS detected ! The script will act accordingly. Don't forget to create an MBR partition table."
+    print_error "  /!\ BIOS detected ! The script will act accordingly. Don't forget to select a DOS label type before partitioning."
 
     USER_ANSWER="N"
     while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
