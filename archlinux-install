@@ -12,6 +12,7 @@ function print_error {
     echo ""
     echo -e "${RED}$1${NOCOLOR}"
     echo ""
+    pause
 }
 
 function print-step {
@@ -30,6 +31,10 @@ function prompt {
     read -e -p "$(echo -e ${ORANGE}"$1"${NOCOLOR})" $2
 }
 
+function pause {
+    read -s -n 1 -p "$(echo -e ${ORANGE}"Press any key to continue..."${NOCOLOR})"
+}
+
 function install {
     USER_ANSWER="N"
     while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
@@ -40,6 +45,7 @@ function install {
         else
             BIOS="N"
         fi
+        
         print-step false "Environment configuration : "
         prompt "Choose your installation's language (1: FR, other: EN) : " LANGUAGE
         if [ -z $LANGUAGE ]; then
