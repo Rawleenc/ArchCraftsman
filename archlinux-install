@@ -15,7 +15,7 @@ function print_error {
 }
 
 function print-step {
-    if test "$1" = true; then
+    if [[ $1 ]]; then
         clear
     fi
     echo ""
