@@ -15,7 +15,11 @@ function print_error {
 }
 
 function print-step {
-    if test "$2" != false; then
+    if [ -z $2 ]; then
+        CLEAR=true
+    fi
+    CLEAR=$2
+    if test "$CLEAR" = true; then
         clear
     fi
     echo ""
