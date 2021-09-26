@@ -29,6 +29,13 @@ function prompt {
 
 function install {
     print-step "Welcome to archlinux-install script !"
+    if [ ! -d "/sys/firmware/efi" ]; then
+        BIOS="Y"
+    else
+        BIOS="N"
+    fi
+    print_error "  /!\ BIOS detected ! The script will act accordingly. Don't forget to create an MBR partition table."
+
     USER_ANSWER="N"
     while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
         print-step "Environment configuration : "
@@ -50,7 +57,7 @@ function install {
         print-sub-step "  * Your installation's keymap : $KEYMAP"
         prompt "Is the information correct ? (y/N) : " USER_ANSWER
     done
-    
+
     USER_ANSWER="N"
     while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
         print-step "System configuration : "
@@ -61,6 +68,7 @@ function install {
         prompt "Install AMD microcode ? (y/N) : " AMD_UCODE
         prompt "Install LTS Linux kernel ? (y/N) : " LTS_KERNEL
         prompt "Install proprietary Nvidia driver ? (y/N) : " NVIDIA_DRIVER
+        prompt "Install terminus console font ? (y/N) : " TERMINUS_FONT
         prompt "Your timezone (/usr/share/zoneinfo/Europe/Paris) : " TIMEZONE
         prompt "Would you like to add a user? (username, leave blank if none) : " USER_NAME
         if [ -z $INTEL_UCODE ]; then
@@ -75,6 +83,9 @@ function install {
         if [ -z $NVIDIA_DRIVER ]; then
             NVIDIA_DRIVER="N"
         fi
+        if [ -z $TERMINUS_FONT ]; then
+            TERMINUS_FONT="N"
+        fi
         if [ -z $TIMEZONE ]; then
             TIMEZONE="/usr/share/zoneinfo/Europe/Paris"
         fi
@@ -85,19 +96,21 @@ function install {
         print-sub-step "  * Installing AMD microcode : $AMD_UCODE"
         print-sub-step "  * Install LTS Linux kernel : $LTS_KERNEL"
         print-sub-step "  * Install proprietary Nvidia driver : $NVIDIA_DRIVER"
+        print-sub-step "  * Install terminus console font : $TERMINUS_FONT"
         print-sub-step "  * Your timezone : $TIMEZONE"
         if [ ! -z $USER_NAME ]; then
             print-sub-step "  * Additional user name : $USER_NAME"
         fi
         prompt "Is the informations correct ? (y/N) : " USER_ANSWER
     done
-    
+
     # Partitioning
     print-step "Partitioning the target drive..."
     cfdisk $TARGET_DISK
-    declare -a PARTITIONS=( $(fdisk -l | grep ^${TARGET_DISK}* | awk '{print $1}') )
+    declare -a PARTITIONS=($(fdisk -l | grep ^${TARGET_DISK}* | awk '{print $1}'))
     declare -A PART_TYPE
     declare -A PART_MOUNT_POINT
+    declare -A PART_FORMAT
     USER_ANSWER="N"
     while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
         EFI_OK="N"
@@ -106,35 +119,43 @@ function install {
         INDEX=0
         for partition in "${PARTITIONS[@]}"; do
             print-sub-step "  * Partition : $(fdisk -l | grep $partition)"
-            prompt "What is the role of this partition ? (1: EFI, 2: Root, 3: Home, 4: Other (default choice)) : " TYPE
-            if test "$TYPE" = "1"; then
+            if test "$BIOS" = "Y"; then
+                prompt "What is the role of this partition ? (0: EFI, 1: Root, 2: Home, other: Other) : " TYPE
+            else
+                prompt "What is the role of this partition ? (1: Root, 2: Home, other: Other) : " TYPE
+            fi
+            if test "$BIOS" = "N" && test "$TYPE" = "0"; then
                 PART_TYPE["$partition"]="EFI"
                 PART_MOUNT_POINT["$partition"]="/boot/efi"
-                prompt "Format the EFI partition ? (y/N) : " FORMAT_EFI
-                if [ -z $FORMAT_EFI ]; then
-                    FORMAT_EFI="N"
+                prompt "Format the EFI partition ? (y/N) : " PART_FORMAT["$partition"]
+                if [ -z ${PART_FORMAT[${partition}]} ]; then
+                    PART_FORMAT["$partition"]="N"
                 fi
                 EFI_OK="y"
-                elif test "$TYPE" = "2"; then
+            elif test "$TYPE" = "1"; then
                 PART_TYPE["$partition"]="ROOT"
                 PART_MOUNT_POINT["$partition"]="/"
                 ROOT_OK="y"
-                elif test "$TYPE" = "3"; then
+            elif test "$TYPE" = "2"; then
                 PART_TYPE["$partition"]="HOME"
                 PART_MOUNT_POINT["$partition"]="/home"
-                prompt "Format the Home partition ? (y/N) : " FORMAT_HOME
-                if [ -z $FORMAT_HOME ]; then
-                    FORMAT_HOME="N"
+                prompt "Format the Home partition ? (y/N) : " PART_FORMAT["$partition"]
+                if [ -z ${PART_FORMAT[${partition}]} ]; then
+                    PART_FORMAT["$partition"]="N"
                 fi
             else
                 PART_TYPE["$partition"]="OTHER"
                 prompt "What is the mounting point of this partition ? : " MOUNT_POINT
                 PART_MOUNT_POINT["$partition"]="$MOUNT_POINT"
+                prompt "Format the $partition partition ? (Y/n) : " PART_FORMAT["$partition"]
+                if [ -z ${PART_FORMAT[${partition}]} ]; then
+                    PART_FORMAT["$partition"]="Y"
+                fi
             fi
             let INDEX=${INDEX}+1
         done
         prompt "Swapfile size ? (Example: 8G, leave empty if none) : " SWAPFILE_SIZE
-        if test "$EFI_OK" = "N"; then
+        if test "$BIOS" = "N" && test "$EFI_OK" = "N"; then
             print_error "  /!\ The EFI partition is required for system installation."
             continue
         fi
@@ -146,14 +167,15 @@ function install {
         for partition in "${PARTITIONS[@]}"; do
             if test "${PART_TYPE[${partition}]}" = "EFI"; then
                 print-sub-step "  * EFI partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
-                print-sub-step "  * Format the EFI partition : $FORMAT_EFI"
-                elif test "${PART_TYPE[${partition}]}" = "ROOT"; then
+                print-sub-step "  * Format the EFI partition : ${PART_FORMAT[${partition}]}"
+            elif test "${PART_TYPE[${partition}]}" = "ROOT"; then
                 print-sub-step "  * ROOT partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
-                elif test "${PART_TYPE[${partition}]}" = "HOME"; then
+            elif test "${PART_TYPE[${partition}]}" = "HOME"; then
                 print-sub-step "  * Home partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
-                print-sub-step "  * Format the Home partition : $FORMAT_HOME"
-                elif test "${PART_TYPE[${partition}]}" = "OTHER"; then
+                print-sub-step "  * Format the Home partition : ${PART_FORMAT[${partition}]}"
+            elif test "${PART_TYPE[${partition}]}" = "OTHER"; then
                 print-sub-step "  * Other partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
+                print-sub-step "  * Format the ${partition} partition : ${PART_FORMAT[${partition}]}"
             fi
         done
         if [ ! -z $SWAPFILE_SIZE ]; then
@@ -161,7 +183,7 @@ function install {
         fi
         prompt "Is the informations correct ? (y/N) : " USER_ANSWER
     done
-    
+
     print-step "Formatting and mounting partitions..."
     for partition in "${PARTITIONS[@]}"; do
         if test "${PART_TYPE[${partition}]}" = "ROOT"; then
@@ -170,18 +192,20 @@ function install {
             mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
         fi
     done
-    for partition in "${PARTITIONS[@]}"; do
-        if test "${PART_TYPE[${partition}]}" = "EFI"; then
-            if test "$FORMAT_EFI" = "y" || test "$FORMAT_EFI" = "Y"; then
-                mkfs.vfat "${partition}"
+    if test "$BIOS" = "N"; then
+        for partition in "${PARTITIONS[@]}"; do
+            if test "${PART_TYPE[${partition}]}" = "EFI"; then
+                if test "${PART_FORMAT[${partition}]}" = "y" || test "${PART_FORMAT[${partition}]}" = "Y"; then
+                    mkfs.vfat "${partition}"
+                fi
+                mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
+                mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
             fi
-            mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
-            mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
-        fi
-    done
+        done
+    fi
     for partition in "${PARTITIONS[@]}"; do
         if test "${PART_TYPE[${partition}]}" = "HOME"; then
-            if test "$FORMAT_HOME" = "y" || test "$FORMAT_HOME" = "Y"; then
+            if test "${PART_FORMAT[${partition}]}" = "y" || test "${PART_FORMAT[${partition}]}" = "Y"; then
                 mkfs.ext4 "${partition}"
             fi
             mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
@@ -190,12 +214,14 @@ function install {
     done
     for partition in "${PARTITIONS[@]}"; do
         if test "${PART_TYPE[${partition}]}" = "OTHER"; then
-            mkfs.ext4 "${partition}"
+            if test "${PART_FORMAT[${partition}]}" = "y" || test "${PART_FORMAT[${partition}]}" = "Y"; then
+                mkfs.ext4 "${partition}"
+            fi
             mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
             mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
         fi
     done
-    
+
     # Creation and activation of the swapfile
     if [ ! -z $SWAPFILE_SIZE ]; then
         print-step "Creation and activation of the swapfile..."
@@ -204,62 +230,73 @@ function install {
         mkswap /mnt/swapfile
         swapon /mnt/swapfile
     fi
-    
+
     # Updating mirrors
     print-step "Updating mirrors..."
     reflector @/etc/xdg/reflector/reflector.conf
-    
+
     # Installation of the base
     print-step "Installation of the base..."
-    pkgs=("base" "base-devel" "linux-firmware" "man-db" "man-pages" "texinfo" "nano" "vim" "git" "curl" "zsh" "zsh-completions" "grml-zsh-config" "grub" "os-prober" "efibootmgr" "networkmanager" "xdg-user-dirs" "terminus-font")
+    pkgs=("base" "base-devel" "linux-firmware" "man-db" "man-pages" "texinfo" "nano" "vim" "git" "curl" "zsh" "zsh-completions" "grml-zsh-config" "grub" "os-prober" "efibootmgr" "networkmanager" "xdg-user-dirs")
     if test "$INTEL_UCODE" = "y" || test "$INTEL_UCODE" = "Y"; then
-        pkgs+=( "intel-ucode" )
+        pkgs+=("intel-ucode")
     fi
     if test "$AMD_UCODE" = "y" || test "$AMD_UCODE" = "Y"; then
-        pkgs+=( "amd-ucode" )
+        pkgs+=("amd-ucode")
     fi
     if test "$LTS_KERNEL" = "y" || test "$LTS_KERNEL" = "Y"; then
-        pkgs+=( "linux-lts" )
+        pkgs+=("linux-lts")
     else
-        pkgs+=( "linux" )
+        pkgs+=("linux")
     fi
     if test "$NVIDIA_DRIVER" = "y" || test "$NVIDIA_DRIVER" = "Y"; then
         if test "$LTS_KERNEL" = "y" || test "$LTS_KERNEL" = "Y"; then
-            pkgs+=( "nvidia-lts" )
+            pkgs+=("nvidia-lts")
         else
-            pkgs+=( "nvidia" )
+            pkgs+=("nvidia")
         fi
     fi
+    if test "$TERMINUS_FONT" = "y" || test "$TERMINUS_FONT" = "Y"; then
+        pkgs+=("terminus-font")
+    fi
     pacstrap /mnt ${pkgs[@]}
-    
+
     # System configuration
     print-step "System configuration..."
-    genfstab -U /mnt >> /mnt/etc/fstab
+    genfstab -U /mnt >>/mnt/etc/fstab
     sed -i "s|#en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|g" /mnt/etc/locale.gen
     sed -i "s|#en_US ISO-8859-1|en_US ISO-8859-1|g" /mnt/etc/locale.gen
     if test "$LANGUAGE" = "fr"; then
         sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /mnt/etc/locale.gen
         sed -i "s|#fr_FR ISO-8859-1|fr_FR ISO-8859-1|g" /mnt/etc/locale.gen
-        echo "LANG=fr_FR.UTF-8" > /mnt/etc/locale.conf
+        echo "LANG=fr_FR.UTF-8" >/mnt/etc/locale.conf
     else
-        echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
+        echo "LANG=en_US.UTF-8" >/mnt/etc/locale.conf
     fi
-    echo "KEYMAP=$KEYMAP" > /mnt/etc/vconsole.conf
-    echo "FONT=ter-v16b" >> /mnt/etc/vconsole.conf
-    echo "$HOSTNAME" > /mnt/etc/hostname
-    echo "127.0.0.1 localhost" >> /mnt/etc/hosts
-    echo "::1 localhost" >> /mnt/etc/hosts
-    echo "127.0.1.1 $HOSTNAME.localdomain $HOSTNAME" >> /mnt/etc/hosts
-    
+    echo "KEYMAP=$KEYMAP" >/mnt/etc/vconsole.conf
+    if test "$TERMINUS_FONT" = "y" || test "$TERMINUS_FONT" = "Y"; then
+        echo "FONT=ter-v16b" >>/mnt/etc/vconsole.conf
+    else
+        echo "FONT=eurlatgr" >>/mnt/etc/vconsole.conf
+    fi
+    echo "$HOSTNAME" >/mnt/etc/hostname
+    echo "127.0.0.1 localhost" >>/mnt/etc/hosts
+    echo "::1 localhost" >>/mnt/etc/hosts
+    echo "127.0.1.1 $HOSTNAME.localdomain $HOSTNAME" >>/mnt/etc/hosts
+
     print-step "Locales configuration..."
     arch-chroot /mnt ln -sf $TIMEZONE /etc/localtime
     arch-chroot /mnt locale-gen
     print-step "Network configuration..."
     arch-chroot /mnt systemctl enable NetworkManager
     print-step "Installation and configuration of the grub..."
-    arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Arch Linux"
+    if test "$BIOS" = "Y"; then
+        arch-chroot /mnt grub-install --target=i386-pc $TARGET_DISK
+    else
+        arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Arch Linux"
+    fi
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
-    
+
     set +Eeo pipefail
     USER_ANSWER="N"
     SETUP_ONCE="N"
@@ -281,7 +318,7 @@ function install {
         SETUP_ONCE="Y"
         prompt "Is the users configuration correct ? (y/N) : " USER_ANSWER
     done
-    
+
     # Démontage des partitions
     print-step "Unmounting partitions..."
     if [ ! -z $SWAPFILE_SIZE ]; then
