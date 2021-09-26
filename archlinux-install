@@ -137,7 +137,6 @@ function install {
     done
 
     # Partitioning
-    declare -a PARTITIONS
     declare -A PART_TYPE
     declare -A PART_MOUNT_POINT
     declare -A PART_FORMAT
