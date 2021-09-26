@@ -47,7 +47,7 @@ Answer the questions and let the magic happen ;)
 
 archlinux-install  Copyright (C) 2021  Rawleenc  
 
-This program comes with ABSOLUTELY NO WARRANTY; See the GNU General Public License for more details.  
+This program comes with ABSOLUTELY NO WARRANTY; See the [GNU General Public License](LICENSE) for more details.  
 
 This is free software, and you are welcome to redistribute it
-under certain conditions; See the GNU General Public License for more details.  
+under certain conditions; See the [GNU General Public License](LICENSE) for more details.  
