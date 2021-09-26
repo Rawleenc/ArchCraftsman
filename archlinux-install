@@ -15,7 +15,9 @@ function print_error {
 }
 
 function print-step {
-    clear
+    if test "$2" != false; then
+        clear
+    fi
     echo ""
     echo -e "${GREEN}$1${NOCOLOR}"
 }
@@ -29,7 +31,7 @@ function prompt {
 }
 
 function install {
-    print-step "Welcome to the archlinux-install script !"
+    print-step "Welcome to the archlinux-install script !" false
     if [ ! -d "/sys/firmware/efi" ]; then
         BIOS="Y"
         print_error "  /!\ BIOS detected ! The script will act accordingly. Don't forget to select a DOS label type before partitioning."
