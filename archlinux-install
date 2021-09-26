@@ -9,9 +9,7 @@ ORANGE="\033[0;33m"
 NOCOLOR="\033[0m"
 
 function print_error {
-    echo ""
-    echo -e "${RED}$1${NOCOLOR}"
-    echo ""
+    echo -e "\n${RED}$1${NOCOLOR}\n"
     pause
 }
 
@@ -19,8 +17,7 @@ function print-step {
     if test "$1" = true; then
         clear
     fi
-    echo ""
-    echo -e "${GREEN}$2${NOCOLOR}"
+    echo -e "\n${GREEN}$2${NOCOLOR}"
 }
 
 function print-sub-step {
@@ -45,7 +42,7 @@ function install {
         else
             BIOS="N"
         fi
-        
+
         print-step false "Environment configuration : "
         prompt "Choose your installation's language (1: FR, other: EN) : " LANGUAGE
         if [ -z $LANGUAGE ]; then
