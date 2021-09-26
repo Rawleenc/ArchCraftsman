@@ -120,9 +120,9 @@ function install {
         for partition in "${PARTITIONS[@]}"; do
             print-sub-step "  * Partition : $(fdisk -l | grep $partition)"
             if test "$BIOS" = "Y"; then
-                prompt "What is the role of this partition ? (0: EFI, 1: Root, 2: Home, other: Other) : " TYPE
-            else
                 prompt "What is the role of this partition ? (1: Root, 2: Home, other: Other) : " TYPE
+            else
+                prompt "What is the role of this partition ? (0: EFI, 1: Root, 2: Home, other: Other) : " TYPE
             fi
             if test "$BIOS" = "N" && test "$TYPE" = "0"; then
                 PART_TYPE["$partition"]="EFI"
