@@ -144,7 +144,7 @@ function install {
     while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
         print-step true "Partitioning the target drive..."
         cfdisk $TARGET_DISK
-        declare -a PARTITIONS=($(fdisk -l | grep ^${TARGET_DISK}* | awk '{print $1}'))
+        declare -a PARTITIONS=($(fdisk -l | grep "^${TARGET_DISK}*" | awk '{print $1}'))
         EFI_OK="N"
         ROOT_OK="N"
         print-step true "Detected target drive partitions :"
