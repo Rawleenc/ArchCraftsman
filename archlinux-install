@@ -53,6 +53,7 @@ function print-sub-step {
 
 function prompt {
     read -e -p "$(echo -e ${ORANGE}"$1"${NOCOLOR})" $2
+    2=`echo $2 | sed 's/ *$//g'`
 }
 
 function pause {
@@ -94,7 +95,7 @@ function install {
     while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
         print-step true "System configuration : "
         fdisk -l
-        prompt "On which disk should Archlinux be installed ? : " TARGET_DISK
+        prompt "On which disk should Archlinux be installed ? (type the entire name, for example '/dev/sda') : " TARGET_DISK
         prompt "What will be your hostname : " HOSTNAME
         prompt "Install Intel microcode ? (y/N) : " INTEL_UCODE
         prompt "Install AMD microcode ? (y/N) : " AMD_UCODE
@@ -137,7 +138,7 @@ function install {
     done
 
     # Partitioning
-    declare -a PARTITIONS=($(fdisk -l | grep ^${TARGET_DISK}* | awk '{print $1}'))
+    declare -a PARTITIONS
     declare -A PART_TYPE
     declare -A PART_MOUNT_POINT
     declare -A PART_FORMAT
@@ -145,6 +146,7 @@ function install {
     while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
         print-step true "Partitioning the target drive..."
         cfdisk $TARGET_DISK
+        PARTITIONS=($(fdisk -l | grep ^${TARGET_DISK}* | awk '{print $1}'))
         EFI_OK="N"
         ROOT_OK="N"
         print-step true "Detected target drive partitions :"
