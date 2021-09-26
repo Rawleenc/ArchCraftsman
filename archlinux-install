@@ -15,7 +15,7 @@ function print_error {
 }
 
 function print-step {
-    if [[ $1 ]]; then
+    if test "$1" = true; then
         clear
     fi
     echo ""
@@ -33,15 +33,14 @@ function prompt {
 function install {
     USER_ANSWER="N"
     while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
-        print-step false "Welcome to the archlinux-install script !"
+        print-step true "Welcome to the archlinux-install script !"
         if [ ! -d "/sys/firmware/efi" ]; then
             BIOS="Y"
             print_error "  /!\ BIOS detected ! The script will act accordingly. Don't forget to select a DOS label type before partitioning."
         else
             BIOS="N"
         fi
-        
-        print-step true "Environment configuration : "
+        print-step false "Environment configuration : "
         prompt "Choose your installation's language (1: FR, other: EN) : " LANGUAGE
         if [ -z $LANGUAGE ]; then
             LANGUAGE="en"
@@ -55,7 +54,7 @@ function install {
         if [ -z $KEYMAP ]; then
             KEYMAP="fr-latin9"
         fi
-        print-step true "Summary of choices :"
+        print-step false "Summary of choices :"
         print-sub-step "  * Your installation's language : $LANGUAGE"
         print-sub-step "  * Your installation's keymap : $KEYMAP"
         prompt "Is the information correct ? (y/N) : " USER_ANSWER
