@@ -284,6 +284,7 @@ function install {
     else
         echo "FONT=eurlatgr" >>/mnt/etc/vconsole.conf
     fi
+    sed -i "s|#Color|Color|g" /mnt/etc/pacman.conf
     echo "$HOSTNAME" >/mnt/etc/hostname
     echo "127.0.0.1 localhost" >>/mnt/etc/hosts
     echo "::1 localhost" >>/mnt/etc/hosts
