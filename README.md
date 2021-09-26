@@ -23,7 +23,7 @@ Optionally an additional user, added to the wheel group and sudo configured to a
 
 ## On the Arch Linux live iso :
 ```bash
-bash <(curl -L github.com/rawleenc/archlinux-install/releases/download/2.0.1/archlinux-install)
+bash <(curl -L github.com/rawleenc/archlinux-install/releases/download/2.0.2/archlinux-install)
 ```
 
 If you wish to use the previous version, you can download the latest patch with this command :
