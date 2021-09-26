@@ -29,7 +29,7 @@ function prompt {
 
 function install {
     clear
-    print-step "Welcome to archlinux-install script !"
+    print-step "Welcome to the archlinux-install script !"
     if [ ! -d "/sys/firmware/efi" ]; then
         BIOS="Y"
         print_error "  /!\ BIOS detected ! The script will act accordingly. Don't forget to select a DOS label type before partitioning."
