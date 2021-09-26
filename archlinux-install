@@ -15,15 +15,11 @@ function print_error {
 }
 
 function print-step {
-    if [ -z $2 ]; then
-        CLEAR=true
-    fi
-    CLEAR=$2
-    if test "$CLEAR" = true; then
+    if test "$1" = true; then
         clear
     fi
     echo ""
-    echo -e "${GREEN}$1${NOCOLOR}"
+    echo -e "${GREEN}$2${NOCOLOR}"
 }
 
 function print-sub-step {
@@ -35,7 +31,7 @@ function prompt {
 }
 
 function install {
-    print-step "Welcome to the archlinux-install script !" false
+    print-step false "Welcome to the archlinux-install script !"
     if [ ! -d "/sys/firmware/efi" ]; then
         BIOS="Y"
         print_error "  /!\ BIOS detected ! The script will act accordingly. Don't forget to select a DOS label type before partitioning."
@@ -45,7 +41,7 @@ function install {
 
     USER_ANSWER="N"
     while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
-        print-step "Environment configuration : "
+        print-step true "Environment configuration : "
         prompt "Choose your installation's language (1: FR, other: EN) : " LANGUAGE
         if [ -z $LANGUAGE ]; then
             LANGUAGE="en"
@@ -59,7 +55,7 @@ function install {
         if [ -z $KEYMAP ]; then
             KEYMAP="fr-latin9"
         fi
-        print-step "Summary of choices :"
+        print-step true "Summary of choices :"
         print-sub-step "  * Your installation's language : $LANGUAGE"
         print-sub-step "  * Your installation's keymap : $KEYMAP"
         prompt "Is the information correct ? (y/N) : " USER_ANSWER
@@ -67,7 +63,7 @@ function install {
 
     USER_ANSWER="N"
     while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
-        print-step "System configuration : "
+        print-step true "System configuration : "
         fdisk -l
         prompt "On which disk should Archlinux be installed ? : " TARGET_DISK
         prompt "What will be your hostname : " HOSTNAME
@@ -96,7 +92,7 @@ function install {
         if [ -z $TIMEZONE ]; then
             TIMEZONE="/usr/share/zoneinfo/Europe/Paris"
         fi
-        print-step "Summary of choices :"
+        print-step true "Summary of choices :"
         print-sub-step "  * Your target drive : $TARGET_DISK"
         print-sub-step "  * Your hostname : $HOSTNAME"
         print-sub-step "  * Installing Intel microcode : $INTEL_UCODE"
@@ -118,11 +114,11 @@ function install {
     declare -A PART_FORMAT
     USER_ANSWER="N"
     while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
-        print-step "Partitioning the target drive..."
+        print-step true "Partitioning the target drive..."
         cfdisk $TARGET_DISK
         EFI_OK="N"
         ROOT_OK="N"
-        print-step "Detected target drive partitions :"
+        print-step true "Detected target drive partitions :"
         INDEX=0
         for partition in "${PARTITIONS[@]}"; do
             print-sub-step "  * Partition : $(fdisk -l | grep $partition)"
@@ -170,7 +166,7 @@ function install {
             print_error "  /!\ The Root partition is required for system installation."
             continue
         fi
-        print-step "Summary of choices :"
+        print-step true "Summary of choices :"
         for partition in "${PARTITIONS[@]}"; do
             if test "${PART_TYPE[${partition}]}" = "EFI"; then
                 print-sub-step "  * EFI partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
@@ -191,7 +187,7 @@ function install {
         prompt "Is the informations correct ? (y/N) : " USER_ANSWER
     done
 
-    print-step "Formatting and mounting partitions..."
+    print-step true "Formatting and mounting partitions..."
     for partition in "${PARTITIONS[@]}"; do
         if test "${PART_TYPE[${partition}]}" = "ROOT"; then
             mkfs.ext4 "${partition}"
@@ -231,7 +227,7 @@ function install {
 
     # Creation and activation of the swapfile
     if [ ! -z $SWAPFILE_SIZE ]; then
-        print-step "Creation and activation of the swapfile..."
+        print-step true "Creation and activation of the swapfile..."
         fallocate -l $SWAPFILE_SIZE /mnt/swapfile
         chmod 600 /mnt/swapfile
         mkswap /mnt/swapfile
@@ -239,11 +235,11 @@ function install {
     fi
 
     # Updating mirrors
-    print-step "Updating mirrors..."
+    print-step true "Updating mirrors..."
     reflector @/etc/xdg/reflector/reflector.conf
 
     # Installation of the base
-    print-step "Installation of the base..."
+    print-step true "Installation of the base..."
     pkgs=("base" "base-devel" "linux-firmware" "man-db" "man-pages" "texinfo" "nano" "vim" "git" "curl" "zsh" "zsh-completions" "grml-zsh-config" "grub" "os-prober" "efibootmgr" "networkmanager" "xdg-user-dirs")
     if test "$INTEL_UCODE" = "y" || test "$INTEL_UCODE" = "Y"; then
         pkgs+=("intel-ucode")
@@ -269,7 +265,7 @@ function install {
     pacstrap /mnt ${pkgs[@]}
 
     # System configuration
-    print-step "System configuration..."
+    print-step true "System configuration..."
     genfstab -U /mnt >>/mnt/etc/fstab
     sed -i "s|#en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|g" /mnt/etc/locale.gen
     sed -i "s|#en_US ISO-8859-1|en_US ISO-8859-1|g" /mnt/etc/locale.gen
@@ -291,12 +287,12 @@ function install {
     echo "::1 localhost" >>/mnt/etc/hosts
     echo "127.0.1.1 $HOSTNAME.localdomain $HOSTNAME" >>/mnt/etc/hosts
 
-    print-step "Locales configuration..."
+    print-step true "Locales configuration..."
     arch-chroot /mnt ln -sf $TIMEZONE /etc/localtime
     arch-chroot /mnt locale-gen
-    print-step "Network configuration..."
+    print-step true "Network configuration..."
     arch-chroot /mnt systemctl enable NetworkManager
-    print-step "Installation and configuration of the grub..."
+    print-step true "Installation and configuration of the grub..."
     if test "$BIOS" = "Y"; then
         arch-chroot /mnt grub-install --target=i386-pc $TARGET_DISK
     else
@@ -308,7 +304,7 @@ function install {
     USER_ANSWER="N"
     SETUP_ONCE="N"
     while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
-        print-step "Users configuration..."
+        print-step true "Users configuration..."
         print-sub-step "  * Root account configuration..."
         if test "$SETUP_ONCE" = "N"; then
             arch-chroot /mnt chsh --shell /bin/zsh
@@ -327,12 +323,12 @@ function install {
     done
 
     # Démontage des partitions
-    print-step "Unmounting partitions..."
+    print-step true "Unmounting partitions..."
     if [ ! -z $SWAPFILE_SIZE ]; then
         swapoff /mnt/swapfile
     fi
     umount -R /mnt
-    print-step "Installation complete ! You can reboot your system."
+    print-step true "Installation complete ! You can reboot your system."
 }
 
 install
