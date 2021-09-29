@@ -35,7 +35,7 @@ CYAN="\033[0;36m"
 ORANGE="\033[0;33m"
 NOCOLOR="\033[0m"
 
-function print_error {
+function print-error {
     echo -e "\n${RED}$1${NOCOLOR}\n"
     pause
 }
@@ -52,7 +52,8 @@ function print-sub-step {
 }
 
 function prompt {
-    read -e -p "$(echo -e ${ORANGE}"$1"${NOCOLOR})" $2
+    declare -n variable=$2
+    read -e -p "$(echo -e ${ORANGE}"$1"${NOCOLOR})" variable
 }
 
 function pause {
@@ -65,7 +66,7 @@ function install {
         print-step true "Welcome to the archlinux-install script !"
         if [ ! -d "/sys/firmware/efi" ]; then
             BIOS="Y"
-            print_error "  /!\ BIOS detected ! The script will act accordingly. Don't forget to select a DOS label type before partitioning."
+            print-error "  /!\ BIOS detected ! The script will act accordingly. Don't forget to select a DOS label type before partitioning."
         else
             BIOS="N"
         fi
@@ -101,6 +102,9 @@ function install {
         prompt "Install LTS Linux kernel ? (y/N) : " LTS_KERNEL
         prompt "Install proprietary Nvidia driver ? (y/N) : " NVIDIA_DRIVER
         prompt "Install terminus console font ? (y/N) : " TERMINUS_FONT
+        prompt "Install a desktop environment ? (1: Gnome, 2: KDE Plasma, 3: XFCE, other: None) : " DESKTOP
+        prompt "Install Cups ? (y/N) : " CUPS
+        prompt "Install ZSH with GRML configuration ? (y/N) : " GRML_ZSH
         prompt "Your timezone (/usr/share/zoneinfo/Europe/Paris) : " TIMEZONE
         prompt "Would you like to add a user? (username, leave blank if none) : " USER_NAME
         if [ -z $INTEL_UCODE ]; then
@@ -118,6 +122,22 @@ function install {
         if [ -z $TERMINUS_FONT ]; then
             TERMINUS_FONT="N"
         fi
+        if [ -z $DESKTOP ]; then
+            DESKTOP="none"
+        fi
+        if test "$DESKTOP" = "1"; then
+            DESKTOP="gnome"
+        elif test "$DESKTOP" = "2"; then
+            DESKTOP="plasma"
+        elif test "$DESKTOP" = "3"; then
+            DESKTOP="xfce"
+        fi
+        if [ -z $CUPS ]; then
+            CUPS="N"
+        fi
+        if [ -z $GRML_ZSH ]; then
+            GRML_ZSH="N"
+        fi
         if [ -z $TIMEZONE ]; then
             TIMEZONE="/usr/share/zoneinfo/Europe/Paris"
         fi
@@ -129,6 +149,9 @@ function install {
         print-sub-step "  * Install LTS Linux kernel : $LTS_KERNEL"
         print-sub-step "  * Install proprietary Nvidia driver : $NVIDIA_DRIVER"
         print-sub-step "  * Install terminus console font : $TERMINUS_FONT"
+        print-sub-step "  * Desktop environment : $DESKTOP"
+        print-sub-step "  * Install Cups : $CUPS"
+        print-sub-step "  * Install ZSH with GRML configuration : $GRML_ZSH"
         print-sub-step "  * Your timezone : $TIMEZONE"
         if [ ! -z $USER_NAME ]; then
             print-sub-step "  * Additional user name : $USER_NAME"
@@ -188,11 +211,11 @@ function install {
         done
         prompt "Swapfile size ? (Example: 8G, leave empty if none) : " SWAPFILE_SIZE
         if test "$BIOS" = "N" && test "$EFI_OK" = "N"; then
-            print_error "  /!\ The EFI partition is required for system installation."
+            print-error "  /!\ The EFI partition is required for system installation."
             continue
         fi
         if test "$ROOT_OK" = "N"; then
-            print_error "  /!\ The Root partition is required for system installation."
+            print-error "  /!\ The Root partition is required for system installation."
             continue
         fi
         print-step true "Summary of choices :"
@@ -269,29 +292,43 @@ function install {
 
     # Installation of the base
     print-step true "Installation of the base..."
-    pkgs=("base" "base-devel" "linux-firmware" "man-db" "man-pages" "texinfo" "nano" "vim" "git" "curl" "zsh" "zsh-completions" "grml-zsh-config" "grub" "os-prober" "efibootmgr" "networkmanager" "xdg-user-dirs")
+    PKGS=("base" "base-devel" "linux-firmware" "man-db" "man-pages" "texinfo" "nano" "vim" "git" "curl" "grub" "os-prober" "efibootmgr" "networkmanager" "xdg-user-dirs")
+    EXTRA_PKGS=()
     if test "$INTEL_UCODE" = "y" || test "$INTEL_UCODE" = "Y"; then
-        pkgs+=("intel-ucode")
+        PKGS+=("intel-ucode")
     fi
     if test "$AMD_UCODE" = "y" || test "$AMD_UCODE" = "Y"; then
-        pkgs+=("amd-ucode")
+        PKGS+=("amd-ucode")
     fi
     if test "$LTS_KERNEL" = "y" || test "$LTS_KERNEL" = "Y"; then
-        pkgs+=("linux-lts")
+        PKGS+=("linux-lts")
     else
-        pkgs+=("linux")
+        PKGS+=("linux")
     fi
     if test "$NVIDIA_DRIVER" = "y" || test "$NVIDIA_DRIVER" = "Y"; then
         if test "$LTS_KERNEL" = "y" || test "$LTS_KERNEL" = "Y"; then
-            pkgs+=("nvidia-lts")
+            PKGS+=("nvidia-lts")
         else
-            pkgs+=("nvidia")
+            PKGS+=("nvidia")
         fi
     fi
     if test "$TERMINUS_FONT" = "y" || test "$TERMINUS_FONT" = "Y"; then
-        pkgs+=("terminus-font")
+        PKGS+=("terminus-font")
     fi
-    pacstrap /mnt ${pkgs[@]}
+    if test "$DESKTOP" = "gnome"; then
+        EXTRA_PKGS+=("gnome" "gnome-extra")
+    elif test "$DESKTOP" = "plasma"; then
+        EXTRA_PKGS+=("plasma" "kde-applications")
+    elif test "$DESKTOP" = "xfce"; then
+        EXTRA_PKGS+=("xfce4" "xfce4-goodies" "lightdm" "lightdm-gtk-greeter" "lightdm-gtk-greeter-settings")
+    fi
+    if test "$CUPS" = "y" || test "$CUPS" = "Y"; then
+        EXTRA_PKGS+=("cups" "cups-pdf" "avahi" "samba" "foomatic-db-engine" "foomatic-db" "foomatic-db-ppds" "foomatic-db-nonfree-ppds" "foomatic-db-gutenprint-ppds" "gutenprint" "ghostscript")
+    fi
+    if test "$GRML_ZSH" = "y" || test "$GRML_ZSH" = "Y"; then
+        PKGS+=("zsh" "zsh-completions" "grml-zsh-config")
+    fi
+    pacstrap /mnt ${PKGS[@]}
 
     # System configuration
     print-step true "System configuration..."
@@ -330,6 +367,27 @@ function install {
     fi
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
+    if test ${#EXTRA_PKGS[@]} > 0; then
+        print-step true "Extra packages installation..."
+        arch-chroot /mnt pacman -S ${EXTRA_PKGS[@]}
+
+        print-step true "Extra packages configuration..."
+        if test "$DESKTOP" = "gnome"; then
+            arch-chroot /mnt systemctl enable gdm
+        fi
+        if test "$DESKTOP" = "plasma"; then
+            arch-chroot /mnt systemctl enable sddm
+        fi
+        if test "$DESKTOP" = "xfce"; then
+            arch-chroot /mnt systemctl enable lightdm
+        fi
+        if test "$CUPS" = "y" || test "$CUPS" = "Y"; then
+            arch-chroot /mnt systemctl enable avahi-daemon
+            arch-chroot /mnt systemctl enable cups
+            arch-chroot /mnt systemctl enable cups-browsed
+        fi
+    fi
+
     set +Eeo pipefail
     USER_ANSWER="N"
     SETUP_ONCE="N"
@@ -337,13 +395,19 @@ function install {
         print-step true "Users configuration..."
         print-sub-step "  * Root account configuration..."
         if test "$SETUP_ONCE" = "N"; then
-            arch-chroot /mnt chsh --shell /bin/zsh
+            if test "$GRML_ZSH" = "y" || test "$GRML_ZSH" = "Y"; then
+                arch-chroot /mnt chsh --shell /bin/zsh
+            fi
         fi
         arch-chroot /mnt passwd
         if [ ! -z $USER_NAME ]; then
             if test "$SETUP_ONCE" = "N"; then
                 sed -i "s|# %wheel ALL=(ALL) ALL|%wheel ALL=(ALL) ALL|g" /mnt/etc/sudoers
-                arch-chroot /mnt useradd --shell=/bin/zsh --groups=wheel --create-home $USER_NAME
+                if test "$GRML_ZSH" = "y" || test "$GRML_ZSH" = "Y"; then
+                    arch-chroot /mnt useradd --shell=/bin/zsh --groups=wheel --create-home $USER_NAME
+                else
+                    arch-chroot /mnt useradd --shell=/bin/bash --groups=wheel --create-home $USER_NAME
+                fi
             fi
             print-sub-step "  * Password configuration for the user $USER_NAME..."
             arch-chroot /mnt passwd $USER_NAME
