@@ -20,11 +20,11 @@
 # DISCLAIMER
 # archlinux-install  Copyright (C) 2021  Rawleenc
 #
-# This program comes with ABSOLUTELY NO WARRANTY; See the 
-# GNU General Public License for more details.  
+# This program comes with ABSOLUTELY NO WARRANTY; See the
+# GNU General Public License for more details.
 #
 # This is free software, and you are welcome to redistribute it
-# under certain conditions; See the GNU General Public License for more details.  
+# under certain conditions; See the GNU General Public License for more details.
 
 set -Eeo pipefail
 [ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
@@ -56,373 +56,421 @@ function prompt {
     read -e -p "$(echo -e ${ORANGE}"$1"${NOCOLOR})" variable
 }
 
+function prompt-passwd {
+    declare -n variable=$2
+    read -s -r -p "$(echo -e ${ORANGE}"$1"${NOCOLOR})" variable
+    echo ""
+}
+
 function pause {
     read -e -s -n 1 -p "$(echo -e ${ORANGE}"Press any key to continue...\n"${NOCOLOR})"
 }
 
-function install {
-    USER_ANSWER="N"
-    while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
-        print-step true "Welcome to the archlinux-install script !"
-        if [ ! -d "/sys/firmware/efi" ]; then
-            BIOS="Y"
-            print-error "  /!\ BIOS detected ! The script will act accordingly. Don't forget to select a DOS label type before partitioning."
-        else
-            BIOS="N"
-        fi
+USER_ANSWER="N"
+while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
+    print-step true "Welcome to the archlinux-install script !"
+    if [ ! -d "/sys/firmware/efi" ]; then
+        BIOS="Y"
+        print-error "  /!\ BIOS detected ! The script will act accordingly. Don't forget to select a DOS label type before partitioning."
+    else
+        BIOS="N"
+    fi
 
-        print-step false "Environment configuration : "
-        prompt "Choose your installation's language (1: FR, other: EN) : " LANGUAGE
-        if [ -z $LANGUAGE ]; then
-            LANGUAGE="en"
+    print-step false "Environment configuration : "
+    prompt "Choose your installation's language (1: FR, other: EN) : " LANGUAGE
+    if [ -z $LANGUAGE ]; then
+        LANGUAGE="en"
+    fi
+    if test "$LANGUAGE" = "1"; then
+        LANGUAGE="fr"
+    else
+        LANGUAGE="en"
+    fi
+    prompt "Type your installation's keymap (fr-latin9) : " KEYMAP
+    if [ -z $KEYMAP ]; then
+        KEYMAP="fr-latin9"
+    fi
+    print-step false "Summary of choices :"
+    print-sub-step "  * Your installation's language : $LANGUAGE"
+    print-sub-step "  * Your installation's keymap : $KEYMAP"
+    prompt "Is the information correct ? (y/N) : " USER_ANSWER
+done
+
+USER_ANSWER="N"
+while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
+    print-step true "System configuration : "
+    fdisk -l
+    prompt "On which drive should Archlinux be installed ? (type the entire name, for example '/dev/sda') : " TARGET_DISK
+    prompt "What will be your hostname (archlinux) : " HOSTNAME
+    prompt "Install Intel microcode ? (y/N) : " INTEL_UCODE
+    prompt "Install AMD microcode ? (y/N) : " AMD_UCODE
+    prompt "Install LTS Linux kernel ? (y/N) : " LTS_KERNEL
+    prompt "Install proprietary Nvidia driver ? (y/N) : " NVIDIA_DRIVER
+    prompt "Install terminus console font ? (y/N) : " TERMINUS_FONT
+    prompt "Install a desktop environment ? (1: Gnome, 2: KDE Plasma, 3: XFCE, other: None) : " DESKTOP
+    prompt "Install Cups ? (y/N) : " CUPS
+    prompt "Install ZSH with GRML configuration ? (y/N) : " GRML_ZSH
+    prompt "Your timezone (/usr/share/zoneinfo/Europe/Paris) : " TIMEZONE
+    prompt "Would you like to add a user? (username, leave blank if none) : " USER_NAME
+
+    ROOT_PASSWORD="none"
+    ROOT_PASSWORD_CONFIRM="wrong"
+    while test "$ROOT_PASSWORD" != "$ROOT_PASSWORD_CONFIRM"; do
+        print-sub-step "  * root password configuration : "
+        prompt-passwd "Enter the root password : " ROOT_PASSWORD
+        prompt-passwd "Re-enter the root password to confirm : " ROOT_PASSWORD_CONFIRM
+        if test "$ROOT_PASSWORD" != "$ROOT_PASSWORD_CONFIRM"; then
+            print-error "  /!\ Passwords entered don't match."
         fi
-        if test "$LANGUAGE" = "1"; then
-            LANGUAGE="fr"
-        else
-            LANGUAGE="en"
-        fi
-        prompt "Type your installation's keymap (default: fr-latin9) : " KEYMAP
-        if [ -z $KEYMAP ]; then
-            KEYMAP="fr-latin9"
-        fi
-        print-step false "Summary of choices :"
-        print-sub-step "  * Your installation's language : $LANGUAGE"
-        print-sub-step "  * Your installation's keymap : $KEYMAP"
-        prompt "Is the information correct ? (y/N) : " USER_ANSWER
     done
 
-    USER_ANSWER="N"
-    while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
-        print-step true "System configuration : "
-        fdisk -l
-        prompt "On which disk should Archlinux be installed ? (type the entire name, for example '/dev/sda') : " TARGET_DISK
-        prompt "What will be your hostname : " HOSTNAME
-        prompt "Install Intel microcode ? (y/N) : " INTEL_UCODE
-        prompt "Install AMD microcode ? (y/N) : " AMD_UCODE
-        prompt "Install LTS Linux kernel ? (y/N) : " LTS_KERNEL
-        prompt "Install proprietary Nvidia driver ? (y/N) : " NVIDIA_DRIVER
-        prompt "Install terminus console font ? (y/N) : " TERMINUS_FONT
-        prompt "Install a desktop environment ? (1: Gnome, 2: KDE Plasma, 3: XFCE, other: None) : " DESKTOP
-        prompt "Install Cups ? (y/N) : " CUPS
-        prompt "Install ZSH with GRML configuration ? (y/N) : " GRML_ZSH
-        prompt "Your timezone (/usr/share/zoneinfo/Europe/Paris) : " TIMEZONE
-        prompt "Would you like to add a user? (username, leave blank if none) : " USER_NAME
-        if [ -z $INTEL_UCODE ]; then
-            INTEL_UCODE="N"
-        fi
-        if [ -z $AMD_UCODE ]; then
-            AMD_UCODE="N"
-        fi
-        if [ -z $LTS_KERNEL ]; then
-            LTS_KERNEL="N"
-        fi
-        if [ -z $NVIDIA_DRIVER ]; then
-            NVIDIA_DRIVER="N"
-        fi
-        if [ -z $TERMINUS_FONT ]; then
-            TERMINUS_FONT="N"
-        fi
-        if [ -z $DESKTOP ]; then
-            DESKTOP="none"
-        fi
-        if test "$DESKTOP" = "1"; then
-            DESKTOP="gnome"
-        elif test "$DESKTOP" = "2"; then
-            DESKTOP="plasma"
-        elif test "$DESKTOP" = "3"; then
-            DESKTOP="xfce"
-        fi
-        if [ -z $CUPS ]; then
-            CUPS="N"
-        fi
-        if [ -z $GRML_ZSH ]; then
-            GRML_ZSH="N"
-        fi
-        if [ -z $TIMEZONE ]; then
-            TIMEZONE="/usr/share/zoneinfo/Europe/Paris"
-        fi
-        print-step true "Summary of choices :"
-        print-sub-step "  * Your target drive : $TARGET_DISK"
-        print-sub-step "  * Your hostname : $HOSTNAME"
-        print-sub-step "  * Install Intel microcode : $INTEL_UCODE"
-        print-sub-step "  * Install AMD microcode : $AMD_UCODE"
-        print-sub-step "  * Install LTS Linux kernel : $LTS_KERNEL"
-        print-sub-step "  * Install proprietary Nvidia driver : $NVIDIA_DRIVER"
-        print-sub-step "  * Install terminus console font : $TERMINUS_FONT"
-        print-sub-step "  * Desktop environment : $DESKTOP"
-        print-sub-step "  * Install Cups : $CUPS"
-        print-sub-step "  * Install ZSH with GRML configuration : $GRML_ZSH"
-        print-sub-step "  * Your timezone : $TIMEZONE"
-        if [ ! -z $USER_NAME ]; then
-            print-sub-step "  * Additional user name : $USER_NAME"
-        fi
-        prompt "Is the informations correct ? (y/N) : " USER_ANSWER
-    done
-
-    # Partitioning
-    declare -A PART_TYPE
-    declare -A PART_MOUNT_POINT
-    declare -A PART_FORMAT
-    USER_ANSWER="N"
-    while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
-        print-step true "Partitioning the target drive..."
-        cfdisk $TARGET_DISK
-        declare -a PARTITIONS=($(fdisk -l | grep "^${TARGET_DISK}*" | awk '{print $1}'))
-        EFI_OK="N"
-        ROOT_OK="N"
-        print-step true "Detected target drive partitions :"
-        INDEX=0
-        for partition in "${PARTITIONS[@]}"; do
-            print-sub-step "  * Partition : $(fdisk -l | grep $partition)"
-            if test "$BIOS" = "Y"; then
-                prompt "What is the role of this partition ? (1: Root, 2: Home, other: Other) : " TYPE
-            else
-                prompt "What is the role of this partition ? (0: EFI, 1: Root, 2: Home, other: Other) : " TYPE
-            fi
-            if test "$BIOS" = "N" && test "$TYPE" = "0"; then
-                PART_TYPE["$partition"]="EFI"
-                PART_MOUNT_POINT["$partition"]="/boot/efi"
-                prompt "Format the EFI partition ? (y/N) : " PART_FORMAT["$partition"]
-                if [ -z ${PART_FORMAT[${partition}]} ]; then
-                    PART_FORMAT["$partition"]="N"
-                fi
-                EFI_OK="y"
-            elif test "$TYPE" = "1"; then
-                PART_TYPE["$partition"]="ROOT"
-                PART_MOUNT_POINT["$partition"]="/"
-                ROOT_OK="y"
-            elif test "$TYPE" = "2"; then
-                PART_TYPE["$partition"]="HOME"
-                PART_MOUNT_POINT["$partition"]="/home"
-                prompt "Format the Home partition ? (y/N) : " PART_FORMAT["$partition"]
-                if [ -z ${PART_FORMAT[${partition}]} ]; then
-                    PART_FORMAT["$partition"]="N"
-                fi
-            else
-                PART_TYPE["$partition"]="OTHER"
-                prompt "What is the mounting point of this partition ? : " MOUNT_POINT
-                PART_MOUNT_POINT["$partition"]="$MOUNT_POINT"
-                prompt "Format the $partition partition ? (Y/n) : " PART_FORMAT["$partition"]
-                if [ -z ${PART_FORMAT[${partition}]} ]; then
-                    PART_FORMAT["$partition"]="Y"
-                fi
-            fi
-            let INDEX=${INDEX}+1
-        done
-        prompt "Swapfile size ? (Example: 8G, leave empty if none) : " SWAPFILE_SIZE
-        if test "$BIOS" = "N" && test "$EFI_OK" = "N"; then
-            print-error "  /!\ The EFI partition is required for system installation."
-            continue
-        fi
-        if test "$ROOT_OK" = "N"; then
-            print-error "  /!\ The Root partition is required for system installation."
-            continue
-        fi
-        print-step true "Summary of choices :"
-        for partition in "${PARTITIONS[@]}"; do
-            if test "${PART_TYPE[${partition}]}" = "EFI"; then
-                print-sub-step "  * EFI partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
-                print-sub-step "  * Format the EFI partition : ${PART_FORMAT[${partition}]}"
-            elif test "${PART_TYPE[${partition}]}" = "ROOT"; then
-                print-sub-step "  * ROOT partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
-            elif test "${PART_TYPE[${partition}]}" = "HOME"; then
-                print-sub-step "  * Home partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
-                print-sub-step "  * Format the Home partition : ${PART_FORMAT[${partition}]}"
-            elif test "${PART_TYPE[${partition}]}" = "OTHER"; then
-                print-sub-step "  * Other partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
-                print-sub-step "  * Format the ${partition} partition : ${PART_FORMAT[${partition}]}"
+    if [ ! -z $USER_NAME ]; then
+        USER_PASSWORD="none"
+        USER_PASSWORD_CONFIRM="wrong"
+        while test "$USER_PASSWORD" != "$USER_PASSWORD_CONFIRM"; do
+            print-sub-step "  * ${USER_NAME} password configuration : "
+            prompt-passwd "Enter the root password : " USER_PASSWORD
+            prompt-passwd "Re-enter the root password to confirm : " USER_PASSWORD_CONFIRM
+            if test "$USER_PASSWORD" != "$USER_PASSWORD_CONFIRM"; then
+                print-error "  /!\ Passwords entered don't match."
             fi
         done
-        if [ ! -z $SWAPFILE_SIZE ]; then
-            print-sub-step "  * Swapfile size : $SWAPFILE_SIZE"
-        fi
-        prompt "Is the informations correct ? (y/N) : " USER_ANSWER
-    done
+    fi
 
-    print-step true "Formatting and mounting partitions..."
+    # Required fields
+    if [ -z $TARGET_DISK ]; then
+        print-error "  /!\ You need to choose a target drive."
+        continue
+    fi
+    if [ ! -e $TARGET_DISK ]; then
+        print-error "  /!\ The chosen target drive doesn't exist."
+        continue
+    fi
+
+    # Default values
+    if [ -z $HOSTNAME ]; then
+        HOSTNAME="archlinux"
+    fi
+    if [ -z $INTEL_UCODE ]; then
+        INTEL_UCODE="N"
+    fi
+    if [ -z $AMD_UCODE ]; then
+        AMD_UCODE="N"
+    fi
+    if [ -z $LTS_KERNEL ]; then
+        LTS_KERNEL="N"
+    fi
+    if [ -z $NVIDIA_DRIVER ]; then
+        NVIDIA_DRIVER="N"
+    fi
+    if [ -z $TERMINUS_FONT ]; then
+        TERMINUS_FONT="N"
+    fi
+    if [ -z $DESKTOP ]; then
+        DESKTOP="none"
+    fi
+    if test "$DESKTOP" = "1"; then
+        DESKTOP="gnome"
+    elif test "$DESKTOP" = "2"; then
+        DESKTOP="plasma"
+    elif test "$DESKTOP" = "3"; then
+        DESKTOP="xfce"
+    fi
+    if [ -z $CUPS ]; then
+        CUPS="N"
+    fi
+    if [ -z $GRML_ZSH ]; then
+        GRML_ZSH="N"
+    fi
+    if [ -z $TIMEZONE ]; then
+        TIMEZONE="/usr/share/zoneinfo/Europe/Paris"
+    fi
+    print-step true "Summary of choices :"
+    print-sub-step "  * Your target drive : $TARGET_DISK"
+    print-sub-step "  * Your hostname : $HOSTNAME"
+    print-sub-step "  * Install Intel microcode : $INTEL_UCODE"
+    print-sub-step "  * Install AMD microcode : $AMD_UCODE"
+    print-sub-step "  * Install LTS Linux kernel : $LTS_KERNEL"
+    print-sub-step "  * Install proprietary Nvidia driver : $NVIDIA_DRIVER"
+    print-sub-step "  * Install terminus console font : $TERMINUS_FONT"
+    print-sub-step "  * Desktop environment : $DESKTOP"
+    print-sub-step "  * Install Cups : $CUPS"
+    print-sub-step "  * Install ZSH with GRML configuration : $GRML_ZSH"
+    print-sub-step "  * Your timezone : $TIMEZONE"
+    if [ ! -z $USER_NAME ]; then
+        print-sub-step "  * Additional user name : $USER_NAME"
+    fi
+    prompt "Is the informations correct ? (y/N) : " USER_ANSWER
+done
+
+# Partitioning
+declare -A PART_TYPE
+declare -A PART_MOUNT_POINT
+declare -A PART_FORMAT
+USER_ANSWER="N"
+while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
+    print-step true "Partitioning the target drive..."
+    cfdisk $TARGET_DISK
+    declare -a PARTITIONS=($(fdisk -l | grep "^${TARGET_DISK}*" | awk '{print $1}'))
+    EFI_OK="N"
+    ROOT_OK="N"
+    print-step true "Detected target drive partitions :"
+    INDEX=0
     for partition in "${PARTITIONS[@]}"; do
-        if test "${PART_TYPE[${partition}]}" = "ROOT"; then
+        print-sub-step "  * Partition : $(fdisk -l | grep $partition)"
+        if test "$BIOS" = "Y"; then
+            prompt "What is the role of this partition ? (1: Root, 2: Home, other: Other) : " TYPE
+        else
+            prompt "What is the role of this partition ? (0: EFI, 1: Root, 2: Home, other: Other) : " TYPE
+        fi
+        if test "$BIOS" = "N" && test "$TYPE" = "0"; then
+            PART_TYPE["$partition"]="EFI"
+            PART_MOUNT_POINT["$partition"]="/boot/efi"
+            prompt "Format the EFI partition ? (y/N) : " PART_FORMAT["$partition"]
+            if [ -z ${PART_FORMAT[${partition}]} ]; then
+                PART_FORMAT["$partition"]="N"
+            fi
+            EFI_OK="y"
+        elif test "$TYPE" = "1"; then
+            PART_TYPE["$partition"]="ROOT"
+            PART_MOUNT_POINT["$partition"]="/"
+            ROOT_OK="y"
+        elif test "$TYPE" = "2"; then
+            PART_TYPE["$partition"]="HOME"
+            PART_MOUNT_POINT["$partition"]="/home"
+            prompt "Format the Home partition ? (y/N) : " PART_FORMAT["$partition"]
+            if [ -z ${PART_FORMAT[${partition}]} ]; then
+                PART_FORMAT["$partition"]="N"
+            fi
+        else
+            PART_TYPE["$partition"]="OTHER"
+            prompt "What is the mounting point of this partition ? : " MOUNT_POINT
+            PART_MOUNT_POINT["$partition"]="$MOUNT_POINT"
+            prompt "Format the $partition partition ? (Y/n) : " PART_FORMAT["$partition"]
+            if [ -z ${PART_FORMAT[${partition}]} ]; then
+                PART_FORMAT["$partition"]="Y"
+            fi
+        fi
+        let INDEX=${INDEX}+1
+    done
+    prompt "Swapfile size ? (Example: 8G, leave empty if none) : " SWAPFILE_SIZE
+    if test "$BIOS" = "N" && test "$EFI_OK" = "N"; then
+        print-error "  /!\ The EFI partition is required for system installation."
+        continue
+    fi
+    if test "$ROOT_OK" = "N"; then
+        print-error "  /!\ The Root partition is required for system installation."
+        continue
+    fi
+    print-step true "Summary of choices :"
+    for partition in "${PARTITIONS[@]}"; do
+        if test "${PART_TYPE[${partition}]}" = "EFI"; then
+            print-sub-step "  * EFI partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
+            print-sub-step "  * Format the EFI partition : ${PART_FORMAT[${partition}]}"
+        elif test "${PART_TYPE[${partition}]}" = "ROOT"; then
+            print-sub-step "  * ROOT partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
+        elif test "${PART_TYPE[${partition}]}" = "HOME"; then
+            print-sub-step "  * Home partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
+            print-sub-step "  * Format the Home partition : ${PART_FORMAT[${partition}]}"
+        elif test "${PART_TYPE[${partition}]}" = "OTHER"; then
+            print-sub-step "  * Other partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
+            print-sub-step "  * Format the ${partition} partition : ${PART_FORMAT[${partition}]}"
+        fi
+    done
+    if [ ! -z $SWAPFILE_SIZE ]; then
+        print-sub-step "  * Swapfile size : $SWAPFILE_SIZE"
+    fi
+    prompt "Is the informations correct ? (y/N) : " USER_ANSWER
+done
+
+print-step true "Formatting and mounting partitions..."
+for partition in "${PARTITIONS[@]}"; do
+    if test "${PART_TYPE[${partition}]}" = "ROOT"; then
+        mkfs.ext4 "${partition}"
+        mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
+        mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
+    fi
+done
+if test "$BIOS" = "N"; then
+    for partition in "${PARTITIONS[@]}"; do
+        if test "${PART_TYPE[${partition}]}" = "EFI"; then
+            if test "${PART_FORMAT[${partition}]}" = "y" || test "${PART_FORMAT[${partition}]}" = "Y"; then
+                mkfs.vfat "${partition}"
+            fi
+            mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
+            mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
+        fi
+    done
+fi
+for partition in "${PARTITIONS[@]}"; do
+    if test "${PART_TYPE[${partition}]}" = "HOME"; then
+        if test "${PART_FORMAT[${partition}]}" = "y" || test "${PART_FORMAT[${partition}]}" = "Y"; then
             mkfs.ext4 "${partition}"
-            mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
-            mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
         fi
-    done
-    if test "$BIOS" = "N"; then
-        for partition in "${PARTITIONS[@]}"; do
-            if test "${PART_TYPE[${partition}]}" = "EFI"; then
-                if test "${PART_FORMAT[${partition}]}" = "y" || test "${PART_FORMAT[${partition}]}" = "Y"; then
-                    mkfs.vfat "${partition}"
-                fi
-                mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
-                mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
-            fi
-        done
+        mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
+        mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
     fi
-    for partition in "${PARTITIONS[@]}"; do
-        if test "${PART_TYPE[${partition}]}" = "HOME"; then
-            if test "${PART_FORMAT[${partition}]}" = "y" || test "${PART_FORMAT[${partition}]}" = "Y"; then
-                mkfs.ext4 "${partition}"
-            fi
-            mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
-            mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
+done
+for partition in "${PARTITIONS[@]}"; do
+    if test "${PART_TYPE[${partition}]}" = "OTHER"; then
+        if test "${PART_FORMAT[${partition}]}" = "y" || test "${PART_FORMAT[${partition}]}" = "Y"; then
+            mkfs.ext4 "${partition}"
         fi
-    done
-    for partition in "${PARTITIONS[@]}"; do
-        if test "${PART_TYPE[${partition}]}" = "OTHER"; then
-            if test "${PART_FORMAT[${partition}]}" = "y" || test "${PART_FORMAT[${partition}]}" = "Y"; then
-                mkfs.ext4 "${partition}"
-            fi
-            mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
-            mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
-        fi
-    done
-
-    # Creation and activation of the swapfile
-    if [ ! -z $SWAPFILE_SIZE ]; then
-        print-step true "Creation and activation of the swapfile..."
-        fallocate -l $SWAPFILE_SIZE /mnt/swapfile
-        chmod 600 /mnt/swapfile
-        mkswap /mnt/swapfile
-        swapon /mnt/swapfile
+        mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
+        mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
     fi
+done
 
-    # Updating mirrors
-    print-step true "Updating mirrors..."
-    reflector @/etc/xdg/reflector/reflector.conf
+# Creation and activation of the swapfile
+if [ ! -z $SWAPFILE_SIZE ]; then
+    print-step false "Creation and activation of the swapfile..."
+    fallocate -l $SWAPFILE_SIZE /mnt/swapfile
+    chmod 600 /mnt/swapfile
+    mkswap /mnt/swapfile
+    swapon /mnt/swapfile
+fi
 
-    # Installation of the base
-    print-step true "Installation of the base..."
-    PKGS=("base" "base-devel" "linux-firmware" "man-db" "man-pages" "texinfo" "nano" "vim" "git" "curl" "grub" "os-prober" "efibootmgr" "networkmanager" "xdg-user-dirs")
-    EXTRA_PKGS=()
-    if test "$INTEL_UCODE" = "y" || test "$INTEL_UCODE" = "Y"; then
-        PKGS+=("intel-ucode")
-    fi
-    if test "$AMD_UCODE" = "y" || test "$AMD_UCODE" = "Y"; then
-        PKGS+=("amd-ucode")
-    fi
+# Updating mirrors
+print-step false "Updating mirrors..."
+reflector --save /etc/pacman.d/mirrorlist --protocol https --age 12 --score 5
+
+# Installation of the base
+print-step false "Installation of the base..."
+declare -a PKGS=("base" "base-devel" "linux-firmware" "man-db" "man-pages" "texinfo" "nano" "vim" "git" "curl" "grub" "os-prober" "efibootmgr" "networkmanager" "xdg-user-dirs" "reflector")
+if test "$INTEL_UCODE" = "y" || test "$INTEL_UCODE" = "Y"; then
+    PKGS+=("intel-ucode")
+fi
+if test "$AMD_UCODE" = "y" || test "$AMD_UCODE" = "Y"; then
+    PKGS+=("amd-ucode")
+fi
+if test "$LTS_KERNEL" = "y" || test "$LTS_KERNEL" = "Y"; then
+    PKGS+=("linux-lts")
+else
+    PKGS+=("linux")
+fi
+if test "$NVIDIA_DRIVER" = "y" || test "$NVIDIA_DRIVER" = "Y"; then
     if test "$LTS_KERNEL" = "y" || test "$LTS_KERNEL" = "Y"; then
-        PKGS+=("linux-lts")
+        PKGS+=("nvidia-lts")
     else
-        PKGS+=("linux")
+        PKGS+=("nvidia")
     fi
-    if test "$NVIDIA_DRIVER" = "y" || test "$NVIDIA_DRIVER" = "Y"; then
-        if test "$LTS_KERNEL" = "y" || test "$LTS_KERNEL" = "Y"; then
-            PKGS+=("nvidia-lts")
-        else
-            PKGS+=("nvidia")
-        fi
+fi
+if test "$TERMINUS_FONT" = "y" || test "$TERMINUS_FONT" = "Y"; then
+    PKGS+=("terminus-font")
+fi
+if test "$DESKTOP" = "gnome"; then
+    PKGS+=("gnome" "gnome-extra")
+elif test "$DESKTOP" = "plasma"; then
+    PKGS+=("plasma" "kde-applications")
+elif test "$DESKTOP" = "xfce"; then
+    PKGS+=("xfce4" "xfce4-goodies" "lightdm" "lightdm-gtk-greeter" "lightdm-gtk-greeter-settings")
+fi
+if test "$CUPS" = "y" || test "$CUPS" = "Y"; then
+    PKGS+=("cups" "cups-pdf" "avahi" "samba" "foomatic-db-engine" "foomatic-db" "foomatic-db-ppds" "foomatic-db-nonfree-ppds" "foomatic-db-gutenprint-ppds" "gutenprint" "ghostscript")
+fi
+if test "$GRML_ZSH" = "y" || test "$GRML_ZSH" = "Y"; then
+    PKGS+=("zsh" "zsh-completions" "grml-zsh-config")
+fi
+pacstrap /mnt ${PKGS[@]}
+
+# System configuration
+print-step false "System configuration..."
+genfstab -U /mnt >>/mnt/etc/fstab
+sed -i "s|#en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|g" /mnt/etc/locale.gen
+sed -i "s|#en_US ISO-8859-1|en_US ISO-8859-1|g" /mnt/etc/locale.gen
+if test "$LANGUAGE" = "fr"; then
+    sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /mnt/etc/locale.gen
+    sed -i "s|#fr_FR ISO-8859-1|fr_FR ISO-8859-1|g" /mnt/etc/locale.gen
+    echo "LANG=fr_FR.UTF-8" >/mnt/etc/locale.conf
+else
+    echo "LANG=en_US.UTF-8" >/mnt/etc/locale.conf
+fi
+echo "KEYMAP=$KEYMAP" >/mnt/etc/vconsole.conf
+if test "$TERMINUS_FONT" = "y" || test "$TERMINUS_FONT" = "Y"; then
+    echo "FONT=ter-v16b" >>/mnt/etc/vconsole.conf
+else
+    echo "FONT=eurlatgr" >>/mnt/etc/vconsole.conf
+fi
+sed -i "s|#Color|Color|g" /mnt/etc/pacman.conf
+echo "$HOSTNAME" >/mnt/etc/hostname
+echo "127.0.0.1 localhost" >>/mnt/etc/hosts
+echo "::1 localhost" >>/mnt/etc/hosts
+echo "127.0.1.1 $HOSTNAME.localdomain $HOSTNAME" >>/mnt/etc/hosts
+
+print-step false "Locales configuration..."
+arch-chroot /mnt bash -c "ln -sf $TIMEZONE /etc/localtime"
+arch-chroot /mnt bash -c "locale-gen"
+print-step false "Network configuration..."
+arch-chroot /mnt bash -c "systemctl enable NetworkManager"
+print-step false "Installation and configuration of the grub..."
+if test "$BIOS" = "Y"; then
+    arch-chroot /mnt bash -c "grub-install --target=i386-pc $TARGET_DISK"
+else
+    arch-chroot /mnt bash -c 'grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Arch Linux"'
+fi
+arch-chroot /mnt bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
+
+print-step false "Extra packages configuration if needed..."
+if test "$DESKTOP" = "gnome"; then
+    arch-chroot /mnt bash -c "systemctl enable gdm"
+    if [[ $KEYMAP == *"fr"* ]]; then
+        arch-chroot /mnt bash -c "mkdir --parent /etc/X11/xorg.conf.d"
+        arch-chroot /mnt bash -c "echo 'Section \"InputClass\"' > /etc/X11/xorg.conf.d/00-keyboard.conf"
+        arch-chroot /mnt bash -c "echo '    Identifier \"system-keyboard\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
+        arch-chroot /mnt bash -c "echo '    MatchIsKeyboard \"on\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
+        arch-chroot /mnt bash -c "echo '    Option \"XkbLayout\" \"fr\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
+        arch-chroot /mnt bash -c "echo 'EndSection' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
     fi
-    if test "$TERMINUS_FONT" = "y" || test "$TERMINUS_FONT" = "Y"; then
-        PKGS+=("terminus-font")
+fi
+if test "$DESKTOP" = "plasma"; then
+    arch-chroot /mnt bash -c "systemctl enable sddm"
+    if [[ $KEYMAP == *"fr"* ]]; then
+        arch-chroot /mnt bash -c "mkdir --parent /etc/X11/xorg.conf.d"
+        arch-chroot /mnt bash -c "echo 'Section \"InputClass\"' > /etc/X11/xorg.conf.d/00-keyboard.conf"
+        arch-chroot /mnt bash -c "echo '    Identifier \"system-keyboard\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
+        arch-chroot /mnt bash -c "echo '    MatchIsKeyboard \"on\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
+        arch-chroot /mnt bash -c "echo '    Option \"XkbLayout\" \"fr\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
+        arch-chroot /mnt bash -c "echo 'EndSection' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
     fi
-    if test "$DESKTOP" = "gnome"; then
-        EXTRA_PKGS+=("gnome" "gnome-extra")
-    elif test "$DESKTOP" = "plasma"; then
-        EXTRA_PKGS+=("plasma" "kde-applications")
-    elif test "$DESKTOP" = "xfce"; then
-        EXTRA_PKGS+=("xfce4" "xfce4-goodies" "lightdm" "lightdm-gtk-greeter" "lightdm-gtk-greeter-settings")
+fi
+if test "$DESKTOP" = "xfce"; then
+    arch-chroot /mnt bash -c "systemctl enable lightdm"
+    if [[ $KEYMAP == *"fr"* ]]; then
+        arch-chroot /mnt bash -c "mkdir --parent /etc/X11/xorg.conf.d"
+        arch-chroot /mnt bash -c "echo 'Section \"InputClass\"' > /etc/X11/xorg.conf.d/00-keyboard.conf"
+        arch-chroot /mnt bash -c "echo '    Identifier \"system-keyboard\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
+        arch-chroot /mnt bash -c "echo '    MatchIsKeyboard \"on\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
+        arch-chroot /mnt bash -c "echo '    Option \"XkbLayout\" \"fr\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
+        arch-chroot /mnt bash -c "echo 'EndSection' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
     fi
-    if test "$CUPS" = "y" || test "$CUPS" = "Y"; then
-        EXTRA_PKGS+=("cups" "cups-pdf" "avahi" "samba" "foomatic-db-engine" "foomatic-db" "foomatic-db-ppds" "foomatic-db-nonfree-ppds" "foomatic-db-gutenprint-ppds" "gutenprint" "ghostscript")
-    fi
+fi
+if test "$CUPS" = "y" || test "$CUPS" = "Y"; then
+    arch-chroot /mnt bash -c "systemctl enable avahi-daemon"
+    arch-chroot /mnt bash -c "systemctl enable cups"
+    arch-chroot /mnt bash -c "systemctl enable cups-browsed"
+fi
+
+print-step false "Users configuration..."
+print-sub-step "  * root account configuration..."
+if test "$GRML_ZSH" = "y" || test "$GRML_ZSH" = "Y"; then
+    arch-chroot /mnt bash -c "chsh --shell /bin/zsh"
+fi
+arch-chroot /mnt bash -c "echo 'root:${ROOT_PASSWORD}' | chpasswd"
+if [ ! -z $USER_NAME ]; then
+    print-sub-step "  * ${USER_NAME} account configuration..."
+    sed -i "s|# %wheel ALL=(ALL) ALL|%wheel ALL=(ALL) ALL|g" /mnt/etc/sudoers
     if test "$GRML_ZSH" = "y" || test "$GRML_ZSH" = "Y"; then
-        PKGS+=("zsh" "zsh-completions" "grml-zsh-config")
-    fi
-    pacstrap /mnt ${PKGS[@]}
-
-    # System configuration
-    print-step true "System configuration..."
-    genfstab -U /mnt >>/mnt/etc/fstab
-    sed -i "s|#en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|g" /mnt/etc/locale.gen
-    sed -i "s|#en_US ISO-8859-1|en_US ISO-8859-1|g" /mnt/etc/locale.gen
-    if test "$LANGUAGE" = "fr"; then
-        sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /mnt/etc/locale.gen
-        sed -i "s|#fr_FR ISO-8859-1|fr_FR ISO-8859-1|g" /mnt/etc/locale.gen
-        echo "LANG=fr_FR.UTF-8" >/mnt/etc/locale.conf
+        arch-chroot /mnt bash -c "useradd --shell=/bin/zsh --groups=wheel --create-home ${USER_NAME}"
     else
-        echo "LANG=en_US.UTF-8" >/mnt/etc/locale.conf
+        arch-chroot /mnt bash -c "useradd --shell=/bin/bash --groups=wheel --create-home ${USER_NAME}"
     fi
-    echo "KEYMAP=$KEYMAP" >/mnt/etc/vconsole.conf
-    if test "$TERMINUS_FONT" = "y" || test "$TERMINUS_FONT" = "Y"; then
-        echo "FONT=ter-v16b" >>/mnt/etc/vconsole.conf
-    else
-        echo "FONT=eurlatgr" >>/mnt/etc/vconsole.conf
-    fi
-    sed -i "s|#Color|Color|g" /mnt/etc/pacman.conf
-    echo "$HOSTNAME" >/mnt/etc/hostname
-    echo "127.0.0.1 localhost" >>/mnt/etc/hosts
-    echo "::1 localhost" >>/mnt/etc/hosts
-    echo "127.0.1.1 $HOSTNAME.localdomain $HOSTNAME" >>/mnt/etc/hosts
+    arch-chroot /mnt bash -c "echo '${USER_NAME}:${USER_PASSWORD}' | chpasswd"
+fi
 
-    print-step true "Locales configuration..."
-    arch-chroot /mnt ln -sf $TIMEZONE /etc/localtime
-    arch-chroot /mnt locale-gen
-    print-step true "Network configuration..."
-    arch-chroot /mnt systemctl enable NetworkManager
-    print-step true "Installation and configuration of the grub..."
-    if test "$BIOS" = "Y"; then
-        arch-chroot /mnt grub-install --target=i386-pc $TARGET_DISK
-    else
-        arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Arch Linux"
-    fi
-    arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
-
-    if test ${#EXTRA_PKGS[@]} > 0; then
-        print-step true "Extra packages installation..."
-        arch-chroot /mnt pacman -S ${EXTRA_PKGS[@]}
-
-        print-step true "Extra packages configuration..."
-        if test "$DESKTOP" = "gnome"; then
-            arch-chroot /mnt systemctl enable gdm
-        fi
-        if test "$DESKTOP" = "plasma"; then
-            arch-chroot /mnt systemctl enable sddm
-        fi
-        if test "$DESKTOP" = "xfce"; then
-            arch-chroot /mnt systemctl enable lightdm
-        fi
-        if test "$CUPS" = "y" || test "$CUPS" = "Y"; then
-            arch-chroot /mnt systemctl enable avahi-daemon
-            arch-chroot /mnt systemctl enable cups
-            arch-chroot /mnt systemctl enable cups-browsed
-        fi
-    fi
-
-    set +Eeo pipefail
-    USER_ANSWER="N"
-    SETUP_ONCE="N"
-    while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
-        print-step true "Users configuration..."
-        print-sub-step "  * Root account configuration..."
-        if test "$SETUP_ONCE" = "N"; then
-            if test "$GRML_ZSH" = "y" || test "$GRML_ZSH" = "Y"; then
-                arch-chroot /mnt chsh --shell /bin/zsh
-            fi
-        fi
-        arch-chroot /mnt passwd
-        if [ ! -z $USER_NAME ]; then
-            if test "$SETUP_ONCE" = "N"; then
-                sed -i "s|# %wheel ALL=(ALL) ALL|%wheel ALL=(ALL) ALL|g" /mnt/etc/sudoers
-                if test "$GRML_ZSH" = "y" || test "$GRML_ZSH" = "Y"; then
-                    arch-chroot /mnt useradd --shell=/bin/zsh --groups=wheel --create-home $USER_NAME
-                else
-                    arch-chroot /mnt useradd --shell=/bin/bash --groups=wheel --create-home $USER_NAME
-                fi
-            fi
-            print-sub-step "  * Password configuration for the user $USER_NAME..."
-            arch-chroot /mnt passwd $USER_NAME
-        fi
-        SETUP_ONCE="Y"
-        prompt "Is the users configuration correct ? (y/N) : " USER_ANSWER
-    done
-
-    # Démontage des partitions
-    print-step true "Unmounting partitions..."
-    if [ ! -z $SWAPFILE_SIZE ]; then
-        swapoff /mnt/swapfile
-    fi
-    umount -R /mnt
-    print-step true "Installation complete ! You can reboot your system."
-}
-
-install
+# Démontage des partitions
+print-step false "Unmounting partitions..."
+if [ ! -z $SWAPFILE_SIZE ]; then
+    swapoff /mnt/swapfile
+fi
+umount -R /mnt
+print-step false "Installation complete ! You can reboot your system."
