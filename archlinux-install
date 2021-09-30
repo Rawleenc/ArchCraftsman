@@ -332,7 +332,7 @@ fi
 
 # Updating mirrors
 print-step false "Updating mirrors..."
-reflector --save /etc/pacman.d/mirrorlist --protocol https --age 12 --score 5
+reflector --save /etc/pacman.d/mirrorlist --protocol https --age 12 --score 5 --sort score
 
 # Installation of the base
 print-step false "Installation of the base..."
