@@ -66,6 +66,8 @@ function pause {
     read -e -s -n 1 -p "$(echo -e ${ORANGE}"Press any key to continue...\n"${NOCOLOR})"
 }
 
+pacman -Sy
+
 USER_ANSWER="N"
 while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
     print-step true "Welcome to the archlinux-install script !"
@@ -112,6 +114,23 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
     prompt "Install ZSH with GRML configuration ? (y/N) : " GRML_ZSH
     prompt "Your timezone (/usr/share/zoneinfo/Europe/Paris) : " TIMEZONE
     prompt "Would you like to add a user? (username, leave blank if none) : " USER_NAME
+
+    set +Eeo pipefail
+    PKGS_SELECT_OK="FAIL"
+    while test "$PKGS_SELECT_OK" != "OK"; do
+        PKGS_SELECT_OK="OK"
+        prompt "Install more packages ? (type extra packages full names, example : 'htop neofetch', leave blank if none) : " MORE_PKGS
+        MORE_PKGS_ARRAY=(${MORE_PKGS})
+        for pkg in "${MORE_PKGS_ARRAY[@]}"; do
+            pacman -Ss ^${pkg}$ >/dev/null
+            if test "$(if [ $? -eq 0 ]; then echo OK; else echo FAIL; fi)" = "FAIL"; then
+                PKGS_SELECT_OK="FAIL"
+                print-error "Package $pkg doesn't exist."
+                continue
+            fi
+        done
+    done
+    set -Eeo pipefail
 
     ROOT_PASSWORD="none"
     ROOT_PASSWORD_CONFIRM="wrong"
@@ -199,6 +218,9 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
     print-sub-step "  * Your timezone : $TIMEZONE"
     if [ ! -z $USER_NAME ]; then
         print-sub-step "  * Additional user name : $USER_NAME"
+    fi
+    if [[ ! -z "$MORE_PKGS" ]]; then
+        print-sub-step "  * More packages to install : $MORE_PKGS"
     fi
     prompt "Is the informations correct ? (y/N) : " USER_ANSWER
 done
@@ -370,6 +392,9 @@ if test "$CUPS" = "y" || test "$CUPS" = "Y"; then
 fi
 if test "$GRML_ZSH" = "y" || test "$GRML_ZSH" = "Y"; then
     PKGS+=("zsh" "zsh-completions" "grml-zsh-config")
+fi
+if [[ ! -z "$MORE_PKGS" ]]; then
+    PKGS+=($MORE_PKGS)
 fi
 pacstrap /mnt ${PKGS[@]}
 
