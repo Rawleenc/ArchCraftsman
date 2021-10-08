@@ -112,6 +112,8 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
     prompt "Install a desktop environment ? (1: Gnome, 2: KDE Plasma, 3: XFCE, other: None) : " DESKTOP
     prompt "Install Cups ? (y/N) : " CUPS
     prompt "Install ZSH with GRML configuration ? (y/N) : " GRML_ZSH
+    prompt "Install a set of main fonts ? (y/N) : " MAIN_FONTS
+    prompt "Install main file systems support ? (y/N) : " MAIN_FILE_SYSTEMS
     prompt "Your timezone (/usr/share/zoneinfo/Europe/Paris) : " TIMEZONE
     prompt "Would you like to add a user? (username, leave blank if none) : " USER_NAME
 
@@ -201,6 +203,12 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
     if [ -z $GRML_ZSH ]; then
         GRML_ZSH="N"
     fi
+    if [ -z $MAIN_FONTS ]; then
+        MAIN_FONTS="N"
+    fi
+    if [ -z $MAIN_FILE_SYSTEMS ]; then
+        MAIN_FILE_SYSTEMS="N"
+    fi
     if [ -z $TIMEZONE ]; then
         TIMEZONE="/usr/share/zoneinfo/Europe/Paris"
     fi
@@ -215,6 +223,8 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
     print-sub-step "  * Desktop environment : $DESKTOP"
     print-sub-step "  * Install Cups : $CUPS"
     print-sub-step "  * Install ZSH with GRML configuration : $GRML_ZSH"
+    print-sub-step "  * Install a set of main fonts : $MAIN_FONTS"
+    print-sub-step "  * Install main file systems support : $MAIN_FILE_SYSTEMS"
     print-sub-step "  * Your timezone : $TIMEZONE"
     if [ ! -z $USER_NAME ]; then
         print-sub-step "  * Additional user name : $USER_NAME"
@@ -383,15 +393,21 @@ fi
 if test "$DESKTOP" = "gnome"; then
     PKGS+=("gnome" "gnome-extra")
 elif test "$DESKTOP" = "plasma"; then
-    PKGS+=("plasma" "kde-applications")
+    PKGS+=("plasma" "kde-applications" "xorg-server")
 elif test "$DESKTOP" = "xfce"; then
-    PKGS+=("xfce4" "xfce4-goodies" "lightdm" "lightdm-gtk-greeter" "lightdm-gtk-greeter-settings")
+    PKGS+=("xfce4" "xfce4-goodies" "lightdm" "lightdm-gtk-greeter" "lightdm-gtk-greeter-settings" "xorg-server")
 fi
 if test "$CUPS" = "y" || test "$CUPS" = "Y"; then
     PKGS+=("cups" "cups-pdf" "avahi" "samba" "foomatic-db-engine" "foomatic-db" "foomatic-db-ppds" "foomatic-db-nonfree-ppds" "foomatic-db-gutenprint-ppds" "gutenprint" "ghostscript")
 fi
 if test "$GRML_ZSH" = "y" || test "$GRML_ZSH" = "Y"; then
     PKGS+=("zsh" "zsh-completions" "grml-zsh-config")
+fi
+if test "$MAIN_FONTS" = "y" || test "$MAIN_FONTS" = "Y"; then
+    PKGS+=("gnu-free-fonts" "noto-fonts" "ttf-bitstream-vera" "ttf-dejavu" "ttf-hack" "ttf-droid" "ttf-fira-code" "ttf-fira-mono" "ttf-fira-sans" "ttf-font-awesome" "ttf-inconsolata" "ttf-input" "ttf-liberation" "ttf-nerd-fonts-symbols" "ttf-opensans" "ttf-roboto" "ttf-roboto-mono")
+fi
+if test "$MAIN_FILE_SYSTEMS" = "y" || test "$MAIN_FILE_SYSTEMS" = "Y"; then
+    PKGS+=("btrfs-progs" "dosfstools" "exfatprogs" "exfat-utils" "f2fs-tools" "e2fsprogs" "jfsutils" "nilfs-utils" "ntfs-3g" "reiserfsprogs" "udftools" "xfsprogs")
 fi
 if [[ ! -z "$MORE_PKGS" ]]; then
     PKGS+=($MORE_PKGS)
