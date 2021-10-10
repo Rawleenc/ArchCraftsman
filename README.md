@@ -1,6 +1,6 @@
 # Purpose
 
-The purpose of this script is to install an Arch Linux base very quickly. The customization options are therefore not numerous. However, some flexibility is still allowed.  
+The purpose of this script is to install Arch Linux very quickly. The customization options are therefore not numerous. However, some flexibility is still allowed.  
 This script supports both UEFI and BIOS.  
 
 A manual partitioning of the target drive will be proposed with the cfdisk tool.
@@ -16,14 +16,20 @@ Packages included in the base :
 Optional packages available :  
 `intel-ucode amd-ucode linux/linux-lts nvidia/nvidia-lts terminus-font`
 
-Default shell: ZSH with GRML config.  
+Optional packages bundles are also available :
+- Desktop environment (Gnome, KDE Plasma or XFCE)
+- Cups
+- Zsh with GRML config
+- Main fonts
+- Main file systems support
+
 Optionally an additional user, added to the wheel group and sudo configured to allow members of the wheel group.
 
 # Usage
 
 ## On the Arch Linux live iso :
 ```bash
-bash <(curl -L github.com/rawleenc/archlinux-install/releases/download/2.0.2/archlinux-install)
+bash <(curl -L github.com/rawleenc/archlinux-install/releases/download/2.1.0/archlinux-install)
 ```
 
 If you wish to use the previous version, you can download the latest patch with this command :
