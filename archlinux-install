@@ -121,7 +121,7 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
     PKGS_SELECT_OK="FAIL"
     while test "$PKGS_SELECT_OK" != "OK"; do
         PKGS_SELECT_OK="OK"
-        prompt "Install more packages ? (type extra packages full names, example : 'htop neofetch', leave blank if none) : " MORE_PKGS
+        prompt "Install more packages ? (type extra packages full names, example : 'htop neofetch', leave blank if none) : \n" MORE_PKGS
         MORE_PKGS_ARRAY=(${MORE_PKGS})
         for pkg in "${MORE_PKGS_ARRAY[@]}"; do
             pacman -Ss ^${pkg}$ >/dev/null
