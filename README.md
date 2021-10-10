@@ -29,7 +29,7 @@ Optionally an additional user, added to the wheel group and sudo configured to a
 
 ## On the Arch Linux live iso :
 ```bash
-bash <(curl -L git.io/Jo6o4)
+bash <(curl -L git.io/JoiIR)
 ```
 
 If you wish to use the previous version, you can download the latest patch with this command :
