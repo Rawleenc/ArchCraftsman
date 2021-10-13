@@ -11,7 +11,7 @@ You will have the possibility to choose to format or not the EFI and Home partit
 If the EFI partition has to be formatted it will be formatted in vfat, otherwise the script expects the EFI partition to be already formatted in vfat (this is the case for windows 10 for example) and all other partitions will be formatted in ext4. Concerning the swap, a swapfile of the specified size, called swapfile, will be created and placed at the base of the Root partition.
 
 Packages included in the base :  
-`base base-devel linux-firmware man-db man-pages texinfo nano vim git curl zsh zsh-completions grml-zsh-config grub os-prober efibootmgr networkmanager xdg-user-dirs`
+`base base-devel linux-firmware man-db man-pages texinfo nano vim git curl grub os-prober efibootmgr networkmanager xdg-user-dirs`
 
 Optional packages available :  
 `intel-ucode amd-ucode linux/linux-lts nvidia/nvidia-lts terminus-font`
