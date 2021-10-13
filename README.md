@@ -27,7 +27,7 @@ Optionally an additional user, added to the wheel group and sudo configured to a
 
 # Usage
 
-## On the Arch Linux live iso :
+### On the Arch Linux live iso :
 ```bash
 bash <(curl -L git.io/JoiIR)
 ```
