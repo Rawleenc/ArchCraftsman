@@ -246,14 +246,15 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
     declare -a PARTITIONS=($(fdisk -l | grep "^${TARGET_DISK}*" | awk '{print $1}'))
     EFI_OK="N"
     ROOT_OK="N"
+    SWAP_OK="N"
     print-step true "Detected target drive partitions :"
     INDEX=0
     for partition in "${PARTITIONS[@]}"; do
         print-sub-step "  * Partition : $(fdisk -l | grep $partition)"
         if test "$BIOS" = "Y"; then
-            prompt "What is the role of this partition ? (1: Root, 2: Home, other: Other) : " TYPE
+            prompt "What is the role of this partition ? (1: Root, 2: Home, 3: Swap, other: Other) : " TYPE
         else
-            prompt "What is the role of this partition ? (0: EFI, 1: Root, 2: Home, other: Other) : " TYPE
+            prompt "What is the role of this partition ? (0: EFI, 1: Root, 2: Home, 3: Swap, other: Other) : " TYPE
         fi
         if test "$BIOS" = "N" && test "$TYPE" = "0"; then
             PART_TYPE["$partition"]="EFI"
@@ -267,6 +268,7 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
             PART_TYPE["$partition"]="ROOT"
             PART_MOUNT_POINT["$partition"]="/"
             ROOT_OK="y"
+            ROOT_PARTITION="$partition"
         elif test "$TYPE" = "2"; then
             PART_TYPE["$partition"]="HOME"
             PART_MOUNT_POINT["$partition"]="/home"
@@ -274,6 +276,9 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
             if [ -z ${PART_FORMAT[${partition}]} ]; then
                 PART_FORMAT["$partition"]="N"
             fi
+        elif test "$TYPE" = "3"; then
+            PART_TYPE["$partition"]="SWAP"
+            SWAP_OK="y"
         else
             PART_TYPE["$partition"]="OTHER"
             prompt "What is the mounting point of this partition ? : " MOUNT_POINT
@@ -285,7 +290,9 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
         fi
         let INDEX=${INDEX}+1
     done
-    prompt "Swapfile size ? (Example: 8G, leave empty if none) : " SWAPFILE_SIZE
+    if test "$SWAP_OK" = "N"; then
+        prompt "Swapfile size ? (Example: 8G, leave empty if none) : " SWAPFILE_SIZE
+    fi
     if test "$BIOS" = "N" && test "$EFI_OK" = "N"; then
         print-error "  /!\ The EFI partition is required for system installation."
         continue
@@ -297,54 +304,46 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
     print-step true "Summary of choices :"
     for partition in "${PARTITIONS[@]}"; do
         if test "${PART_TYPE[${partition}]}" = "EFI"; then
-            print-sub-step "  * EFI partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
-            print-sub-step "  * Format the EFI partition : ${PART_FORMAT[${partition}]}"
+            print-sub-step "  * EFI partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]}, Format : ${PART_FORMAT[${partition}]})"
         elif test "${PART_TYPE[${partition}]}" = "ROOT"; then
             print-sub-step "  * ROOT partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
         elif test "${PART_TYPE[${partition}]}" = "HOME"; then
-            print-sub-step "  * Home partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
-            print-sub-step "  * Format the Home partition : ${PART_FORMAT[${partition}]}"
+            print-sub-step "  * Home partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]}, Format : ${PART_FORMAT[${partition}]})"
+        elif test "${PART_TYPE[${partition}]}" = "SWAP"; then
+            print-sub-step "  * Swap partition : ${partition}"
         elif test "${PART_TYPE[${partition}]}" = "OTHER"; then
-            print-sub-step "  * Other partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
-            print-sub-step "  * Format the ${partition} partition : ${PART_FORMAT[${partition}]}"
+            print-sub-step "  * Other partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]}, Format : ${PART_FORMAT[${partition}]})"
         fi
     done
-    if [ ! -z $SWAPFILE_SIZE ]; then
+    if test "$SWAP_OK" = "N" && [ ! -z $SWAPFILE_SIZE ]; then
         print-sub-step "  * Swapfile size : $SWAPFILE_SIZE"
     fi
     prompt "Is the informations correct ? (y/N) : " USER_ANSWER
 done
 
 print-step true "Formatting and mounting partitions..."
+
+mkfs.ext4 "${ROOT_PARTITION}"
+mkdir -p "/mnt${PART_MOUNT_POINT[${ROOT_PARTITION}]}"
+mount "${ROOT_PARTITION}" "/mnt${PART_MOUNT_POINT[${ROOT_PARTITION}]}"
+
 for partition in "${PARTITIONS[@]}"; do
-    if test "${PART_TYPE[${partition}]}" = "ROOT"; then
-        mkfs.ext4 "${partition}"
+    if test "$BIOS" = "N" && test "${PART_TYPE[${partition}]}" = "EFI"; then
+        if test "${PART_FORMAT[${partition}]}" = "y" || test "${PART_FORMAT[${partition}]}" = "Y"; then
+            mkfs.vfat "${partition}"
+        fi
         mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
         mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
-    fi
-done
-if test "$BIOS" = "N"; then
-    for partition in "${PARTITIONS[@]}"; do
-        if test "${PART_TYPE[${partition}]}" = "EFI"; then
-            if test "${PART_FORMAT[${partition}]}" = "y" || test "${PART_FORMAT[${partition}]}" = "Y"; then
-                mkfs.vfat "${partition}"
-            fi
-            mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
-            mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
-        fi
-    done
-fi
-for partition in "${PARTITIONS[@]}"; do
-    if test "${PART_TYPE[${partition}]}" = "HOME"; then
+    elif test "${PART_TYPE[${partition}]}" = "HOME"; then
         if test "${PART_FORMAT[${partition}]}" = "y" || test "${PART_FORMAT[${partition}]}" = "Y"; then
             mkfs.ext4 "${partition}"
         fi
         mkdir -p "/mnt${PART_MOUNT_POINT[${partition}]}"
         mount "${partition}" "/mnt${PART_MOUNT_POINT[${partition}]}"
-    fi
-done
-for partition in "${PARTITIONS[@]}"; do
-    if test "${PART_TYPE[${partition}]}" = "OTHER"; then
+    elif test "${PART_TYPE[${partition}]}" = "SWAP"; then
+        mkswap ${partition}
+        swapon ${partition}
+    elif test "${PART_TYPE[${partition}]}" = "OTHER"; then
         if test "${PART_FORMAT[${partition}]}" = "y" || test "${PART_FORMAT[${partition}]}" = "Y"; then
             mkfs.ext4 "${partition}"
         fi
@@ -354,7 +353,7 @@ for partition in "${PARTITIONS[@]}"; do
 done
 
 # Creation and activation of the swapfile
-if [ ! -z $SWAPFILE_SIZE ]; then
+if test "$SWAP_OK" = "N" && [ ! -z $SWAPFILE_SIZE ]; then
     print-step false "Creation and activation of the swapfile..."
     fallocate -l $SWAPFILE_SIZE /mnt/swapfile
     chmod 600 /mnt/swapfile
@@ -368,7 +367,7 @@ reflector --save /etc/pacman.d/mirrorlist --protocol https --age 12 --score 5 --
 
 # Installation of the base
 print-step false "Installation of the base..."
-declare -a PKGS=("base" "base-devel" "linux-firmware" "man-db" "man-pages" "texinfo" "nano" "vim" "git" "curl" "grub" "os-prober" "efibootmgr" "networkmanager" "xdg-user-dirs" "reflector")
+declare -a PKGS=("base" "base-devel" "linux-firmware" "man-db" "man-pages" "texinfo" "nano" "vim" "git" "curl" "grub" "os-prober" "efibootmgr" "networkmanager" "xdg-user-dirs" "reflector" "numlockx")
 if test "$INTEL_UCODE" = "y" || test "$INTEL_UCODE" = "Y"; then
     PKGS+=("intel-ucode")
 fi

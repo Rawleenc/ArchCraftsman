@@ -5,13 +5,13 @@ This script supports both UEFI and BIOS.
 
 A manual partitioning of the target drive will be proposed with the cfdisk tool.
 
-You can create as many partitions as you want on the target drive except for the swap partition. Main partitions are the EFI partition, the Root partition and the Home partition.  
+You can create as many partitions as you want on the target drive. Main partitions are the EFI partition, the Root partition, the Swap partition and the Home partition.  
 You will have the possibility to choose to format or not the EFI and Home partitions, and for all other partitions, you will be able to choose the mount point and if you wish to format or not.
 
-If the EFI partition has to be formatted it will be formatted in vfat, otherwise the script expects the EFI partition to be already formatted in vfat (this is the case for windows 10 for example) and all other partitions will be formatted in ext4. Concerning the swap, a swapfile of the specified size, called swapfile, will be created and placed at the base of the Root partition.
+If the EFI partition has to be formatted it will be formatted in vfat, otherwise the script expects the EFI partition to be already formatted in vfat (this is the case for windows 10 for example) and all other partitions will be formatted in ext4. If you choose to not create a Swap partition, you will be proposed a swapfile of the size you want, called swapfile. It will be created and placed at the base of the Root partition.
 
 Packages included in the base :  
-`base base-devel linux-firmware man-db man-pages texinfo nano vim git curl grub os-prober efibootmgr networkmanager xdg-user-dirs`
+`base base-devel linux-firmware man-db man-pages texinfo nano vim git curl grub os-prober efibootmgr networkmanager xdg-user-dirs reflector numlockx`
 
 Optional packages available :  
 `intel-ucode amd-ucode linux/linux-lts nvidia/nvidia-lts terminus-font`
