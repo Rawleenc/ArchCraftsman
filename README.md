@@ -29,7 +29,7 @@ Optionally an additional user, added to the wheel group and sudo configured to a
 
 ### On the Arch Linux live iso :
 ```bash
-bash <(curl -L git.io/JoiIR)
+bash <(curl -L git.io/JKnJB)
 ```
 
 If you wish to test the latest development version, follow these steps :
