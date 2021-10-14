@@ -413,7 +413,7 @@ elif test "$DESKTOP" = "plasma"; then
         fi
     fi
 elif test "$DESKTOP" = "xfce"; then
-    PKGS+=("xfce4" "xfce4-goodies" "lightdm" "lightdm-gtk-greeter" "lightdm-gtk-greeter-settings" "xorg-server" "alsa-utils" "pulseaudio" "pulseaudio-alsa")
+    PKGS+=("xfce4" "xfce4-goodies" "lightdm" "lightdm-gtk-greeter" "lightdm-gtk-greeter-settings" "xorg-server" "alsa-utils" "pulseaudio" "pulseaudio-alsa" "pavucontrol")
 fi
 if test "$CUPS" = "y" || test "$CUPS" = "Y"; then
     PKGS+=("cups" "cups-pdf" "avahi" "samba" "foomatic-db-engine" "foomatic-db" "foomatic-db-ppds" "foomatic-db-nonfree-ppds" "foomatic-db-gutenprint-ppds" "gutenprint" "ghostscript")
