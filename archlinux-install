@@ -108,6 +108,9 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
     prompt "Install proprietary Nvidia driver ? (y/N) : " NVIDIA_DRIVER
     prompt "Install terminus console font ? (y/N) : " TERMINUS_FONT
     prompt "Install a desktop environment ? (1: Gnome, 2: KDE Plasma, 3: XFCE, other: None) : " DESKTOP
+    if [[ ! -z "$DESKTOP" ]] && test "$DESKTOP" = "2"; then
+        prompt "Install Wayland support for the plasma session ? (y/N) : " PLASMA_WAYLAND
+    fi
     prompt "Install Cups ? (y/N) : " CUPS
     prompt "Install ZSH with GRML configuration ? (y/N) : " GRML_ZSH
     prompt "Install a set of main fonts ? (y/N) : " MAIN_FONTS
@@ -189,6 +192,9 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
         DESKTOP="gnome"
     elif test "$DESKTOP" = "2"; then
         DESKTOP="plasma"
+        if [[ -z $PLASMA_WAYLAND ]]; then
+            PLASMA_WAYLAND="N"
+        fi
     elif test "$DESKTOP" = "3"; then
         DESKTOP="xfce"
     fi
@@ -222,6 +228,9 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
     print-sub-step "  * Install proprietary Nvidia driver : $NVIDIA_DRIVER"
     print-sub-step "  * Install terminus console font : $TERMINUS_FONT"
     print-sub-step "  * Desktop environment : $DESKTOP"
+    if test "$DESKTOP" = "plasma"; then
+        print-sub-step "  * Install Wayland support for the plasma session : $PLASMA_WAYLAND"
+    fi
     print-sub-step "  * Install Cups : $CUPS"
     print-sub-step "  * Install ZSH with GRML configuration : $GRML_ZSH"
     print-sub-step "  * Install a set of main fonts : $MAIN_FONTS"
@@ -397,6 +406,12 @@ if test "$DESKTOP" = "gnome"; then
     PKGS+=("gnome" "gnome-extra" "alsa-utils" "pulseaudio" "pulseaudio-alsa")
 elif test "$DESKTOP" = "plasma"; then
     PKGS+=("plasma" "kde-applications" "xorg-server" "alsa-utils" "pulseaudio" "pulseaudio-alsa")
+    if test "$PLASMA_WAYLAND" = "y" || test "$PLASMA_WAYLAND" = "Y"; then
+        PKGS+=("plasma-wayland-session")
+        if test "$NVIDIA_DRIVER" = "y" || test "$NVIDIA_DRIVER" = "Y"; then
+            PKGS+=("egl-wayland")
+        fi
+    fi
 elif test "$DESKTOP" = "xfce"; then
     PKGS+=("xfce4" "xfce4-goodies" "lightdm" "lightdm-gtk-greeter" "lightdm-gtk-greeter-settings" "xorg-server" "alsa-utils" "pulseaudio" "pulseaudio-alsa")
 fi
