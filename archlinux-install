@@ -27,7 +27,7 @@
 # under certain conditions; See the GNU General Public License for more details.
 
 set -Eeo pipefail
-[ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
+[[ "$UID" -eq 0 ]] || exec sudo bash "$0" "$@"
 
 RED="\033[0;31m"
 GREEN="\033[0;32m"
@@ -71,7 +71,7 @@ pacman -Sy
 USER_ANSWER="N"
 while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
     print-step true "Welcome to the archlinux-install script !"
-    if [ ! -d "/sys/firmware/efi" ]; then
+    if [[ ! -d "/sys/firmware/efi" ]]; then
         BIOS="Y"
         print-error "  /!\ BIOS detected ! The script will act accordingly. Don't forget to select a DOS label type before partitioning."
     else
@@ -80,7 +80,7 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
 
     print-step false "Environment configuration : "
     prompt "Choose your installation's language (1: FR, other: EN) : " LANGUAGE
-    if [ -z $LANGUAGE ]; then
+    if [[ -z "$LANGUAGE" ]]; then
         LANGUAGE="en"
     fi
     if test "$LANGUAGE" = "1"; then
@@ -89,7 +89,7 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
         LANGUAGE="en"
     fi
     prompt "Type your installation's keymap (fr-latin9) : " KEYMAP
-    if [ -z $KEYMAP ]; then
+    if [[ -z "$KEYMAP" ]]; then
         KEYMAP="fr-latin9"
     fi
     print-step false "Summary of choices :"
@@ -116,7 +116,9 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
     prompt "Install main file systems support ? (y/N) : " MAIN_FILE_SYSTEMS
     prompt "Your timezone (/usr/share/zoneinfo/Europe/Paris) : " TIMEZONE
     prompt "Would you like to add a user? (username, leave blank if none) : " USER_NAME
-
+    if [[ ! -z "$USER_NAME" ]]; then
+        prompt "What is the ${USER_NAME}'s full name (type the entire full name, leave blank if none) : " USER_FULL_NAME
+    fi
     set +Eeo pipefail
     PKGS_SELECT_OK="FAIL"
     while test "$PKGS_SELECT_OK" != "OK"; do
@@ -125,7 +127,7 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
         MORE_PKGS_ARRAY=(${MORE_PKGS})
         for pkg in "${MORE_PKGS_ARRAY[@]}"; do
             pacman -Ss ^${pkg}$ >/dev/null
-            if test "$(if [ $? -eq 0 ]; then echo OK; else echo FAIL; fi)" = "FAIL"; then
+            if test "$(if [[ "$?" -eq "0" ]]; then echo OK; else echo FAIL; fi)" = "FAIL"; then
                 PKGS_SELECT_OK="FAIL"
                 print-error "Package $pkg doesn't exist."
                 continue
@@ -145,7 +147,7 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
         fi
     done
 
-    if [ ! -z $USER_NAME ]; then
+    if [[ ! -z "$USER_NAME" ]]; then
         USER_PASSWORD="none"
         USER_PASSWORD_CONFIRM="wrong"
         while test "$USER_PASSWORD" != "$USER_PASSWORD_CONFIRM"; do
@@ -159,35 +161,35 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
     fi
 
     # Required fields
-    if [ -z $TARGET_DISK ]; then
+    if [[ -z "$TARGET_DISK" ]]; then
         print-error "  /!\ You need to choose a target drive."
         continue
     fi
-    if [ ! -e $TARGET_DISK ]; then
+    if [[ ! -e "$TARGET_DISK" ]]; then
         print-error "  /!\ The chosen target drive doesn't exist."
         continue
     fi
 
     # Default values
-    if [ -z $HOSTNAME ]; then
+    if [[ -z "$HOSTNAME" ]]; then
         HOSTNAME="archlinux"
     fi
-    if [ -z $INTEL_UCODE ]; then
+    if [[ -z "$INTEL_UCODE" ]]; then
         INTEL_UCODE="N"
     fi
-    if [ -z $AMD_UCODE ]; then
+    if [[ -z "$AMD_UCODE" ]]; then
         AMD_UCODE="N"
     fi
-    if [ -z $LTS_KERNEL ]; then
+    if [[ -z "$LTS_KERNEL" ]]; then
         LTS_KERNEL="N"
     fi
-    if [ -z $NVIDIA_DRIVER ]; then
+    if [[ -z "$NVIDIA_DRIVER" ]]; then
         NVIDIA_DRIVER="N"
     fi
-    if [ -z $TERMINUS_FONT ]; then
+    if [[ -z "$TERMINUS_FONT" ]]; then
         TERMINUS_FONT="N"
     fi
-    if [ -z $DESKTOP ]; then
+    if [[ -z "$DESKTOP" ]]; then
         DESKTOP="none"
     fi
     if test "$DESKTOP" = "1"; then
@@ -197,19 +199,19 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
     elif test "$DESKTOP" = "3"; then
         DESKTOP="xfce"
     fi
-    if [ -z $CUPS ]; then
+    if [[ -z "$CUPS" ]]; then
         CUPS="N"
     fi
-    if [ -z $GRML_ZSH ]; then
+    if [[ -z "$GRML_ZSH" ]]; then
         GRML_ZSH="N"
     fi
-    if [ -z $MAIN_FONTS ]; then
+    if [[ -z "$MAIN_FONTS" ]]; then
         MAIN_FONTS="N"
     fi
-    if [ -z $MAIN_FILE_SYSTEMS ]; then
+    if [[ -z "$MAIN_FILE_SYSTEMS" ]]; then
         MAIN_FILE_SYSTEMS="N"
     fi
-    if [ -z $TIMEZONE ]; then
+    if [[ -z "$TIMEZONE" ]]; then
         TIMEZONE="/usr/share/zoneinfo/Europe/Paris"
     fi
     print-step true "Summary of choices :"
@@ -226,8 +228,11 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
     print-sub-step "  * Install a set of main fonts : $MAIN_FONTS"
     print-sub-step "  * Install main file systems support : $MAIN_FILE_SYSTEMS"
     print-sub-step "  * Your timezone : $TIMEZONE"
-    if [ ! -z $USER_NAME ]; then
+    if [[ ! -z "$USER_NAME" ]]; then
         print-sub-step "  * Additional user name : $USER_NAME"
+        if [[ ! -z "$USER_FULL_NAME" ]]; then
+            print-sub-step "  * User's full name : $USER_FULL_NAME"
+        fi
     fi
     if [[ ! -z "$MORE_PKGS" ]]; then
         print-sub-step "  * More packages to install : $MORE_PKGS"
@@ -260,7 +265,7 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
             PART_TYPE["$partition"]="EFI"
             PART_MOUNT_POINT["$partition"]="/boot/efi"
             prompt "Format the EFI partition ? (y/N) : " PART_FORMAT["$partition"]
-            if [ -z ${PART_FORMAT[${partition}]} ]; then
+            if [[ -z "${PART_FORMAT[${partition}]}" ]]; then
                 PART_FORMAT["$partition"]="N"
             fi
             EFI_OK="y"
@@ -273,7 +278,7 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
             PART_TYPE["$partition"]="HOME"
             PART_MOUNT_POINT["$partition"]="/home"
             prompt "Format the Home partition ? (y/N) : " PART_FORMAT["$partition"]
-            if [ -z ${PART_FORMAT[${partition}]} ]; then
+            if [[ -z "${PART_FORMAT[${partition}]}" ]]; then
                 PART_FORMAT["$partition"]="N"
             fi
         elif test "$TYPE" = "3"; then
@@ -284,7 +289,7 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
             prompt "What is the mounting point of this partition ? : " MOUNT_POINT
             PART_MOUNT_POINT["$partition"]="$MOUNT_POINT"
             prompt "Format the $partition partition ? (Y/n) : " PART_FORMAT["$partition"]
-            if [ -z ${PART_FORMAT[${partition}]} ]; then
+            if [[ -z "${PART_FORMAT[${partition}]}" ]]; then
                 PART_FORMAT["$partition"]="Y"
             fi
         fi
@@ -315,7 +320,7 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
             print-sub-step "  * Other partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]}, Format : ${PART_FORMAT[${partition}]})"
         fi
     done
-    if test "$SWAP_OK" = "N" && [ ! -z $SWAPFILE_SIZE ]; then
+    if test "$SWAP_OK" = "N" && [[ ! -z "$SWAPFILE_SIZE" ]]; then
         print-sub-step "  * Swapfile size : $SWAPFILE_SIZE"
     fi
     prompt "Is the informations correct ? (y/N) : " USER_ANSWER
@@ -353,7 +358,7 @@ for partition in "${PARTITIONS[@]}"; do
 done
 
 # Creation and activation of the swapfile
-if test "$SWAP_OK" = "N" && [ ! -z $SWAPFILE_SIZE ]; then
+if test "$SWAP_OK" = "N" && [[ ! -z "$SWAPFILE_SIZE" ]]; then
     print-step false "Creation and activation of the swapfile..."
     fallocate -l $SWAPFILE_SIZE /mnt/swapfile
     chmod 600 /mnt/swapfile
@@ -453,7 +458,7 @@ arch-chroot /mnt bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
 print-step false "Extra packages configuration if needed..."
 if test "$DESKTOP" = "gnome"; then
     arch-chroot /mnt bash -c "systemctl enable gdm"
-    if [[ $KEYMAP == *"fr"* ]]; then
+    if [[ "$KEYMAP" == *"fr"* ]]; then
         arch-chroot /mnt bash -c "mkdir --parent /etc/X11/xorg.conf.d"
         arch-chroot /mnt bash -c "echo 'Section \"InputClass\"' > /etc/X11/xorg.conf.d/00-keyboard.conf"
         arch-chroot /mnt bash -c "echo '    Identifier \"system-keyboard\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
@@ -464,7 +469,7 @@ if test "$DESKTOP" = "gnome"; then
 fi
 if test "$DESKTOP" = "plasma"; then
     arch-chroot /mnt bash -c "systemctl enable sddm"
-    if [[ $KEYMAP == *"fr"* ]]; then
+    if [[ "$KEYMAP" == *"fr"* ]]; then
         arch-chroot /mnt bash -c "mkdir --parent /etc/X11/xorg.conf.d"
         arch-chroot /mnt bash -c "echo 'Section \"InputClass\"' > /etc/X11/xorg.conf.d/00-keyboard.conf"
         arch-chroot /mnt bash -c "echo '    Identifier \"system-keyboard\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
@@ -475,7 +480,7 @@ if test "$DESKTOP" = "plasma"; then
 fi
 if test "$DESKTOP" = "xfce"; then
     arch-chroot /mnt bash -c "systemctl enable lightdm"
-    if [[ $KEYMAP == *"fr"* ]]; then
+    if [[ "$KEYMAP" == *"fr"* ]]; then
         arch-chroot /mnt bash -c "mkdir --parent /etc/X11/xorg.conf.d"
         arch-chroot /mnt bash -c "echo 'Section \"InputClass\"' > /etc/X11/xorg.conf.d/00-keyboard.conf"
         arch-chroot /mnt bash -c "echo '    Identifier \"system-keyboard\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
@@ -496,7 +501,7 @@ if test "$GRML_ZSH" = "y" || test "$GRML_ZSH" = "Y"; then
     arch-chroot /mnt bash -c "chsh --shell /bin/zsh"
 fi
 arch-chroot /mnt bash -c "echo 'root:${ROOT_PASSWORD}' | chpasswd"
-if [ ! -z $USER_NAME ]; then
+if [[ ! -z "$USER_NAME" ]]; then
     print-sub-step "  * ${USER_NAME} account configuration..."
     sed -i "s|# %wheel ALL=(ALL) ALL|%wheel ALL=(ALL) ALL|g" /mnt/etc/sudoers
     if test "$GRML_ZSH" = "y" || test "$GRML_ZSH" = "Y"; then
@@ -504,12 +509,15 @@ if [ ! -z $USER_NAME ]; then
     else
         arch-chroot /mnt bash -c "useradd --shell=/bin/bash --groups=wheel --create-home ${USER_NAME}"
     fi
+    if [[ ! -z "$USER_FULL_NAME" ]]; then
+        arch-chroot /mnt bash -c "chfn -f '${USER_FULL_NAME}' ${USER_NAME}"
+    fi
     arch-chroot /mnt bash -c "echo '${USER_NAME}:${USER_PASSWORD}' | chpasswd"
 fi
 
 # Démontage des partitions
 print-step false "Unmounting partitions..."
-if [ ! -z $SWAPFILE_SIZE ]; then
+if [[ ! -z "$SWAPFILE_SIZE" ]]; then
     swapoff /mnt/swapfile
 fi
 umount -R /mnt
