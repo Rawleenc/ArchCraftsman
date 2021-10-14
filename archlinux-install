@@ -395,11 +395,11 @@ if test "$TERMINUS_FONT" = "y" || test "$TERMINUS_FONT" = "Y"; then
     PKGS+=("terminus-font")
 fi
 if test "$DESKTOP" = "gnome"; then
-    PKGS+=("gnome" "gnome-extra")
+    PKGS+=("gnome" "gnome-extra" "alsa-utils" "pulseaudio" "pulseaudio-alsa")
 elif test "$DESKTOP" = "plasma"; then
-    PKGS+=("plasma" "kde-applications" "xorg-server")
+    PKGS+=("plasma" "kde-applications" "xorg-server" "alsa-utils" "pulseaudio" "pulseaudio-alsa")
 elif test "$DESKTOP" = "xfce"; then
-    PKGS+=("xfce4" "xfce4-goodies" "lightdm" "lightdm-gtk-greeter" "lightdm-gtk-greeter-settings" "xorg-server")
+    PKGS+=("xfce4" "xfce4-goodies" "lightdm" "lightdm-gtk-greeter" "lightdm-gtk-greeter-settings" "xorg-server" "alsa-utils" "pulseaudio" "pulseaudio-alsa")
 fi
 if test "$CUPS" = "y" || test "$CUPS" = "Y"; then
     PKGS+=("cups" "cups-pdf" "avahi" "samba" "foomatic-db-engine" "foomatic-db" "foomatic-db-ppds" "foomatic-db-nonfree-ppds" "foomatic-db-gutenprint-ppds" "gutenprint" "ghostscript")
@@ -458,6 +458,7 @@ arch-chroot /mnt bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
 print-step false "Extra packages configuration if needed..."
 if test "$DESKTOP" = "gnome"; then
     arch-chroot /mnt bash -c "systemctl enable gdm"
+    arch-chroot /mnt bash -c "amixer sset Master unmute"
     if [[ "$KEYMAP" == *"fr"* ]]; then
         arch-chroot /mnt bash -c "mkdir --parent /etc/X11/xorg.conf.d"
         arch-chroot /mnt bash -c "echo 'Section \"InputClass\"' > /etc/X11/xorg.conf.d/00-keyboard.conf"
@@ -469,6 +470,7 @@ if test "$DESKTOP" = "gnome"; then
 fi
 if test "$DESKTOP" = "plasma"; then
     arch-chroot /mnt bash -c "systemctl enable sddm"
+    arch-chroot /mnt bash -c "amixer sset Master unmute"
     if [[ "$KEYMAP" == *"fr"* ]]; then
         arch-chroot /mnt bash -c "mkdir --parent /etc/X11/xorg.conf.d"
         arch-chroot /mnt bash -c "echo 'Section \"InputClass\"' > /etc/X11/xorg.conf.d/00-keyboard.conf"
@@ -480,6 +482,7 @@ if test "$DESKTOP" = "plasma"; then
 fi
 if test "$DESKTOP" = "xfce"; then
     arch-chroot /mnt bash -c "systemctl enable lightdm"
+    arch-chroot /mnt bash -c "amixer sset Master unmute"
     if [[ "$KEYMAP" == *"fr"* ]]; then
         arch-chroot /mnt bash -c "mkdir --parent /etc/X11/xorg.conf.d"
         arch-chroot /mnt bash -c "echo 'Section \"InputClass\"' > /etc/X11/xorg.conf.d/00-keyboard.conf"
