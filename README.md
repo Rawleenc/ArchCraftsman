@@ -29,20 +29,14 @@ Optionally an additional user, added to the wheel group and sudo configured to a
 
 ### On the Arch Linux live iso :
 ```bash
-bash <(curl -L git.io/JoiIR)
+bash <(curl -L git.io/JKnJB)
 ```
-
-If you wish to use the previous version, you can download the latest patch with this command :
-```bash
-bash <(curl -L git.io/Jo6K4)
-```
-*Keep in mind that the previous version maybe be quicker but it is in french only and provide less flexibiliy than the latest version.*
 
 If you wish to test the latest development version, follow these steps :
 ```bash
 pacman -Sy unzip
-curl -L github.com/rawleenc/archlinux-install/archive/refs/heads/master.zip > master.zip
-unzip master.zip
+curl -L github.com/rawleenc/archlinux-install/archive/refs/heads/dev.zip > dev.zip
+unzip dev.zip
 ./archlinux-install-master/archlinux-install
 ```
 *However, this is absolutely not recommended for any other purpose than tests.*
