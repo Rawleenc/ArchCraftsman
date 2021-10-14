@@ -104,8 +104,6 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
     fdisk -l
     prompt "On which drive should Archlinux be installed ? (type the entire name, for example '/dev/sda') : " TARGET_DISK
     prompt "What will be your hostname (archlinux) : " HOSTNAME
-    prompt "Install Intel microcode ? (y/N) : " INTEL_UCODE
-    prompt "Install AMD microcode ? (y/N) : " AMD_UCODE
     prompt "Install LTS Linux kernel ? (y/N) : " LTS_KERNEL
     prompt "Install proprietary Nvidia driver ? (y/N) : " NVIDIA_DRIVER
     prompt "Install terminus console font ? (y/N) : " TERMINUS_FONT
@@ -171,14 +169,9 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
     fi
 
     # Default values
+    MICROCODES="none"
     if [[ -z "$HOSTNAME" ]]; then
         HOSTNAME="archlinux"
-    fi
-    if [[ -z "$INTEL_UCODE" ]]; then
-        INTEL_UCODE="N"
-    fi
-    if [[ -z "$AMD_UCODE" ]]; then
-        AMD_UCODE="N"
     fi
     if [[ -z "$LTS_KERNEL" ]]; then
         LTS_KERNEL="N"
@@ -214,11 +207,17 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
     if [[ -z "$TIMEZONE" ]]; then
         TIMEZONE="/usr/share/zoneinfo/Europe/Paris"
     fi
+    CPU_VENDOR_ID=$(cat /proc/cpuinfo | grep 'vendor' | uniq | cut -f 2 -d ":" | awk '{$1=$1}1')
+    if test "$CPU_VENDOR_ID" = "GenuineIntel"; then
+        MICROCODES="intel"
+    fi
+    if test "$CPU_VENDOR_ID" = "AuthenticAMD"; then
+        MICROCODES="amd"
+    fi
     print-step true "Summary of choices :"
     print-sub-step "  * Your target drive : $TARGET_DISK"
     print-sub-step "  * Your hostname : $HOSTNAME"
-    print-sub-step "  * Install Intel microcode : $INTEL_UCODE"
-    print-sub-step "  * Install AMD microcode : $AMD_UCODE"
+    print-sub-step "  * Microcodes to install : $MICROCODES"
     print-sub-step "  * Install LTS Linux kernel : $LTS_KERNEL"
     print-sub-step "  * Install proprietary Nvidia driver : $NVIDIA_DRIVER"
     print-sub-step "  * Install terminus console font : $TERMINUS_FONT"
@@ -373,10 +372,10 @@ reflector --save /etc/pacman.d/mirrorlist --protocol https --age 12 --score 5 --
 # Installation of the base
 print-step false "Installation of the base..."
 declare -a PKGS=("base" "base-devel" "linux-firmware" "man-db" "man-pages" "texinfo" "nano" "vim" "git" "curl" "grub" "os-prober" "efibootmgr" "networkmanager" "xdg-user-dirs" "reflector" "numlockx")
-if test "$INTEL_UCODE" = "y" || test "$INTEL_UCODE" = "Y"; then
+if test "$MICROCODES" = "intel"; then
     PKGS+=("intel-ucode")
 fi
-if test "$AMD_UCODE" = "y" || test "$AMD_UCODE" = "Y"; then
+if test "$MICROCODES" = "amd"; then
     PKGS+=("amd-ucode")
 fi
 if test "$LTS_KERNEL" = "y" || test "$LTS_KERNEL" = "Y"; then
