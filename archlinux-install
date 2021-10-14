@@ -150,8 +150,8 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
         USER_PASSWORD_CONFIRM="wrong"
         while test "$USER_PASSWORD" != "$USER_PASSWORD_CONFIRM"; do
             print-sub-step "  * ${USER_NAME} password configuration : "
-            prompt-passwd "Enter the root password : " USER_PASSWORD
-            prompt-passwd "Re-enter the root password to confirm : " USER_PASSWORD_CONFIRM
+            prompt-passwd "Enter the $USER_NAME password : " USER_PASSWORD
+            prompt-passwd "Re-enter the $USER_NAME password to confirm : " USER_PASSWORD_CONFIRM
             if test "$USER_PASSWORD" != "$USER_PASSWORD_CONFIRM"; then
                 print-error "  /!\ Passwords entered don't match."
             fi
