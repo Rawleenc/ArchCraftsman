@@ -37,7 +37,7 @@ If you wish to test the latest development version, follow these steps :
 pacman -Sy unzip
 curl -L github.com/rawleenc/archlinux-install/archive/refs/heads/dev.zip > dev.zip
 unzip dev.zip
-./archlinux-install-master/archlinux-install
+./archlinux-install-dev/archlinux-install
 ```
 *However, this is absolutely not recommended for any other purpose than tests.*
 
