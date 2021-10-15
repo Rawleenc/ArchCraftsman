@@ -102,6 +102,7 @@ pacman -Sy
 if [[ ! -f "fr.po" ]]; then
     curl -sLO "raw.githubusercontent.com/rawleenc/archlinux-install/dev/locales/fr.po"
 fi
+
 msgfmt -o /usr/share/locale/fr/LC_MESSAGES/archlinux-install.mo fr.po
 
 USER_ANSWER=false
@@ -115,21 +116,18 @@ while [[ $USER_ANSWER != true ]]; do
     fi
 
     print-step false $"Environment configuration : "
-    prompt $"Choose your installation's language (1: FR, other: EN) : " LANGUAGE
-    if [[ -z "$LANGUAGE" ]]; then
-        LANGUAGE="en"
-    fi
-    if test "$LANGUAGE" = "1"; then
-        LANGUAGE="fr"
+    prompt $"Choose your installation's language (1: FR, other: EN) : " GLOBAL_LANGUAGE
+    if test "$GLOBAL_LANGUAGE" = "1"; then
+        GLOBAL_LANGUAGE="fr"
     else
-        LANGUAGE="en"
+        GLOBAL_LANGUAGE="en"
     fi
     prompt $"Type your installation's keymap (fr-latin9) : " KEYMAP
     if [[ -z "$KEYMAP" ]]; then
         KEYMAP="fr-latin9"
     fi
     print-step false $"Summary of choices :"
-    print-sub-step $"Your installation's language : $LANGUAGE"
+    print-sub-step $"Your installation's language : $GLOBAL_LANGUAGE"
     print-sub-step $"Your installation's keymap : $KEYMAP"
     prompt-bool-default-no $"Is the informations correct ? (y/N) : " USER_ANSWER
 done
@@ -137,7 +135,7 @@ done
 print-step false $"Configuring live environment..."
 loadkeys ${KEYMAP}
 setfont eurlatgr
-if test "${LANGUAGE}" = "fr"; then
+if test "${GLOBAL_LANGUAGE}" = "fr"; then
     sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /etc/locale.gen
     locale-gen
     export LANG=fr_FR.UTF-8
@@ -476,7 +474,7 @@ print-step false $"System configuration..."
 genfstab -U /mnt >>/mnt/etc/fstab
 sed -i "s|#en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|g" /mnt/etc/locale.gen
 sed -i "s|#en_US ISO-8859-1|en_US ISO-8859-1|g" /mnt/etc/locale.gen
-if test "$LANGUAGE" = "fr"; then
+if test "$GLOBAL_LANGUAGE" = "fr"; then
     sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /mnt/etc/locale.gen
     sed -i "s|#fr_FR ISO-8859-1|fr_FR ISO-8859-1|g" /mnt/etc/locale.gen
     echo "LANG=fr_FR.UTF-8" >/mnt/etc/locale.conf
