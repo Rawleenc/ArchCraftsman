@@ -66,6 +66,19 @@ function pause {
     read -e -s -n 1 -p "$(echo -e ${ORANGE}"Press any key to continue...\n"${NOCOLOR})"
 }
 
+function locales-setup {
+    print-step "Configuring live environment..."
+    loadkeys ${KEYMAP}
+    setfont eurlatgr
+    if test "${LANGUAGE}" = "fr"; then
+        sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /etc/locale.gen
+        locale-gen
+        localectl set-locale fr_FR.UTF-8
+        unset LANG
+        source /etc/profile.d/locale.sh
+    fi
+}
+
 pacman -Sy
 
 USER_ANSWER="N"
@@ -97,6 +110,7 @@ while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
     print-sub-step "  * Your installation's keymap : $KEYMAP"
     prompt "Is the information correct ? (y/N) : " USER_ANSWER
 done
+locales-setup
 
 USER_ANSWER="N"
 while test "$USER_ANSWER" != "y" && test "$USER_ANSWER" != "Y"; do
