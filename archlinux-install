@@ -67,7 +67,7 @@ function pause {
 }
 
 function locales-setup {
-    print-step "Configuring live environment..."
+    print-step false "Configuring live environment..."
     loadkeys ${KEYMAP}
     setfont eurlatgr
     if test "${LANGUAGE}" = "fr"; then
