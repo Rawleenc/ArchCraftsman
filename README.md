@@ -34,7 +34,6 @@ bash <(curl -L git.io/JKnJB)
 
 If you wish to test the latest development version, you can download it with this command :
 ```bash
-# Shortcut for the link https://raw.githubusercontent.com/rawleenc/archlinux-install/dev/archlinux-install
 bash <(curl -L git.io/JKlY5)
 ```
 *However, this is absolutely not recommended for any other purpose than tests.*
