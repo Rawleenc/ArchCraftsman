@@ -35,6 +35,8 @@ CYAN="\033[0;36m"
 ORANGE="\033[0;33m"
 NOCOLOR="\033[0m"
 
+export TEXTDOMAIN=archlinux-install
+
 function print-error {
     echo -e "\n${RED}  /!\ $1${NOCOLOR}\n"
     pause
@@ -98,13 +100,9 @@ function pause {
 pacman -Sy
 
 if [[ ! -f "fr.po" ]]; then
-    curl -L "raw.githubusercontent.com/rawleenc/archlinux-install/dev/locales/fr.po" > fr.po
+    curl -sLO "raw.githubusercontent.com/rawleenc/archlinux-install/dev/locales/fr.po"
 fi
-mkdir -p $HOME/archlinux-install-locale/fr/LC_MESSAGES/
-msgfmt -o $HOME/archlinux-install-locale/fr/LC_MESSAGES/archlinux-install.mo fr.po
-export TEXTDOMAINDIR=$HOME/archlinux-install-locale
-export TEXTDOMAIN=archlinux-install
-. gettext.sh
+msgfmt -o /usr/share/locale/fr/LC_MESSAGES/archlinux-install.mo fr.po
 
 USER_ANSWER=false
 while [[ $USER_ANSWER != true ]]; do
@@ -143,11 +141,11 @@ if test "${LANGUAGE}" = "fr"; then
     sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /etc/locale.gen
     locale-gen
     export LANG=fr_FR.UTF-8
-    export LC_MESSAGES=fr_FR.UTF-8
+    export LANGUAGE=fr_FR.UTF-8
     . gettext.sh
 else
     export LANG=en_US.UTF-8
-    export LC_MESSAGES=en_US.UTF-8
+    export LANGUAGE=en_US.UTF-8
     . gettext.sh
 fi
 
