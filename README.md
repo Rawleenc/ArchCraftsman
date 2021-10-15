@@ -32,12 +32,10 @@ Optionally an additional user, added to the wheel group and sudo configured to a
 bash <(curl -L git.io/JKnJB)
 ```
 
-If you wish to test the latest development version, follow these steps :
+If you wish to test the latest development version, you can download it with this command :
 ```bash
-pacman -Sy unzip
-curl -L github.com/rawleenc/archlinux-install/archive/refs/heads/dev.zip > dev.zip
-unzip dev.zip
-./archlinux-install-dev/archlinux-install
+# Shortcut for the link https://raw.githubusercontent.com/rawleenc/archlinux-install/dev/archlinux-install
+bash <(curl -L git.io/JKlY5)
 ```
 *However, this is absolutely not recommended for any other purpose than tests.*
 
