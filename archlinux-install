@@ -37,6 +37,8 @@ NOCOLOR="\033[0m"
 
 export TEXTDOMAIN=archlinux-install
 
+. gettext.sh
+
 function print-error {
     echo -e "\n${RED}  /!\ $1${NOCOLOR}\n"
     pause
@@ -97,6 +99,21 @@ function pause {
     read -e -s -n 1 -p "$(echo -e ${ORANGE}"Press any key to continue...\n"${NOCOLOR})"
 }
 
+function locale-setup {
+    print-step false "$(eval_gettext "Configuring live environment...")"
+    loadkeys ${KEYMAP}
+    setfont eurlatgr
+    if test "${GLOBAL_LANGUAGE}" = "fr"; then
+        sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /etc/locale.gen
+        locale-gen
+        export LANG=fr_FR.UTF-8
+        export LANGUAGE=fr_FR.UTF-8
+    else
+        export LANG=en_US.UTF-8
+        export LANGUAGE=en_US.UTF-8
+    fi
+}
+
 pacman -Sy
 
 if [[ ! -f "fr.po" ]]; then
@@ -107,79 +124,66 @@ msgfmt -o /usr/share/locale/fr/LC_MESSAGES/archlinux-install.mo fr.po
 
 USER_ANSWER=false
 while [[ $USER_ANSWER != true ]]; do
-    print-step true $"Welcome to the archlinux-install script !"
+    print-step true "$(eval_gettext "Welcome to the archlinux-install script !")"
     if [[ ! -d "/sys/firmware/efi" ]]; then
         BIOS=true
-        print-error $"BIOS detected ! The script will act accordingly. Don't forget to select a DOS label type before partitioning."
+        print-error "$(eval_gettext "BIOS detected ! The script will act accordingly. Don't forget to select a DOS label type before partitioning.")"
     else
         BIOS=false
     fi
 
-    print-step false $"Environment configuration : "
-    prompt $"Choose your installation's language (1: FR, other: EN) : " GLOBAL_LANGUAGE
+    print-step false "$(eval_gettext "Environment configuration : ")"
+    prompt "$(eval_gettext "Choose your installation's language (1: FR, other: EN) : ")" GLOBAL_LANGUAGE
     if test "$GLOBAL_LANGUAGE" = "1"; then
         GLOBAL_LANGUAGE="fr"
     else
         GLOBAL_LANGUAGE="en"
     fi
-    prompt $"Type your installation's keymap (fr-latin9) : " KEYMAP
+    prompt "$(eval_gettext "Type your installation's keymap (fr-latin9) : ")" KEYMAP
     if [[ -z "$KEYMAP" ]]; then
         KEYMAP="fr-latin9"
     fi
-    print-step false $"Summary of choices :"
-    print-sub-step $"Your installation's language : $GLOBAL_LANGUAGE"
-    print-sub-step $"Your installation's keymap : $KEYMAP"
-    prompt-bool-default-no $"Is the informations correct ? (y/N) : " USER_ANSWER
+    print-step false "$(eval_gettext "Summary of choices :")"
+    print-sub-step "$(eval_gettext "Your installation's language : \$GLOBAL_LANGUAGE")"
+    print-sub-step "$(eval_gettext "Your installation's keymap : \$KEYMAP")"
+    prompt-bool-default-no "$(eval_gettext "Is the informations correct ? (y/N) : ")" USER_ANSWER
 done
 
-print-step false $"Configuring live environment..."
-loadkeys ${KEYMAP}
-setfont eurlatgr
-if test "${GLOBAL_LANGUAGE}" = "fr"; then
-    sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /etc/locale.gen
-    locale-gen
-    export LANG=fr_FR.UTF-8
-    export LANGUAGE=fr_FR.UTF-8
-    . gettext.sh
-else
-    export LANG=en_US.UTF-8
-    export LANGUAGE=en_US.UTF-8
-    . gettext.sh
-fi
+locale-setup
 
 USER_ANSWER=false
 while [[ $USER_ANSWER != true ]]; do
-    print-step true $"System configuration : "
+    print-step true "$(eval_gettext "System configuration : ")"
     fdisk -l
-    prompt $"On which drive should Archlinux be installed ? (type the entire name, for example '/dev/sda') : " TARGET_DISK
-    prompt $"What will be your hostname (archlinux) : " HOSTNAME
-    prompt-bool-default-no $"Install LTS Linux kernel ? (y/N) : " LTS_KERNEL
-    prompt-bool-default-no $"Install proprietary Nvidia driver ? (y/N) : " NVIDIA_DRIVER
-    prompt-bool-default-no $"Install terminus console font ? (y/N) : " TERMINUS_FONT
-    prompt $"Install a desktop environment ? (1: Gnome, 2: KDE Plasma, 3: XFCE, other: None) : " DESKTOP
+    prompt "$(eval_gettext "On which drive should Archlinux be installed ? (type the entire name, for example '/dev/sda') : ")" TARGET_DISK
+    prompt "$(eval_gettext "What will be your hostname (archlinux) : ")" HOSTNAME
+    prompt-bool-default-no "$(eval_gettext "Install LTS Linux kernel ? (y/N) : ")" LTS_KERNEL
+    prompt-bool-default-no "$(eval_gettext "Install proprietary Nvidia driver ? (y/N) : ")" NVIDIA_DRIVER
+    prompt-bool-default-no "$(eval_gettext "Install terminus console font ? (y/N) : ")" TERMINUS_FONT
+    prompt "$(eval_gettext "Install a desktop environment ? (1: Gnome, 2: KDE Plasma, 3: XFCE, other: None) : ")" DESKTOP
     if [[ ! -z "$DESKTOP" ]] && test "$DESKTOP" = "2"; then
-        prompt-bool-default-no $"Install Wayland support for the plasma session ? (y/N) : " PLASMA_WAYLAND
+        prompt-bool-default-no "$(eval_gettext "Install Wayland support for the plasma session ? (y/N) : ")" PLASMA_WAYLAND
     fi
-    prompt-bool-default-no $"Install Cups ? (y/N) : " CUPS
-    prompt-bool-default-no $"Install ZSH with GRML configuration ? (y/N) : " GRML_ZSH
-    prompt-bool-default-no $"Install a set of main fonts ? (y/N) : " MAIN_FONTS
-    prompt-bool-default-no $"Install main file systems support ? (y/N) : " MAIN_FILE_SYSTEMS
-    prompt $"Your timezone (/usr/share/zoneinfo/Europe/Paris) : " TIMEZONE
-    prompt $"Would you like to add a user? (username, leave blank if none) : " USER_NAME
+    prompt-bool-default-no "$(eval_gettext "Install Cups ? (y/N) : ")" CUPS
+    prompt-bool-default-no "$(eval_gettext "Install ZSH with GRML configuration ? (y/N) : ")" GRML_ZSH
+    prompt-bool-default-no "$(eval_gettext "Install a set of main fonts ? (y/N) : ")" MAIN_FONTS
+    prompt-bool-default-no "$(eval_gettext "Install main file systems support ? (y/N) : ")" MAIN_FILE_SYSTEMS
+    prompt "$(eval_gettext "Your timezone (/usr/share/zoneinfo/Europe/Paris) : ")" TIMEZONE
+    prompt "$(eval_gettext "Would you like to add a user? (username, leave blank if none) : ")" USER_NAME
     if [[ ! -z "$USER_NAME" ]]; then
-        prompt $"What is the ${USER_NAME}'s full name (type the entire full name, leave blank if none) : " USER_FULL_NAME
+        prompt "$(eval_gettext "What is the \${USER_NAME}'s full name (type the entire full name, leave blank if none) : ")" USER_FULL_NAME
     fi
     set +Eeo pipefail
     PKGS_SELECT_OK="FAIL"
     while test "$PKGS_SELECT_OK" != "OK"; do
         PKGS_SELECT_OK="OK"
-        promptln $"Install more packages ? (type extra packages full names, example : 'htop neofetch', leave blank if none) : " MORE_PKGS
+        promptln "$(eval_gettext "Install more packages ? (type extra packages full names, example : 'htop neofetch', leave blank if none) : ")" MORE_PKGS
         MORE_PKGS_ARRAY=(${MORE_PKGS})
         for pkg in "${MORE_PKGS_ARRAY[@]}"; do
             pacman -Ss ^${pkg}$ >/dev/null
             if test "$(if [[ "$?" -eq "0" ]]; then echo OK; else echo FAIL; fi)" = "FAIL"; then
                 PKGS_SELECT_OK="FAIL"
-                print-error $"Package $pkg doesn't exist."
+                print-error "$(eval_gettext "Package \$pkg doesn't exist.")"
                 continue
             fi
         done
@@ -188,43 +192,43 @@ while [[ $USER_ANSWER != true ]]; do
 
     ROOT_PASSWORD_CONFIRM="wrong"
     while test "$ROOT_PASSWORD" != "$ROOT_PASSWORD_CONFIRM"; do
-        print-sub-step $"root password configuration : "
-        prompt-passwd $"Enter the root password : " ROOT_PASSWORD
-        prompt-passwd $"Re-enter the root password to confirm : " ROOT_PASSWORD_CONFIRM
+        print-sub-step "$(eval_gettext "root password configuration : ")"
+        prompt-passwd "$(eval_gettext "Enter the root password : ")" ROOT_PASSWORD
+        prompt-passwd "$(eval_gettext "Re-enter the root password to confirm : ")" ROOT_PASSWORD_CONFIRM
         if test "$ROOT_PASSWORD" != "$ROOT_PASSWORD_CONFIRM"; then
-            print-error $"Passwords entered don't match."
+            print-error "$(eval_gettext "Passwords entered don't match.")"
         fi
     done
 
     if [[ ! -z "$USER_NAME" ]]; then
         USER_PASSWORD_CONFIRM="wrong"
         while test "$USER_PASSWORD" != "$USER_PASSWORD_CONFIRM"; do
-            print-sub-step $"${USER_NAME} password configuration : "
-            prompt-passwd $"Enter the $USER_NAME password : " USER_PASSWORD
-            prompt-passwd $"Re-enter the $USER_NAME password to confirm : " USER_PASSWORD_CONFIRM
+            print-sub-step "$(eval_gettext "\${USER_NAME} password configuration : ")"
+            prompt-passwd "$(eval_gettext "Enter the \$USER_NAME password : ")" USER_PASSWORD
+            prompt-passwd "$(eval_gettext "Re-enter the \$USER_NAME password to confirm : ")" USER_PASSWORD_CONFIRM
             if test "$USER_PASSWORD" != "$USER_PASSWORD_CONFIRM"; then
-                print-error $"Passwords entered don't match."
+                print-error "$(eval_gettext "Passwords entered don't match.")"
             fi
         done
     fi
 
     # Required fields
     if [[ -z "$TARGET_DISK" ]]; then
-        print-error $"You need to choose a target drive."
+        print-error "$(eval_gettext "You need to choose a target drive.")"
         continue
     fi
     if [[ ! -e "$TARGET_DISK" ]]; then
-        print-error $"The chosen target drive doesn't exist."
+        print-error "$(eval_gettext "The chosen target drive doesn't exist.")"
         continue
     fi
 
     # Default values
-    MICROCODES=$"none"
+    MICROCODES="$(eval_gettext "none")"
     if [[ -z "$HOSTNAME" ]]; then
         HOSTNAME="archlinux"
     fi
     if [[ -z "$DESKTOP" ]]; then
-        DESKTOP=$"none"
+        DESKTOP="$(eval_gettext "none")"
     fi
     if test "$DESKTOP" = "1"; then
         DESKTOP="gnome"
@@ -243,48 +247,48 @@ while [[ $USER_ANSWER != true ]]; do
     if test "$CPU_VENDOR_ID" = "AuthenticAMD"; then
         MICROCODES="amd"
     fi
-    print-step true $"Summary of choices :"
-    print-sub-step $"Your target drive : $TARGET_DISK"
-    print-sub-step $"Your hostname : $HOSTNAME"
-    print-sub-step $"Microcodes to install : $MICROCODES"
+    print-step true "$(eval_gettext "Summary of choices :")"
+    print-sub-step "$(eval_gettext "Your target drive : \$TARGET_DISK")"
+    print-sub-step "$(eval_gettext "Your hostname : \$HOSTNAME")"
+    print-sub-step "$(eval_gettext "Microcodes to install : \$MICROCODES")"
     if [[ $LTS_KERNEL = true ]]; then
-        print-sub-step $"Install LTS Linux kernel."
+        print-sub-step "$(eval_gettext "Install LTS Linux kernel.")"
     fi
     if [[ $NVIDIA_DRIVER = true ]]; then
-        print-sub-step $"Install proprietary Nvidia driver."
+        print-sub-step "$(eval_gettext "Install proprietary Nvidia driver.")"
     fi
     if [[ $TERMINUS_FONT = true ]]; then
-        print-sub-step $"Install terminus console font."
+        print-sub-step "$(eval_gettext "Install terminus console font.")"
     fi
-    print-sub-step $"Desktop environment : $DESKTOP"
+    print-sub-step "$(eval_gettext "Desktop environment : \$DESKTOP")"
     if test "$DESKTOP" = "plasma"; then
         if [[ $PLASMA_WAYLAND = true ]]; then
-            print-sub-step $"Install Wayland support for the plasma session."
+            print-sub-step "$(eval_gettext "Install Wayland support for the plasma session.")"
         fi
     fi
     if [[ $CUPS = true ]]; then
-        print-sub-step $"Install Cups."
+        print-sub-step "$(eval_gettext "Install Cups.")"
     fi
     if [[ $GRML_ZSH = true ]]; then
-        print-sub-step $"Install ZSH with GRML configuration."
+        print-sub-step "$(eval_gettext "Install ZSH with GRML configuration.")"
     fi
     if [[ $MAIN_FONTS = true ]]; then
-        print-sub-step $"Install a set of main fonts."
+        print-sub-step "$(eval_gettext "Install a set of main fonts.")"
     fi
     if [[ $MAIN_FILE_SYSTEMS = true ]]; then
-        print-sub-step $"Install main file systems support."
+        print-sub-step "$(eval_gettext "Install main file systems support.")"
     fi
-    print-sub-step $"Your timezone : $TIMEZONE"
+    print-sub-step "$(eval_gettext "Your timezone : \$TIMEZONE")"
     if [[ ! -z "$USER_NAME" ]]; then
-        print-sub-step $"Additional user name : $USER_NAME"
+        print-sub-step "$(eval_gettext "Additional user name : \$USER_NAME")"
         if [[ ! -z "$USER_FULL_NAME" ]]; then
-            print-sub-step $"User's full name : $USER_FULL_NAME"
+            print-sub-step "$(eval_gettext "User's full name : \$USER_FULL_NAME")"
         fi
     fi
     if [[ ! -z "$MORE_PKGS" ]]; then
-        print-sub-step $"More packages to install : $MORE_PKGS"
+        print-sub-step "$(eval_gettext "More packages to install : \$MORE_PKGS")"
     fi
-    prompt-bool-default-no $"Is the informations correct ? (y/N) : " USER_ANSWER
+    prompt-bool-default-no "$(eval_gettext "Is the informations correct ? (y/N) : ")" USER_ANSWER
 done
 
 # Partitioning
@@ -293,25 +297,26 @@ declare -A PART_MOUNT_POINT
 declare -A PART_FORMAT
 USER_ANSWER=false
 while [[ $USER_ANSWER != true ]]; do
-    print-step true $"Partitioning the target drive..."
+    print-step true "$(eval_gettext "Partitioning the target drive...")"
     cfdisk $TARGET_DISK
     declare -a PARTITIONS=($(fdisk -l | grep "^${TARGET_DISK}*" | awk '{print $1}'))
     EFI_OK=false
     ROOT_OK=false
     SWAP_OK=false
-    print-step true $"Detected target drive partitions :"
+    print-step true "$(eval_gettext "Detected target drive partitions :")"
     INDEX=0
     for partition in "${PARTITIONS[@]}"; do
-        print-sub-step $"Partition : $(fdisk -l | grep $partition)"
+        PARTITION_STR=$(fdisk -l | grep $partition)
+        print-sub-step "$(eval_gettext "Partition : \$PARTITION_STR")"
         if [[ $BIOS = true ]]; then
-            prompt $"What is the role of this partition ? (1: Root, 2: Home, 3: Swap, other: Other) : " TYPE
+            prompt "$(eval_gettext "What is the role of this partition ? (1: Root, 2: Home, 3: Swap, other: Other) : ")" TYPE
         else
-            prompt $"What is the role of this partition ? (0: EFI, 1: Root, 2: Home, 3: Swap, other: Other) : " TYPE
+            prompt "$(eval_gettext "What is the role of this partition ? (0: EFI, 1: Root, 2: Home, 3: Swap, other: Other) : ")" TYPE
         fi
         if [[ $BIOS = false ]] && test "$TYPE" = "0"; then
             PART_TYPE["$partition"]="EFI"
             PART_MOUNT_POINT["$partition"]="/boot/efi"
-            prompt-bool-default-no $"Format the EFI partition ? (y/N) : " PART_FORMAT["$partition"]
+            prompt-bool-default-no "$(eval_gettext "Format the EFI partition ? (y/N) : ")" PART_FORMAT["$partition"]
             EFI_OK=true
         elif test "$TYPE" = "1"; then
             PART_TYPE["$partition"]="ROOT"
@@ -321,57 +326,57 @@ while [[ $USER_ANSWER != true ]]; do
         elif test "$TYPE" = "2"; then
             PART_TYPE["$partition"]="HOME"
             PART_MOUNT_POINT["$partition"]="/home"
-            prompt-bool-default-no $"Format the Home partition ? (y/N) : " PART_FORMAT["$partition"]
+            prompt-bool-default-no "$(eval_gettext "Format the Home partition ? (y/N) : ")" PART_FORMAT["$partition"]
         elif test "$TYPE" = "3"; then
             PART_TYPE["$partition"]="SWAP"
             SWAP_OK=true
         else
             PART_TYPE["$partition"]="OTHER"
-            prompt $"What is the mounting point of this partition ? : " MOUNT_POINT
+            prompt "$(eval_gettext "What is the mounting point of this partition ? : ")" MOUNT_POINT
             PART_MOUNT_POINT["$partition"]="$MOUNT_POINT"
-            prompt-bool-default-yes $"Format the $partition partition ? (Y/n) : " PART_FORMAT["$partition"]
+            prompt-bool-default-yes "$(eval_gettext "Format the \$partition partition ? (Y/n) : ")" PART_FORMAT["$partition"]
         fi
         let INDEX=${INDEX}+1
     done
     if [[ $SWAP_OK = false ]]; then
-        prompt $"Swapfile size ? (Example: 8G, leave empty if none) : " SWAPFILE_SIZE
+        prompt "$(eval_gettext "Swapfile size ? (Example: 8G, leave empty if none) : ")" SWAPFILE_SIZE
     fi
     if [[ $BIOS = false ]] && [[ $EFI_OK = false ]]; then
-        print-error $"The EFI partition is required for system installation."
+        print-error "$(eval_gettext "The EFI partition is required for system installation.")"
         continue
     fi
     if [[ $ROOT_OK = false ]]; then
-        print-error $"The Root partition is required for system installation."
+        print-error "$(eval_gettext "The Root partition is required for system installation.")"
         continue
     fi
-    print-step true $"Summary of choices :"
+    print-step true "$(eval_gettext "Summary of choices :")"
     for partition in "${PARTITIONS[@]}"; do
         if [[ ! -z ${PART_FORMAT[${partition}]} ]]; then
             if [[ ${PART_FORMAT[${partition}]} = true ]]; then
-                FORMATTING=$"yes"
+                FORMATTING="$(eval_gettext "yes")"
             else
-                FORMATTING=$"no"
+                FORMATTING="$(eval_gettext "no")"
             fi
         fi
         if test "${PART_TYPE[${partition}]}" = "EFI"; then
-            print-sub-step $"EFI partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]}, Format : ${FORMATTING})"
+            print-sub-step "$(eval_gettext "EFI partition : \${partition} (mounting point : \${PART_MOUNT_POINT[\${partition}]}, Format : \${FORMATTING})")"
         elif test "${PART_TYPE[${partition}]}" = "ROOT"; then
-            print-sub-step $"ROOT partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]})"
+            print-sub-step "$(eval_gettext "ROOT partition : \${partition} (mounting point : \${PART_MOUNT_POINT[\${partition}]})")"
         elif test "${PART_TYPE[${partition}]}" = "HOME"; then
-            print-sub-step $"Home partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]}, Format : ${FORMATTING})"
+            print-sub-step "$(eval_gettext "Home partition : \${partition} (mounting point : \${PART_MOUNT_POINT[\${partition}]}, Format : \${FORMATTING})")"
         elif test "${PART_TYPE[${partition}]}" = "SWAP"; then
-            print-sub-step $"Swap partition : ${partition}"
+            print-sub-step "$(eval_gettext "Swap partition : \${partition}")"
         elif test "${PART_TYPE[${partition}]}" = "OTHER"; then
-            print-sub-step $"Other partition : ${partition} (mounting point : ${PART_MOUNT_POINT[${partition}]}, Format : ${FORMATTING})"
+            print-sub-step "$(eval_gettext "Other partition : \${partition} (mounting point : \${PART_MOUNT_POINT[\${partition}]}, Format : \${FORMATTING})")"
         fi
     done
     if [[ $SWAP_OK = false ]] && [[ ! -z "$SWAPFILE_SIZE" ]]; then
-        print-sub-step $"Swapfile size : $SWAPFILE_SIZE"
+        print-sub-step "$(eval_gettext "Swapfile size : \$SWAPFILE_SIZE")"
     fi
-    prompt-bool-default-no $"Is the informations correct ? (y/N) : " USER_ANSWER
+    prompt-bool-default-no "$(eval_gettext "Is the informations correct ? (y/N) : ")" USER_ANSWER
 done
 
-print-step true $"Formatting and mounting partitions..."
+print-step true "$(eval_gettext "Formatting and mounting partitions...")"
 
 mkfs.ext4 "${ROOT_PARTITION}"
 mkdir -p "/mnt${PART_MOUNT_POINT[${ROOT_PARTITION}]}"
@@ -404,7 +409,7 @@ done
 
 # Creation and activation of the swapfile
 if [[ $SWAP_OK = false ]] && [[ ! -z "$SWAPFILE_SIZE" ]]; then
-    print-step false $"Creation and activation of the swapfile..."
+    print-step false "$(eval_gettext "Creation and activation of the swapfile...")"
     fallocate -l $SWAPFILE_SIZE /mnt/swapfile
     chmod 600 /mnt/swapfile
     mkswap /mnt/swapfile
@@ -412,11 +417,11 @@ if [[ $SWAP_OK = false ]] && [[ ! -z "$SWAPFILE_SIZE" ]]; then
 fi
 
 # Updating mirrors
-print-step false $"Updating mirrors..."
+print-step false "$(eval_gettext "Updating mirrors...")"
 reflector --save /etc/pacman.d/mirrorlist --protocol https --age 12 --score 5 --sort score
 
 # Installation of the base
-print-step false $"Installation of the base..."
+print-step false "$(eval_gettext "Installation of the base...")"
 declare -a PKGS=("base" "base-devel" "linux-firmware" "man-db" "man-pages" "texinfo" "nano" "vim" "git" "curl" "grub" "os-prober" "efibootmgr" "networkmanager" "xdg-user-dirs" "reflector" "numlockx")
 if test "$MICROCODES" = "intel"; then
     PKGS+=("intel-ucode")
@@ -470,7 +475,7 @@ fi
 pacstrap /mnt ${PKGS[@]}
 
 # System configuration
-print-step false $"System configuration..."
+print-step false "$(eval_gettext "System configuration...")"
 genfstab -U /mnt >>/mnt/etc/fstab
 sed -i "s|#en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|g" /mnt/etc/locale.gen
 sed -i "s|#en_US ISO-8859-1|en_US ISO-8859-1|g" /mnt/etc/locale.gen
@@ -493,12 +498,12 @@ echo "127.0.0.1 localhost" >>/mnt/etc/hosts
 echo "::1 localhost" >>/mnt/etc/hosts
 echo "127.0.1.1 $HOSTNAME.localdomain $HOSTNAME" >>/mnt/etc/hosts
 
-print-step false $"Locales configuration..."
+print-step false "$(eval_gettext "Locales configuration...")"
 arch-chroot /mnt bash -c "ln -sf $TIMEZONE /etc/localtime"
 arch-chroot /mnt bash -c "locale-gen"
-print-step false $"Network configuration..."
+print-step false "$(eval_gettext "Network configuration...")"
 arch-chroot /mnt bash -c "systemctl enable NetworkManager"
-print-step false $"Installation and configuration of the grub..."
+print-step false "$(eval_gettext "Installation and configuration of the grub...")"
 if [[ $BIOS = true ]]; then
     arch-chroot /mnt bash -c "grub-install --target=i386-pc $TARGET_DISK"
 else
@@ -506,7 +511,7 @@ else
 fi
 arch-chroot /mnt bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
 
-print-step false $"Extra packages configuration if needed..."
+print-step false "$(eval_gettext "Extra packages configuration if needed...")"
 if test "$DESKTOP" = "gnome"; then
     arch-chroot /mnt bash -c "systemctl enable gdm"
     arch-chroot /mnt bash -c "amixer sset Master unmute"
@@ -549,14 +554,14 @@ if [[ $CUPS = true ]]; then
     arch-chroot /mnt bash -c "systemctl enable cups-browsed"
 fi
 
-print-step false $"Users configuration..."
-print-sub-step $"root account configuration..."
+print-step false "$(eval_gettext "Users configuration...")"
+print-sub-step "$(eval_gettext "root account configuration...")"
 if [[ $GRML_ZSH = true ]]; then
     arch-chroot /mnt bash -c "chsh --shell /bin/zsh"
 fi
 arch-chroot /mnt bash -c "echo 'root:${ROOT_PASSWORD}' | chpasswd"
 if [[ ! -z "$USER_NAME" ]]; then
-    print-sub-step $"${USER_NAME} account configuration..."
+    print-sub-step "$(eval_gettext "\${USER_NAME} account configuration...")"
     sed -i "s|# %wheel ALL=(ALL) ALL|%wheel ALL=(ALL) ALL|g" /mnt/etc/sudoers
     if [[ $GRML_ZSH = true ]]; then
         arch-chroot /mnt bash -c "useradd --shell=/bin/zsh --groups=wheel --create-home ${USER_NAME}"
@@ -570,9 +575,9 @@ if [[ ! -z "$USER_NAME" ]]; then
 fi
 
 # Démontage des partitions
-print-step false $"Unmounting partitions..."
+print-step false "$(eval_gettext "Unmounting partitions...")"
 if [[ ! -z "$SWAPFILE_SIZE" ]]; then
     swapoff /mnt/swapfile
 fi
 umount -R /mnt
-print-step false $"Installation complete ! You can reboot your system."
+print-step false "$(eval_gettext "Installation complete ! You can reboot your system.")"
