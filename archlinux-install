@@ -180,9 +180,9 @@ while [[ $USER_ANSWER != true ]]; do
     while test "$PKGS_SELECT_OK" != "OK"; do
         PKGS_SELECT_OK="OK"
         promptln "$(eval_gettext "Install more packages ? (type extra packages full names, example : 'htop neofetch', leave blank if none) : ")" MORE_PKGS
-        IFS=" " read -r -a MORE_PKGS_ARRAY <<< "${MORE_PKGS}"
+        IFS=" " read -r -a MORE_PKGS_ARRAY <<<"${MORE_PKGS}"
         for pkg in "${MORE_PKGS_ARRAY[@]}"; do
-            if pacman -Ss ^"${pkg}"$ >/dev/null; then 
+            if pacman -Ss ^"${pkg}"$ >/dev/null; then
                 PKGS_SELECT_OK="OK"
             else
                 PKGS_SELECT_OK="FAIL"
