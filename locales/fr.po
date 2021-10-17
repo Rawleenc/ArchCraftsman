@@ -1,5 +1,7 @@
 msgid "Welcome to the archlinux-install script !"
 msgstr "Bienvenue dans le script archlinux-install !"
+msgid "Press any key to continue..."
+msgstr "Appuyez sur n'importe quelle touche pour continuer..."
 msgid "BIOS detected ! The script will act accordingly. Don't forget to select a DOS label type before partitioning."
 msgstr "BIOS détecté ! Le script agira en conséquence. N'oubliez pas de sélectionner un type d'étiquette DOS avant de partitionner."
 msgid "Environment configuration : "

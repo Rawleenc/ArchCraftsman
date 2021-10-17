@@ -70,9 +70,7 @@ function promptln {
 function prompt-bool-default-no {
     declare -n variable=${2}
     read -erp "$(echo -e "${ORANGE}${1}${NOCOLOR}")" variable
-    if [[ -z $variable ]]; then
-        variable=false
-    elif test "$variable" = "y" || test "$variable" = "Y" || test "$variable" = "o" || test "$variable" = "O"; then
+    if test "$variable" = "y" || test "$variable" = "Y" || test "$variable" = "o" || test "$variable" = "O"; then
         variable=true
     else
         variable=false
@@ -82,9 +80,7 @@ function prompt-bool-default-no {
 function prompt-bool-default-yes {
     declare -n variable=$2
     read -erp "$(echo -e "${ORANGE}${1}${NOCOLOR}")" variable
-    if [[ -z $variable ]]; then
-        variable=true
-    elif test "$variable" = "n" || test "$variable" = "N"; then
+    if test "$variable" = "n" || test "$variable" = "N"; then
         variable=false
     else
         variable=true
@@ -98,7 +94,7 @@ function prompt-passwd {
 }
 
 function pause {
-    read -ers -n 1 -p "$(echo -e "${ORANGE}Press any key to continue...${NOCOLOR}\n")"
+    read -ers -n 1 -p "$(echo -e "${ORANGE}$(eval_gettext "Press any key to continue...")${NOCOLOR}\n")"
 }
 
 function locale-setup {
@@ -114,6 +110,15 @@ function locale-setup {
         export LANG=en_US.UTF-8
         export LANGUAGE=en_US.UTF-8
     fi
+}
+
+function setup-chroot-keyboard {
+    arch-chroot /mnt bash -c "mkdir --parent /etc/X11/xorg.conf.d"
+    arch-chroot /mnt bash -c "echo 'Section \"InputClass\"' > /etc/X11/xorg.conf.d/00-keyboard.conf"
+    arch-chroot /mnt bash -c "echo '    Identifier \"system-keyboard\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
+    arch-chroot /mnt bash -c "echo '    MatchIsKeyboard \"on\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
+    arch-chroot /mnt bash -c "echo '    Option \"XkbLayout\" \"${1}\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
+    arch-chroot /mnt bash -c "echo 'EndSection' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
 }
 
 pacman -Sy
@@ -230,15 +235,14 @@ while [[ $USER_ANSWER != true ]]; do
     if [[ -z "$HOSTNAME" ]]; then
         HOSTNAME="archlinux"
     fi
-    if [[ -z "$DESKTOP" ]]; then
-        DESKTOP="$(eval_gettext "none")"
-    fi
     if test "$DESKTOP" = "1"; then
         DESKTOP="gnome"
     elif test "$DESKTOP" = "2"; then
         DESKTOP="plasma"
     elif test "$DESKTOP" = "3"; then
         DESKTOP="xfce"
+    else
+        DESKTOP="$(eval_gettext "none")"
     fi
     if [[ -z "$TIMEZONE" ]]; then
         TIMEZONE="/usr/share/zoneinfo/Europe/Paris"
@@ -332,6 +336,7 @@ while [[ $USER_ANSWER != true ]]; do
         elif test "$TYPE" = "3"; then
             PART_TYPE["$partition"]="SWAP"
             SWAP_OK=true
+            SWAP_PARTITION="$partition"
         else
             PART_TYPE["$partition"]="OTHER"
             prompt "$(eval_gettext "What is the mounting point of this partition ? : ")" MOUNT_POINT
@@ -522,36 +527,21 @@ if test "$DESKTOP" = "gnome"; then
     arch-chroot /mnt bash -c "systemctl enable gdm"
     arch-chroot /mnt bash -c "amixer sset Master unmute"
     if [[ "$KEYMAP" == *"fr"* ]]; then
-        arch-chroot /mnt bash -c "mkdir --parent /etc/X11/xorg.conf.d"
-        arch-chroot /mnt bash -c "echo 'Section \"InputClass\"' > /etc/X11/xorg.conf.d/00-keyboard.conf"
-        arch-chroot /mnt bash -c "echo '    Identifier \"system-keyboard\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
-        arch-chroot /mnt bash -c "echo '    MatchIsKeyboard \"on\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
-        arch-chroot /mnt bash -c "echo '    Option \"XkbLayout\" \"fr\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
-        arch-chroot /mnt bash -c "echo 'EndSection' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
+        setup-chroot-keyboard "fr"
     fi
 fi
 if test "$DESKTOP" = "plasma"; then
     arch-chroot /mnt bash -c "systemctl enable sddm"
     arch-chroot /mnt bash -c "amixer sset Master unmute"
     if [[ "$KEYMAP" == *"fr"* ]]; then
-        arch-chroot /mnt bash -c "mkdir --parent /etc/X11/xorg.conf.d"
-        arch-chroot /mnt bash -c "echo 'Section \"InputClass\"' > /etc/X11/xorg.conf.d/00-keyboard.conf"
-        arch-chroot /mnt bash -c "echo '    Identifier \"system-keyboard\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
-        arch-chroot /mnt bash -c "echo '    MatchIsKeyboard \"on\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
-        arch-chroot /mnt bash -c "echo '    Option \"XkbLayout\" \"fr\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
-        arch-chroot /mnt bash -c "echo 'EndSection' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
+        setup-chroot-keyboard "fr"
     fi
 fi
 if test "$DESKTOP" = "xfce"; then
     arch-chroot /mnt bash -c "systemctl enable lightdm"
     arch-chroot /mnt bash -c "amixer sset Master unmute"
     if [[ "$KEYMAP" == *"fr"* ]]; then
-        arch-chroot /mnt bash -c "mkdir --parent /etc/X11/xorg.conf.d"
-        arch-chroot /mnt bash -c "echo 'Section \"InputClass\"' > /etc/X11/xorg.conf.d/00-keyboard.conf"
-        arch-chroot /mnt bash -c "echo '    Identifier \"system-keyboard\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
-        arch-chroot /mnt bash -c "echo '    MatchIsKeyboard \"on\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
-        arch-chroot /mnt bash -c "echo '    Option \"XkbLayout\" \"fr\"' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
-        arch-chroot /mnt bash -c "echo 'EndSection' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
+        setup-chroot-keyboard "fr"
     fi
 fi
 if [[ $CUPS = true ]]; then
@@ -582,8 +572,11 @@ fi
 
 # Démontage des partitions
 print-step false "$(eval_gettext "Unmounting partitions...")"
-if [[ -n "$SWAPFILE_SIZE" ]]; then
+if [[ $SWAP_OK = false ]] && [[ -n "$SWAPFILE_SIZE" ]]; then
     swapoff /mnt/swapfile
+fi
+if [[ $SWAP_OK = true ]] && [[ -n "$SWAP_PARTITION" ]]; then
+    swapoff "${SWAP_PARTITION}"
 fi
 umount -R /mnt
 print-step false "$(eval_gettext "Installation complete ! You can reboot your system.")"
