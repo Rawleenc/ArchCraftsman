@@ -161,8 +161,6 @@ locale-setup
 USER_ANSWER=false
 while [[ $USER_ANSWER != true ]]; do
     print-step true "$(eval_gettext "System configuration : ")"
-    fdisk -l
-    prompt "$(eval_gettext "On which drive should Archlinux be installed ? (type the entire name, for example '/dev/sda') : ")" TARGET_DISK
     prompt "$(eval_gettext "What will be your hostname (archlinux) : ")" HOSTNAME
     prompt-bool-default-no "$(eval_gettext "Install LTS Linux kernel ? (y/N) : ")" LTS_KERNEL
     prompt-bool-default-no "$(eval_gettext "Install proprietary Nvidia driver ? (y/N) : ")" NVIDIA_DRIVER
@@ -175,10 +173,10 @@ while [[ $USER_ANSWER != true ]]; do
     prompt-bool-default-no "$(eval_gettext "Install ZSH with GRML configuration ? (y/N) : ")" GRML_ZSH
     prompt-bool-default-no "$(eval_gettext "Install a set of main fonts ? (y/N) : ")" MAIN_FONTS
     prompt-bool-default-no "$(eval_gettext "Install main file systems support ? (y/N) : ")" MAIN_FILE_SYSTEMS
-    prompt "$(eval_gettext "Your timezone (/usr/share/zoneinfo/Europe/Paris) : ")" TIMEZONE
-    prompt "$(eval_gettext "Would you like to add a user? (username, leave blank if none) : ")" USER_NAME
+    promptln "$(eval_gettext "Your timezone (/usr/share/zoneinfo/Europe/Paris) : ")" TIMEZONE
+    promptln "$(eval_gettext "Would you like to add a user? (username, leave blank if none) : ")" USER_NAME
     if [[ -n "$USER_NAME" ]]; then
-        prompt "$(eval_gettext "What is the \${USER_NAME}'s full name (type the entire full name, leave blank if none) : ")" USER_FULL_NAME
+        promptln "$(eval_gettext "What is the \${USER_NAME}'s full name (type the entire full name, leave blank if none) : ")" USER_FULL_NAME
     fi
     set +Eeo pipefail
     PKGS_SELECT_OK="FAIL"
@@ -220,16 +218,6 @@ while [[ $USER_ANSWER != true ]]; do
         done
     fi
 
-    # Required fields
-    if [[ -z "$TARGET_DISK" ]]; then
-        print-error "$(eval_gettext "You need to choose a target drive.")"
-        continue
-    fi
-    if [[ ! -e "$TARGET_DISK" ]]; then
-        print-error "$(eval_gettext "The chosen target drive doesn't exist.")"
-        continue
-    fi
-
     # Default values
     MICROCODES="$(eval_gettext "none")"
     if [[ -z "$HOSTNAME" ]]; then
@@ -255,7 +243,6 @@ while [[ $USER_ANSWER != true ]]; do
         MICROCODES="amd"
     fi
     print-step true "$(eval_gettext "Summary of choices :")"
-    print-sub-step "$(eval_gettext "Your target drive") : $TARGET_DISK"
     print-sub-step "$(eval_gettext "Your hostname") : $HOSTNAME"
     print-sub-step "$(eval_gettext "Microcodes to install") : $MICROCODES"
     if [[ $LTS_KERNEL = true ]]; then
@@ -304,9 +291,23 @@ declare -A PART_MOUNT_POINT
 declare -A PART_FORMAT
 USER_ANSWER=false
 while [[ $USER_ANSWER != true ]]; do
-    print-step true "$(eval_gettext "Partitioning the target drive...")"
+    print-step true "$(eval_gettext "Partitioning :")"
+    fdisk -l
+    prompt "$(eval_gettext "Which drive do you want to partition ? (type the entire name, for example '/dev/sda') : ")" TARGET_DISK
+    # Required fields
+    if [[ ! -e "$TARGET_DISK" ]]; then
+        print-error "$(eval_gettext "The chosen target drive doesn't exist.")"
+        continue
+    fi
+
     cfdisk "$TARGET_DISK"
     mapfile -t PARTITIONS < <(fdisk -l | grep "^${TARGET_DISK}*" | awk '{print $1}')
+
+    prompt-bool-default-no "$(eval_gettext "Do you want to partition an other drive ? (y/N) : ")" OTHER_DRIVE
+    if [[ $OTHER_DRIVE = true ]]; then
+        continue
+    fi
+
     EFI_OK=false
     ROOT_OK=false
     SWAP_OK=false
