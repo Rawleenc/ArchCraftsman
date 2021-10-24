@@ -121,6 +121,224 @@ function setup-chroot-keyboard {
     arch-chroot /mnt bash -c "echo 'EndSection' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
 }
 
+function manual-partitioning {
+    USER_ANSWER=false
+    while [[ $USER_ANSWER != true ]]; do
+        print-step false "$(eval_gettext "Manual partitioning :")"
+        fdisk -l
+        prompt "$(eval_gettext "Which drive do you want to partition ? (type the entire name, for example '/dev/sda') : ")" TARGET_DISK
+        # Required fields
+        if [[ ! -e "$TARGET_DISK" ]]; then
+            print-error "$(eval_gettext "The chosen target drive doesn't exist.")"
+            continue
+        fi
+
+        cfdisk "$TARGET_DISK"
+        mapfile -t PARTITIONS < <(fdisk -l | grep "^${TARGET_DISK}*" | awk '{print $1}')
+
+        prompt-bool-default-no "$(eval_gettext "Do you want to partition an other drive ? (y/N) : ")" OTHER_DRIVE
+        if [[ $OTHER_DRIVE = true ]]; then
+            continue
+        fi
+
+        EFI_OK=false
+        ROOT_OK=false
+        SWAP_OK=false
+        print-step true "$(eval_gettext "Detected target drive partitions :")"
+        INDEX=0
+        for partition in "${PARTITIONS[@]}"; do
+            print-sub-step "$(eval_gettext "Partition") : $(fdisk -l | grep "$partition")"
+            if [[ $BIOS = true ]]; then
+                prompt "$(eval_gettext "What is the role of this partition ? (1: Root, 2: Home, 3: Swap, other: Other) : ")" TYPE
+            else
+                prompt "$(eval_gettext "What is the role of this partition ? (0: EFI, 1: Root, 2: Home, 3: Swap, other: Other) : ")" TYPE
+            fi
+            if [[ $BIOS = false ]] && test "$TYPE" = "0"; then
+                PART_TYPE["$partition"]="EFI"
+                PART_MOUNT_POINT["$partition"]="/boot/efi"
+                prompt-bool-default-no "$(eval_gettext "Format the EFI partition ? (y/N) : ")" PART_FORMAT["$partition"]
+                EFI_OK=true
+            elif test "$TYPE" = "1"; then
+                PART_TYPE["$partition"]="ROOT"
+                PART_MOUNT_POINT["$partition"]="/"
+                ROOT_OK=true
+                ROOT_PARTITION="$partition"
+            elif test "$TYPE" = "2"; then
+                PART_TYPE["$partition"]="HOME"
+                PART_MOUNT_POINT["$partition"]="/home"
+                prompt-bool-default-no "$(eval_gettext "Format the Home partition ? (y/N) : ")" PART_FORMAT["$partition"]
+            elif test "$TYPE" = "3"; then
+                PART_TYPE["$partition"]="SWAP"
+                SWAP_OK=true
+                SWAP_PARTITION="$partition"
+            else
+                PART_TYPE["$partition"]="OTHER"
+                prompt "$(eval_gettext "What is the mounting point of this partition ? : ")" MOUNT_POINT
+                PART_MOUNT_POINT["$partition"]="$MOUNT_POINT"
+                prompt-bool-default-yes "$(eval_gettext "Format the \${partition} partition ? (Y/n) : ")" PART_FORMAT["$partition"]
+            fi
+            ((INDEX = "${INDEX}" + 1))
+        done
+        if [[ $SWAP_OK = false ]]; then
+            prompt "$(eval_gettext "Swapfile size ? (Example: 8G, leave empty if none) : ")" SWAPFILE_SIZE
+        fi
+        if [[ $BIOS = false ]] && [[ $EFI_OK = false ]]; then
+            print-error "$(eval_gettext "The EFI partition is required for system installation.")"
+            continue
+        fi
+        if [[ $ROOT_OK = false ]]; then
+            print-error "$(eval_gettext "The Root partition is required for system installation.")"
+            continue
+        fi
+        print-step true "$(eval_gettext "Summary of choices :")"
+        for partition in "${PARTITIONS[@]}"; do
+            if [[ -n ${PART_FORMAT[${partition}]} ]]; then
+                if [[ ${PART_FORMAT[${partition}]} = true ]]; then
+                    FORMATTING="$(eval_gettext "yes")"
+                else
+                    FORMATTING="$(eval_gettext "no")"
+                fi
+            fi
+            if test "${PART_TYPE[${partition}]}" = "EFI"; then
+                print-sub-step "$(eval_gettext "EFI partition") : ${partition} ($(eval_gettext "mounting point") : ${PART_MOUNT_POINT[${partition}]}, $(eval_gettext "Format") : ${FORMATTING})"
+            elif test "${PART_TYPE[${partition}]}" = "ROOT"; then
+                print-sub-step "$(eval_gettext "ROOT partition") : ${partition} ($(eval_gettext "mounting point") : ${PART_MOUNT_POINT[${partition}]})"
+            elif test "${PART_TYPE[${partition}]}" = "HOME"; then
+                print-sub-step "$(eval_gettext "Home partition") : ${partition} ($(eval_gettext "mounting point") : ${PART_MOUNT_POINT[${partition}]}, $(eval_gettext "Format") : ${FORMATTING})"
+            elif test "${PART_TYPE[${partition}]}" = "SWAP"; then
+                print-sub-step "$(eval_gettext "Swap partition") : ${partition}"
+            elif test "${PART_TYPE[${partition}]}" = "OTHER"; then
+                print-sub-step "$(eval_gettext "Other partition") : ${partition} ($(eval_gettext "mounting point") : ${PART_MOUNT_POINT[${partition}]}, $(eval_gettext "Format") : ${FORMATTING})"
+            fi
+        done
+        if [[ $SWAP_OK = false ]] && [[ -n "$SWAPFILE_SIZE" ]]; then
+            print-sub-step "$(eval_gettext "Swapfile size") : $SWAPFILE_SIZE"
+        fi
+        prompt-bool-default-no "$(eval_gettext "Is the informations correct ? (y/N) : ")" USER_ANSWER
+    done
+}
+
+function auto-partitioning {
+    USER_ANSWER=false
+    while [[ $USER_ANSWER != true ]]; do
+        print-step false "$(eval_gettext "Automatic partitioning :")"
+        fdisk -l
+        prompt "$(eval_gettext "On which drive should Archlinux be installed ? (type the entire name, for example '/dev/sda') : ")" TARGET_DISK
+        prompt "$(eval_gettext "What type of Swap do you want ? (1: Partition, other: File) : ")" SWAP_TYPE
+        prompt-bool-default-no "$(eval_gettext "Do you want a separated Home ? (y/N) : ")" WANT_HOME
+        TARGET_DISK_SIZE=$(lsblk -b --output SIZE -n -d "${TARGET_DISK}")
+        ((ROOT_SIZE = "${TARGET_DISK_SIZE}" / 4))
+        ((SWAP_SIZE = "${TARGET_DISK_SIZE}" / 32))
+        ROOT_SIZE=$(echo "${ROOT_SIZE}" | numfmt --to=iec)
+        SWAP_SIZE=$(echo "${SWAP_SIZE}" | numfmt --to=iec)
+        if test "$SWAP_TYPE" != "1"; then
+            SWAPFILE_SIZE="${SWAP_SIZE}"
+        fi
+
+        # GPT LABEL
+        AUTOPARTSTR="g\n" # Create a new empty GPT partition table
+        # EFI
+        AUTOPARTSTR+="n\n"     # Add a new partition
+        AUTOPARTSTR+=" \n"     # Partition number (Accept default: auto)
+        AUTOPARTSTR+=" \n"     # First sector (Accept default: 1)
+        AUTOPARTSTR+="+512M\n" # Last sector (Accept default: varies)
+        AUTOPARTSTR+="t\n"     # Change partition type
+        AUTOPARTSTR+=" \n"     # Partition number (Accept default: auto)
+        AUTOPARTSTR+="1\n"     # Type EFI System
+        if test "$SWAP_TYPE" = "1"; then
+            # SWAP
+            AUTOPARTSTR+="n\n"              # Add a new partition
+            AUTOPARTSTR+=" \n"              # Partition number (Accept default: auto)
+            AUTOPARTSTR+=" \n"              # First sector (Accept default: 1)
+            AUTOPARTSTR+="+${SWAP_SIZE}\n" # Last sector (Accept default: varies)
+            AUTOPARTSTR+="t\n"              # Change partition type
+            AUTOPARTSTR+=" \n"              # Partition number (Accept default: auto)
+            AUTOPARTSTR+="19\n"             # Type Linux Swap
+        fi
+        if [[ $WANT_HOME = true ]]; then
+            # ROOT
+            AUTOPARTSTR+="n\n"             # Add a new partition
+            AUTOPARTSTR+=" \n"             # Partition number (Accept default: auto)
+            AUTOPARTSTR+=" \n"             # First sector (Accept default: 1)
+            AUTOPARTSTR+="+${ROOT_SIZE}\n" # Last sector (Accept default: varies)
+            # HOME
+            AUTOPARTSTR+="n\n" # Add a new partition
+            AUTOPARTSTR+=" \n" # Partition number (Accept default: auto)
+            AUTOPARTSTR+=" \n" # First sector (Accept default: 1)
+            AUTOPARTSTR+=" \n" # Last sector (Accept default: varies)
+        else
+            # ROOT
+            AUTOPARTSTR+="n\n" # Add a new partition
+            AUTOPARTSTR+=" \n" # Partition number (Accept default: auto)
+            AUTOPARTSTR+=" \n" # First sector (Accept default: 1)
+            AUTOPARTSTR+=" \n" # Last sector (Accept default: varies)
+        fi
+        # WRITE
+        AUTOPARTSTR+="w\n"
+
+        echo -e "${AUTOPARTSTR}" | fdisk "${TARGET_DISK}"
+        mapfile -t PARTITIONS < <(fdisk -l | grep "^${TARGET_DISK}*" | awk '{print $1}')
+
+        # EFI
+        PART_TYPE["${PARTITIONS[0]}"]="EFI"
+        PART_MOUNT_POINT["${PARTITIONS[0]}"]="/boot/efi"
+        PART_FORMAT["${PARTITIONS[0]}"]=true
+        if test "$SWAP_TYPE" = "1"; then
+            # SWAP
+            PART_TYPE["${PARTITIONS[1]}"]="SWAP"
+            # ROOT
+            PART_TYPE["${PARTITIONS[2]}"]="ROOT"
+            PART_MOUNT_POINT["${PARTITIONS[2]}"]="/"
+            ROOT_PARTITION="${PARTITIONS[2]}"
+            if [[ $WANT_HOME = true ]]; then
+                # HOME
+                PART_TYPE["${PARTITIONS[3]}"]="HOME"
+                PART_MOUNT_POINT["${PARTITIONS[3]}"]="/home"
+                PART_FORMAT["${PARTITIONS[3]}"]=true
+            fi
+        else
+            # ROOT
+            PART_TYPE["${PARTITIONS[1]}"]="ROOT"
+            PART_MOUNT_POINT["${PARTITIONS[1]}"]="/"
+            ROOT_PARTITION="${PARTITIONS[1]}"
+            if [[ $WANT_HOME = true ]]; then
+                # HOME
+                PART_TYPE["${PARTITIONS[2]}"]="HOME"
+                PART_MOUNT_POINT["${PARTITIONS[2]}"]="/home"
+                PART_FORMAT["${PARTITIONS[2]}"]=true
+            fi
+        fi
+
+        print-step true "$(eval_gettext "Summary of choices :")"
+        for partition in "${PARTITIONS[@]}"; do
+            if [[ -n ${PART_FORMAT[${partition}]} ]]; then
+                if [[ ${PART_FORMAT[${partition}]} = true ]]; then
+                    FORMATTING="$(eval_gettext "yes")"
+                else
+                    FORMATTING="$(eval_gettext "no")"
+                fi
+            fi
+            if test "${PART_TYPE[${partition}]}" = "EFI"; then
+                print-sub-step "$(eval_gettext "EFI partition") : ${partition} ($(eval_gettext "mounting point") : ${PART_MOUNT_POINT[${partition}]}, $(eval_gettext "Format") : ${FORMATTING})"
+            elif test "${PART_TYPE[${partition}]}" = "ROOT"; then
+                print-sub-step "$(eval_gettext "ROOT partition") : ${partition} ($(eval_gettext "mounting point") : ${PART_MOUNT_POINT[${partition}]})"
+            elif test "${PART_TYPE[${partition}]}" = "HOME"; then
+                print-sub-step "$(eval_gettext "Home partition") : ${partition} ($(eval_gettext "mounting point") : ${PART_MOUNT_POINT[${partition}]}, $(eval_gettext "Format") : ${FORMATTING})"
+            elif test "${PART_TYPE[${partition}]}" = "SWAP"; then
+                print-sub-step "$(eval_gettext "Swap partition") : ${partition}"
+            elif test "${PART_TYPE[${partition}]}" = "OTHER"; then
+                print-sub-step "$(eval_gettext "Other partition") : ${partition} ($(eval_gettext "mounting point") : ${PART_MOUNT_POINT[${partition}]}, $(eval_gettext "Format") : ${FORMATTING})"
+            fi
+        done
+        if [[ $SWAP_OK = false ]] && [[ -n "$SWAPFILE_SIZE" ]]; then
+            print-sub-step "$(eval_gettext "Swapfile size") : $SWAPFILE_SIZE"
+        fi
+
+        prompt-bool-default-no "$(eval_gettext "Is the informations correct ? (y/N) : ")" USER_ANSWER
+    done
+
+}
+
 pacman -Sy
 
 if [[ ! -f "fr.po" ]]; then
@@ -289,100 +507,18 @@ done
 declare -A PART_TYPE
 declare -A PART_MOUNT_POINT
 declare -A PART_FORMAT
-USER_ANSWER=false
-while [[ $USER_ANSWER != true ]]; do
+
+if [[ $BIOS = false ]]; then
     print-step true "$(eval_gettext "Partitioning :")"
-    fdisk -l
-    prompt "$(eval_gettext "Which drive do you want to partition ? (type the entire name, for example '/dev/sda') : ")" TARGET_DISK
-    # Required fields
-    if [[ ! -e "$TARGET_DISK" ]]; then
-        print-error "$(eval_gettext "The chosen target drive doesn't exist.")"
-        continue
+    prompt-bool-default-no "$(eval_gettext "Do you want an automatic partitionning ? (y/N) : ")" WANT_AUTO_PART
+    if [[ $WANT_AUTO_PART = true ]]; then
+        auto-partitioning
+    else
+        manual-partitioning
     fi
-
-    cfdisk "$TARGET_DISK"
-    mapfile -t PARTITIONS < <(fdisk -l | grep "^${TARGET_DISK}*" | awk '{print $1}')
-
-    prompt-bool-default-no "$(eval_gettext "Do you want to partition an other drive ? (y/N) : ")" OTHER_DRIVE
-    if [[ $OTHER_DRIVE = true ]]; then
-        continue
-    fi
-
-    EFI_OK=false
-    ROOT_OK=false
-    SWAP_OK=false
-    print-step true "$(eval_gettext "Detected target drive partitions :")"
-    INDEX=0
-    for partition in "${PARTITIONS[@]}"; do
-        print-sub-step "$(eval_gettext "Partition") : $(fdisk -l | grep "$partition")"
-        if [[ $BIOS = true ]]; then
-            prompt "$(eval_gettext "What is the role of this partition ? (1: Root, 2: Home, 3: Swap, other: Other) : ")" TYPE
-        else
-            prompt "$(eval_gettext "What is the role of this partition ? (0: EFI, 1: Root, 2: Home, 3: Swap, other: Other) : ")" TYPE
-        fi
-        if [[ $BIOS = false ]] && test "$TYPE" = "0"; then
-            PART_TYPE["$partition"]="EFI"
-            PART_MOUNT_POINT["$partition"]="/boot/efi"
-            prompt-bool-default-no "$(eval_gettext "Format the EFI partition ? (y/N) : ")" PART_FORMAT["$partition"]
-            EFI_OK=true
-        elif test "$TYPE" = "1"; then
-            PART_TYPE["$partition"]="ROOT"
-            PART_MOUNT_POINT["$partition"]="/"
-            ROOT_OK=true
-            ROOT_PARTITION="$partition"
-        elif test "$TYPE" = "2"; then
-            PART_TYPE["$partition"]="HOME"
-            PART_MOUNT_POINT["$partition"]="/home"
-            prompt-bool-default-no "$(eval_gettext "Format the Home partition ? (y/N) : ")" PART_FORMAT["$partition"]
-        elif test "$TYPE" = "3"; then
-            PART_TYPE["$partition"]="SWAP"
-            SWAP_OK=true
-            SWAP_PARTITION="$partition"
-        else
-            PART_TYPE["$partition"]="OTHER"
-            prompt "$(eval_gettext "What is the mounting point of this partition ? : ")" MOUNT_POINT
-            PART_MOUNT_POINT["$partition"]="$MOUNT_POINT"
-            prompt-bool-default-yes "$(eval_gettext "Format the \${partition} partition ? (Y/n) : ")" PART_FORMAT["$partition"]
-        fi
-        ((INDEX = "${INDEX}" + 1))
-    done
-    if [[ $SWAP_OK = false ]]; then
-        prompt "$(eval_gettext "Swapfile size ? (Example: 8G, leave empty if none) : ")" SWAPFILE_SIZE
-    fi
-    if [[ $BIOS = false ]] && [[ $EFI_OK = false ]]; then
-        print-error "$(eval_gettext "The EFI partition is required for system installation.")"
-        continue
-    fi
-    if [[ $ROOT_OK = false ]]; then
-        print-error "$(eval_gettext "The Root partition is required for system installation.")"
-        continue
-    fi
-    print-step true "$(eval_gettext "Summary of choices :")"
-    for partition in "${PARTITIONS[@]}"; do
-        if [[ -n ${PART_FORMAT[${partition}]} ]]; then
-            if [[ ${PART_FORMAT[${partition}]} = true ]]; then
-                FORMATTING="$(eval_gettext "yes")"
-            else
-                FORMATTING="$(eval_gettext "no")"
-            fi
-        fi
-        if test "${PART_TYPE[${partition}]}" = "EFI"; then
-            print-sub-step "$(eval_gettext "EFI partition") : ${partition} ($(eval_gettext "mounting point") : ${PART_MOUNT_POINT[${partition}]}, $(eval_gettext "Format") : ${FORMATTING})"
-        elif test "${PART_TYPE[${partition}]}" = "ROOT"; then
-            print-sub-step "$(eval_gettext "ROOT partition") : ${partition} ($(eval_gettext "mounting point") : ${PART_MOUNT_POINT[${partition}]})"
-        elif test "${PART_TYPE[${partition}]}" = "HOME"; then
-            print-sub-step "$(eval_gettext "Home partition") : ${partition} ($(eval_gettext "mounting point") : ${PART_MOUNT_POINT[${partition}]}, $(eval_gettext "Format") : ${FORMATTING})"
-        elif test "${PART_TYPE[${partition}]}" = "SWAP"; then
-            print-sub-step "$(eval_gettext "Swap partition") : ${partition}"
-        elif test "${PART_TYPE[${partition}]}" = "OTHER"; then
-            print-sub-step "$(eval_gettext "Other partition") : ${partition} ($(eval_gettext "mounting point") : ${PART_MOUNT_POINT[${partition}]}, $(eval_gettext "Format") : ${FORMATTING})"
-        fi
-    done
-    if [[ $SWAP_OK = false ]] && [[ -n "$SWAPFILE_SIZE" ]]; then
-        print-sub-step "$(eval_gettext "Swapfile size") : $SWAPFILE_SIZE"
-    fi
-    prompt-bool-default-no "$(eval_gettext "Is the informations correct ? (y/N) : ")" USER_ANSWER
-done
+else
+    manual-partitioning
+fi
 
 print-step true "$(eval_gettext "Formatting and mounting partitions...")"
 
