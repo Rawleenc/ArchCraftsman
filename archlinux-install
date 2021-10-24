@@ -608,7 +608,7 @@ if [[ $GRML_ZSH = true ]]; then
     PKGS+=("zsh" "zsh-completions" "grml-zsh-config")
 fi
 if [[ $MAIN_FONTS = true ]]; then
-    PKGS+=("gnu-free-fonts" "noto-fonts" "ttf-bitstream-vera" "ttf-dejavu" "ttf-hack" "ttf-droid" "ttf-fira-code" "ttf-fira-mono" "ttf-fira-sans" "ttf-font-awesome" "ttf-inconsolata" "ttf-input" "ttf-liberation" "ttf-nerd-fonts-symbols" "ttf-opensans" "ttf-roboto" "ttf-roboto-mono")
+    PKGS+=("gnu-free-fonts" "noto-fonts" "ttf-bitstream-vera" "ttf-dejavu" "ttf-hack" "ttf-droid" "ttf-fira-code" "ttf-fira-mono" "ttf-fira-sans" "ttf-font-awesome" "ttf-inconsolata" "ttf-input" "ttf-liberation" "ttf-nerd-fonts-symbols" "ttf-opensans" "ttf-roboto" "ttf-roboto-mono" "ttf-ubuntu-font-family" "ttf-jetbrains-mono")
 fi
 if [[ $MAIN_FILE_SYSTEMS = true ]]; then
     PKGS+=("btrfs-progs" "dosfstools" "exfatprogs" "exfat-utils" "f2fs-tools" "e2fsprogs" "jfsutils" "nilfs-utils" "ntfs-3g" "reiserfsprogs" "udftools" "xfsprogs")
