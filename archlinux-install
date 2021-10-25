@@ -231,7 +231,10 @@ function auto-partitioning {
         ((SWAP_SIZE = "${TARGET_DISK_SIZE}" / 32))
         ROOT_SIZE=$(echo "${ROOT_SIZE}" | numfmt --to=iec)
         SWAP_SIZE=$(echo "${SWAP_SIZE}" | numfmt --to=iec)
-        if test "$SWAP_TYPE" != "1"; then
+        SWAP_OK=false
+        if test "$SWAP_TYPE" = "1"; then
+            SWAP_OK=true
+        else
             SWAPFILE_SIZE="${SWAP_SIZE}"
         fi
 
