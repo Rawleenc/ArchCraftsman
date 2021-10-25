@@ -134,7 +134,7 @@ function manual-partitioning {
         fi
 
         cfdisk "$TARGET_DISK"
-        mapfile -t PARTITIONS < <(fdisk -l | grep "^${TARGET_DISK}*" | awk '{print $1}')
+        mapfile -t PARTITIONS < <(lsblk -nl "${TARGET_DISK}" -o PATH,TYPE,PARTTYPENAME | grep part | grep -v Extended | awk '{print $1}')
 
         prompt-bool-default-no "$(eval_gettext "Do you want to partition an other drive ? (y/N) : ")" OTHER_DRIVE
         if [[ $OTHER_DRIVE = true ]]; then
@@ -147,7 +147,7 @@ function manual-partitioning {
         print-step true "$(eval_gettext "Detected target drive partitions :")"
         INDEX=0
         for partition in "${PARTITIONS[@]}"; do
-            print-sub-step "$(eval_gettext "Partition") : $(fdisk -l | grep "$partition")"
+            print-sub-step "$(eval_gettext "Partition") : $(lsblk -nl "$partition" -o PATH,SIZE,PARTTYPENAME)"
             if [[ $BIOS = true ]]; then
                 prompt "$(eval_gettext "What is the role of this partition ? (1: Root, 2: Home, 3: Swap, other: Other) : ")" TYPE
             else
@@ -308,7 +308,7 @@ function auto-partitioning {
         AUTOPARTSTR+="w\n"
 
         echo -e "${AUTOPARTSTR}" | fdisk "${TARGET_DISK}"
-        mapfile -t PARTITIONS < <(fdisk -l | grep "^${TARGET_DISK}*" | awk '{print $1}')
+        mapfile -t PARTITIONS < <(lsblk -nl "${TARGET_DISK}" -o PATH,TYPE,PARTTYPENAME | grep part | grep -v Extended | awk '{print $1}')
 
         if [[ $BIOS = true ]]; then
             # BOOT
