@@ -235,40 +235,68 @@ function auto-partitioning {
             SWAPFILE_SIZE="${SWAP_SIZE}"
         fi
 
-        # GPT LABEL
-        AUTOPARTSTR="g\n" # Create a new empty GPT partition table
-        # EFI
-        AUTOPARTSTR+="n\n"     # Add a new partition
-        AUTOPARTSTR+=" \n"     # Partition number (Accept default: auto)
-        AUTOPARTSTR+=" \n"     # First sector (Accept default: 1)
-        AUTOPARTSTR+="+512M\n" # Last sector (Accept default: varies)
-        AUTOPARTSTR+="t\n"     # Change partition type
-        AUTOPARTSTR+=" \n"     # Partition number (Accept default: auto)
-        AUTOPARTSTR+="1\n"     # Type EFI System
+        if [[ $BIOS = true ]]; then
+            # DOS LABEL
+            AUTOPARTSTR="o\n" # Create a new empty DOS partition table
+            # BOOT
+            AUTOPARTSTR+="n\n"   # Add a new partition
+            AUTOPARTSTR+="p\n"   # Partition primary (Accept default: primary)
+            AUTOPARTSTR+=" \n"   # Partition number (Accept default: auto)
+            AUTOPARTSTR+=" \n"   # First sector (Accept default: 1)
+            AUTOPARTSTR+="+1G\n" # Last sector (Accept default: varies)
+            AUTOPARTSTR+="a\n"   # Toggle bootable flag
+        else
+            # GPT LABEL
+            AUTOPARTSTR="g\n" # Create a new empty GPT partition table
+            # EFI
+            AUTOPARTSTR+="n\n"     # Add a new partition
+            AUTOPARTSTR+=" \n"     # Partition number (Accept default: auto)
+            AUTOPARTSTR+=" \n"     # First sector (Accept default: 1)
+            AUTOPARTSTR+="+512M\n" # Last sector (Accept default: varies)
+            AUTOPARTSTR+="t\n"     # Change partition type
+            AUTOPARTSTR+=" \n"     # Partition number (Accept default: auto)
+            AUTOPARTSTR+="1\n"     # Type EFI System
+        fi
         if test "$SWAP_TYPE" = "1"; then
             # SWAP
-            AUTOPARTSTR+="n\n"              # Add a new partition
-            AUTOPARTSTR+=" \n"              # Partition number (Accept default: auto)
-            AUTOPARTSTR+=" \n"              # First sector (Accept default: 1)
+            AUTOPARTSTR+="n\n" # Add a new partition
+            if [[ $BIOS = true ]]; then
+                AUTOPARTSTR+="p\n" # Partition primary (Accept default: primary)
+            fi
+            AUTOPARTSTR+=" \n"             # Partition number (Accept default: auto)
+            AUTOPARTSTR+=" \n"             # First sector (Accept default: 1)
             AUTOPARTSTR+="+${SWAP_SIZE}\n" # Last sector (Accept default: varies)
-            AUTOPARTSTR+="t\n"              # Change partition type
-            AUTOPARTSTR+=" \n"              # Partition number (Accept default: auto)
-            AUTOPARTSTR+="19\n"             # Type Linux Swap
+            AUTOPARTSTR+="t\n"             # Change partition type
+            AUTOPARTSTR+=" \n"             # Partition number (Accept default: auto)
+            if [[ $BIOS = true ]]; then
+                AUTOPARTSTR+="82\n" # Type Linux Swap
+            else
+                AUTOPARTSTR+="19\n" # Type Linux Swap
+            fi
         fi
         if [[ $WANT_HOME = true ]]; then
             # ROOT
-            AUTOPARTSTR+="n\n"             # Add a new partition
+            AUTOPARTSTR+="n\n" # Add a new partition
+            if [[ $BIOS = true ]]; then
+                AUTOPARTSTR+="p\n" # Partition primary (Accept default: primary)
+            fi
             AUTOPARTSTR+=" \n"             # Partition number (Accept default: auto)
             AUTOPARTSTR+=" \n"             # First sector (Accept default: 1)
             AUTOPARTSTR+="+${ROOT_SIZE}\n" # Last sector (Accept default: varies)
             # HOME
             AUTOPARTSTR+="n\n" # Add a new partition
+            if [[ $BIOS = true ]]; then
+                AUTOPARTSTR+="p\n" # Partition primary (Accept default: primary)
+            fi
             AUTOPARTSTR+=" \n" # Partition number (Accept default: auto)
             AUTOPARTSTR+=" \n" # First sector (Accept default: 1)
             AUTOPARTSTR+=" \n" # Last sector (Accept default: varies)
         else
             # ROOT
             AUTOPARTSTR+="n\n" # Add a new partition
+            if [[ $BIOS = true ]]; then
+                AUTOPARTSTR+="p\n" # Partition primary (Accept default: primary)
+            fi
             AUTOPARTSTR+=" \n" # Partition number (Accept default: auto)
             AUTOPARTSTR+=" \n" # First sector (Accept default: 1)
             AUTOPARTSTR+=" \n" # Last sector (Accept default: varies)
@@ -279,10 +307,17 @@ function auto-partitioning {
         echo -e "${AUTOPARTSTR}" | fdisk "${TARGET_DISK}"
         mapfile -t PARTITIONS < <(fdisk -l | grep "^${TARGET_DISK}*" | awk '{print $1}')
 
-        # EFI
-        PART_TYPE["${PARTITIONS[0]}"]="EFI"
-        PART_MOUNT_POINT["${PARTITIONS[0]}"]="/boot/efi"
-        PART_FORMAT["${PARTITIONS[0]}"]=true
+        if [[ $BIOS = true ]]; then
+            # BOOT
+            PART_TYPE["${PARTITIONS[0]}"]="OTHER"
+            PART_MOUNT_POINT["${PARTITIONS[0]}"]="/boot"
+            PART_FORMAT["${PARTITIONS[0]}"]=true
+        else
+            # EFI
+            PART_TYPE["${PARTITIONS[0]}"]="EFI"
+            PART_MOUNT_POINT["${PARTITIONS[0]}"]="/boot/efi"
+            PART_FORMAT["${PARTITIONS[0]}"]=true
+        fi
         if test "$SWAP_TYPE" = "1"; then
             # SWAP
             PART_TYPE["${PARTITIONS[1]}"]="SWAP"
@@ -508,14 +543,10 @@ declare -A PART_TYPE
 declare -A PART_MOUNT_POINT
 declare -A PART_FORMAT
 
-if [[ $BIOS = false ]]; then
-    print-step true "$(eval_gettext "Partitioning :")"
-    prompt-bool-default-no "$(eval_gettext "Do you want an automatic partitionning ? (y/N) : ")" WANT_AUTO_PART
-    if [[ $WANT_AUTO_PART = true ]]; then
-        auto-partitioning
-    else
-        manual-partitioning
-    fi
+print-step true "$(eval_gettext "Partitioning :")"
+prompt-bool-default-no "$(eval_gettext "Do you want an automatic partitionning ? (y/N) : ")" WANT_AUTO_PART
+if [[ $WANT_AUTO_PART = true ]]; then
+    auto-partitioning
 else
     manual-partitioning
 fi
