@@ -124,7 +124,7 @@ function setup-chroot-keyboard {
 function manual-partitioning {
     USER_ANSWER=false
     while [[ $USER_ANSWER != true ]]; do
-        print-step false "$(eval_gettext "Manual partitioning :")"
+        print-step true "$(eval_gettext "Manual partitioning :")"
         fdisk -l
         prompt "$(eval_gettext "Which drive do you want to partition ? (type the entire name, for example '/dev/sda') : ")" TARGET_DISK
         # Required fields
@@ -134,8 +134,10 @@ function manual-partitioning {
         fi
 
         cfdisk "$TARGET_DISK"
-        mapfile -t PARTITIONS < <(lsblk -nl "${TARGET_DISK}" -o PATH,TYPE,PARTTYPENAME | grep part | grep -v Extended | awk '{print $1}')
+        mapfile -t -O "${#PARTITIONS[@]}" PARTITIONS < <(lsblk -nl "${TARGET_DISK}" -o PATH,TYPE,PARTTYPENAME | grep part | grep -v Extended | awk '{print $1}')
 
+        print-step true "$(eval_gettext "Manual partitioning :")"
+        fdisk -l
         prompt-bool-default-no "$(eval_gettext "Do you want to partition an other drive ? (y/N) : ")" OTHER_DRIVE
         if [[ $OTHER_DRIVE = true ]]; then
             continue
@@ -146,6 +148,7 @@ function manual-partitioning {
         SWAP_OK=false
         print-step true "$(eval_gettext "Detected target drive partitions :")"
         INDEX=0
+        mapfile -t PARTITIONS < <(printf "%s\n" "${PARTITIONS[@]}" | sort -u)
         for partition in "${PARTITIONS[@]}"; do
             print-sub-step "$(eval_gettext "Partition") : $(lsblk -nl "$partition" -o PATH,SIZE,PARTTYPENAME)"
             if [[ $BIOS = true ]]; then
@@ -176,6 +179,9 @@ function manual-partitioning {
                 prompt "$(eval_gettext "What is the mounting point of this partition ? : ")" MOUNT_POINT
                 PART_MOUNT_POINT["$partition"]="$MOUNT_POINT"
                 prompt-bool-default-yes "$(eval_gettext "Format the \${partition} partition ? (Y/n) : ")" PART_FORMAT["$partition"]
+                if [[ "$MOUNT_POINT" == *"/boot"* ]]; then
+                    MAIN_DISK=${TARGET_DISK}
+                fi
             fi
             ((INDEX = "${INDEX}" + 1))
         done
@@ -221,11 +227,12 @@ function manual-partitioning {
 function auto-partitioning {
     USER_ANSWER=false
     while [[ $USER_ANSWER != true ]]; do
-        print-step false "$(eval_gettext "Automatic partitioning :")"
+        print-step true "$(eval_gettext "Automatic partitioning :")"
         fdisk -l
         prompt "$(eval_gettext "On which drive should Archlinux be installed ? (type the entire name, for example '/dev/sda') : ")" TARGET_DISK
         prompt "$(eval_gettext "What type of Swap do you want ? (1: Partition, other: File) : ")" SWAP_TYPE
         prompt-bool-default-no "$(eval_gettext "Do you want a separated Home ? (y/N) : ")" WANT_HOME
+        MAIN_DISK=${TARGET_DISK}
         TARGET_DISK_SIZE=$(lsblk -b --output SIZE -n -d "${TARGET_DISK}")
         ((ROOT_SIZE = "${TARGET_DISK_SIZE}" / 4))
         ((SWAP_SIZE = "${TARGET_DISK_SIZE}" / 32))
@@ -542,6 +549,7 @@ while [[ $USER_ANSWER != true ]]; do
 done
 
 # Partitioning
+declare -a PARTITIONS
 declare -A PART_TYPE
 declare -A PART_MOUNT_POINT
 declare -A PART_FORMAT
@@ -687,7 +695,7 @@ print-step false "$(eval_gettext "Network configuration...")"
 arch-chroot /mnt bash -c "systemctl enable NetworkManager"
 print-step false "$(eval_gettext "Installation and configuration of the grub...")"
 if [[ $BIOS = true ]]; then
-    arch-chroot /mnt bash -c "grub-install --target=i386-pc $TARGET_DISK"
+    arch-chroot /mnt bash -c "grub-install --target=i386-pc $MAIN_DISK"
 else
     arch-chroot /mnt bash -c 'grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Arch Linux"'
 fi
