@@ -482,7 +482,6 @@ while [[ $USER_ANSWER != true ]]; do
     fi
 
     # Default values
-    MICROCODES="$(eval_gettext "none")"
     if [[ -z "$HOSTNAME" ]]; then
         HOSTNAME="archlinux"
     fi
@@ -498,16 +497,13 @@ while [[ $USER_ANSWER != true ]]; do
     if [[ -z "$TIMEZONE" ]]; then
         TIMEZONE="/usr/share/zoneinfo/Europe/Paris"
     fi
-    CPU_VENDOR_ID=$(grep </proc/cpuinfo 'vendor' | uniq | cut -f 2 -d ":" | awk '{$1=$1}1')
-    if test "$CPU_VENDOR_ID" = "GenuineIntel"; then
-        MICROCODES="intel"
-    fi
-    if test "$CPU_VENDOR_ID" = "AuthenticAMD"; then
-        MICROCODES="amd"
-    fi
+    MICROCODES=$(grep </proc/cpuinfo 'vendor' | uniq | cut -f 2 -d ":" | awk '{$1=$1}1')
+    
     print-step true "$(eval_gettext "Summary of choices :")"
     print-sub-step "$(eval_gettext "Your hostname") : $HOSTNAME"
-    print-sub-step "$(eval_gettext "Microcodes to install") : $MICROCODES"
+    if test "$MICROCODES" = "GenuineIntel" || test "$MICROCODES" = "AuthenticAMD"; then
+        print-sub-step "$(eval_gettext "Microcodes to install") : $MICROCODES"
+    fi
     if [[ $LTS_KERNEL = true ]]; then
         print-sub-step "$(eval_gettext "Install LTS Linux kernel.")"
     fi
@@ -609,10 +605,10 @@ reflector --save /etc/pacman.d/mirrorlist --protocol https --age 12 --score 5 --
 # Installation of the base
 print-step false "$(eval_gettext "Installation of the base...")"
 declare -a PKGS=("base" "base-devel" "linux-firmware" "man-db" "man-pages" "texinfo" "nano" "vim" "git" "curl" "grub" "os-prober" "efibootmgr" "networkmanager" "xdg-user-dirs" "reflector" "numlockx")
-if test "$MICROCODES" = "intel"; then
+if test "$MICROCODES" = "GenuineIntel"; then
     PKGS+=("intel-ucode")
 fi
-if test "$MICROCODES" = "amd"; then
+if test "$MICROCODES" = "AuthenticAMD"; then
     PKGS+=("amd-ucode")
 fi
 if [[ $LTS_KERNEL = true ]]; then
