@@ -37,6 +37,7 @@ NOCOLOR="\033[0m"
 
 export TEXTDOMAIN=archlinux-install
 
+# shellcheck source=/dev/null
 . gettext.sh
 
 function print-error {
