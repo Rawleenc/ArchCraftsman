@@ -1,5 +1,7 @@
-![main workflow](https://github.com/rawleenc/archlinux-install/actions/workflows/main.yml/badge.svg?branch=main)
-![dev workflow](https://github.com/rawleenc/archlinux-install/actions/workflows/main.yml/badge.svg?branch=dev)
+
+| Service   | Main | Dev |
+|-----------|------|-----|
+| CI Status | ![main workflow](https://github.com/rawleenc/archlinux-install/actions/workflows/main.yml/badge.svg?branch=main) | ![dev workflow](https://github.com/rawleenc/archlinux-install/actions/workflows/main.yml/badge.svg?branch=dev) |
 
 # Purpose
 
