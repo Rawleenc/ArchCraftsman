@@ -1,3 +1,5 @@
+![main workflow](https://github.com/rawleenc/archlinux-install/actions/workflows/main.yml/badge.svg)
+
 # Purpose
 
 The purpose of this script is to install Arch Linux very quickly. The customization options are therefore not numerous. However, some flexibility is still allowed.  
