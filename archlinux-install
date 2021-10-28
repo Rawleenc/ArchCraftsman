@@ -499,7 +499,7 @@ while [[ $USER_ANSWER != true ]]; do
         TIMEZONE="/usr/share/zoneinfo/Europe/Paris"
     fi
     MICROCODES=$(grep </proc/cpuinfo 'vendor' | uniq | cut -f 2 -d ":" | awk '{$1=$1}1')
-    
+
     print-step true "$(eval_gettext "Summary of choices :")"
     print-sub-step "$(eval_gettext "Your hostname") : $HOSTNAME"
     if test "$MICROCODES" = "GenuineIntel" || test "$MICROCODES" = "AuthenticAMD"; then
@@ -731,7 +731,9 @@ print-sub-step "$(eval_gettext "root account configuration...")"
 if [[ $GRML_ZSH = true ]]; then
     arch-chroot /mnt bash -c "chsh --shell /bin/zsh"
 fi
-arch-chroot /mnt bash -c "echo 'root:${ROOT_PASSWORD}' | chpasswd"
+if [[ -n ${ROOT_PASSWORD} ]]; then
+    arch-chroot /mnt bash -c "echo 'root:${ROOT_PASSWORD}' | chpasswd"
+fi
 if [[ -n "$USER_NAME" ]]; then
     print-sub-step "$(eval_gettext "\${USER_NAME} account configuration...")"
     sed -i "s|# %wheel ALL=(ALL) ALL|%wheel ALL=(ALL) ALL|g" /mnt/etc/sudoers
@@ -743,7 +745,9 @@ if [[ -n "$USER_NAME" ]]; then
     if [[ -n "$USER_FULL_NAME" ]]; then
         arch-chroot /mnt bash -c "chfn -f '${USER_FULL_NAME}' ${USER_NAME}"
     fi
-    arch-chroot /mnt bash -c "echo '${USER_NAME}:${USER_PASSWORD}' | chpasswd"
+    if [[ -n ${USER_PASSWORD} ]]; then
+        arch-chroot /mnt bash -c "echo '${USER_NAME}:${USER_PASSWORD}' | chpasswd"
+    fi
 fi
 
 # Démontage des partitions
