@@ -122,6 +122,18 @@ function setup-chroot-keyboard {
     arch-chroot /mnt bash -c "echo 'EndSection' >> /etc/X11/xorg.conf.d/00-keyboard.conf"
 }
 
+function ask-swapfile-size {
+    SWAPFILE_OK=false
+    while [[ $SWAPFILE_OK != true ]]; do
+        prompt "$(eval_gettext "Swapfile size ? (Example: 8G, leave empty if none) : ")" SWAPFILE_SIZE
+        if [[ -z $SWAPFILE_SIZE ]] || [[ $SWAPFILE_SIZE =~ ^([0-9]*[\.,][0-9][0-9]*|[0-9][0-9]*)([GMk])$ ]]; then
+            SWAPFILE_OK=true
+        else
+            print-error "$(eval_gettext "Invalid swapfile size.")"
+        fi
+    done
+}
+
 function manual-partitioning {
     USER_ANSWER=false
     while [[ $USER_ANSWER != true ]]; do
@@ -187,7 +199,7 @@ function manual-partitioning {
             ((INDEX = "${INDEX}" + 1))
         done
         if [[ $SWAP_OK = false ]]; then
-            prompt "$(eval_gettext "Swapfile size ? (Example: 8G, leave empty if none) : ")" SWAPFILE_SIZE
+            ask-swapfile-size
         fi
         if [[ $BIOS = false ]] && [[ $EFI_OK = false ]]; then
             print-error "$(eval_gettext "The EFI partition is required for system installation.")"
