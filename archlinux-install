@@ -172,7 +172,7 @@ function manual-partitioning {
             if [[ $BIOS = false ]] && test "$TYPE" = "0"; then
                 PART_TYPE["$partition"]="EFI"
                 PART_MOUNT_POINT["$partition"]="/boot/efi"
-                prompt-bool-default-no "$(eval_gettext "Format the EFI partition ? (y/N) : ")" PART_FORMAT["$partition"]
+                prompt-bool-default-yes "$(eval_gettext "Format the EFI partition ? (Y/n) : ")" PART_FORMAT["$partition"]
                 EFI_OK=true
             elif test "$TYPE" = "1"; then
                 PART_TYPE["$partition"]="ROOT"
@@ -182,7 +182,7 @@ function manual-partitioning {
             elif test "$TYPE" = "2"; then
                 PART_TYPE["$partition"]="HOME"
                 PART_MOUNT_POINT["$partition"]="/home"
-                prompt-bool-default-no "$(eval_gettext "Format the Home partition ? (y/N) : ")" PART_FORMAT["$partition"]
+                prompt-bool-default-yes "$(eval_gettext "Format the Home partition ? (Y/n) : ")" PART_FORMAT["$partition"]
             elif test "$TYPE" = "3"; then
                 PART_TYPE["$partition"]="SWAP"
                 SWAP_OK=true
