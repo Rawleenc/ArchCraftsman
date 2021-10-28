@@ -408,7 +408,7 @@ function auto-partitioning {
 pacman -Sy
 
 if [[ ! -f "fr.po" ]]; then
-    curl -sLO "raw.githubusercontent.com/rawleenc/archlinux-install/main/locales/fr.po"
+    curl -sLO "raw.githubusercontent.com/rawleenc/archlinux-install/dev/locales/fr.po"
 fi
 
 msgfmt -o /usr/share/locale/fr/LC_MESSAGES/archlinux-install.mo fr.po
