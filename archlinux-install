@@ -231,6 +231,14 @@ function auto-partitioning {
         print-step true "$(eval_gettext "Automatic partitioning :")"
         fdisk -l
         prompt "$(eval_gettext "On which drive should Archlinux be installed ? (type the entire name, for example '/dev/sda') : ")" TARGET_DISK
+        if [[ -z "$TARGET_DISK" ]]; then
+            print-error "$(eval_gettext "You need to choose a target drive.")"
+            continue
+        fi
+        if [[ ! -e "$TARGET_DISK" ]]; then
+            print-error "$(eval_gettext "The chosen target drive doesn't exist.")"
+            continue
+        fi
         prompt "$(eval_gettext "What type of Swap do you want ? (1: Partition, other: File) : ")" SWAP_TYPE
         prompt-bool-default-no "$(eval_gettext "Do you want a separated Home ? (y/N) : ")" WANT_HOME
         MAIN_DISK=${TARGET_DISK}
