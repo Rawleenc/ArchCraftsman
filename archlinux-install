@@ -94,7 +94,8 @@ function prompt-passwd {
 }
 
 function pause {
-    read -ers -n 1 -p "$(echo -e "${ORANGE}$(eval_gettext "Press any key to continue...")${NOCOLOR}\n")"
+    read -n 1 -srp "$(echo -e "${ORANGE}$(eval_gettext "Press any key to continue...")${NOCOLOR}")"
+    echo -e "\n"
 }
 
 function locale-setup {
