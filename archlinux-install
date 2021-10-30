@@ -634,7 +634,7 @@ reflector --save /etc/pacman.d/mirrorlist --protocol https --age 12 --score 5 --
 
 # Installation of the base
 print-step false "$(eval_gettext "Installation of the base...")"
-declare -a PKGS=("base" "base-devel" "linux-firmware" "man-db" "man-pages" "texinfo" "nano" "vim" "git" "curl" "grub" "os-prober" "efibootmgr" "networkmanager" "xdg-user-dirs" "reflector" "numlockx")
+declare -a PKGS=("base" "base-devel" "linux-firmware" "man-db" "man-pages" "texinfo" "nano" "vim" "git" "curl" "grub" "os-prober" "efibootmgr" "networkmanager" "xdg-user-dirs" "reflector" "numlockx" "ntp")
 if test "$MICROCODES" = "GenuineIntel"; then
     PKGS+=("intel-ucode")
 fi
@@ -719,6 +719,7 @@ arch-chroot /mnt bash -c "ln -sf $TIMEZONE /etc/localtime"
 arch-chroot /mnt bash -c "locale-gen"
 print-step false "$(eval_gettext "Network configuration...")"
 arch-chroot /mnt bash -c "systemctl enable NetworkManager"
+arch-chroot /mnt bash -c "systemctl enable ntpd"
 print-step false "$(eval_gettext "Installation and configuration of the grub...")"
 if [[ $BIOS = true ]]; then
     arch-chroot /mnt bash -c "grub-install --target=i386-pc $MAIN_DISK"
