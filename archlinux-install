@@ -349,7 +349,6 @@ function auto-partitioning {
             AUTOPARTSTR+=" \n" # First sector (Accept default: 1)
             AUTOPARTSTR+=" \n" # Last sector (Accept default: varies)
 
-
             ((INDEX++))
             PARTITION="${TARGET_DISK}${INDEX}"
             PART_TYPE["${PARTITION}"]="HOME"
@@ -405,7 +404,6 @@ function auto-partitioning {
 
         prompt-bool-default-no "$(eval_gettext "Is the informations correct ? (y/N) : ")" USER_ANSWER
     done
-
 }
 
 pacman -Sy
