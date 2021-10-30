@@ -237,6 +237,14 @@ function manual-partitioning {
     done
 }
 
+function build-partition-name {
+    if [[ "${1}" == *"nvme"* ]]; then
+        echo "${1}p${2}"
+    else
+        echo "${1}${2}"
+    fi
+}
+
 function auto-partitioning {
     USER_ANSWER=false
     while [[ $USER_ANSWER != true ]]; do
@@ -278,7 +286,7 @@ function auto-partitioning {
             AUTOPARTSTR+="a\n"   # Toggle bootable flag
 
             INDEX=1
-            PARTITION="${TARGET_DISK}${INDEX}"
+            PARTITION=$(build-partition-name "${TARGET_DISK}" "${INDEX}")
             PART_TYPE["${PARTITION}"]="OTHER"
             PART_MOUNT_POINT["${PARTITION}"]="/boot"
             PART_FORMAT["${PARTITION}"]=true
@@ -296,7 +304,7 @@ function auto-partitioning {
             AUTOPARTSTR+="1\n"     # Type EFI System
 
             INDEX=1
-            PARTITION="${TARGET_DISK}${INDEX}"
+            PARTITION=$(build-partition-name "${TARGET_DISK}" "${INDEX}")
             PART_TYPE["${PARTITION}"]="EFI"
             PART_MOUNT_POINT["${PARTITION}"]="/boot/efi"
             PART_FORMAT["${PARTITION}"]=true
@@ -320,7 +328,7 @@ function auto-partitioning {
             fi
 
             ((INDEX++))
-            PARTITION="${TARGET_DISK}${INDEX}"
+            PARTITION=$(build-partition-name "${TARGET_DISK}" "${INDEX}")
             PART_TYPE["${PARTITION}"]="SWAP"
             PARTITIONS+=("${PARTITION}")
         fi
@@ -335,7 +343,7 @@ function auto-partitioning {
             AUTOPARTSTR+="+${ROOT_SIZE}\n" # Last sector (Accept default: varies)
 
             ((INDEX++))
-            PARTITION="${TARGET_DISK}${INDEX}"
+            PARTITION=$(build-partition-name "${TARGET_DISK}" "${INDEX}")
             PART_TYPE["${PARTITION}"]="ROOT"
             PART_MOUNT_POINT["${PARTITION}"]="/"
             ROOT_PARTITION="${PARTITION}"
@@ -350,7 +358,7 @@ function auto-partitioning {
             AUTOPARTSTR+=" \n" # Last sector (Accept default: varies)
 
             ((INDEX++))
-            PARTITION="${TARGET_DISK}${INDEX}"
+            PARTITION=$(build-partition-name "${TARGET_DISK}" "${INDEX}")
             PART_TYPE["${PARTITION}"]="HOME"
             PART_MOUNT_POINT["${PARTITION}"]="/home"
             PART_FORMAT["${PARTITION}"]=true
@@ -366,7 +374,7 @@ function auto-partitioning {
             AUTOPARTSTR+=" \n" # Last sector (Accept default: varies)
 
             ((INDEX++))
-            PARTITION="${TARGET_DISK}${INDEX}"
+            PARTITION=$(build-partition-name "${TARGET_DISK}" "${INDEX}")
             PART_TYPE["${PARTITION}"]="ROOT"
             PART_MOUNT_POINT["${PARTITION}"]="/"
             ROOT_PARTITION="${PARTITION}"
