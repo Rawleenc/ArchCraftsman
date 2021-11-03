@@ -102,7 +102,7 @@ function locale-setup {
     print-step false "$(eval_gettext "Configuring live environment...")"
     loadkeys "${KEYMAP}"
     setfont eurlatgr
-    if test "${GLOBAL_LANGUAGE}" = "fr"; then
+    if test "${GLOBAL_LANGUAGE}" = "FR"; then
         sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /etc/locale.gen
         locale-gen
         export LANG=fr_FR.UTF-8
@@ -414,13 +414,24 @@ function auto-partitioning {
     done
 }
 
-pacman -Sy
+print-step false "$(eval_gettext "Running pre-launch steps : ")"
+print-sub-step "$(eval_gettext "Synchronising repositories...")"
+pacman -Sy &>/dev/null
 
+print-sub-step "$(eval_gettext "Downloading and formatting translations...")"
 if [[ ! -f "fr.po" ]]; then
-    curl -sLO "raw.githubusercontent.com/rawleenc/archlinux-install/dev/locales/fr.po"
+    curl --silent -sLO "raw.githubusercontent.com/rawleenc/archlinux-install/dev/locales/fr.po"
 fi
+msgfmt -o /usr/share/locale/fr/LC_MESSAGES/archlinux-install.mo fr.po &>/dev/null
 
-msgfmt -o /usr/share/locale/fr/LC_MESSAGES/archlinux-install.mo fr.po
+print-sub-step "$(eval_gettext "Querying IP geolocation language...")"
+DETECTED_LANGUAGE=$(curl --silent --fail https://ipapi.co/languages | awk -F ',' '{print $1}')
+
+print-sub-step "$(eval_gettext "Querying IP geolocation timezone...")"
+DETECTED_TIMEZONE=$(curl --silent --fail https://ipapi.co/timezone)
+
+print-sub-step "$(eval_gettext "Querying IP geolocation country code...")"
+DETECTED_COUNTRY_CODE=$(curl --silent --fail https://ipapi.co/country)
 
 USER_ANSWER=false
 while [[ $USER_ANSWER != true ]]; do
@@ -433,16 +444,57 @@ while [[ $USER_ANSWER != true ]]; do
     fi
 
     print-step false "$(eval_gettext "Environment configuration : ")"
-    prompt "$(eval_gettext "Choose your installation's language (1: FR, other: EN) : ")" GLOBAL_LANGUAGE
-    if test "$GLOBAL_LANGUAGE" = "1"; then
-        GLOBAL_LANGUAGE="fr"
+
+    declare -a SUPPORTED_GLOBAL_LANGUAGES=("FR" "EN")
+    if test "${DETECTED_LANGUAGE}" = "fr-FR"; then
+        DEFAULT_LANGUAGE="FR"
     else
-        GLOBAL_LANGUAGE="en"
+        DEFAULT_LANGUAGE="EN"
     fi
-    prompt "$(eval_gettext "Type your installation's keymap (fr-latin9) : ")" KEYMAP
-    if [[ -z "$KEYMAP" ]]; then
-        KEYMAP="fr-latin9"
+    GLOBAL_LANGUAGE_OK=false
+    while [[ $GLOBAL_LANGUAGE_OK != true ]]; do
+        promptln "$(eval_gettext "Choose your installation's language") (${DEFAULT_LANGUAGE}, $(eval_gettext "type 'h' or 'help' to list supported languages")) : " GLOBAL_LANGUAGE
+        if [[ -z ${GLOBAL_LANGUAGE} ]]; then
+            GLOBAL_LANGUAGE="${DEFAULT_LANGUAGE}"
+        fi
+        if test "${GLOBAL_LANGUAGE}" = "h" || test "${GLOBAL_LANGUAGE}" = "help"; then
+            print-step false "$(eval_gettext "Supported languages : ")"
+            for language in "${SUPPORTED_GLOBAL_LANGUAGES[@]}"; do
+                print-sub-step "${language}"
+            done
+            echo ""
+            pause
+            continue
+        fi
+        GLOBAL_LANGUAGE="${GLOBAL_LANGUAGE^^}"
+        if [[ ${SUPPORTED_GLOBAL_LANGUAGES[*]} =~ ${GLOBAL_LANGUAGE} ]]; then
+            GLOBAL_LANGUAGE_OK=true
+        else
+            print-error "$(eval_gettext "Global language \${GLOBAL_LANGUAGE} is not supported.")"
+            continue
+        fi
+    done
+    
+    if test "${DETECTED_LANGUAGE}" = "fr-FR"; then
+        DEFAULT_KEYMAP="fr-latin9"
+    else
+        DEFAULT_KEYMAP="de-latin1"
     fi
+
+    KEYMAP_OK=false
+    while [[ $KEYMAP_OK != true ]]; do
+        promptln "$(eval_gettext "Type your installation's keymap") (${DEFAULT_KEYMAP}) : " KEYMAP
+        if [[ -z "$KEYMAP" ]]; then
+            KEYMAP="${DEFAULT_KEYMAP}"
+        fi
+        if localectl list-keymaps | grep "^${KEYMAP}$" &>/dev/null; then
+            KEYMAP_OK=true
+        else
+            print-error "$(eval_gettext "Keymap \${KEYMAP} doesn't exist.")"
+            continue
+        fi
+    done
+
     print-step false "$(eval_gettext "Summary of choices :")"
     print-sub-step "$(eval_gettext "Your installation's language") : $GLOBAL_LANGUAGE"
     print-sub-step "$(eval_gettext "Your installation's keymap") : $KEYMAP"
@@ -466,22 +518,23 @@ while [[ $USER_ANSWER != true ]]; do
     prompt-bool-default-no "$(eval_gettext "Install ZSH with GRML configuration ? (y/N) : ")" GRML_ZSH
     prompt-bool-default-no "$(eval_gettext "Install a set of main fonts ? (y/N) : ")" MAIN_FONTS
     prompt-bool-default-no "$(eval_gettext "Install main file systems support ? (y/N) : ")" MAIN_FILE_SYSTEMS
-    promptln "$(eval_gettext "Your timezone (/usr/share/zoneinfo/Europe/Paris) : ")" TIMEZONE
+    DEFAULT_TIMEZONE_FILE="/usr/share/zoneinfo/${DETECTED_TIMEZONE}"
+    promptln "$(eval_gettext "Your timezone") (${DEFAULT_TIMEZONE_FILE}) : " TIMEZONE
     promptln "$(eval_gettext "Would you like to add a user? (username, leave blank if none) : ")" USER_NAME
     if [[ -n "$USER_NAME" ]]; then
         promptln "$(eval_gettext "What is the \${USER_NAME}'s full name (type the entire full name, leave blank if none) : ")" USER_FULL_NAME
     fi
     set +Eeo pipefail
-    PKGS_SELECT_OK="FAIL"
-    while test "$PKGS_SELECT_OK" != "OK"; do
-        PKGS_SELECT_OK="OK"
+    PKGS_SELECT_OK=false
+    while [[ $PKGS_SELECT_OK != true ]]; do
+        PKGS_SELECT_OK=true
         promptln "$(eval_gettext "Install more packages ? (type extra packages full names, example : 'htop neofetch', leave blank if none) : ")" MORE_PKGS
         IFS=" " read -r -a MORE_PKGS_ARRAY <<<"${MORE_PKGS}"
         for pkg in "${MORE_PKGS_ARRAY[@]}"; do
             if pacman -Ss ^"${pkg}"$ >/dev/null; then
-                PKGS_SELECT_OK="OK"
+                PKGS_SELECT_OK=true
             else
-                PKGS_SELECT_OK="FAIL"
+                PKGS_SELECT_OK=false
                 print-error "$(eval_gettext "Package \${pkg} doesn't exist.")"
                 continue
             fi
@@ -525,7 +578,7 @@ while [[ $USER_ANSWER != true ]]; do
         DESKTOP="$(eval_gettext "none")"
     fi
     if [[ -z "$TIMEZONE" ]]; then
-        TIMEZONE="/usr/share/zoneinfo/Europe/Paris"
+        TIMEZONE="${DEFAULT_TIMEZONE_FILE}"
     fi
     MICROCODES=$(grep </proc/cpuinfo 'vendor' | uniq | cut -f 2 -d ":" | awk '{$1=$1}1')
 
@@ -630,7 +683,7 @@ fi
 
 # Updating mirrors
 print-step false "$(eval_gettext "Updating mirrors...")"
-reflector --save /etc/pacman.d/mirrorlist --protocol https --age 12 --score 5 --sort score
+reflector --save /etc/pacman.d/mirrorlist --protocol https --age 12 --country "${DETECTED_COUNTRY_CODE}" --score 5 --sort rate
 
 # Installation of the base
 print-step false "$(eval_gettext "Installation of the base...")"
@@ -693,7 +746,7 @@ print-step false "$(eval_gettext "System configuration...")"
 genfstab -U /mnt >>/mnt/etc/fstab
 sed -i "s|#en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|g" /mnt/etc/locale.gen
 sed -i "s|#en_US ISO-8859-1|en_US ISO-8859-1|g" /mnt/etc/locale.gen
-if test "$GLOBAL_LANGUAGE" = "fr"; then
+if test "$GLOBAL_LANGUAGE" = "FR"; then
     sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /mnt/etc/locale.gen
     sed -i "s|#fr_FR ISO-8859-1|fr_FR ISO-8859-1|g" /mnt/etc/locale.gen
     echo "LANG=fr_FR.UTF-8" >/mnt/etc/locale.conf
