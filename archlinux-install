@@ -136,6 +136,7 @@ function ask-swapfile-size {
 
 function manual-partitioning {
     USER_ANSWER=false
+    declare -a PARTITIONED_DISKS
     while [[ $USER_ANSWER != true ]]; do
         print-step true "$(eval_gettext "Manual partitioning :")"
         fdisk -l
@@ -146,8 +147,17 @@ function manual-partitioning {
             continue
         fi
 
+        ALREADY_ADDED_DRIVE=false
+        for disk in "${PARTITIONED_DISKS[@]}"; do
+            if test "${TARGET_DISK}" = "${disk}"; then
+                ALREADY_ADDED_DRIVE=true
+            fi
+        done
+        if [[ $ALREADY_ADDED_DRIVE = false ]]; then
+            PARTITIONED_DISKS+=("${TARGET_DISK}")
+        fi
+
         cfdisk "$TARGET_DISK"
-        mapfile -t -O "${#PARTITIONS[@]}" PARTITIONS < <(lsblk -nl "${TARGET_DISK}" -o PATH,PARTTYPENAME | grep -iE 'linux|efi|swap' | awk '{print $1}')
 
         print-step true "$(eval_gettext "Manual partitioning :")"
         fdisk -l
@@ -156,18 +166,25 @@ function manual-partitioning {
             continue
         fi
 
+        set +Eeo pipefail
+        for disk in "${PARTITIONED_DISKS[@]}"; do
+            DETECTED_PARTITIONS=$(lsblk -nl "${disk}" -o PATH,PARTTYPENAME | grep -iE 'linux|efi|swap' | awk '{print $1}')
+            for partition in $DETECTED_PARTITIONS; do
+                PARTITIONS+=("${partition}")
+            done
+        done
+        set -Eeo pipefail
+
         EFI_OK=false
         ROOT_OK=false
         SWAP_OK=false
-        print-step true "$(eval_gettext "Detected target drive partitions :")"
-        INDEX=0
-        mapfile -t PARTITIONS < <(printf "%s\n" "${PARTITIONS[@]}" | sort -u)
+        print-step true "$(eval_gettext "Detected target drive partitions :") (${PARTITIONS[*]})"
         for partition in "${PARTITIONS[@]}"; do
             print-sub-step "$(eval_gettext "Partition") : $(lsblk -nl "$partition" -o PATH,SIZE,PARTTYPENAME)"
             if [[ $BIOS = true ]]; then
-                prompt "$(eval_gettext "What is the role of this partition ? (1: Root, 2: Home, 3: Swap, other: Other) : ")" TYPE
+                prompt "$(eval_gettext "What is the role of this partition ? (1: Root, 2: Home, 3: Swap, 4: Not used, other: Other) : ")" TYPE
             else
-                prompt "$(eval_gettext "What is the role of this partition ? (0: EFI, 1: Root, 2: Home, 3: Swap, other: Other) : ")" TYPE
+                prompt "$(eval_gettext "What is the role of this partition ? (0: EFI, 1: Root, 2: Home, 3: Swap, 4: Not used, other: Other) : ")" TYPE
             fi
             if [[ $BIOS = false ]] && test "$TYPE" = "0"; then
                 PART_TYPE["$partition"]="EFI"
@@ -187,6 +204,8 @@ function manual-partitioning {
                 PART_TYPE["$partition"]="SWAP"
                 SWAP_OK=true
                 SWAP_PARTITION="$partition"
+            elif test "$TYPE" = "4"; then
+                continue
             else
                 PART_TYPE["$partition"]="OTHER"
                 prompt "$(eval_gettext "What is the mounting point of this partition ? : ")" MOUNT_POINT
@@ -196,7 +215,6 @@ function manual-partitioning {
                     MAIN_DISK=${TARGET_DISK}
                 fi
             fi
-            ((INDEX++))
         done
         if [[ $SWAP_OK = false ]]; then
             ask-swapfile-size
@@ -327,7 +345,7 @@ function auto-partitioning {
                 AUTOPARTSTR+="19\n" # Type Linux Swap
             fi
 
-            ((INDEX++))
+            ((INDEX = INDEX + 1))
             PARTITION=$(build-partition-name "${TARGET_DISK}" "${INDEX}")
             PART_TYPE["${PARTITION}"]="SWAP"
             PARTITIONS+=("${PARTITION}")
@@ -342,7 +360,7 @@ function auto-partitioning {
             AUTOPARTSTR+=" \n"             # First sector (Accept default: 1)
             AUTOPARTSTR+="+${ROOT_SIZE}\n" # Last sector (Accept default: varies)
 
-            ((INDEX++))
+            ((INDEX = INDEX + 1))
             PARTITION=$(build-partition-name "${TARGET_DISK}" "${INDEX}")
             PART_TYPE["${PARTITION}"]="ROOT"
             PART_MOUNT_POINT["${PARTITION}"]="/"
@@ -357,7 +375,7 @@ function auto-partitioning {
             AUTOPARTSTR+=" \n" # First sector (Accept default: 1)
             AUTOPARTSTR+=" \n" # Last sector (Accept default: varies)
 
-            ((INDEX++))
+            ((INDEX = INDEX + 1))
             PARTITION=$(build-partition-name "${TARGET_DISK}" "${INDEX}")
             PART_TYPE["${PARTITION}"]="HOME"
             PART_MOUNT_POINT["${PARTITION}"]="/home"
@@ -373,7 +391,7 @@ function auto-partitioning {
             AUTOPARTSTR+=" \n" # First sector (Accept default: 1)
             AUTOPARTSTR+=" \n" # Last sector (Accept default: varies)
 
-            ((INDEX++))
+            ((INDEX = INDEX + 1))
             PARTITION=$(build-partition-name "${TARGET_DISK}" "${INDEX}")
             PART_TYPE["${PARTITION}"]="ROOT"
             PART_MOUNT_POINT["${PARTITION}"]="/"
@@ -467,14 +485,14 @@ while [[ $USER_ANSWER != true ]]; do
             continue
         fi
         GLOBAL_LANGUAGE="${GLOBAL_LANGUAGE^^}"
-        if [[ ${SUPPORTED_GLOBAL_LANGUAGES[*]} =~ ${GLOBAL_LANGUAGE} ]]; then
+        if [[ "${SUPPORTED_GLOBAL_LANGUAGES[*]}" == *"${GLOBAL_LANGUAGE}"* ]]; then
             GLOBAL_LANGUAGE_OK=true
         else
             print-error "$(eval_gettext "Global language \${GLOBAL_LANGUAGE} is not supported.")"
             continue
         fi
     done
-    
+
     if test "${DETECTED_LANGUAGE}" = "fr-FR"; then
         DEFAULT_KEYMAP="fr-latin9"
     else
@@ -531,7 +549,7 @@ while [[ $USER_ANSWER != true ]]; do
         promptln "$(eval_gettext "Install more packages ? (type extra packages full names, example : 'htop neofetch', leave blank if none) : ")" MORE_PKGS
         IFS=" " read -r -a MORE_PKGS_ARRAY <<<"${MORE_PKGS}"
         for pkg in "${MORE_PKGS_ARRAY[@]}"; do
-            if pacman -Ss ^"${pkg}"$ >/dev/null; then
+            if pacman -Ss ^"${pkg}"$ &>/dev/null; then
                 PKGS_SELECT_OK=true
             else
                 PKGS_SELECT_OK=false
