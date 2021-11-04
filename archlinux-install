@@ -147,7 +147,7 @@ function manual-partitioning {
         fi
 
         cfdisk "$TARGET_DISK"
-        mapfile -t -O "${#PARTITIONS[@]}" PARTITIONS < <(lsblk -nl "${TARGET_DISK}" -o PATH,TYPE,PARTTYPENAME | grep part | grep -v Extended | awk '{print $1}')
+        mapfile -t -O "${#PARTITIONS[@]}" PARTITIONS < <(lsblk -nl "${TARGET_DISK}" -o PATH,PARTTYPENAME | grep -iE 'linux|efi|swap' | awk '{print $1}')
 
         print-step true "$(eval_gettext "Manual partitioning :")"
         fdisk -l
