@@ -554,7 +554,7 @@ while [[ $USER_ANSWER != true ]]; do
             else
                 PKGS_SELECT_OK=false
                 print-error "$(eval_gettext "Package \${pkg} doesn't exist.")"
-                continue
+                break
             fi
         done
     done
