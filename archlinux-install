@@ -138,7 +138,9 @@ function manual-partitioning {
     USER_ANSWER=false
     declare -a PARTITIONED_DISKS
     while [[ $USER_ANSWER != true ]]; do
+        PARTITIONED_DISKS=()
         print-step true "$(eval_gettext "Manual partitioning :")"
+        print-sub-step "$(eval_gettext "Partitioned drives so far") : (${PARTITIONED_DISKS[*]})"
         fdisk -l
         prompt "$(eval_gettext "Which drive do you want to partition ? (type the entire name, for example '/dev/sda') : ")" TARGET_DISK
         # Required fields
@@ -160,6 +162,7 @@ function manual-partitioning {
         cfdisk "$TARGET_DISK"
 
         print-step true "$(eval_gettext "Manual partitioning :")"
+        print-sub-step "$(eval_gettext "Partitioned drives so far") : (${PARTITIONED_DISKS[*]})"
         fdisk -l
         prompt-bool-default-no "$(eval_gettext "Do you want to partition an other drive ? (y/N) : ")" OTHER_DRIVE
         if [[ $OTHER_DRIVE = true ]]; then
@@ -221,10 +224,12 @@ function manual-partitioning {
         fi
         if [[ $BIOS = false ]] && [[ $EFI_OK = false ]]; then
             print-error "$(eval_gettext "The EFI partition is required for system installation.")"
+            PARTITIONS=()
             continue
         fi
         if [[ $ROOT_OK = false ]]; then
             print-error "$(eval_gettext "The Root partition is required for system installation.")"
+            PARTITIONS=()
             continue
         fi
         print-step true "$(eval_gettext "Summary of choices :")"
@@ -252,6 +257,9 @@ function manual-partitioning {
             print-sub-step "$(eval_gettext "Swapfile size") : $SWAPFILE_SIZE"
         fi
         prompt-bool-default-no "$(eval_gettext "Is the informations correct ? (y/N) : ")" USER_ANSWER
+        if [[ ${USER_ANSWER} = false ]]; then
+            PARTITIONS=()
+        fi
     done
 }
 
