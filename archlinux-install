@@ -448,7 +448,7 @@ pacman -Sy &>/dev/null
 
 print-sub-step "$(eval_gettext "Downloading and formatting translations...")"
 if [[ ! -f "fr.po" ]]; then
-    curl --silent -sLO "raw.githubusercontent.com/rawleenc/archlinux-install/dev/locales/fr.po"
+    curl --silent -sLO "raw.githubusercontent.com/rawleenc/archlinux-install/main/locales/fr.po"
 fi
 msgfmt -o /usr/share/locale/fr/LC_MESSAGES/archlinux-install.mo fr.po &>/dev/null
 
