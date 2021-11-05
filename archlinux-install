@@ -138,7 +138,6 @@ function manual-partitioning {
     USER_ANSWER=false
     declare -a PARTITIONED_DISKS
     while [[ $USER_ANSWER != true ]]; do
-        PARTITIONED_DISKS=()
         print-step true "$(eval_gettext "Manual partitioning :")"
         print-sub-step "$(eval_gettext "Partitioned drives so far") : (${PARTITIONED_DISKS[*]})"
         fdisk -l
@@ -225,11 +224,13 @@ function manual-partitioning {
         if [[ $BIOS = false ]] && [[ $EFI_OK = false ]]; then
             print-error "$(eval_gettext "The EFI partition is required for system installation.")"
             PARTITIONS=()
+            PARTITIONED_DISKS=()
             continue
         fi
         if [[ $ROOT_OK = false ]]; then
             print-error "$(eval_gettext "The Root partition is required for system installation.")"
             PARTITIONS=()
+            PARTITIONED_DISKS=()
             continue
         fi
         print-step true "$(eval_gettext "Summary of choices :")"
@@ -259,6 +260,7 @@ function manual-partitioning {
         prompt-bool-default-no "$(eval_gettext "Is the informations correct ? (y/N) : ")" USER_ANSWER
         if [[ ${USER_ANSWER} = false ]]; then
             PARTITIONS=()
+            PARTITIONED_DISKS=()
         fi
     done
 }
