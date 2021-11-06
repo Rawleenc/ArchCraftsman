@@ -439,6 +439,9 @@ function auto-partitioning {
         fi
 
         prompt-bool-default-no "$(eval_gettext "Is the informations correct ? (y/N) : ")" USER_ANSWER
+        if [[ ${USER_ANSWER} = false ]]; then
+            PARTITIONS=()
+        fi
     done
 }
 
