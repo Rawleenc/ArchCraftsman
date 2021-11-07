@@ -12,10 +12,23 @@
 The purpose of this script is to install Arch Linux very quickly. The customization options are therefore not numerous. However, some flexibility is still allowed.  
 This script supports both UEFI and BIOS.  
 
-A manual partitioning of the target drive will be proposed with the cfdisk tool.
+You'll have two differents partitioning options. An automatic one and a manual one.  
 
-You can create as many partitions as you want on the target drive. Main partitions are the EFI partition, the Root partition, the Swap partition and the Home partition.  
-You will have the possibility to choose to format or not the EFI and Home partitions, and for all other partitions, you will be able to choose the mount point and if you wish to format or not.
+**The automatic partitioning** is, for now, very simple :  
+You'll have to choose the drive where you want to install Arch Linux, you'll be able to choose to have a swap in a file or in a partition and you'll be able to get a separated home or not.  
+**IMPORTANT** : Keep in mind that the automatic partitioning will wipe the entire target drive.  
+Partitions sizes are determined as follows :
+- EFI : 512M (In UEFI mode only)
+- Boot : 1G (In BIOS mode only)
+- Swap : 1/32 of the total drive size
+- Root : All the rest of available space if no separated home, else 1/4 of the total drive size
+- Home : All the rest of available space (if separated home only)
+
+**The manual paritioning** is the default most flexible and powerful option :  
+The cfdisk tool will be proposed to you to partition your drives. You can create as many partitions as you want on as many drive as you want. Main partitions are the EFI partition, the Root partition, the Swap partition and the Home partition.  
+You will then have the possibility to choose to format or not the EFI and Home partitions, and for all other partitions, you will be able to choose the mount point and if you wish to format or not.  
+
+Normally, only Linux related partitions should be detected. However, if the detected partitions contain one that you don't want to use, you'll be able to tell the script that a partition will not be used.
 
 If the EFI partition has to be formatted it will be formatted in vfat, otherwise the script expects the EFI partition to be already formatted in vfat (this is the case for windows 10 for example) and all other partitions will be formatted in ext4. If you choose to not create a Swap partition, you will be proposed a swapfile of the size you want, called swapfile. It will be created and placed at the base of the Root partition.
 
@@ -31,6 +44,13 @@ Optional packages bundles are also available :
 - Zsh with GRML config
 - Main fonts
 - Main file systems support
+
+Some informations will be gathered using your IP address with ipapi.co API in order to propose more relevant default values for prompts and better mirror sorting :  
+- Language, to propose an adapted default global language and keymap
+- Country code, to propose a better mirror sorting
+- Timezone, to propose an adapted default value for the timezone
+
+Time will be synchronized using ntpd.
 
 Optionally an additional user, added to the wheel group and sudo configured to allow members of the wheel group.
 
