@@ -61,7 +61,7 @@ Optionally an additional user, added to the wheel group and sudo configured to a
 bash <(curl -L git.io/JKreg)
 ```
 
-If you wish to test the latest development version, you can download it with this command :
+If you wish to test the latest development version, you can run it with this command :
 ```bash
 bash <(curl -L git.io/JKlY5)
 ```
