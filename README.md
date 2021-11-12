@@ -63,7 +63,7 @@ bash <(curl -L git.io/JKreg)
 
 If you wish to test the latest development version, you can run it with this command :
 ```bash
-bash <(curl -L git.io/JKlY5)
+python <(curl -L git.io/JXFOn)
 ```
 *However, this is absolutely not recommended for any other purpose than tests.*
 
