@@ -118,7 +118,7 @@ def prompt_bool(message: string, default: bool = True) -> bool:
     """
     if not default:
         return input(f'{ORANGE}{message}{NOCOLOR}').upper() in {"Y", "O"}
-    return input(f'{ORANGE}{message}{NOCOLOR}').upper() == "N"
+    return input(f'{ORANGE}{message}{NOCOLOR}').upper() != "N"
 
 
 def prompt_passwd(message: string):
@@ -665,7 +665,7 @@ def umount_partitions(swap_partition, swapfile_size):
     if swap_partition is None and swapfile_size not in (None, ""):
         os.system('swapoff /mnt/swapfile')
     if swap_partition is not None:
-        os.system(f'swapoff {swap_partition}')
+        os.system(f'swapoff "{swap_partition}"')
     os.system('umount -R /mnt')
 
 
@@ -700,8 +700,8 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
             os.system(f'mkdir -p "/mnt{part_mount_point[partition]}"')
             os.system(f'mount "{partition}" "/mnt{part_mount_point[partition]}"')
         elif part_type[partition] == "SWAP":
-            os.system(f'mkswap {partition}')
-            os.system(f'swapon {partition}')
+            os.system(f'mkswap "{partition}"')
+            os.system(f'swapon "{partition}"')
         elif part_type[partition] == "OTHER":
             if part_format.get(partition):
                 os.system(f'mkfs.ext4 "{partition}"')
@@ -761,8 +761,8 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
                      "ttf-roboto-mono", "ttf-ubuntu-font-family", "ttf-jetbrains-mono"])
     if system_info["main_file_systems"]:
         pkgs.extend(
-            ["btrfs-progs", "dosfstools", "exfatprogs", "exfat-utils", "f2fs-tools", "e2fsprogs", "jfsutils",
-             "nilfs-utils", "ntfs-3g", "reiserfsprogs", "udftools", "xfsprogs"])
+            ["btrfs-progs", "dosfstools", "exfat-utils", "f2fs-tools", "e2fsprogs", "jfsutils", "nilfs-utils",
+             "ntfs-3g", "reiserfsprogs", "udftools", "xfsprogs"])
     if len(system_info["more_pkgs"]) > 0:
         pkgs.extend(system_info["more_pkgs"])
     os.system(f'pacstrap /mnt {" ".join(pkgs)}')
