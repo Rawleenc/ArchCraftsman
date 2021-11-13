@@ -234,7 +234,7 @@ def manual_partitioning(bios: string):
             detected_partitions = os.popen(
                 f'lsblk -nl "{disk}" -o PATH,PARTTYPENAME | grep -iE "linux|efi|swap" | awk \'{{print $1}}\'').read()
             for partition in detected_partitions.splitlines():
-                partitions.add(partition)
+                partitions.append(partition)
         print_step(_("Detected target drive partitions : %s") % " ".join(partitions))
         for partition in partitions:
             print_sub_step(_("Partition : %s") % os.popen(f'lsblk -nl "{partition}" -o PATH,SIZE,PARTTYPENAME').read())
@@ -369,7 +369,7 @@ def auto_partitioning(bios: string):
             part_type[partition] = "OTHER"
             part_mount_point[partition] = "/boot"
             part_format[partition] = True
-            partitions.add(partition)
+            partitions.append(partition)
         else:
             # GPT LABEL
             auto_part_str += "g\n"  # Create a new empty GPT partition table
@@ -386,7 +386,7 @@ def auto_partitioning(bios: string):
             part_type[partition] = "EFI"
             part_mount_point[partition] = "/boot/efi"
             part_format[partition] = True
-            partitions.add(partition)
+            partitions.append(partition)
         if swap_type == "1":
             # SWAP
             auto_part_str += "n\n"  # Add a new partition
@@ -405,7 +405,7 @@ def auto_partitioning(bios: string):
             partition = build_partition_name(target_disk, index)
             part_type[partition] = "SWAP"
             swap_partition = partition
-            partitions.add(partition)
+            partitions.append(partition)
         if want_home:
             # ROOT
             auto_part_str += "n\n"  # Add a new partition
@@ -419,7 +419,7 @@ def auto_partitioning(bios: string):
             part_type[partition] = "ROOT"
             part_mount_point[partition] = "/"
             root_partition = partition
-            partitions.add(partition)
+            partitions.append(partition)
             # HOME
             auto_part_str += "n\n"  # Add a new partition
             if bios:
@@ -432,7 +432,7 @@ def auto_partitioning(bios: string):
             part_type[partition] = "HOME"
             part_mount_point[partition] = "/home"
             part_format[partition] = True
-            partitions.add(partition)
+            partitions.append(partition)
         else:
             # ROOT
             auto_part_str += "n\n"  # Add a new partition
@@ -446,7 +446,7 @@ def auto_partitioning(bios: string):
             part_type[partition] = "ROOT"
             part_mount_point[partition] = "/"
             root_partition = partition
-            partitions.add(partition)
+            partitions.append(partition)
         # WRITE
         auto_part_str += "w\n"
         os.system(f'echo -e "{auto_part_str}" | fdisk "{target_disk}" &>/dev/null')
