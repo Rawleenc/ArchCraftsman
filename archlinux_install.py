@@ -180,7 +180,7 @@ def setup_chroot_keyboard(layout: string):
         keyboard_config_file.writelines(content)
 
 
-def ask_swapfile_size() -> string:
+def ask_swapfile_size(target_disk: string) -> string:
     """
     The method to ask the user for the swapfile size.
     :return:
@@ -188,8 +188,12 @@ def ask_swapfile_size() -> string:
     swapfile_ok = False
     swapfile_size = ""
     swapfile_size_pattern = re.compile("^([0-9]*[.,][0-9][0-9]*|[0-9][0-9]*)([GMk])$")
+    target_disk_size = int(os.popen(f'lsblk -b --output SIZE -n -d "{target_disk}"').read())
+    default_swapfile_size = os.popen(f'printf "{int(target_disk_size / 32)}" | numfmt --to=iec').read()
     while not swapfile_ok:
-        swapfile_size = prompt(_("Swapfile size ? (Example: 8G, leave empty if none) : "))
+        swapfile_size = prompt(_("Swapfile size ? (%s) : ") % default_swapfile_size)
+        if swapfile_size is None or swapfile_size == "":
+            swapfile_size = default_swapfile_size
         if swapfile_size_pattern.match(swapfile_size):
             swapfile_ok = True
         else:
@@ -248,6 +252,7 @@ def manual_partitioning(bios: string):
                 part_type[partition] = "EFI"
                 part_mount_point[partition] = "/boot/efi"
                 part_format[partition] = prompt_bool(_("Format the EFI partition ? (Y/n) : "))
+                main_disk = target_disk
             elif partition_type == "1":
                 part_type[partition] = "ROOT"
                 part_mount_point[partition] = "/"
@@ -268,7 +273,7 @@ def manual_partitioning(bios: string):
                 if "/boot" in part_mount_point[partition]:
                     main_disk = os.popen(f'lsblk -ndo PKNAME {partition}').read()
         if "SWAP" not in part_type.values():
-            swapfile_size = ask_swapfile_size()
+            swapfile_size = ask_swapfile_size(main_disk)
         if not bios and "EFI" not in part_type.values():
             print_error(_("The EFI partition is required for system installation."))
             partitions.clear()
