@@ -857,15 +857,15 @@ def pre_launch_steps():
     The method to proceed to the pre-launch steps
     :return:
     """
-    print_step("Running pre-launch steps : ", clear=False)
-    print_sub_step("Synchronising repositories...")
+    print_step(_("Running pre-launch steps : "), clear=False)
+    print_sub_step(_("Synchronising repositories..."))
     os.system("pacman -Sy &>/dev/null")
-    print_sub_step("Downloading and formatting translations...")
+    print_sub_step(_("Downloading and formatting translations..."))
     if not os.path.exists("fr.po"):
         urllib.request.urlretrieve("https://raw.githubusercontent.com/rawleenc/archlinux-install/dev/locales/fr.po",
                                    "fr.po")
     os.system('msgfmt -o /usr/share/locale/fr/LC_MESSAGES/archlinux-install.mo fr.po &>/dev/null')
-    print_sub_step("Querying IP geolocation informations...")
+    print_sub_step(_("Querying IP geolocation informations..."))
     with urllib.request.urlopen('https://ipapi.co/json') as response:
         geoip_info = json.loads(response.read())
     detected_language = str(geoip_info["languages"]).split(",", maxsplit=1)[0]
