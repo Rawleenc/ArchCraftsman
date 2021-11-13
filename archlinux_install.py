@@ -63,8 +63,8 @@ def print_error(message: string):
     :param message:
     :return:
     """
-    print(f'\n{RED}  /!\\ {message}{NOCOLOR}')
-    pause()
+    print(f'\n{RED}  /!\\ {message}{NOCOLOR}\n')
+    pause(end_newline=True)
 
 
 def print_step(message: string, clear: bool = True):
@@ -140,9 +140,9 @@ def pause(start_newline: bool = False, end_newline: bool = False):
     if start_newline:
         print("")
     print(f'{ORANGE}{message}{NOCOLOR}')
+    os.system('read -n 1 -sr')
     if end_newline:
         print("")
-    os.system('read -n 1 -sr')
 
 
 def locale_setup(keymap: string = "de-latin1", global_language: string = "EN"):
@@ -203,7 +203,7 @@ def manual_partitioning(bios: string):
     :param bios:
     :return:
     """
-    partitions = set()
+    partitions = []
     part_type = {}
     part_mount_point = {}
     part_format = {}
@@ -324,7 +324,7 @@ def auto_partitioning(bios: string):
     :param bios:
     :return:
     """
-    partitions = set()
+    partitions = []
     part_type = {}
     part_mount_point = {}
     part_format = {}
@@ -513,7 +513,7 @@ def environment_config(detected_language: string):
                 print_step(_("Supported languages : "), clear=False)
                 for language in supported_global_languages:
                     print_sub_step(language)
-                pause(start_newline=True)
+                pause(start_newline=True, end_newline=True)
                 continue
             if global_language in supported_global_languages:
                 global_language_ok = True
@@ -665,7 +665,7 @@ def umount_partitions(swap_partition, swapfile_size):
     if swap_partition is None and swapfile_size not in (None, ""):
         os.system('swapoff /mnt/swapfile')
     if swap_partition is not None:
-        os.system(f'swapoff "${swap_partition}"')
+        os.system(f'swapoff {swap_partition}')
     os.system('umount -R /mnt')
 
 
@@ -700,8 +700,8 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
             os.system(f'mkdir -p "/mnt{part_mount_point[partition]}"')
             os.system(f'mount "{partition}" "/mnt{part_mount_point[partition]}"')
         elif part_type[partition] == "SWAP":
-            os.system(f'mkswap "{partition}"')
-            os.system(f'swapon "{partition}"')
+            os.system(f'mkswap {partition}')
+            os.system(f'swapon {partition}')
         elif part_type[partition] == "OTHER":
             if part_format.get(partition):
                 os.system(f'mkfs.ext4 "{partition}"')
