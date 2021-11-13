@@ -791,7 +791,7 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
             echo "127.0.1.1 {system_info["hostname"]}.localdomain {system_info["hostname"]}"
         }} >>/mnt/etc/hostname
     ''')
-    os.system('sed -i "/^GRUB_CMDLINE_LINUX=.*/a GRUB_DISABLE_OS_PROBER=false" /etc/default/grub')
+    os.system('sed -i "/^GRUB_CMDLINE_LINUX=.*/a GRUB_DISABLE_OS_PROBER=false" /mnt/etc/default/grub')
 
     print_step(_("Locales configuration..."), clear=False)
     os.system(f'arch-chroot /mnt bash -c "ln -sf {system_info["timezone"]} /etc/localtime"')
