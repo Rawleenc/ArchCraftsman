@@ -31,7 +31,6 @@ import json
 import os
 import re
 import readline
-import string
 import getpass
 import urllib.request
 
@@ -57,7 +56,7 @@ readline.parse_and_bind("tab: complete")
 readline.set_completer(complete)
 
 
-def print_error(message: string):
+def print_error(message: str):
     """
     A method to print an error.
     :param message:
@@ -67,7 +66,7 @@ def print_error(message: string):
     pause(end_newline=True)
 
 
-def print_step(message: string, clear: bool = True):
+def print_step(message: str, clear: bool = True):
     """
     A method to print a step message.
     :param message:
@@ -78,7 +77,7 @@ def print_step(message: string, clear: bool = True):
     print(f'\n{GREEN}{message}{NOCOLOR}')
 
 
-def print_sub_step(message: string):
+def print_sub_step(message: str):
     """
     A method to print a sub step message.
     :param message:
@@ -86,7 +85,7 @@ def print_sub_step(message: string):
     print(f'{CYAN}  * {message}{NOCOLOR}')
 
 
-def prompt(message: string, default: string = None) -> string:
+def prompt(message: str, default: str = None) -> str:
     """
     A method to prompt for a user input.
     :param message:
@@ -99,7 +98,7 @@ def prompt(message: string, default: string = None) -> string:
     return user_input
 
 
-def prompt_ln(message: string, default: string = None) -> string:
+def prompt_ln(message: str, default: str = None) -> str:
     """
     A method to prompt for a user input with a new line for the user input.
     :param message:
@@ -109,7 +108,7 @@ def prompt_ln(message: string, default: string = None) -> string:
     return prompt(f'{message}\n', default)
 
 
-def prompt_bool(message: string, default: bool = True) -> bool:
+def prompt_bool(message: str, default: bool = True) -> bool:
     """
     A method to prompt for a boolean choice.
     :param message:
@@ -121,7 +120,7 @@ def prompt_bool(message: string, default: bool = True) -> bool:
     return input(f'{ORANGE}{message}{NOCOLOR}').upper() != "N"
 
 
-def prompt_passwd(message: string):
+def prompt_passwd(message: str):
     """
     A method to prompt for a password without displaying an echo.
     :param message:
@@ -145,7 +144,7 @@ def pause(start_newline: bool = False, end_newline: bool = False):
         print("")
 
 
-def locale_setup(keymap: string = "de-latin1", global_language: string = "EN"):
+def locale_setup(keymap: str = "de-latin1", global_language: str = "EN"):
     """
     The method to setup environment locale.
     :param keymap:
@@ -164,7 +163,7 @@ def locale_setup(keymap: string = "de-latin1", global_language: string = "EN"):
         os.putenv('LANGUAGE', 'en_US.UTF-8')
 
 
-def setup_chroot_keyboard(layout: string):
+def setup_chroot_keyboard(layout: str):
     """
     The method to set the X keyboard of the chrooted system.
     :param layout:
@@ -180,7 +179,7 @@ def setup_chroot_keyboard(layout: string):
         keyboard_config_file.writelines(content)
 
 
-def ask_swapfile_size(target_disk: string) -> string:
+def ask_swapfile_size(target_disk: str) -> str:
     """
     The method to ask the user for the swapfile size.
     :return:
@@ -201,7 +200,7 @@ def ask_swapfile_size(target_disk: string) -> string:
     return swapfile_size
 
 
-def manual_partitioning(bios: string):
+def manual_partitioning(bios: str):
     """
     The method to proceed to the manual partitioning.
     :param bios:
@@ -313,7 +312,7 @@ def manual_partitioning(bios: string):
     return partitions, part_type, part_mount_point, part_format, root_partition, swap_partition, swapfile_size, main_disk
 
 
-def build_partition_name(disk: string, index: string):
+def build_partition_name(disk: str, index: str):
     """
     A method to build a partition name with a disk and an index.
     :param disk:
@@ -323,7 +322,7 @@ def build_partition_name(disk: string, index: string):
     return (f'{disk}{index}', f'{disk}p{index}')["nvme" in disk]
 
 
-def auto_partitioning(bios: string):
+def auto_partitioning(bios: str):
     """
     The method to proceed to the automatic partitioning.
     :param bios:
@@ -370,7 +369,7 @@ def auto_partitioning(bios: string):
             auto_part_str += "+1G\n"  # Last sector (Accept default: varies)
             auto_part_str += "a\n"  # Toggle bootable flag
             index += 1
-            partition = build_partition_name(target_disk, index)
+            partition = build_partition_name(target_disk, str(index))
             part_type[partition] = "OTHER"
             part_mount_point[partition] = "/boot"
             part_format[partition] = True
@@ -387,7 +386,7 @@ def auto_partitioning(bios: string):
             auto_part_str += " \n"  # Partition number (Accept default: auto)
             auto_part_str += "1\n"  # Type EFI System
             index += 1
-            partition = build_partition_name(target_disk, index)
+            partition = build_partition_name(target_disk, str(index))
             part_type[partition] = "EFI"
             part_mount_point[partition] = "/boot/efi"
             part_format[partition] = True
@@ -407,7 +406,7 @@ def auto_partitioning(bios: string):
             else:
                 auto_part_str += "19\n"  # Type Linux Swap
             index += 1
-            partition = build_partition_name(target_disk, index)
+            partition = build_partition_name(target_disk, str(index))
             part_type[partition] = "SWAP"
             swap_partition = partition
             partitions.append(partition)
@@ -420,7 +419,7 @@ def auto_partitioning(bios: string):
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += f'+{root_size}\n'  # Last sector (Accept default: varies)
             index += 1
-            partition = build_partition_name(target_disk, index)
+            partition = build_partition_name(target_disk, str(index))
             part_type[partition] = "ROOT"
             part_mount_point[partition] = "/"
             root_partition = partition
@@ -433,7 +432,7 @@ def auto_partitioning(bios: string):
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += " \n"  # Last sector (Accept default: varies)
             index += 1
-            partition = build_partition_name(target_disk, index)
+            partition = build_partition_name(target_disk, str(index))
             part_type[partition] = "HOME"
             part_mount_point[partition] = "/home"
             part_format[partition] = True
@@ -447,7 +446,7 @@ def auto_partitioning(bios: string):
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += " \n"  # Last sector (Accept default: varies)
             index += 1
-            partition = build_partition_name(target_disk, index)
+            partition = build_partition_name(target_disk, str(index))
             part_type[partition] = "ROOT"
             part_mount_point[partition] = "/"
             root_partition = partition
@@ -483,7 +482,7 @@ def auto_partitioning(bios: string):
     return partitions, part_type, part_mount_point, part_format, root_partition, swap_partition, swapfile_size, main_disk
 
 
-def environment_config(detected_language: string):
+def environment_config(detected_language: str):
     """
     The method to get environment configurations from the user.
     :param detected_language:
@@ -547,7 +546,7 @@ def environment_config(detected_language: string):
     return bios, global_language, keymap
 
 
-def ask_password(username: string = "root"):
+def ask_password(username: str = "root"):
     """
     A method to ask a password to the user.
     :param username:
