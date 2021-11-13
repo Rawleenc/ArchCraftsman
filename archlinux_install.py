@@ -602,7 +602,7 @@ def system_config(detected_timezone):
             if more_pkgs_str != "":
                 system_info["more_pkgs"] = more_pkgs_str.split(" ")
                 for pkg in system_info["more_pkgs"]:
-                    if os.system(f'pacman -Ss ^"{pkg}"$ &>/dev/null') != 0:
+                    if os.system(f'pacman -Si {pkg} &>/dev/null') != 0:
                         pkgs_select_ok = False
                         print_error(_("Package %s doesn't exist.") % pkg)
                         break
