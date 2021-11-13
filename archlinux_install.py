@@ -270,7 +270,7 @@ def manual_partitioning(bios: str):
                 part_mount_point[partition] = prompt(_("What is the mounting point of this partition ? : "))
                 part_format[partition] = prompt_bool(_("Format the %s partition ? (Y/n) : ") % partition)
                 if "/boot" in part_mount_point[partition]:
-                    main_disk = os.popen(f'lsblk -ndo PKNAME {partition}').read()
+                    main_disk = f"/dev/{os.popen(f'lsblk -ndo PKNAME {partition}').read()}"
         if "SWAP" not in part_type.values():
             swapfile_size = ask_swapfile_size(main_disk)
         if not bios and "EFI" not in part_type.values():
