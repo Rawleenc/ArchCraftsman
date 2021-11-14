@@ -58,7 +58,7 @@ Optionally an additional user, added to the wheel group and sudo configured to a
 
 ### On the Arch Linux live iso :
 ```bash
-bash <(curl -L git.io/JKreg)
+python <(curl -L git.io/JXjXG)
 ```
 
 If you wish to test the latest development version, you can run it with this command :
