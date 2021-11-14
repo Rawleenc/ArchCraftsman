@@ -255,7 +255,7 @@ def manual_partitioning(bios: str):
                 part_type[partition] = "ROOT"
                 part_mount_point[partition] = "/"
                 root_partition = partition
-                main_disk = target_disk
+                main_disk = f"/dev/{os.popen(f'lsblk -ndo PKNAME {partition}').read()}"
             elif partition_type == "2":
                 part_type[partition] = "HOME"
                 part_mount_point[partition] = "/home"
