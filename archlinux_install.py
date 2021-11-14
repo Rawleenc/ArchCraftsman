@@ -269,8 +269,6 @@ def manual_partitioning(bios: str):
                 part_type[partition] = "OTHER"
                 part_mount_point[partition] = prompt(_("What is the mounting point of this partition ? : "))
                 part_format[partition] = prompt_bool(_("Format the %s partition ? (Y/n) : ") % partition)
-        if "SWAP" not in part_type.values():
-            swapfile_size = ask_swapfile_size(main_disk)
         if not bios and "EFI" not in part_type.values():
             print_error(_("The EFI partition is required for system installation."))
             partitions.clear()
@@ -281,6 +279,8 @@ def manual_partitioning(bios: str):
             partitions.clear()
             partitioned_disks.clear()
             continue
+        if "SWAP" not in part_type.values():
+            swapfile_size = ask_swapfile_size(main_disk)
         print_step(_("Summary of choices :"))
         for partition in partitions:
             if part_format.get(partition):
