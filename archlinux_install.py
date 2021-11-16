@@ -135,14 +135,16 @@ readline.parse_and_bind("tab: complete")
 readline.set_completer(complete)
 
 
-def print_error(message: str):
+def print_error(message: str, do_pause: bool = True):
     """
     A method to print an error.
     :param message:
+    :param do_pause:
     :return:
     """
     print(f'\n{RED}  /!\\ {message}{NOCOLOR}\n')
-    pause(end_newline=True)
+    if do_pause:
+        pause(end_newline=True)
 
 
 def print_step(message: str, clear: bool = True):
@@ -289,7 +291,6 @@ def manual_partitioning(bios: str):
     part_mount_point = {}
     part_format = {}
     root_partition = None
-    swap_partition = None
     swapfile_size = None
     main_disk = None
     user_answer = False
@@ -341,7 +342,6 @@ def manual_partitioning(bios: str):
                 part_format[partition] = prompt_bool(_("Format the Home partition ? (Y/n) : "))
             elif partition_type == "3":
                 part_type[partition] = "SWAP"
-                swap_partition = partition
             elif partition_type == "4":
                 continue
             else:
@@ -386,7 +386,7 @@ def manual_partitioning(bios: str):
         if not user_answer:
             partitions.clear()
             partitioned_disks.clear()
-    return partitions, part_type, part_mount_point, part_format, root_partition, swap_partition, swapfile_size, main_disk
+    return partitions, part_type, part_mount_point, part_format, root_partition, swapfile_size, main_disk
 
 
 def build_partition_name(disk: str, index: str):
@@ -424,7 +424,6 @@ def auto_partitioning(bios: str):
     part_mount_point = {}
     part_format = {}
     root_partition = None
-    swap_partition = None
     swapfile_size = None
     main_disk = None
     user_answer = False
@@ -446,7 +445,7 @@ def auto_partitioning(bios: str):
         efi_partition = disk.get_efi_partition()
         if not bios and len(
                 disk.partitions) > 0 and efi_partition.path != "" and efi_partition.fs_type == "vfat" and disk.free_space > from_iec(
-                "32G"):
+            "32G"):
             want_dual_boot = prompt_bool(_("Do you want to install Arch Linux next to other systems ? (Y/n) : "))
         else:
             want_dual_boot = False
@@ -515,7 +514,6 @@ def auto_partitioning(bios: str):
             index += 1
             partition = build_partition_name(target_disk, str(index))
             part_type[partition] = "SWAP"
-            swap_partition = partition
             partitions.append(partition)
         if want_home:
             # ROOT
@@ -588,7 +586,7 @@ def auto_partitioning(bios: str):
             partitions.clear()
         else:
             os.system(f'echo -e "{auto_part_str}" | fdisk "{target_disk}" &>/dev/null')
-    return partitions, part_type, part_mount_point, part_format, root_partition, swap_partition, swapfile_size, main_disk
+    return partitions, part_type, part_mount_point, part_format, root_partition, swapfile_size, main_disk
 
 
 def environment_config(detected_language: str):
@@ -768,18 +766,16 @@ def system_config(detected_timezone):
     return system_info
 
 
-def umount_partitions(swap_partition, swapfile_size):
+def umount_partitions():
     """
     A method to unmount all mounted partitions.
-    :param swap_partition:
-    :param swapfile_size:
     """
     print_step(_("Unmounting partitions..."), clear=False)
-    if swap_partition is None and swapfile_size not in (None, ""):
-        os.system('swapoff /mnt/swapfile')
-    if swap_partition is not None:
-        os.system(f'swapoff "{swap_partition}"')
-    os.system('umount -R /mnt')
+    swap = re.sub('\\s', '', os.popen('swapon --noheadings | awk \'{print $1}\'').read())
+    if swap != "":
+        os.system(f'swapoff {swap} &>/dev/null')
+
+    os.system('umount -R /mnt &>/dev/null')
 
 
 def main(bios, detected_country_code, detected_timezone, global_language, keymap):
@@ -789,10 +785,10 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
     print_step(_("Partitioning :"))
     want_auto_part = prompt_bool(_("Do you want an automatic partitioning ? (y/N) : "), default=False)
     if want_auto_part:
-        partitions, part_type, part_mount_point, part_format, root_partition, swap_partition, swapfile_size, main_disk = auto_partitioning(
+        partitions, part_type, part_mount_point, part_format, root_partition, swapfile_size, main_disk = auto_partitioning(
             bios)
     else:
-        partitions, part_type, part_mount_point, part_format, root_partition, swap_partition, swapfile_size, main_disk = manual_partitioning(
+        partitions, part_type, part_mount_point, part_format, root_partition, swapfile_size, main_disk = manual_partitioning(
             bios)
 
     print_step(_("Formatting and mounting partitions..."), clear=False)
@@ -960,7 +956,7 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
             os.system(
                 f'arch-chroot /mnt bash -c "echo \'{system_info["user_name"]}:{system_info["user_password"]}\' | chpasswd"')
 
-    umount_partitions(swap_partition, swapfile_size)
+    umount_partitions()
 
     print_step(_("Installation complete ! You can reboot your system."), clear=False)
 
@@ -991,10 +987,14 @@ def pre_launch_steps():
 
 if __name__ == '__main__':
     _ = gettext.gettext
-    BIOS, DETECTED_COUNTRE_CODE, DETECTED_TIMEZONE, GLOBAL_LANGUAGE, KEYMAP = pre_launch_steps()
-    if GLOBAL_LANGUAGE != "EN":
-        translation = gettext.translation('archlinux-install', localedir='/usr/share/locale',
-                                          languages=[GLOBAL_LANGUAGE.lower()])
-        translation.install()
-        _ = translation.gettext
-    main(BIOS, DETECTED_COUNTRE_CODE, DETECTED_TIMEZONE, GLOBAL_LANGUAGE, KEYMAP)
+    try:
+        BIOS, DETECTED_COUNTRE_CODE, DETECTED_TIMEZONE, GLOBAL_LANGUAGE, KEYMAP = pre_launch_steps()
+        if GLOBAL_LANGUAGE != "EN":
+            translation = gettext.translation('archlinux-install', localedir='/usr/share/locale',
+                                              languages=[GLOBAL_LANGUAGE.lower()])
+            translation.install()
+            _ = translation.gettext
+        main(BIOS, DETECTED_COUNTRE_CODE, DETECTED_TIMEZONE, GLOBAL_LANGUAGE, KEYMAP)
+    except KeyboardInterrupt:
+        print_error(_("Script execution interrupted by the user !"), do_pause=False)
+        umount_partitions()
