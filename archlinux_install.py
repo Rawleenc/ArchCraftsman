@@ -560,7 +560,7 @@ def auto_partitioning(bios: str):
             partitions.append(partition)
         # WRITE
         auto_part_str += "w\n"
-        os.system(f'echo -e "{auto_part_str}" | fdisk "{target_disk}" &>/dev/null')
+
         print_step(_("Summary of choices :"), clear=False)
         for partition in partitions:
             if part_format.get(partition):
@@ -586,6 +586,8 @@ def auto_partitioning(bios: str):
         user_answer = prompt_bool(_("Is the informations correct ? (y/N) : "), default=False)
         if not user_answer:
             partitions.clear()
+        else:
+            os.system(f'echo -e "{auto_part_str}" | fdisk "{target_disk}" &>/dev/null')
     return partitions, part_type, part_mount_point, part_format, root_partition, swap_partition, swapfile_size, main_disk
 
 
