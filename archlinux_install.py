@@ -41,6 +41,60 @@ ORANGE = "\033[0;33m"
 NOCOLOR = "\033[0m"
 
 
+class Partition:
+    path: str
+    size: int
+    part_type: str
+
+    def __init__(self, part_str: str = None):
+        if part_str is None:
+            self.path = ""
+            self.size = 0
+            self.part_type = ""
+        else:
+            self.path = part_str.split(" ")[0]
+            self.size = from_iec(re.sub('\\s', '', os.popen(f'lsblk -nl "{self.path}" -o SIZE').read()))
+            self.part_type = str(
+                re.sub('[^a-zA-Z0-9 ]', '', os.popen(f'lsblk -nl "{self.path}" -o PARTTYPENAME').read()))
+
+    def __str__(self) -> str:
+        return f"{self.path} - {self.size} - {self.part_type}"
+
+
+class Disk:
+    path: str
+    partitions: list
+    total: int
+    free_space: int
+
+    def __init__(self, path: str):
+        self.path = path
+        detected_partitions = os.popen(f'lsblk -nl "{path}" -o PATH,TYPE | grep part').read()
+        self.partitions = []
+        for partition_info in detected_partitions.splitlines():
+            self.partitions.append(Partition(partition_info))
+        self.total = int(os.popen(f'lsblk -b --output SIZE -n -d "{self.path}"').read())
+        if len(self.partitions) > 0:
+            sector_size = int(
+                re.sub('\\s', '',
+                       os.popen(f'lsblk {path} -o PATH,TYPE,PHY-SEC | grep disk | awk \'{{print $3}}\'').read()))
+            last_partition_path = [p.path for p in self.partitions][len(self.partitions) - 1]
+            last_sector = int(
+                re.sub('\\s', '', os.popen(f'fdisk -l | grep {last_partition_path} | awk \'{{print $3}}\'').read()))
+            self.free_space = self.total - (last_sector * sector_size)
+        else:
+            self.free_space = self.total
+
+    def get_efi_partition(self) -> Partition:
+        try:
+            return [p for p in self.partitions if "EFI" in p.part_type].pop()
+        except IndexError:
+            return Partition()
+
+    def __str__(self) -> str:
+        return "\n".join([str(p) for p in self.partitions])
+
+
 def complete(text, state):
     """
     A file path completer.
@@ -179,7 +233,7 @@ def setup_chroot_keyboard(layout: str):
         keyboard_config_file.writelines(content)
 
 
-def ask_swapfile_size(target_disk: str) -> str:
+def ask_swapfile_size(disk: Disk) -> str:
     """
     The method to ask the user for the swapfile size.
     :return:
@@ -187,8 +241,7 @@ def ask_swapfile_size(target_disk: str) -> str:
     swapfile_ok = False
     swapfile_size = ""
     swapfile_size_pattern = re.compile("^([0-9]*[.,][0-9][0-9]*|[0-9][0-9]*)([GMk])$")
-    target_disk_size = int(os.popen(f'lsblk -b --output SIZE -n -d "{target_disk}"').read())
-    default_swapfile_size = os.popen(f'printf "{int(target_disk_size / 32)}" | numfmt --to=iec').read()
+    default_swapfile_size = to_iec(int(disk.total / 32))
     while not swapfile_ok:
         swapfile_size = prompt(_("Swapfile size ? (%s) : ") % default_swapfile_size)
         if swapfile_size is None or swapfile_size == "":
@@ -281,7 +334,7 @@ def manual_partitioning(bios: str):
             partitioned_disks.clear()
             continue
         if "SWAP" not in part_type.values():
-            swapfile_size = ask_swapfile_size(main_disk)
+            swapfile_size = ask_swapfile_size(Disk(main_disk))
         print_step(_("Summary of choices :"))
         for partition in partitions:
             if part_format.get(partition):
@@ -321,6 +374,14 @@ def build_partition_name(disk: str, index: str):
     return (f'{disk}{index}', f'{disk}p{index}')["nvme" in disk]
 
 
+def to_iec(size: int) -> str:
+    return re.sub('\\s', '', os.popen(f'printf "{size}" | numfmt --to=iec').read())
+
+
+def from_iec(size: str) -> int:
+    return int(re.sub('\\s', '', os.popen(f'printf "{size}" | numfmt --from=iec').read()))
+
+
 def auto_partitioning(bios: str):
     """
     The method to proceed to the automatic partitioning.
@@ -347,12 +408,21 @@ def auto_partitioning(bios: str):
         if not os.path.exists(target_disk):
             print_error(_("You need to choose a target drive."))
             continue
+        main_disk = target_disk
+        disk = Disk(target_disk)
         swap_type = prompt(_("What type of Swap do you want ? (1: Partition, other: File) : "))
         want_home = prompt_bool(_("Do you want a separated Home ? (y/N) : "), default=False)
-        main_disk = target_disk
-        target_disk_size = int(os.popen(f'lsblk -b --output SIZE -n -d "{target_disk}"').read())
-        root_size = os.popen(f'printf "{int(target_disk_size / 4)}" | numfmt --to=iec').read()
-        swap_size = os.popen(f'printf "{int(target_disk_size / 32)}" | numfmt --to=iec').read()
+        efi_partition = disk.get_efi_partition()
+        if not bios and len(disk.partitions) > 0 and efi_partition.path != "" and disk.free_space > from_iec("32G"):
+            want_dual_boot = prompt_bool(_("Do you want to install Arch Linux next to other systems ? (Y/n) : "))
+        else:
+            want_dual_boot = False
+        if want_dual_boot:
+            root_size = to_iec(int(disk.free_space / 4))
+            swap_size = to_iec(int(disk.free_space / 32))
+        else:
+            root_size = to_iec(int(disk.total / 4))
+            swap_size = to_iec(int(disk.total / 32))
         if swap_type != "1":
             swapfile_size = swap_size
         auto_part_str = ""
@@ -374,21 +444,26 @@ def auto_partitioning(bios: str):
             part_format[partition] = True
             partitions.append(partition)
         else:
-            # GPT LABEL
-            auto_part_str += "g\n"  # Create a new empty GPT partition table
-            # EFI
-            auto_part_str += "n\n"  # Add a new partition
-            auto_part_str += " \n"  # Partition number (Accept default: auto)
-            auto_part_str += " \n"  # First sector (Accept default: 1)
-            auto_part_str += "+512M\n"  # Last sector (Accept default: varies)
-            auto_part_str += "t\n"  # Change partition type
-            auto_part_str += " \n"  # Partition number (Accept default: auto)
-            auto_part_str += "1\n"  # Type EFI System
-            index += 1
-            partition = build_partition_name(target_disk, str(index))
+            if not want_dual_boot:
+                # GPT LABEL
+                auto_part_str += "g\n"  # Create a new empty GPT partition table
+                # EFI
+                auto_part_str += "n\n"  # Add a new partition
+                auto_part_str += " \n"  # Partition number (Accept default: auto)
+                auto_part_str += " \n"  # First sector (Accept default: 1)
+                auto_part_str += "+512M\n"  # Last sector (Accept default: varies)
+                auto_part_str += "t\n"  # Change partition type
+                auto_part_str += " \n"  # Partition number (Accept default: auto)
+                auto_part_str += "1\n"  # Type EFI System
+                index += 1
+                partition = build_partition_name(target_disk, str(index))
+                part_format[partition] = True
+            else:
+                index += len(disk.partitions)
+                partition = efi_partition.path
+                part_format[partition] = False
             part_type[partition] = "EFI"
             part_mount_point[partition] = "/boot/efi"
-            part_format[partition] = True
             partitions.append(partition)
         if swap_type == "1":
             # SWAP
