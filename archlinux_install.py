@@ -25,13 +25,13 @@ GNU General Public License for more details.
 This is free software, and you are welcome to redistribute it
 under certain conditions; See the GNU General Public License for more details.
 """
+import getpass
 import gettext
 import glob
 import json
 import os
 import re
 import readline
-import getpass
 import urllib.request
 
 RED = "\033[0;31m"
@@ -42,11 +42,17 @@ NOCOLOR = "\033[0m"
 
 
 class Partition:
+    """
+    A class to represent a partition.
+    """
     path: str
     size: int
     part_type: str
 
     def __init__(self, part_str: str = None):
+        """
+        Partition initialisation.
+        """
         if part_str is None:
             self.path = ""
             self.size = 0
@@ -58,16 +64,25 @@ class Partition:
                 re.sub('[^a-zA-Z0-9 ]', '', os.popen(f'lsblk -nl "{self.path}" -o PARTTYPENAME').read()))
 
     def __str__(self) -> str:
+        """
+        Partition str formatting.
+        """
         return f"{self.path} - {self.size} - {self.part_type}"
 
 
 class Disk:
+    """
+    A partition to represent a disk.
+    """
     path: str
     partitions: list
     total: int
     free_space: int
 
     def __init__(self, path: str):
+        """
+        Disk initialisation.
+        """
         self.path = path
         detected_partitions = os.popen(f'lsblk -nl "{path}" -o PATH,TYPE | grep part').read()
         self.partitions = []
@@ -86,12 +101,18 @@ class Disk:
             self.free_space = self.total
 
     def get_efi_partition(self) -> Partition:
+        """
+        The Disk method to get the EFI partition if it exist. Else return an empty partition object.
+        """
         try:
             return [p for p in self.partitions if "EFI" in p.part_type].pop()
         except IndexError:
             return Partition()
 
     def __str__(self) -> str:
+        """
+        Disk str formatting
+        """
         return "\n".join([str(p) for p in self.partitions])
 
 
@@ -375,10 +396,16 @@ def build_partition_name(disk: str, index: str):
 
 
 def to_iec(size: int) -> str:
+    """
+    The method to convert a size in iec format.
+    """
     return re.sub('\\s', '', os.popen(f'printf "{size}" | numfmt --to=iec').read())
 
 
 def from_iec(size: str) -> int:
+    """
+    The method to convert an iec formatted size in bytes.
+    """
     return int(re.sub('\\s', '', os.popen(f'printf "{size}" | numfmt --from=iec').read()))
 
 
