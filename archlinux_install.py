@@ -613,23 +613,21 @@ def environment_config(detected_language: str):
             default_language = "FR"
         else:
             default_language = "EN"
+
+        print_step(_("Supported languages : "), clear=False)
+        print_sub_step(", ".join(supported_global_languages))
+        print('')
         global_language_ok = False
         global_language = None
         keymap = None
         while not global_language_ok:
             global_language = prompt_ln(
-                _("Choose your installation's language (%s, type 'h' or 'help' to list supported languages) : ") % default_language,
+                _("Choose your installation's language (%s) : ") % default_language,
                 default=default_language).upper()
-            if global_language in {"H", "HELP"}:
-                print_step(_("Supported languages : "), clear=False)
-                for language in supported_global_languages:
-                    print_sub_step(language)
-                pause(start_newline=True, end_newline=True)
-                continue
             if global_language in supported_global_languages:
                 global_language_ok = True
             else:
-                print_error(_("Global language %s is not supported.") % global_language)
+                print_error(_("Global language '%s' is not supported.") % global_language, do_pause=False)
                 continue
 
         if detected_language == "fr-FR":
@@ -678,16 +676,30 @@ def system_config(detected_timezone):
     """
     system_info = {}
     user_answer = False
+    supported_desktops = ["gnome", "plasma", "xfce", _("none")]
     while not user_answer:
         print_step(_("System configuration : "))
         system_info["hostname"] = prompt(_("What will be your hostname (archlinux) : "), default="archlinux")
         system_info["lts_kernel"] = prompt_bool(_("Install LTS Linux kernel ? (y/N) : "), default=False)
         system_info["nvidia_driver"] = prompt_bool(_("Install proprietary Nvidia driver ? (y/N) : "), default=False)
         system_info["terminus_font"] = prompt_bool(_("Install terminus console font ? (y/N) : "), default=False)
-        system_info["desktop"] = prompt(
-            _("Install a desktop environment ? (1: Gnome, 2: KDE Plasma, 3: XFCE, other: None) : "))
+
+        print_step(_("Supported desktop environments : "), clear=False)
+        print_sub_step(", ".join(supported_desktops))
+        print('')
+        desktop_ok = False
+        while not desktop_ok:
+            desktop = prompt_ln(
+                _("Install a desktop environment ? (%s) : ") % _("none"), default=_("none")).lower()
+            if desktop in supported_desktops:
+                desktop_ok = True
+                system_info["desktop"] = desktop
+            else:
+                print_error(_("Desktop environment '%s' is not supported.") % desktop, do_pause=False)
+                continue
+
         system_info["plasma_wayland"] = False
-        if system_info["desktop"] == "2":
+        if system_info["desktop"] == "plasma":
             system_info["plasma_wayland"] = prompt_bool(_("Install Wayland support for the plasma session ? (y/N) : "),
                                                         default=False)
         system_info["cups"] = prompt_bool(_("Install Cups ? (y/N) : "), default=False)
@@ -721,15 +733,6 @@ def system_config(detected_timezone):
         system_info["root_password"] = ask_password()
         if system_info["user_name"] != "":
             system_info["user_password"] = ask_password(system_info["user_name"])
-
-        if system_info["desktop"] == "1":
-            system_info["desktop"] = "gnome"
-        elif system_info["desktop"] == "2":
-            system_info["desktop"] = "plasma"
-        elif system_info["desktop"] == "3":
-            system_info["desktop"] = "xfce"
-        else:
-            system_info["desktop"] = _("none")
 
         system_info["microcodes"] = re.sub(
             '\\s+', '', os.popen('grep </proc/cpuinfo "vendor" | uniq').read()).split(":")[1]
