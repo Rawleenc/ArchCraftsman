@@ -48,6 +48,7 @@ class Partition:
     path: str
     size: int
     part_type: str
+    fs_type: str
 
     def __init__(self, part_str: str = None):
         """
@@ -57,17 +58,20 @@ class Partition:
             self.path = ""
             self.size = 0
             self.part_type = ""
+            self.fs_type = ""
         else:
             self.path = part_str.split(" ")[0]
             self.size = from_iec(re.sub('\\s', '', os.popen(f'lsblk -nl "{self.path}" -o SIZE').read()))
             self.part_type = str(
                 re.sub('[^a-zA-Z0-9 ]', '', os.popen(f'lsblk -nl "{self.path}" -o PARTTYPENAME').read()))
+            self.fs_type = str(
+                re.sub('[^a-zA-Z0-9 ]', '', os.popen(f'lsblk -nl "{self.path}" -o FSTYPE').read()))
 
     def __str__(self) -> str:
         """
         Partition str formatting.
         """
-        return f"{self.path} - {self.size} - {self.part_type}"
+        return f"'{self.path}' - '{self.size}' - '{self.part_type}' - '{self.fs_type}'"
 
 
 class Disk:
@@ -440,7 +444,9 @@ def auto_partitioning(bios: str):
         swap_type = prompt(_("What type of Swap do you want ? (1: Partition, other: File) : "))
         want_home = prompt_bool(_("Do you want a separated Home ? (y/N) : "), default=False)
         efi_partition = disk.get_efi_partition()
-        if not bios and len(disk.partitions) > 0 and efi_partition.path != "" and disk.free_space > from_iec("32G"):
+        if not bios and len(
+                disk.partitions) > 0 and efi_partition.path != "" and efi_partition.fs_type == "vfat" and disk.free_space > from_iec(
+                "32G"):
             want_dual_boot = prompt_bool(_("Do you want to install Arch Linux next to other systems ? (Y/n) : "))
         else:
             want_dual_boot = False
