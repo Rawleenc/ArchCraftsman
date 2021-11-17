@@ -703,6 +703,7 @@ def system_config(detected_timezone):
         if system_info["desktop"] == "plasma":
             system_info["plasma_wayland"] = prompt_bool(_("Install Wayland support for the plasma session ? (y/N) : "),
                                                         default=False)
+        system_info["install_lightdm"] = False
         if system_info["desktop"] in {"enlightenment", "i3"}:
             system_info["install_lightdm"] = prompt_bool(_("Install LightDM ? (y/N) : "), default=False)
         system_info["cups"] = prompt_bool(_("Install Cups ? (y/N) : "), default=False)
@@ -963,7 +964,7 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
     if system_info["desktop"] in {"plasma", "cutefish", "lxqt"}:
         os.system('arch-chroot /mnt bash -c "systemctl enable sddm"')
     if system_info["desktop"] in {"xfce", "cinnamon", "deepin", "mate"} or (
-            system_info["install_lightdm"] and system_info["desktop"] in {"enlightenment", "i3"}):
+            system_info["desktop"] in {"enlightenment", "i3"} and system_info["install_lightdm"]):
         os.system('arch-chroot /mnt bash -c "systemctl enable lightdm"')
     if system_info["desktop"] != _("none"):
         os.system('arch-chroot /mnt bash -c "amixer sset Master unmute"')
