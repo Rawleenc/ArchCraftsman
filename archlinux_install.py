@@ -866,7 +866,7 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
     elif system_info["desktop"] == "xfce":
         pkgs.extend(
             ["xfce4", "xfce4-goodies", "lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings", "xorg-server",
-             "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol"])
+             "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol", "network-manager-applet"])
     elif system_info["desktop"] == "budgie":
         pkgs.extend(["budgie-desktop", "budgie-desktop-view", "budgie-screensaver", "gnome-control-center",
                      "network-manager-applet", "gnome", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
@@ -884,21 +884,21 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
         pkgs.extend(
             ["lxqt", "sddm", "xorg-server", "breeze-icons", "xdg-utils", "xscreensaver", "xautolock", "libpulse",
              "alsa-lib", "libstatgrab", "libsysstat", "lm_sensors", "system-config-printer", "alsa-utils", "pulseaudio",
-             "pulseaudio-alsa", "pavucontrol"])
+             "pulseaudio-alsa", "pavucontrol", "network-manager-applet"])
     elif system_info["desktop"] == "mate":
         pkgs.extend(
             ["mate", "mate-extra", "lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings", "xorg-server",
-             "alsa-utils", "pulseaudio", "pulseaudio-alsa"])
+             "alsa-utils", "pulseaudio", "pulseaudio-alsa", "network-manager-applet"])
     elif system_info["desktop"] == "enlightenment":
         pkgs.extend(["enlightenment", "terminology", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
-                     "pavucontrol", "system-config-printer"])
+                     "pavucontrol", "system-config-printer", "network-manager-applet"])
         if system_info["install_lightdm"]:
             pkgs.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
         else:
             pkgs.extend(["xorg-xinit"])
     elif system_info["desktop"] == "i3":
         pkgs.extend(["i3", "rofi", "dmenu", "perl", "xfce4-terminal", "xorg-server", "alsa-utils", "pulseaudio",
-                     "pulseaudio-alsa", "pavucontrol", "system-config-printer"])
+                     "pulseaudio-alsa", "pavucontrol", "system-config-printer", "network-manager-applet"])
         if system_info["install_lightdm"]:
             pkgs.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
         else:
