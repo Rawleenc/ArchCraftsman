@@ -33,13 +33,13 @@ Normally, only Linux related partitions should be detected. However, if the dete
 If the EFI partition has to be formatted it will be formatted in vfat, otherwise the script expects the EFI partition to be already formatted in vfat (this is the case for windows 10 for example) and all other partitions will be formatted in ext4. If you choose to not create a Swap partition, you will be proposed a swapfile of the size you want, called swapfile. It will be created and placed at the base of the Root partition.
 
 Packages included in the base :  
-`base base-devel linux-firmware man-db man-pages texinfo nano vim git curl grub os-prober efibootmgr networkmanager xdg-user-dirs reflector numlockx ntp`
+`base base-devel linux-firmware man-db man-pages texinfo nano vim git curl grub os-prober efibootmgr networkmanager xdg-user-dirs reflector numlockx ntp net-tools`
 
 Optional packages available :  
 `intel-ucode amd-ucode linux/linux-lts nvidia/nvidia-lts terminus-font`
 
 Optional packages bundles are also available :
-- Desktop environment (Gnome, KDE Plasma or XFCE)
+- Desktop environment (Gnome, KDE Plasma, XFCE, Budgie, Cinnamon, CuteFish, Deepin, LxQT, Mate, Enlightenment or i3)
 - Cups
 - Zsh with GRML config
 - Main fonts
