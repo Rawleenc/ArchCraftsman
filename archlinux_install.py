@@ -872,9 +872,10 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
                      "network-manager-applet", "gnome", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
                      "pavucontrol"])
     elif system_info["desktop"] == "cinnamon":
-        pkgs.extend(["cinnamon", "metacity", "gnome-shell", "blueberry", "cinnamon-translations", "gnome-panel",
-                     "system-config-printer", "wget", "lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings",
-                     "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol"])
+        pkgs.extend(["cinnamon", "metacity", "gnome-shell", "gnome-terminal", "blueberry", "cinnamon-translations",
+                     "gnome-panel", "system-config-printer", "wget", "lightdm", "lightdm-gtk-greeter",
+                     "lightdm-gtk-greeter-settings", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
+                     "pavucontrol"])
     elif system_info["desktop"] == "cutefish":
         pkgs.extend(["cutefish", "sddm", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol"])
     elif system_info["desktop"] == "deepin":
