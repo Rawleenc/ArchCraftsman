@@ -893,11 +893,15 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
                      "pavucontrol", "system-config-printer"])
         if system_info["install_lightdm"]:
             pkgs.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
+        else:
+            pkgs.extend(["xorg-xinit"])
     elif system_info["desktop"] == "i3":
         pkgs.extend(["i3", "rofi", "dmenu", "perl", "xfce4-terminal", "xorg-server", "alsa-utils", "pulseaudio",
                      "pulseaudio-alsa", "pavucontrol", "system-config-printer"])
         if system_info["install_lightdm"]:
             pkgs.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
+        else:
+            pkgs.extend(["xorg-xinit"])
     if system_info["cups"]:
         pkgs.extend(
             ["cups", "cups-pdf", "avahi", "samba", "foomatic-db-engine", "foomatic-db", "foomatic-db-ppds",
