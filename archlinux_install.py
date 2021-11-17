@@ -1019,7 +1019,7 @@ def pre_launch_steps():
     os.system("pacman -Sy &>/dev/null")
     print_sub_step(_("Downloading and formatting translations..."))
     if not os.path.exists("fr.po"):
-        urllib.request.urlretrieve("https://raw.githubusercontent.com/rawleenc/archlinux-install/main/locales/fr.po",
+        urllib.request.urlretrieve("https://raw.githubusercontent.com/rawleenc/archlinux-install/dev/locales/fr.po",
                                    "fr.po")
     os.system('msgfmt -o /usr/share/locale/fr/LC_MESSAGES/archlinux-install.mo fr.po &>/dev/null')
     print_sub_step(_("Querying IP geolocation informations..."))
