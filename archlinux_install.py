@@ -676,7 +676,8 @@ def system_config(detected_timezone):
     """
     system_info = {}
     user_answer = False
-    supported_desktops = ["gnome", "plasma", "xfce", _("none")]
+    supported_desktops = ["gnome", "plasma", "xfce", "budgie", "cinnamon", "cutefish", "deepin", "lxqt", "mate",
+                          "enlightenment", "i3", _("none")]
     while not user_answer:
         print_step(_("System configuration : "))
         system_info["hostname"] = prompt(_("What will be your hostname (archlinux) : "), default="archlinux")
@@ -702,6 +703,8 @@ def system_config(detected_timezone):
         if system_info["desktop"] == "plasma":
             system_info["plasma_wayland"] = prompt_bool(_("Install Wayland support for the plasma session ? (y/N) : "),
                                                         default=False)
+        if system_info["desktop"] in {"enlightenment", "i3"}:
+            system_info["install_lightdm"] = prompt_bool(_("Install LightDM ? (y/N) : "), default=False)
         system_info["cups"] = prompt_bool(_("Install Cups ? (y/N) : "), default=False)
         system_info["grml_zsh"] = prompt_bool(_("Install ZSH with GRML configuration ? (y/N) : "), default=False)
         system_info["main_fonts"] = prompt_bool(_("Install a set of main fonts ? (y/N) : "), default=False)
@@ -750,6 +753,8 @@ def system_config(detected_timezone):
         print_sub_step(_("Desktop environment : %s") % system_info["desktop"])
         if system_info["desktop"] == "plasma" and system_info["plasma_wayland"]:
             print_sub_step(_("Install Wayland support for the plasma session."))
+        if system_info["desktop"] in {"enlightenment", "i3"} and system_info["install_lightdm"]:
+            print_sub_step(_("Install LightDM."))
         if system_info["cups"]:
             print_sub_step(_("Install Cups."))
         if system_info["grml_zsh"]:
@@ -860,6 +865,37 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
         pkgs.extend(
             ["xfce4", "xfce4-goodies", "lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings", "xorg-server",
              "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol"])
+    elif system_info["desktop"] == "budgie":
+        pkgs.extend(["budgie-desktop", "budgie-desktop-view", "budgie-screensaver", "gnome-control-center",
+                     "network-manager-applet", "gnome", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
+                     "pavucontrol"])
+    elif system_info["desktop"] == "cinnamon":
+        pkgs.extend(["cinnamon", "metacity", "gnome-shell", "blueberry", "cinnamon-translations", "gnome-panel",
+                     "system-config-printer", "wget", "lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings",
+                     "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol"])
+    elif system_info["desktop"] == "cutefish":
+        pkgs.extend(["cutefish", "sddm", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol"])
+    elif system_info["desktop"] == "deepin":
+        pkgs.extend(["deepin", "deepin-extra", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa"])
+    elif system_info["desktop"] == "lxqt":
+        pkgs.extend(
+            ["lxqt", "sddm", "xorg-server", "breeze-icons", "xdg-utils", "xscreensaver", "xautolock", "libpulse",
+             "alsa-lib", "libstatgrab", "libsysstat", "lm_sensors", "system-config-printer", "alsa-utils", "pulseaudio",
+             "pulseaudio-alsa", "pavucontrol"])
+    elif system_info["desktop"] == "mate":
+        pkgs.extend(
+            ["mate", "mate-extra", "lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings", "xorg-server",
+             "alsa-utils", "pulseaudio", "pulseaudio-alsa"])
+    elif system_info["desktop"] == "enlightenment":
+        pkgs.extend(["enlightenment", "terminology", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
+                     "pavucontrol", "system-config-printer"])
+        if system_info["install_lightdm"]:
+            pkgs.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
+    elif system_info["desktop"] == "i3":
+        pkgs.extend(["i3", "rofi", "dmenu", "perl", "xfce4-terminal", "xorg-server", "alsa-utils", "pulseaudio",
+                     "pulseaudio-alsa", "pavucontrol", "system-config-printer"])
+        if system_info["install_lightdm"]:
+            pkgs.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
     if system_info["cups"]:
         pkgs.extend(
             ["cups", "cups-pdf", "avahi", "samba", "foomatic-db-engine", "foomatic-db", "foomatic-db-ppds",
@@ -922,13 +958,14 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
     os.system('arch-chroot /mnt bash -c "grub-mkconfig -o /boot/grub/grub.cfg"')
 
     print_step(_("Extra packages configuration if needed..."), clear=False)
-    if system_info["desktop"] == "gnome":
+    if system_info["desktop"] in {"gnome", "budgie"}:
         os.system('arch-chroot /mnt bash -c "systemctl enable gdm"')
-    if system_info["desktop"] == "plasma":
+    if system_info["desktop"] in {"plasma", "cutefish", "lxqt"}:
         os.system('arch-chroot /mnt bash -c "systemctl enable sddm"')
-    if system_info["desktop"] == "xfce":
+    if system_info["desktop"] in {"xfce", "cinnamon", "deepin", "mate"} or (
+            system_info["install_lightdm"] and system_info["desktop"] in {"enlightenment", "i3"}):
         os.system('arch-chroot /mnt bash -c "systemctl enable lightdm"')
-    if system_info["desktop"] in {"gnome", "plasma", "xfce"}:
+    if system_info["desktop"] != _("none"):
         os.system('arch-chroot /mnt bash -c "amixer sset Master unmute"')
         if "fr" in keymap:
             setup_chroot_keyboard("fr")
