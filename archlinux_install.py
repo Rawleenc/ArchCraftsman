@@ -677,7 +677,7 @@ def system_config(detected_timezone):
     system_info = {}
     user_answer = False
     supported_desktops = ["gnome", "plasma", "xfce", "budgie", "cinnamon", "cutefish", "deepin", "lxqt", "mate",
-                          "enlightenment", "i3", _("none")]
+                          "enlightenment", "i3", "sway", _("none")]
     while not user_answer:
         print_step(_("System configuration : "))
         system_info["hostname"] = prompt(_("What will be your hostname (archlinux) : "), default="archlinux")
@@ -706,6 +706,8 @@ def system_config(detected_timezone):
         system_info["install_lightdm"] = False
         if system_info["desktop"] in {"enlightenment", "i3"}:
             system_info["install_lightdm"] = prompt_bool(_("Install LightDM ? (y/N) : "), default=False)
+        if system_info["desktop"] == "sway":
+            system_info["install_gdm"] = prompt_bool(_("Install GDM ? (y/N) : "), default=False)
         system_info["cups"] = prompt_bool(_("Install Cups ? (y/N) : "), default=False)
         system_info["grml_zsh"] = prompt_bool(_("Install ZSH with GRML configuration ? (y/N) : "), default=False)
         system_info["main_fonts"] = prompt_bool(_("Install a set of main fonts ? (y/N) : "), default=False)
@@ -756,6 +758,8 @@ def system_config(detected_timezone):
             print_sub_step(_("Install Wayland support for the plasma session."))
         if system_info["desktop"] in {"enlightenment", "i3"} and system_info["install_lightdm"]:
             print_sub_step(_("Install LightDM."))
+        if system_info["desktop"] == "sway" and system_info["install_gdm"]:
+            print_sub_step(_("Install GDM."))
         if system_info["cups"]:
             print_sub_step(_("Install Cups."))
         if system_info["grml_zsh"]:
@@ -840,7 +844,7 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
     print_step(_("Installation of the base..."), clear=False)
     pkgs = ["base", "base-devel", "linux-firmware", "man-db", "man-pages", "texinfo", "nano", "vim", "git", "curl",
             "grub", "os-prober", "efibootmgr", "networkmanager", "xdg-user-dirs", "reflector", "numlockx", "ntp",
-            "net-tools", "acpid"]
+            "net-tools"]
     if system_info["microcodes"] == "GenuineIntel":
         pkgs.append("intel-ucode")
     if system_info["microcodes"] == "AuthenticAMD":
@@ -891,18 +895,24 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
              "alsa-utils", "pulseaudio", "pulseaudio-alsa", "network-manager-applet"])
     elif system_info["desktop"] == "enlightenment":
         pkgs.extend(["enlightenment", "terminology", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
-                     "pavucontrol", "system-config-printer", "network-manager-applet"])
+                     "pavucontrol", "system-config-printer", "network-manager-applet", "acpid"])
         if system_info["install_lightdm"]:
             pkgs.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
         else:
             pkgs.extend(["xorg-xinit"])
     elif system_info["desktop"] == "i3":
-        pkgs.extend(["i3", "rofi", "dmenu", "perl", "xfce4-terminal", "xorg-server", "alsa-utils", "pulseaudio",
-                     "pulseaudio-alsa", "pavucontrol", "system-config-printer", "network-manager-applet"])
+        pkgs.extend(["i3", "rofi", "dmenu", "perl", "alacritty", "xorg-server", "alsa-utils", "pulseaudio",
+                     "pulseaudio-alsa", "pavucontrol", "system-config-printer", "network-manager-applet", "acpid"])
         if system_info["install_lightdm"]:
             pkgs.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
         else:
             pkgs.extend(["xorg-xinit"])
+    elif system_info["desktop"] == "sway":
+        pkgs.extend(["sway", "rofi", "dmenu", "alacritty", "grim", "i3status", "mako", "slurp", "swayidle", "swaylock",
+                     "waybar", "swaybg", "wf-recorder", "xorg-xwayland", "alsa-utils", "pulseaudio",
+                     "pulseaudio-alsa", "pavucontrol", "system-config-printer", "network-manager-applet", "acpid"])
+        if system_info["install_gdm"]:
+            pkgs.extend(["gdm"])
     if system_info["cups"]:
         pkgs.extend(
             ["cups", "cups-pdf", "avahi", "samba", "foomatic-db-engine", "foomatic-db", "foomatic-db-ppds",
@@ -956,7 +966,6 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
     print_step(_("Network configuration..."), clear=False)
     os.system('arch-chroot /mnt bash -c "systemctl enable NetworkManager"')
     os.system('arch-chroot /mnt bash -c "systemctl enable ntpd"')
-    os.system('arch-chroot /mnt bash -c "systemctl enable acpid"')
     print_step(_("Installation and configuration of the grub..."), clear=False)
     if bios:
         os.system(f'arch-chroot /mnt bash -c "grub-install --target=i386-pc {main_disk}"')
@@ -966,13 +975,16 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
     os.system('arch-chroot /mnt bash -c "grub-mkconfig -o /boot/grub/grub.cfg"')
 
     print_step(_("Extra packages configuration if needed..."), clear=False)
-    if system_info["desktop"] in {"gnome", "budgie"}:
+    if system_info["desktop"] in {"gnome", "budgie"} or (
+            system_info["desktop"] == "sway" and system_info["install_gdm"]):
         os.system('arch-chroot /mnt bash -c "systemctl enable gdm"')
     if system_info["desktop"] in {"plasma", "cutefish", "lxqt"}:
         os.system('arch-chroot /mnt bash -c "systemctl enable sddm"')
     if system_info["desktop"] in {"xfce", "cinnamon", "deepin", "mate"} or (
             system_info["desktop"] in {"enlightenment", "i3"} and system_info["install_lightdm"]):
         os.system('arch-chroot /mnt bash -c "systemctl enable lightdm"')
+    if system_info["desktop"] in {"enlightenment", "i3", "sway"}:
+        os.system('arch-chroot /mnt bash -c "systemctl enable acpid"')
     if system_info["desktop"] != _("none"):
         os.system('arch-chroot /mnt bash -c "amixer sset Master unmute"')
         if "fr" in keymap:
