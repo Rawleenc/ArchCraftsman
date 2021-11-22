@@ -256,6 +256,7 @@ def setup_chroot_keyboard(layout: str):
         f"    Option \"XkbLayout\" \"{layout}\"\n",
         "EndSection\n"
     ]
+    os.system("mkdir --parents /mnt/etc/X11/xorg.conf.d/")
     with open("/mnt/etc/X11/xorg.conf.d/00-keyboard.conf", "w", encoding="UTF-8") as keyboard_config_file:
         keyboard_config_file.writelines(content)
 
@@ -703,9 +704,6 @@ def system_config(detected_timezone):
         if system_info["desktop"] == "plasma":
             system_info["plasma_wayland"] = prompt_bool(_("Install Wayland support for the plasma session ? (y/N) : "),
                                                         default=False)
-        system_info["install_lightdm"] = False
-        if system_info["desktop"] in {"enlightenment", "i3", "sway"}:
-            system_info["install_lightdm"] = prompt_bool(_("Install LightDM ? (y/N) : "), default=False)
         system_info["cups"] = prompt_bool(_("Install Cups ? (y/N) : "), default=False)
         system_info["grml_zsh"] = prompt_bool(_("Install ZSH with GRML configuration ? (y/N) : "), default=False)
         system_info["main_fonts"] = prompt_bool(_("Install a set of main fonts ? (y/N) : "), default=False)
@@ -754,8 +752,6 @@ def system_config(detected_timezone):
         print_sub_step(_("Desktop environment : %s") % system_info["desktop"])
         if system_info["desktop"] == "plasma" and system_info["plasma_wayland"]:
             print_sub_step(_("Install Wayland support for the plasma session."))
-        if system_info["desktop"] in {"enlightenment", "i3"} and system_info["install_lightdm"]:
-            print_sub_step(_("Install GDM."))
         if system_info["cups"]:
             print_sub_step(_("Install Cups."))
         if system_info["grml_zsh"]:
@@ -890,25 +886,17 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
             ["mate", "mate-extra", "lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings", "xorg-server",
              "alsa-utils", "pulseaudio", "pulseaudio-alsa", "network-manager-applet"])
     elif system_info["desktop"] == "enlightenment":
-        pkgs.extend(["enlightenment", "terminology", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
-                     "pavucontrol", "system-config-printer", "network-manager-applet", "acpid"])
-        if system_info["install_lightdm"]:
-            pkgs.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
-        else:
-            pkgs.extend(["xorg-xinit"])
+        pkgs.extend(
+            ["enlightenment", "terminology", "xorg-server", "xorg-xinit", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
+             "pavucontrol", "system-config-printer", "network-manager-applet", "acpid"])
     elif system_info["desktop"] == "i3":
-        pkgs.extend(["i3", "rofi", "dmenu", "perl", "alacritty", "xorg-server", "alsa-utils", "pulseaudio",
-                     "pulseaudio-alsa", "pavucontrol", "system-config-printer", "network-manager-applet", "acpid"])
-        if system_info["install_lightdm"]:
-            pkgs.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
-        else:
-            pkgs.extend(["xorg-xinit"])
+        pkgs.extend(
+            ["i3", "rofi", "dmenu", "perl", "alacritty", "xorg-server", "xorg-xinit", "alsa-utils", "pulseaudio",
+             "pulseaudio-alsa", "pavucontrol", "system-config-printer", "network-manager-applet", "acpid"])
     elif system_info["desktop"] == "sway":
         pkgs.extend(["sway", "rofi", "dmenu", "alacritty", "grim", "i3status", "mako", "slurp", "swayidle", "swaylock",
                      "waybar", "swaybg", "wf-recorder", "xorg-xwayland", "alsa-utils", "pulseaudio",
                      "pulseaudio-alsa", "pavucontrol", "system-config-printer", "network-manager-applet", "acpid"])
-        if system_info["install_lightdm"]:
-            pkgs.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
     if system_info["cups"]:
         pkgs.extend(
             ["cups", "cups-pdf", "avahi", "samba", "foomatic-db-engine", "foomatic-db", "foomatic-db-ppds",
@@ -975,11 +963,13 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
         os.system('arch-chroot /mnt bash -c "systemctl enable gdm"')
     if system_info["desktop"] in {"plasma", "cutefish", "lxqt"}:
         os.system('arch-chroot /mnt bash -c "systemctl enable sddm"')
-    if system_info["desktop"] in {"xfce", "cinnamon", "deepin", "mate"} or (
-            system_info["desktop"] in {"enlightenment", "i3", "sway"} and system_info["install_lightdm"]):
+    if system_info["desktop"] in {"xfce", "cinnamon", "deepin", "mate"}:
         os.system('arch-chroot /mnt bash -c "systemctl enable lightdm"')
     if system_info["desktop"] in {"enlightenment", "i3", "sway"}:
         os.system('arch-chroot /mnt bash -c "systemctl enable acpid"')
+    if system_info["desktop"] == "sway":
+        if "fr" in keymap:
+            os.system("echo 'XKB_DEFAULT_LAYOUT=fr' >> /mnt/etc/environment")
     if system_info["desktop"] != _("none"):
         os.system('arch-chroot /mnt bash -c "amixer sset Master unmute"')
         if "fr" in keymap:
