@@ -46,7 +46,7 @@ Optional packages bundles are also available :
 - Main fonts
 - Main file systems support
 
-**Warning :** Sway doesn't start in a virtual machine nor with the Nvidia proprietary driver, but it works in a physical install with an Intel of AMD GPU.
+**Warning :** Sway doesn't start in a virtual machine nor with the Nvidia proprietary driver, but it works in a physical install with an Intel or AMD GPU.
 
 Some informations will be gathered using your IP address with ipapi.co API in order to propose more relevant default values for prompts and better mirror sorting :  
 - Language, to propose an adapted default global language and keymap
