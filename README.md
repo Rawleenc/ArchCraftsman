@@ -16,7 +16,8 @@ You'll have two differents partitioning options. An automatic one and a manual o
 
 **The automatic partitioning** is, for now, very simple :  
 You'll have to choose the drive where you want to install Arch Linux, you'll be able to choose to have a swap in a file or in a partition and you'll be able to get a separated home or not.  
-**IMPORTANT :** If you are in UEFI mode, if you already have an installed system on the target drive and at least 32G of free space at the end of it, the automatic partitioning will detect it and will propose to install Arch Linux next to the existing system. If you don't want the dualboot or if you are in BIOS mode, the automatic partitioning will wipe the entire target drive to install Arch Linux.  
+**IMPORTANT :** If you are in UEFI mode, if you already have an installed system on the target drive and at least 32G of free space at the end of it, the automatic partitioning will detect it and will propose to install Arch Linux next to the existing system.  
+If you don't want the dualboot or if you are in **BIOS** mode, the automatic partitioning will wipe the entire target drive to install Arch Linux.  
 Partitions sizes are determined as follows :
 - EFI : 512M (In UEFI mode only)
 - Boot : 1G (In BIOS mode only)
