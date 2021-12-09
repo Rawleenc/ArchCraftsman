@@ -281,6 +281,27 @@ def ask_swapfile_size(disk: Disk) -> str:
     return swapfile_size
 
 
+def ask_format_type(supported_format_types: list) -> str:
+    """
+    The method to ask the user for the format type.
+    :return:
+    """
+    default_format_type = "ext4"
+    format_type_ok = False
+    format_type = None
+    print_step(_("Supported format types : "), clear=False)
+    print_sub_step(", ".join(supported_format_types))
+    while not format_type_ok:
+        format_type = prompt_ln(
+            _("Which format type do you want ? (%s) : ") % default_format_type, default=default_format_type).lower()
+        if format_type in supported_format_types:
+            format_type_ok = True
+        else:
+            print_error(_("Format type '%s' is not supported.") % format_type, do_pause=False)
+            continue
+    return format_type
+
+
 def manual_partitioning(bios: str):
     """
     The method to proceed to the manual partitioning.
@@ -291,6 +312,8 @@ def manual_partitioning(bios: str):
     part_type = {}
     part_mount_point = {}
     part_format = {}
+    part_format_type = {}
+    supported_format_types = ["ext4", "btrfs", "reiserfs", "xfs", "exfat", "jfs"]
     root_partition = None
     swapfile_size = None
     main_disk = None
@@ -320,7 +343,8 @@ def manual_partitioning(bios: str):
                 partitions.append(partition)
         print_step(_("Detected target drive partitions : %s") % " ".join(partitions))
         for partition in partitions:
-            print_sub_step(_("Partition : %s") % os.popen(f'lsblk -nl "{partition}" -o PATH,SIZE,PARTTYPENAME').read())
+            print_sub_step(_("Partition : %s") % re.sub('\n', '', os.popen(
+                f'lsblk -nl "{partition}" -o PATH,SIZE,PARTTYPENAME').read()))
             if bios:
                 partition_type = prompt(
                     _("What is the role of this partition ? (1: Root, 2: Home, 3: Swap, 4: Not used, other: Other) : "))
@@ -331,9 +355,12 @@ def manual_partitioning(bios: str):
                 part_type[partition] = "EFI"
                 part_mount_point[partition] = "/boot/efi"
                 part_format[partition] = prompt_bool(_("Format the EFI partition ? (Y/n) : "))
+                if part_format[partition]:
+                    part_format_type[partition] = "vfat"
             elif partition_type == "1":
                 part_type[partition] = "ROOT"
                 part_mount_point[partition] = "/"
+                part_format_type[partition] = ask_format_type(supported_format_types)
                 root_partition = partition
                 main_disk_label = re.sub('\\s+', '', os.popen(f'lsblk -ndo PKNAME {partition}').read())
                 main_disk = f'/dev/{main_disk_label}'
@@ -341,6 +368,8 @@ def manual_partitioning(bios: str):
                 part_type[partition] = "HOME"
                 part_mount_point[partition] = "/home"
                 part_format[partition] = prompt_bool(_("Format the Home partition ? (Y/n) : "))
+                if part_format[partition]:
+                    part_format_type[partition] = ask_format_type(supported_format_types)
             elif partition_type == "3":
                 part_type[partition] = "SWAP"
             elif partition_type == "4":
@@ -349,6 +378,8 @@ def manual_partitioning(bios: str):
                 part_type[partition] = "OTHER"
                 part_mount_point[partition] = prompt(_("What is the mounting point of this partition ? : "))
                 part_format[partition] = prompt_bool(_("Format the %s partition ? (Y/n) : ") % partition)
+                if part_format[partition]:
+                    part_format_type[partition] = ask_format_type(supported_format_types)
         if not bios and "EFI" not in part_type.values():
             print_error(_("The EFI partition is required for system installation."))
             partitions.clear()
@@ -368,26 +399,26 @@ def manual_partitioning(bios: str):
             else:
                 formatting = _("no")
             if part_type[partition] == "EFI":
-                print_sub_step(_("EFI partition : %s (mounting point : %s, format %s)")
-                               % (partition, part_mount_point[partition], formatting))
+                print_sub_step(_("EFI partition : %s (mounting point : %s, format %s, format type %s)")
+                               % (partition, part_mount_point[partition], formatting, part_format_type[partition]))
             if part_type[partition] == "ROOT":
-                print_sub_step(_("ROOT partition : %s (mounting point : %s)")
-                               % (partition, part_mount_point[partition]))
+                print_sub_step(_("ROOT partition : %s (mounting point : %s, format type %s)")
+                               % (partition, part_mount_point[partition], part_format_type[partition]))
             if part_type[partition] == "HOME":
-                print_sub_step(_("Home partition : %s (mounting point : %s, format %s)")
-                               % (partition, part_mount_point[partition], formatting))
+                print_sub_step(_("Home partition : %s (mounting point : %s, format %s, format type %s)")
+                               % (partition, part_mount_point[partition], formatting, part_format_type[partition]))
             if part_type[partition] == "SWAP":
                 print_sub_step(_("Swap partition : %s") % partition)
             if part_type[partition] == "OTHER":
-                print_sub_step(_("Other partition : %s (mounting point : %s, format %s)")
-                               % (partition, part_mount_point[partition], formatting))
+                print_sub_step(_("Other partition : %s (mounting point : %s, format %s, format type %s)")
+                               % (partition, part_mount_point[partition], formatting, part_format_type[partition]))
         if "SWAP" not in part_type.values() and swapfile_size is not None:
             print_sub_step(_("Swapfile size : %s") % swapfile_size)
         user_answer = prompt_bool(_("Is the informations correct ? (y/N) : "), default=False)
         if not user_answer:
             partitions.clear()
             partitioned_disks.clear()
-    return partitions, part_type, part_mount_point, part_format, root_partition, swapfile_size, main_disk
+    return partitions, part_type, part_mount_point, part_format, part_format_type, root_partition, swapfile_size, main_disk
 
 
 def build_partition_name(disk: str, index: str):
@@ -424,6 +455,7 @@ def auto_partitioning(bios: str):
     part_type = {}
     part_mount_point = {}
     part_format = {}
+    part_format_type = {}
     root_partition = None
     swapfile_size = None
     main_disk = None
@@ -475,6 +507,7 @@ def auto_partitioning(bios: str):
             part_type[partition] = "OTHER"
             part_mount_point[partition] = "/boot"
             part_format[partition] = True
+            part_format_type[partition] = "ext4"
             partitions.append(partition)
         else:
             if not want_dual_boot:
@@ -491,6 +524,7 @@ def auto_partitioning(bios: str):
                 index += 1
                 partition = build_partition_name(target_disk, str(index))
                 part_format[partition] = True
+                part_format_type[partition] = "vfat"
             else:
                 index += len(disk.partitions)
                 partition = efi_partition.path
@@ -528,6 +562,7 @@ def auto_partitioning(bios: str):
             partition = build_partition_name(target_disk, str(index))
             part_type[partition] = "ROOT"
             part_mount_point[partition] = "/"
+            part_format_type[partition] = "ext4"
             root_partition = partition
             partitions.append(partition)
             # HOME
@@ -542,6 +577,7 @@ def auto_partitioning(bios: str):
             part_type[partition] = "HOME"
             part_mount_point[partition] = "/home"
             part_format[partition] = True
+            part_format_type[partition] = "ext4"
             partitions.append(partition)
         else:
             # ROOT
@@ -555,6 +591,7 @@ def auto_partitioning(bios: str):
             partition = build_partition_name(target_disk, str(index))
             part_type[partition] = "ROOT"
             part_mount_point[partition] = "/"
+            part_format_type[partition] = "ext4"
             root_partition = partition
             partitions.append(partition)
         # WRITE
@@ -567,19 +604,19 @@ def auto_partitioning(bios: str):
             else:
                 formatting = _("no")
             if part_type[partition] == "EFI":
-                print_sub_step(_("EFI partition : %s (mounting point : %s, format %s)")
-                               % (partition, part_mount_point[partition], formatting))
+                print_sub_step(_("EFI partition : %s (mounting point : %s, format %s, format type %s)")
+                               % (partition, part_mount_point[partition], formatting, part_format_type[partition]))
             if part_type[partition] == "ROOT":
-                print_sub_step(_("ROOT partition : %s (mounting point : %s)")
-                               % (partition, part_mount_point[partition]))
+                print_sub_step(_("ROOT partition : %s (mounting point : %s, format type %s)")
+                               % (partition, part_mount_point[partition], part_format_type[partition]))
             if part_type[partition] == "HOME":
-                print_sub_step(_("Home partition : %s (mounting point : %s, format %s)")
-                               % (partition, part_mount_point[partition], formatting))
+                print_sub_step(_("Home partition : %s (mounting point : %s, format %s, format type %s)")
+                               % (partition, part_mount_point[partition], formatting, part_format_type[partition]))
             if part_type[partition] == "SWAP":
                 print_sub_step(_("Swap partition : %s") % partition)
             if part_type[partition] == "OTHER":
-                print_sub_step(_("Other partition : %s (mounting point : %s, format %s)")
-                               % (partition, part_mount_point[partition], formatting))
+                print_sub_step(_("Other partition : %s (mounting point : %s, format %s, format type %s)")
+                               % (partition, part_mount_point[partition], formatting, part_format_type[partition]))
         if "SWAP" not in part_type.values() and swap_size is not None:
             print_sub_step(_("Swapfile size : %s") % swap_size)
         user_answer = prompt_bool(_("Is the informations correct ? (y/N) : "), default=False)
@@ -587,7 +624,7 @@ def auto_partitioning(bios: str):
             partitions.clear()
         else:
             os.system(f'echo -e "{auto_part_str}" | fdisk "{target_disk}" &>/dev/null')
-    return partitions, part_type, part_mount_point, part_format, root_partition, swapfile_size, main_disk
+    return partitions, part_type, part_mount_point, part_format, part_format_type, root_partition, swapfile_size, main_disk
 
 
 def environment_config(detected_language: str):
@@ -783,6 +820,25 @@ def umount_partitions():
     os.system('umount -R /mnt &>/dev/null')
 
 
+def get_mkfs_command(format_type: str, btrfs_label: str = None) -> str:
+    """
+    A method to compute and return an mkfs command.
+    """
+    if format_type == "ext4":
+        return "mkfs.ext4"
+    if format_type == "btrfs" and btrfs_label is not None:
+        return f"mkfs.btrfs -L {btrfs_label} -n 32k -f"
+    if format_type == "reiserfs":
+        return "mkfs.reiserfs"
+    if format_type == "xfs":
+        return "mkfs.xfs"
+    if format_type == "exfat":
+        return "mkfs.exfat"
+    if format_type == "jfs":
+        return "mkfs.jfs"
+    return "mkfs.ext4"
+
+
 def main(bios, detected_country_code, detected_timezone, global_language, keymap):
     """ The main method. """
     system_info = system_config(detected_timezone)
@@ -790,27 +846,27 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
     print_step(_("Partitioning :"))
     want_auto_part = prompt_bool(_("Do you want an automatic partitioning ? (y/N) : "), default=False)
     if want_auto_part:
-        partitions, part_type, part_mount_point, part_format, root_partition, swapfile_size, main_disk = auto_partitioning(
+        partitions, part_type, part_mount_point, part_format, part_format_type, root_partition, swapfile_size, main_disk = auto_partitioning(
             bios)
     else:
-        partitions, part_type, part_mount_point, part_format, root_partition, swapfile_size, main_disk = manual_partitioning(
+        partitions, part_type, part_mount_point, part_format, part_format_type, root_partition, swapfile_size, main_disk = manual_partitioning(
             bios)
 
     print_step(_("Formatting and mounting partitions..."), clear=False)
 
-    os.system(f'mkfs.ext4 "{root_partition}"')
+    os.system(f'{get_mkfs_command(part_format_type[root_partition], btrfs_label="Root")} "{root_partition}"')
     os.system(f'mkdir -p "/mnt{part_mount_point[root_partition]}"')
     os.system(f'mount "{root_partition}" "/mnt{part_mount_point[root_partition]}"')
 
     for partition in partitions:
         if not bios and part_type[partition] == "EFI":
             if part_format.get(partition):
-                os.system(f'mkfs.vfat "{partition}"')
+                os.system(f'{get_mkfs_command(part_format_type[partition])} -f "{partition}"')
             os.system(f'mkdir -p "/mnt{part_mount_point[partition]}"')
             os.system(f'mount "{partition}" "/mnt{part_mount_point[partition]}"')
         elif part_type[partition] == "HOME":
             if part_format.get(partition):
-                os.system(f'mkfs.ext4 "{partition}"')
+                os.system(f'{get_mkfs_command(part_format_type[partition], btrfs_label="Home")} "{partition}"')
             os.system(f'mkdir -p "/mnt{part_mount_point[partition]}"')
             os.system(f'mount "{partition}" "/mnt{part_mount_point[partition]}"')
         elif part_type[partition] == "SWAP":
@@ -818,7 +874,7 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
             os.system(f'swapon "{partition}"')
         elif part_type[partition] == "OTHER":
             if part_format.get(partition):
-                os.system(f'mkfs.ext4 "{partition}"')
+                os.system(f'{get_mkfs_command(part_format_type[partition], btrfs_label="Root")} "{partition}"')
             os.system(f'mkdir -p "/mnt{part_mount_point[partition]}"')
             os.system(f'mount "{partition}" "/mnt{part_mount_point[partition]}"')
 
@@ -910,7 +966,7 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
                      "ttf-roboto-mono", "ttf-ubuntu-font-family", "ttf-jetbrains-mono"])
     if system_info["main_file_systems"]:
         pkgs.extend(
-            ["btrfs-progs", "dosfstools", "exfat-utils", "f2fs-tools", "e2fsprogs", "jfsutils", "nilfs-utils",
+            ["btrfs-progs", "dosfstools", "exfatprogs", "f2fs-tools", "e2fsprogs", "jfsutils", "nilfs-utils",
              "ntfs-3g", "reiserfsprogs", "udftools", "xfsprogs"])
     if len(system_info["more_pkgs"]) > 0:
         pkgs.extend(system_info["more_pkgs"])
