@@ -313,7 +313,7 @@ def manual_partitioning(bios: str):
     part_mount_point = {}
     part_format = {}
     part_format_type = {}
-    supported_format_types = ["ext4", "btrfs", "reiserfs", "xfs", "exfat", "jfs"]
+    supported_format_types = ["ext4", "btrfs"]
     root_partition = None
     swapfile_size = None
     main_disk = None
@@ -824,18 +824,12 @@ def get_mkfs_command(format_type: str, btrfs_label: str = None) -> str:
     """
     A method to compute and return an mkfs command.
     """
+    if format_type == "vfat":
+        return "mkfs.vfat"
     if format_type == "ext4":
         return "mkfs.ext4"
     if format_type == "btrfs" and btrfs_label is not None:
         return f"mkfs.btrfs -L {btrfs_label} -n 32k -f"
-    if format_type == "reiserfs":
-        return "mkfs.reiserfs"
-    if format_type == "xfs":
-        return "mkfs.xfs"
-    if format_type == "exfat":
-        return "mkfs.exfat"
-    if format_type == "jfs":
-        return "mkfs.jfs"
     return "mkfs.ext4"
 
 
@@ -861,7 +855,7 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
     for partition in partitions:
         if not bios and part_type[partition] == "EFI":
             if part_format.get(partition):
-                os.system(f'{get_mkfs_command(part_format_type[partition])} -f "{partition}"')
+                os.system(f'{get_mkfs_command(part_format_type[partition])} "{partition}"')
             os.system(f'mkdir -p "/mnt{part_mount_point[partition]}"')
             os.system(f'mount "{partition}" "/mnt{part_mount_point[partition]}"')
         elif part_type[partition] == "HOME":
