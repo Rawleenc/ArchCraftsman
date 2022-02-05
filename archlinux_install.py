@@ -820,17 +820,26 @@ def umount_partitions():
     os.system('umount -R /mnt &>/dev/null')
 
 
-def get_mkfs_command(format_type: str, btrfs_label: str = None) -> str:
+def format_partition(partition: str, format_type: str, mount_point: str, formatting: bool):
     """
     A method to compute and return an mkfs command.
     """
-    if format_type == "vfat":
-        return "mkfs.vfat"
-    if format_type == "ext4":
-        return "mkfs.ext4"
-    if format_type == "btrfs" and btrfs_label is not None:
-        return f"mkfs.btrfs -L {btrfs_label} -n 32k -f"
-    return "mkfs.ext4"
+    match format_type:
+        case "vfat":
+            if formatting:
+                os.system(f'mkfs.vfat "{partition}"')
+            os.system(f'mkdir -p "/mnt{mount_point}"')
+            os.system(f'mount "{partition}" "/mnt{mount_point}"')
+        case "btrfs":
+            if formatting:
+                os.system(f'mkfs.btrfs -f "{partition}"')
+            os.system(f'mkdir -p "/mnt{mount_point}"')
+            os.system(f'mount -o compress=zstd "{partition}" "/mnt{mount_point}"')
+        case _:
+            if formatting:
+                os.system(f'mkfs.ext4 "{partition}"')
+            os.system(f'mkdir -p "/mnt{mount_point}"')
+            os.system(f'mount "{partition}" "/mnt{mount_point}"')
 
 
 def main(bios, detected_country_code, detected_timezone, global_language, keymap):
@@ -848,36 +857,21 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
 
     print_step(_("Formatting and mounting partitions..."), clear=False)
 
-    os.system(f'{get_mkfs_command(part_format_type[root_partition], btrfs_label="Root")} "{root_partition}"')
-    os.system(f'mkdir -p "/mnt{part_mount_point[root_partition]}"')
-    os.system(f'mount "{root_partition}" "/mnt{part_mount_point[root_partition]}"')
+    format_partition(root_partition, part_format_type[root_partition], part_mount_point[root_partition], True)
 
     for partition in partitions:
         if not bios and part_type[partition] == "EFI":
-            if part_format.get(partition):
-                os.system(f'{get_mkfs_command(part_format_type[partition])} "{partition}"')
-            os.system(f'mkdir -p "/mnt{part_mount_point[partition]}"')
-            os.system(f'mount "{partition}" "/mnt{part_mount_point[partition]}"')
+            format_partition(partition, part_format_type[partition], part_mount_point[partition],
+                             part_format.get(partition))
         elif part_type[partition] == "HOME":
-            if part_format.get(partition):
-                os.system(f'{get_mkfs_command(part_format_type[partition], btrfs_label="Home")} "{partition}"')
-            os.system(f'mkdir -p "/mnt{part_mount_point[partition]}"')
-            os.system(f'mount "{partition}" "/mnt{part_mount_point[partition]}"')
+            format_partition(partition, part_format_type[partition], part_mount_point[partition],
+                             part_format.get(partition))
         elif part_type[partition] == "SWAP":
             os.system(f'mkswap "{partition}"')
             os.system(f'swapon "{partition}"')
         elif part_type[partition] == "OTHER":
-            if part_format.get(partition):
-                os.system(f'{get_mkfs_command(part_format_type[partition], btrfs_label="Root")} "{partition}"')
-            os.system(f'mkdir -p "/mnt{part_mount_point[partition]}"')
-            os.system(f'mount "{partition}" "/mnt{part_mount_point[partition]}"')
-
-    if "SWAP" not in part_type.values() and swapfile_size is not None:
-        print_step(_("Creation and activation of the swapfile..."), clear=False)
-        os.system(f'fallocate -l "{swapfile_size}" /mnt/swapfile')
-        os.system('chmod 600 /mnt/swapfile')
-        os.system('mkswap /mnt/swapfile')
-        os.system('swapon /mnt/swapfile')
+            format_partition(partition, part_format_type[partition], part_mount_point[partition],
+                             part_format.get(partition))
 
     print_step(_("Updating mirrors..."), clear=False)
     os.system(
@@ -965,6 +959,18 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
     if len(system_info["more_pkgs"]) > 0:
         pkgs.extend(system_info["more_pkgs"])
     os.system(f'pacstrap /mnt {" ".join(pkgs)}')
+
+    if "SWAP" not in part_type.values() and swapfile_size is not None:
+        if part_format_type[root_partition] == "btrfs":
+            os.system(
+                "btrfs subvolume create /mnt/swap && cd /mnt/swap && truncate -s 0 ./swapfile && chattr +C ./swapfile && btrfs property set ./swapfile compression none && cd -")
+        else:
+            os.system("mkdir -p /mnt/swap")
+        print_step(_("Creation and activation of the swapfile..."), clear=False)
+        os.system(f'fallocate -l "{swapfile_size}" /mnt/swap/swapfile')
+        os.system('chmod 600 /mnt/swap/swapfile')
+        os.system('mkswap /mnt/swap/swapfile')
+        os.system('swapon /mnt/swap/swapfile')
 
     print_step(_("System configuration..."), clear=False)
     os.system('genfstab -U /mnt >>/mnt/etc/fstab')
