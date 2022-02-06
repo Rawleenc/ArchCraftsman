@@ -836,7 +836,7 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
     print_step(_("Installation of the base..."), clear=False)
     pkgs = ["base", "base-devel", "linux-firmware", "man-db", "man-pages", "texinfo", "nano", "vim", "git", "curl",
             "grub", "os-prober", "efibootmgr", "networkmanager", "xdg-user-dirs", "reflector", "numlockx", "ntp",
-            "net-tools"]
+            "net-tools", "polkit"]
     if system_info["microcodes"] == "GenuineIntel":
         pkgs.append("intel-ucode")
     if system_info["microcodes"] == "AuthenticAMD":
