@@ -880,7 +880,7 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
     print_step(_("Installation of the base..."), clear=False)
     pkgs = ["base", "base-devel", "linux-firmware", "man-db", "man-pages", "texinfo", "nano", "vim", "git", "curl",
             "grub", "os-prober", "efibootmgr", "networkmanager", "xdg-user-dirs", "reflector", "numlockx", "ntp",
-            "net-tools"]
+            "net-tools", "polkit"]
     if system_info["microcodes"] == "GenuineIntel":
         pkgs.append("intel-ucode")
     if system_info["microcodes"] == "AuthenticAMD":
@@ -1044,7 +1044,7 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
         os.system(f'arch-chroot /mnt bash -c "echo \'root:{system_info["root_password"]}\' | chpasswd"')
     if system_info["user_name"] != "":
         print_sub_step(_("%s account configuration...") % system_info["user_name"])
-        os.system('sed -i "s|# %wheel ALL=(ALL) ALL|%wheel ALL=(ALL) ALL|g" /mnt/etc/sudoers')
+        os.system('sed -i "s|# %wheel ALL=(ALL:ALL) ALL|%wheel ALL=(ALL:ALL) ALL|g" /mnt/etc/sudoers')
         if system_info["grml_zsh"]:
             os.system(
                 f'arch-chroot /mnt bash -c "useradd --shell=/bin/zsh --groups=wheel --create-home {system_info["user_name"]}"')
