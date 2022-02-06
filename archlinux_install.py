@@ -756,18 +756,18 @@ def system_config(detected_timezone):
                     "user_name"])
 
         pkgs_select_ok = False
-        system_info["more_pkgs"] = []
         while not pkgs_select_ok:
+            system_info["more_pkgs"] = set()
             more_pkgs_str = prompt_ln(
                 _("Install more packages ? (type extra packages full names, example : 'htop neofetch', leave blank if none) : "))
             pkgs_select_ok = True
             if more_pkgs_str != "":
-                system_info["more_pkgs"] = more_pkgs_str.split(" ")
-                for pkg in system_info["more_pkgs"]:
+                for pkg in more_pkgs_str.split():
                     if os.system(f'pacman -Si {pkg} &>/dev/null') != 0:
                         pkgs_select_ok = False
                         print_error(_("Package %s doesn't exist.") % pkg)
                         break
+                    system_info["more_pkgs"].add(pkg)
 
         system_info["root_password"] = ask_password()
         if system_info["user_name"] != "":
@@ -845,6 +845,7 @@ def format_partition(partition: str, format_type: str, mount_point: str, formatt
 def main(bios, detected_country_code, detected_timezone, global_language, keymap):
     """ The main method. """
     system_info = system_config(detected_timezone)
+    system_info["btrfs_in_use"] = False
 
     print_step(_("Partitioning :"))
     want_auto_part = prompt_bool(_("Do you want an automatic partitioning ? (y/N) : "), default=False)
@@ -858,8 +859,12 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
     print_step(_("Formatting and mounting partitions..."), clear=False)
 
     format_partition(root_partition, part_format_type[root_partition], part_mount_point[root_partition], True)
+    if part_format_type[root_partition] == "btrfs":
+        system_info["btrfs_in_use"] = True
 
     for partition in partitions:
+        if part_format_type[partition] == "btrfs":
+            system_info["btrfs_in_use"] = True
         if not bios and part_type[partition] == "EFI":
             format_partition(partition, part_format_type[partition], part_mount_point[partition],
                              part_format.get(partition))
@@ -878,95 +883,100 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
         f'reflector --save /etc/pacman.d/mirrorlist --protocol https --age 12 --country "{detected_country_code}" --score 5 --sort rate')
 
     print_step(_("Installation of the base..."), clear=False)
-    pkgs = ["base", "base-devel", "linux-firmware", "man-db", "man-pages", "texinfo", "nano", "vim", "git", "curl",
+    pkgs = set()
+    pkgs.update(["base", "base-devel", "linux-firmware", "man-db", "man-pages", "texinfo", "nano", "vim", "git", "curl",
             "grub", "os-prober", "efibootmgr", "networkmanager", "xdg-user-dirs", "reflector", "numlockx", "ntp",
-            "net-tools", "polkit"]
+            "net-tools", "polkit"])
+    if system_info["btrfs_in_use"]:
+        pkgs.add("btrfs-progs")
     if system_info["microcodes"] == "GenuineIntel":
-        pkgs.append("intel-ucode")
+        pkgs.add("intel-ucode")
     if system_info["microcodes"] == "AuthenticAMD":
-        pkgs.append("amd-ucode")
+        pkgs.add("amd-ucode")
     if system_info["lts_kernel"]:
-        pkgs.append("linux-lts")
+        pkgs.add("linux-lts")
     else:
-        pkgs.append("linux")
+        pkgs.add("linux")
     if system_info["nvidia_driver"] and system_info["lts_kernel"]:
-        pkgs.append("nvidia-lts")
+        pkgs.add("nvidia-lts")
     elif system_info["nvidia_driver"] and not system_info["lts_kernel"]:
-        pkgs.append("nvidia")
+        pkgs.add("nvidia")
     if system_info["terminus_font"]:
-        pkgs.append("terminus-font")
+        pkgs.add("terminus-font")
     if system_info["desktop"] == "gnome":
-        pkgs.extend(["gnome", "gnome-extra", "alsa-utils", "pulseaudio", "pulseaudio-alsa"])
+        pkgs.add(["gnome", "gnome-extra", "alsa-utils", "pulseaudio", "pulseaudio-alsa"])
     elif system_info["desktop"] == "plasma":
-        pkgs.extend(["plasma", "kde-applications", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa"])
+        pkgs.add(["plasma", "kde-applications", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa"])
         if system_info["plasma_wayland"]:
-            pkgs.append("plasma-wayland-session")
+            pkgs.add("plasma-wayland-session")
             if system_info["nvidia_driver"]:
-                pkgs.append("egl-wayland")
+                pkgs.add("egl-wayland")
     elif system_info["desktop"] == "xfce":
-        pkgs.extend(
+        pkgs.update(
             ["xfce4", "xfce4-goodies", "lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings", "xorg-server",
              "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol", "network-manager-applet"])
     elif system_info["desktop"] == "budgie":
-        pkgs.extend(["budgie-desktop", "budgie-desktop-view", "budgie-screensaver", "gnome-control-center",
+        pkgs.update(["budgie-desktop", "budgie-desktop-view", "budgie-screensaver", "gnome-control-center",
                      "network-manager-applet", "gnome", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
                      "pavucontrol"])
     elif system_info["desktop"] == "cinnamon":
-        pkgs.extend(["cinnamon", "metacity", "gnome-shell", "gnome-terminal", "blueberry", "cinnamon-translations",
+        pkgs.update(["cinnamon", "metacity", "gnome-shell", "gnome-terminal", "blueberry", "cinnamon-translations",
                      "gnome-panel", "system-config-printer", "wget", "lightdm", "lightdm-gtk-greeter",
                      "lightdm-gtk-greeter-settings", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
                      "pavucontrol"])
     elif system_info["desktop"] == "cutefish":
-        pkgs.extend(["cutefish", "sddm", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol"])
+        pkgs.update(["cutefish", "sddm", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol"])
     elif system_info["desktop"] == "deepin":
-        pkgs.extend(["deepin", "deepin-extra", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa"])
+        pkgs.update(["deepin", "deepin-extra", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa"])
     elif system_info["desktop"] == "lxqt":
-        pkgs.extend(
+        pkgs.update(
             ["lxqt", "sddm", "xorg-server", "breeze-icons", "xdg-utils", "xscreensaver", "xautolock", "libpulse",
              "alsa-lib", "libstatgrab", "libsysstat", "lm_sensors", "system-config-printer", "alsa-utils", "pulseaudio",
              "pulseaudio-alsa", "pavucontrol", "network-manager-applet"])
     elif system_info["desktop"] == "mate":
-        pkgs.extend(
+        pkgs.update(
             ["mate", "mate-extra", "lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings", "xorg-server",
              "alsa-utils", "pulseaudio", "pulseaudio-alsa", "network-manager-applet"])
     elif system_info["desktop"] == "enlightenment":
-        pkgs.extend(
+        pkgs.update(
             ["enlightenment", "terminology", "xorg-server", "xorg-xinit", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
              "pavucontrol", "system-config-printer", "network-manager-applet", "acpid"])
     elif system_info["desktop"] == "i3":
-        pkgs.extend(
+        pkgs.update(
             ["i3", "rofi", "dmenu", "perl", "alacritty", "xorg-server", "xorg-xinit", "alsa-utils", "pulseaudio",
              "pulseaudio-alsa", "pavucontrol", "system-config-printer", "network-manager-applet", "acpid"])
     elif system_info["desktop"] == "sway":
-        pkgs.extend(["sway", "rofi", "dmenu", "alacritty", "grim", "i3status", "mako", "slurp", "swayidle", "swaylock",
+        pkgs.update(["sway", "rofi", "dmenu", "alacritty", "grim", "i3status", "mako", "slurp", "swayidle", "swaylock",
                      "waybar", "swaybg", "wf-recorder", "xorg-xwayland", "alsa-utils", "pulseaudio",
                      "pulseaudio-alsa", "pavucontrol", "system-config-printer", "network-manager-applet", "acpid"])
     if system_info["cups"]:
-        pkgs.extend(
+        pkgs.update(
             ["cups", "cups-pdf", "avahi", "samba", "foomatic-db-engine", "foomatic-db", "foomatic-db-ppds",
              "foomatic-db-nonfree-ppds", "foomatic-db-gutenprint-ppds", "gutenprint", "ghostscript"])
     if system_info["grml_zsh"]:
-        pkgs.extend(["zsh", "zsh-completions", "grml-zsh-config"])
+        pkgs.update(["zsh", "zsh-completions", "grml-zsh-config"])
+    else:
+        pkgs.add("bash-completion")
     if system_info["main_fonts"]:
-        pkgs.extend(["gnu-free-fonts", "noto-fonts", "ttf-bitstream-vera", "ttf-dejavu", "ttf-hack", "ttf-droid",
+        pkgs.update(["gnu-free-fonts", "noto-fonts", "ttf-bitstream-vera", "ttf-dejavu", "ttf-hack", "ttf-droid",
                      "ttf-fira-code", "ttf-fira-mono", "ttf-fira-sans", "ttf-font-awesome", "ttf-inconsolata",
                      "ttf-input", "ttf-liberation", "ttf-nerd-fonts-symbols", "ttf-opensans", "ttf-roboto",
                      "ttf-roboto-mono", "ttf-ubuntu-font-family", "ttf-jetbrains-mono"])
     if system_info["main_file_systems"]:
-        pkgs.extend(
+        pkgs.update(
             ["btrfs-progs", "dosfstools", "exfatprogs", "f2fs-tools", "e2fsprogs", "jfsutils", "nilfs-utils",
              "ntfs-3g", "reiserfsprogs", "udftools", "xfsprogs"])
     if len(system_info["more_pkgs"]) > 0:
-        pkgs.extend(system_info["more_pkgs"])
+        pkgs.update(system_info["more_pkgs"])
     os.system(f'pacstrap /mnt {" ".join(pkgs)}')
 
     if "SWAP" not in part_type.values() and swapfile_size is not None:
+        print_step(_("Creation and activation of the swapfile..."), clear=False)
         if part_format_type[root_partition] == "btrfs":
             os.system(
                 "btrfs subvolume create /mnt/swap && cd /mnt/swap && truncate -s 0 ./swapfile && chattr +C ./swapfile && btrfs property set ./swapfile compression none && cd -")
         else:
             os.system("mkdir -p /mnt/swap")
-        print_step(_("Creation and activation of the swapfile..."), clear=False)
         os.system(f'fallocate -l "{swapfile_size}" /mnt/swap/swapfile')
         os.system('chmod 600 /mnt/swap/swapfile')
         os.system('mkswap /mnt/swap/swapfile')
