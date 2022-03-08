@@ -852,11 +852,13 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
     if system_info["terminus_font"]:
         pkgs.append("terminus-font")
     if system_info["desktop"] == "gnome":
-        pkgs.extend(["gnome", "gnome-extra", "alsa-utils", "pulseaudio", "pulseaudio-alsa"])
+        pkgs.extend(["gnome", "gnome-extra", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "xdg-desktop-portal",
+                     "xdg-desktop-portal-gnome", "qt5-wayland"])
     elif system_info["desktop"] == "plasma":
-        pkgs.extend(["plasma", "kde-applications", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa"])
+        pkgs.extend(["plasma", "kde-applications", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
+                     "xdg-desktop-portal", "xdg-desktop-portal-kde"])
         if system_info["plasma_wayland"]:
-            pkgs.append("plasma-wayland-session")
+            pkgs.extend(["plasma-wayland-session", "qt5-wayland"])
             if system_info["nvidia_driver"]:
                 pkgs.append("egl-wayland")
     elif system_info["desktop"] == "xfce":
@@ -932,6 +934,7 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
     else:
         os.system('echo "FONT=eurlatgr" >>/mnt/etc/vconsole.conf')
     os.system('sed -i "s|#Color|Color|g" /mnt/etc/pacman.conf')
+    os.system('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5|g" /mnt/etc/pacman.conf')
     os.system(f'echo "{system_info["hostname"]}" >/mnt/etc/hostname')
     os.system(f'''
         {{
@@ -1012,6 +1015,8 @@ def pre_launch_steps():
     :return:
     """
     print_step(_("Running pre-launch steps : "), clear=False)
+    os.system('sed -i "s|#Color|Color|g" /etc/pacman.conf')
+    os.system('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5|g" /etc/pacman.conf')
     print_sub_step(_("Synchronising repositories..."))
     os.system("pacman -Sy &>/dev/null")
     print_sub_step(_("Downloading and formatting translations..."))
