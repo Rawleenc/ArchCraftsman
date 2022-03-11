@@ -324,7 +324,7 @@ def manual_partitioning(bios: str):
         print_sub_step(_("Partitioned drives so far : %s") % " ".join(partitioned_disks))
         os.system('fdisk -l')
         target_disk = prompt(
-            "Which drive do you want to partition ? (partition_type the entire name, for example '/dev/sda') : ")
+            _("Which drive do you want to partition ? (type the entire name, for example '/dev/sda') : "))
         if not os.path.exists(target_disk):
             print_error(_("The chosen target drive doesn't exist."))
             continue
