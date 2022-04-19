@@ -831,7 +831,7 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
 
     print_step(_("Updating mirrors..."), clear=False)
     os.system(
-        f'reflector --save /etc/pacman.d/mirrorlist --protocol https --age 12 --country "{detected_country_code}" --score 5 --sort rate')
+        f'reflector --save /etc/pacman.d/mirrorlist --protocol https --age 12 --country "{detected_country_code}" --fastest 10 --threads $(nproc --all) --sort score')
 
     print_step(_("Installation of the base..."), clear=False)
     pkgs = ["base", "base-devel", "linux-firmware", "man-db", "man-pages", "texinfo", "nano", "vim", "git", "curl",
