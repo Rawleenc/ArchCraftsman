@@ -835,8 +835,8 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
 
     print_step(_("Installation of the base..."), clear=False)
     pkgs = ["base", "base-devel", "linux-firmware", "man-db", "man-pages", "texinfo", "nano", "vim", "git", "curl",
-            "grub", "os-prober", "efibootmgr", "networkmanager", "xdg-user-dirs", "reflector", "numlockx", "ntp",
-            "net-tools", "polkit"]
+            "grub", "os-prober", "efibootmgr", "networkmanager", "xdg-user-dirs", "reflector", "numlockx", "net-tools",
+            "polkit"]
     if system_info["microcodes"] == "GenuineIntel":
         pkgs.append("intel-ucode")
     if system_info["microcodes"] == "AuthenticAMD":
@@ -952,7 +952,7 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
     os.system('arch-chroot /mnt bash -c "locale-gen"')
     print_step(_("Network configuration..."), clear=False)
     os.system('arch-chroot /mnt bash -c "systemctl enable NetworkManager"')
-    os.system('arch-chroot /mnt bash -c "systemctl enable ntpd"')
+    os.system('arch-chroot /mnt bash -c "systemctl enable systemd-timesyncd"')
     print_step(_("Installation and configuration of the grub..."), clear=False)
     if bios:
         os.system(f'arch-chroot /mnt bash -c "grub-install --target=i386-pc {main_disk}"')
