@@ -888,8 +888,10 @@ def main(pre_launch_info):
     pkgs = set()
     pkgs.update(["base", "base-devel", "linux-firmware", "man-db", "man-pages", "texinfo", "nano", "vim", "git", "curl",
                  "grub", "os-prober", "efibootmgr", "networkmanager", "xdg-user-dirs", "reflector", "numlockx",
-                 "net-tools",
-                 "polkit"])
+                 "net-tools", "polkit", "pacman-contrib"])
+    if pre_launch_info["global_language"].lower() != "en" and os.system(
+            f"pacman -Si man-pages-{pre_launch_info['global_language'].lower()} &>/dev/null") == 0:
+        pkgs.add(f"man-pages-{pre_launch_info['global_language'].lower()}")
     if system_info["btrfs_in_use"]:
         pkgs.add("btrfs-progs")
     if system_info["microcodes"] == "GenuineIntel":
@@ -897,9 +899,9 @@ def main(pre_launch_info):
     if system_info["microcodes"] == "AuthenticAMD":
         pkgs.add("amd-ucode")
     if system_info["lts_kernel"]:
-        pkgs.add("linux-lts")
+        pkgs.add(["linux-lts", "linux-lts-headers"])
     else:
-        pkgs.add("linux")
+        pkgs.add(["linux", "linux-headers"])
     if system_info["nvidia_driver"] and system_info["lts_kernel"]:
         pkgs.add("nvidia-lts")
     elif system_info["nvidia_driver"] and not system_info["lts_kernel"]:
