@@ -302,21 +302,15 @@ def ask_format_type(supported_format_types: list) -> str:
     return format_type
 
 
-def manual_partitioning(bios: str):
+def manual_partitioning(bios: str) -> {}:
     """
     The method to proceed to the manual partitioning.
     :param bios:
     :return:
     """
-    partitions = []
-    part_type = {}
-    part_mount_point = {}
-    part_format = {}
-    part_format_type = {}
+    partitioning_info = {"partitions": [], "part_type": {}, "part_mount_point": {}, "part_format": {},
+                         "part_format_type": {}, "root_partition": None, "swapfile_size": None, "main_disk": None}
     supported_format_types = ["ext4", "btrfs"]
-    root_partition = None
-    swapfile_size = None
-    main_disk = None
     user_answer = False
     partitioned_disks = set()
     while not user_answer:
@@ -340,9 +334,9 @@ def manual_partitioning(bios: str):
             detected_partitions = os.popen(
                 f'lsblk -nl "{disk}" -o PATH,PARTTYPENAME | grep -iE "linux|efi|swap" | awk \'{{print $1}}\'').read()
             for partition in detected_partitions.splitlines():
-                partitions.append(partition)
-        print_step(_("Detected target drive partitions : %s") % " ".join(partitions))
-        for partition in partitions:
+                partitioning_info["partitions"].append(partition)
+        print_step(_("Detected target drive partitions : %s") % " ".join(partitioning_info["partitions"]))
+        for partition in partitioning_info["partitions"]:
             print_sub_step(_("Partition : %s") % re.sub('\n', '', os.popen(
                 f'lsblk -nl "{partition}" -o PATH,SIZE,PARTTYPENAME').read()))
             if bios:
@@ -352,73 +346,79 @@ def manual_partitioning(bios: str):
                 partition_type = prompt(
                     _("What is the role of this partition ? (0: EFI, 1: Root, 2: Home, 3: Swap, 4: Not used, other: Other) : "))
             if not bios and partition_type == "0":
-                part_type[partition] = "EFI"
-                part_mount_point[partition] = "/boot/efi"
-                part_format[partition] = prompt_bool(_("Format the EFI partition ? (Y/n) : "))
-                if part_format[partition]:
-                    part_format_type[partition] = "vfat"
+                partitioning_info["part_type"][partition] = "EFI"
+                partitioning_info["part_mount_point"][partition] = "/boot/efi"
+                partitioning_info["part_format"][partition] = prompt_bool(_("Format the EFI partition ? (Y/n) : "))
+                if partitioning_info["part_format"][partition]:
+                    partitioning_info["part_format_type"][partition] = "vfat"
             elif partition_type == "1":
-                part_type[partition] = "ROOT"
-                part_mount_point[partition] = "/"
-                part_format_type[partition] = ask_format_type(supported_format_types)
-                root_partition = partition
+                partitioning_info["part_type"][partition] = "ROOT"
+                partitioning_info["part_mount_point"][partition] = "/"
+                partitioning_info["part_format_type"][partition] = ask_format_type(supported_format_types)
+                partitioning_info["root_partition"] = partition
                 main_disk_label = re.sub('\\s+', '', os.popen(f'lsblk -ndo PKNAME {partition}').read())
-                main_disk = f'/dev/{main_disk_label}'
+                partitioning_info["main_disk"] = f'/dev/{main_disk_label}'
             elif partition_type == "2":
-                part_type[partition] = "HOME"
-                part_mount_point[partition] = "/home"
-                part_format[partition] = prompt_bool(_("Format the Home partition ? (Y/n) : "))
-                if part_format[partition]:
-                    part_format_type[partition] = ask_format_type(supported_format_types)
+                partitioning_info["part_type"][partition] = "HOME"
+                partitioning_info["part_mount_point"][partition] = "/home"
+                partitioning_info["part_format"][partition] = prompt_bool(_("Format the Home partition ? (Y/n) : "))
+                if partitioning_info["part_format"][partition]:
+                    partitioning_info["part_format_type"][partition] = ask_format_type(supported_format_types)
             elif partition_type == "3":
-                part_type[partition] = "SWAP"
+                partitioning_info["part_type"][partition] = "SWAP"
             elif partition_type == "4":
                 continue
             else:
-                part_type[partition] = "OTHER"
-                part_mount_point[partition] = prompt(_("What is the mounting point of this partition ? : "))
-                part_format[partition] = prompt_bool(_("Format the %s partition ? (Y/n) : ") % partition)
-                if part_format[partition]:
-                    part_format_type[partition] = ask_format_type(supported_format_types)
-        if not bios and "EFI" not in part_type.values():
+                partitioning_info["part_type"][partition] = "OTHER"
+                partitioning_info["part_mount_point"][partition] = prompt(
+                    _("What is the mounting point of this partition ? : "))
+                partitioning_info["part_format"][partition] = prompt_bool(
+                    _("Format the %s partition ? (Y/n) : ") % partition)
+                if partitioning_info["part_format"][partition]:
+                    partitioning_info["part_format_type"][partition] = ask_format_type(supported_format_types)
+        if not bios and "EFI" not in partitioning_info["part_type"].values():
             print_error(_("The EFI partition is required for system installation."))
-            partitions.clear()
+            partitioning_info["partitions"].clear()
             partitioned_disks.clear()
             continue
-        if "ROOT" not in part_type.values():
+        if "ROOT" not in partitioning_info["part_type"].values():
             print_error(_("The Root partition is required for system installation."))
-            partitions.clear()
+            partitioning_info["partitions"].clear()
             partitioned_disks.clear()
             continue
-        if "SWAP" not in part_type.values():
-            swapfile_size = ask_swapfile_size(Disk(main_disk))
+        if "SWAP" not in partitioning_info["part_type"].values():
+            partitioning_info["swapfile_size"] = ask_swapfile_size(Disk(partitioning_info["main_disk"]))
         print_step(_("Summary of choices :"))
-        for partition in partitions:
-            if part_format.get(partition):
+        for partition in partitioning_info["partitions"]:
+            if partitioning_info["part_format"].get(partition):
                 formatting = _("yes")
             else:
                 formatting = _("no")
-            if part_type[partition] == "EFI":
+            if partitioning_info["part_type"][partition] == "EFI":
                 print_sub_step(_("EFI partition : %s (mounting point : %s, format %s, format type %s)")
-                               % (partition, part_mount_point[partition], formatting, part_format_type[partition]))
-            if part_type[partition] == "ROOT":
+                               % (partition, partitioning_info["part_mount_point"][partition], formatting,
+                                  partitioning_info["part_format_type"][partition]))
+            if partitioning_info["part_type"][partition] == "ROOT":
                 print_sub_step(_("ROOT partition : %s (mounting point : %s, format type %s)")
-                               % (partition, part_mount_point[partition], part_format_type[partition]))
-            if part_type[partition] == "HOME":
+                               % (partition, partitioning_info["part_mount_point"][partition],
+                                  partitioning_info["part_format_type"][partition]))
+            if partitioning_info["part_type"][partition] == "HOME":
                 print_sub_step(_("Home partition : %s (mounting point : %s, format %s, format type %s)")
-                               % (partition, part_mount_point[partition], formatting, part_format_type[partition]))
-            if part_type[partition] == "SWAP":
+                               % (partition, partitioning_info["part_mount_point"][partition], formatting,
+                                  partitioning_info["part_format_type"][partition]))
+            if partitioning_info["part_type"][partition] == "SWAP":
                 print_sub_step(_("Swap partition : %s") % partition)
-            if part_type[partition] == "OTHER":
+            if partitioning_info["part_type"][partition] == "OTHER":
                 print_sub_step(_("Other partition : %s (mounting point : %s, format %s, format type %s)")
-                               % (partition, part_mount_point[partition], formatting, part_format_type[partition]))
-        if "SWAP" not in part_type.values() and swapfile_size is not None:
-            print_sub_step(_("Swapfile size : %s") % swapfile_size)
+                               % (partition, partitioning_info["part_mount_point"][partition], formatting,
+                                  partitioning_info["part_format_type"][partition]))
+        if "SWAP" not in partitioning_info["part_type"].values() and partitioning_info["swapfile_size"] is not None:
+            print_sub_step(_("Swapfile size : %s") % partitioning_info["swapfile_size"])
         user_answer = prompt_bool(_("Is the informations correct ? (y/N) : "), default=False)
         if not user_answer:
-            partitions.clear()
+            partitioning_info["partitions"].clear()
             partitioned_disks.clear()
-    return partitions, part_type, part_mount_point, part_format, part_format_type, root_partition, swapfile_size, main_disk
+    return partitioning_info
 
 
 def build_partition_name(disk: str, index: str):
@@ -445,20 +445,14 @@ def from_iec(size: str) -> int:
     return int(re.sub('\\s', '', os.popen(f'printf "{size}" | numfmt --from=iec').read()))
 
 
-def auto_partitioning(bios: str):
+def auto_partitioning(bios: str) -> {}:
     """
     The method to proceed to the automatic partitioning.
     :param bios:
     :return:
     """
-    partitions = []
-    part_type = {}
-    part_mount_point = {}
-    part_format = {}
-    part_format_type = {}
-    root_partition = None
-    swapfile_size = None
-    main_disk = None
+    partitioning_info = {"partitions": [], "part_type": {}, "part_mount_point": {}, "part_format": {},
+                         "part_format_type": {}, "root_partition": None, "swapfile_size": None, "main_disk": None}
     user_answer = False
     while not user_answer:
         print_step(_("Automatic partitioning :"))
@@ -471,7 +465,7 @@ def auto_partitioning(bios: str):
         if not os.path.exists(target_disk):
             print_error(_("You need to choose a target drive."))
             continue
-        main_disk = target_disk
+        partitioning_info["main_disk"] = target_disk
         disk = Disk(target_disk)
         swap_type = prompt(_("What type of Swap do you want ? (1: Partition, other: File) : "))
         want_home = prompt_bool(_("Do you want a separated Home ? (y/N) : "), default=False)
@@ -489,7 +483,7 @@ def auto_partitioning(bios: str):
             root_size = to_iec(int(disk.total / 4))
             swap_size = to_iec(int(disk.total / 32))
         if swap_type != "1":
-            swapfile_size = swap_size
+            partitioning_info["swapfile_size"] = swap_size
         auto_part_str = ""
         index = 0
         if bios:
@@ -504,11 +498,11 @@ def auto_partitioning(bios: str):
             auto_part_str += "a\n"  # Toggle bootable flag
             index += 1
             partition = build_partition_name(target_disk, str(index))
-            part_type[partition] = "OTHER"
-            part_mount_point[partition] = "/boot"
-            part_format[partition] = True
-            part_format_type[partition] = "ext4"
-            partitions.append(partition)
+            partitioning_info["part_type"][partition] = "OTHER"
+            partitioning_info["part_mount_point"][partition] = "/boot"
+            partitioning_info["part_format"][partition] = True
+            partitioning_info["part_format_type"][partition] = "ext4"
+            partitioning_info["partitions"].append(partition)
         else:
             if not want_dual_boot:
                 # GPT LABEL
@@ -523,15 +517,15 @@ def auto_partitioning(bios: str):
                 auto_part_str += "1\n"  # Type EFI System
                 index += 1
                 partition = build_partition_name(target_disk, str(index))
-                part_format[partition] = True
-                part_format_type[partition] = "vfat"
+                partitioning_info["part_format"][partition] = True
+                partitioning_info["part_format_type"][partition] = "vfat"
             else:
                 index += len(disk.partitions)
                 partition = efi_partition.path
-                part_format[partition] = False
-            part_type[partition] = "EFI"
-            part_mount_point[partition] = "/boot/efi"
-            partitions.append(partition)
+                partitioning_info["part_format"][partition] = False
+            partitioning_info["part_type"][partition] = "EFI"
+            partitioning_info["part_mount_point"][partition] = "/boot/efi"
+            partitioning_info["partitions"].append(partition)
         if swap_type == "1":
             # SWAP
             auto_part_str += "n\n"  # Add a new partition
@@ -548,8 +542,8 @@ def auto_partitioning(bios: str):
                 auto_part_str += "19\n"  # Type Linux Swap
             index += 1
             partition = build_partition_name(target_disk, str(index))
-            part_type[partition] = "SWAP"
-            partitions.append(partition)
+            partitioning_info["part_type"][partition] = "SWAP"
+            partitioning_info["partitions"].append(partition)
         if want_home:
             # ROOT
             auto_part_str += "n\n"  # Add a new partition
@@ -560,11 +554,11 @@ def auto_partitioning(bios: str):
             auto_part_str += f'+{root_size}\n'  # Last sector (Accept default: varies)
             index += 1
             partition = build_partition_name(target_disk, str(index))
-            part_type[partition] = "ROOT"
-            part_mount_point[partition] = "/"
-            part_format_type[partition] = "ext4"
-            root_partition = partition
-            partitions.append(partition)
+            partitioning_info["part_type"][partition] = "ROOT"
+            partitioning_info["part_mount_point"][partition] = "/"
+            partitioning_info["part_format_type"][partition] = "ext4"
+            partitioning_info["root_partition"] = partition
+            partitioning_info["partitions"].append(partition)
             # HOME
             auto_part_str += "n\n"  # Add a new partition
             if bios:
@@ -574,11 +568,11 @@ def auto_partitioning(bios: str):
             auto_part_str += " \n"  # Last sector (Accept default: varies)
             index += 1
             partition = build_partition_name(target_disk, str(index))
-            part_type[partition] = "HOME"
-            part_mount_point[partition] = "/home"
-            part_format[partition] = True
-            part_format_type[partition] = "ext4"
-            partitions.append(partition)
+            partitioning_info["part_type"][partition] = "HOME"
+            partitioning_info["part_mount_point"][partition] = "/home"
+            partitioning_info["part_format"][partition] = True
+            partitioning_info["part_format_type"][partition] = "ext4"
+            partitioning_info["partitions"].append(partition)
         else:
             # ROOT
             auto_part_str += "n\n"  # Add a new partition
@@ -589,58 +583,60 @@ def auto_partitioning(bios: str):
             auto_part_str += " \n"  # Last sector (Accept default: varies)
             index += 1
             partition = build_partition_name(target_disk, str(index))
-            part_type[partition] = "ROOT"
-            part_mount_point[partition] = "/"
-            part_format_type[partition] = "ext4"
-            root_partition = partition
-            partitions.append(partition)
+            partitioning_info["part_type"][partition] = "ROOT"
+            partitioning_info["part_mount_point"][partition] = "/"
+            partitioning_info["part_format_type"][partition] = "ext4"
+            partitioning_info["root_partition"] = partition
+            partitioning_info["partitions"].append(partition)
         # WRITE
         auto_part_str += "w\n"
 
         print_step(_("Summary of choices :"), clear=False)
-        for partition in partitions:
-            if part_format.get(partition):
+        for partition in partitioning_info["partitions"]:
+            if partitioning_info["part_format"].get(partition):
                 formatting = _("yes")
             else:
                 formatting = _("no")
-            if part_type[partition] == "EFI":
+            if partitioning_info["part_type"][partition] == "EFI":
                 print_sub_step(_("EFI partition : %s (mounting point : %s, format %s, format type %s)")
-                               % (partition, part_mount_point[partition], formatting, part_format_type[partition]))
-            if part_type[partition] == "ROOT":
+                               % (partition, partitioning_info["part_mount_point"][partition], formatting,
+                                  partitioning_info["part_format_type"][partition]))
+            if partitioning_info["part_type"][partition] == "ROOT":
                 print_sub_step(_("ROOT partition : %s (mounting point : %s, format type %s)")
-                               % (partition, part_mount_point[partition], part_format_type[partition]))
-            if part_type[partition] == "HOME":
+                               % (partition, partitioning_info["part_mount_point"][partition],
+                                  partitioning_info["part_format_type"][partition]))
+            if partitioning_info["part_type"][partition] == "HOME":
                 print_sub_step(_("Home partition : %s (mounting point : %s, format %s, format type %s)")
-                               % (partition, part_mount_point[partition], formatting, part_format_type[partition]))
-            if part_type[partition] == "SWAP":
+                               % (partition, partitioning_info["part_mount_point"][partition], formatting,
+                                  partitioning_info["part_format_type"][partition]))
+            if partitioning_info["part_type"][partition] == "SWAP":
                 print_sub_step(_("Swap partition : %s") % partition)
-            if part_type[partition] == "OTHER":
+            if partitioning_info["part_type"][partition] == "OTHER":
                 print_sub_step(_("Other partition : %s (mounting point : %s, format %s, format type %s)")
-                               % (partition, part_mount_point[partition], formatting, part_format_type[partition]))
-        if "SWAP" not in part_type.values() and swap_size is not None:
+                               % (partition, partitioning_info["part_mount_point"][partition], formatting,
+                                  partitioning_info["part_format_type"][partition]))
+        if "SWAP" not in partitioning_info["part_type"].values() and swap_size is not None:
             print_sub_step(_("Swapfile size : %s") % swap_size)
         user_answer = prompt_bool(_("Is the informations correct ? (y/N) : "), default=False)
         if not user_answer:
-            partitions.clear()
+            partitioning_info["partitions"].clear()
         else:
             os.system(f'echo -e "{auto_part_str}" | fdisk "{target_disk}" &>/dev/null')
-    return partitions, part_type, part_mount_point, part_format, part_format_type, root_partition, swapfile_size, main_disk
+    return partitioning_info
 
 
-def environment_config(detected_language: str):
+def environment_config(detected_language: str) -> {}:
     """
     The method to get environment configurations from the user.
     :param detected_language:
     :return:
     """
-    global_language = None
-    keymap = None
-    bios = None
+    pre_launch_info = {"global_language": None, "keymap": None, "bios": None}
     user_answer = False
     while not user_answer:
         print_step(_("Welcome to the archlinux-install script !"))
-        bios = not os.path.exists("/sys/firmware/efi")
-        if bios:
+        pre_launch_info["bios"] = not os.path.exists("/sys/firmware/efi")
+        if pre_launch_info["bios"]:
             print_error(
                 _("BIOS detected ! The script will act accordingly. Don't forget to select a DOS label type before partitioning."))
 
@@ -656,16 +652,17 @@ def environment_config(detected_language: str):
         print_sub_step(", ".join(supported_global_languages))
         print('')
         global_language_ok = False
-        global_language = None
-        keymap = None
+        pre_launch_info["global_language"] = None
+        pre_launch_info["keymap"] = None
         while not global_language_ok:
-            global_language = prompt_ln(
+            pre_launch_info["global_language"] = prompt_ln(
                 _("Choose your installation's language (%s) : ") % default_language,
                 default=default_language).upper()
-            if global_language in supported_global_languages:
+            if pre_launch_info["global_language"] in supported_global_languages:
                 global_language_ok = True
             else:
-                print_error(_("Global language '%s' is not supported.") % global_language, do_pause=False)
+                print_error(_("Global language '%s' is not supported.") % pre_launch_info["global_language"],
+                            do_pause=False)
                 continue
 
         if detected_language == "fr-FR":
@@ -675,21 +672,22 @@ def environment_config(detected_language: str):
 
         keymap_ok = False
         while not keymap_ok:
-            keymap = prompt_ln(_("Type your installation's keymap (%s) : ") % default_keymap, default=default_keymap)
-            if os.system(f'localectl list-keymaps | grep "^{keymap}$" &>/dev/null') == 0:
+            pre_launch_info["keymap"] = prompt_ln(_("Type your installation's keymap (%s) : ") % default_keymap,
+                                                  default=default_keymap)
+            if os.system(f'localectl list-keymaps | grep "^{pre_launch_info["keymap"]}$" &>/dev/null') == 0:
                 keymap_ok = True
             else:
-                print_error(_("Keymap %s doesn't exist.") % keymap)
+                print_error(_("Keymap %s doesn't exist.") % pre_launch_info["keymap"])
                 continue
 
         print_step(_("Summary of choices :"), clear=False)
-        print_sub_step(_("Your installation's language : %s") % global_language)
-        print_sub_step(_("Your installation's keymap : %s") % keymap)
+        print_sub_step(_("Your installation's language : %s") % pre_launch_info["global_language"])
+        print_sub_step(_("Your installation's keymap : %s") % pre_launch_info["keymap"])
         user_answer = prompt_bool(_("Is the informations correct ? (y/N) : "), default=False)
-    return bios, global_language, keymap
+    return pre_launch_info
 
 
-def ask_password(username: str = "root"):
+def ask_password(username: str = "root") -> str:
     """
     A method to ask a password to the user.
     :param username:
@@ -706,7 +704,7 @@ def ask_password(username: str = "root"):
     return password
 
 
-def system_config(detected_timezone):
+def system_config(detected_timezone) -> {}:
     """
     The method to get system configurations from the user.
     :param detected_timezone:
@@ -842,51 +840,56 @@ def format_partition(partition: str, format_type: str, mount_point: str, formatt
             os.system(f'mount "{partition}" "/mnt{mount_point}"')
 
 
-def main(bios, detected_country_code, detected_timezone, global_language, keymap):
+def main(pre_launch_info):
     """ The main method. """
-    system_info = system_config(detected_timezone)
+    system_info = system_config(pre_launch_info["detected_timezone"])
     system_info["btrfs_in_use"] = False
 
     print_step(_("Partitioning :"))
     want_auto_part = prompt_bool(_("Do you want an automatic partitioning ? (y/N) : "), default=False)
     if want_auto_part:
-        partitions, part_type, part_mount_point, part_format, part_format_type, root_partition, swapfile_size, main_disk = auto_partitioning(
-            bios)
+        partitioning_info = auto_partitioning(pre_launch_info["bios"])
     else:
-        partitions, part_type, part_mount_point, part_format, part_format_type, root_partition, swapfile_size, main_disk = manual_partitioning(
-            bios)
+        partitioning_info = manual_partitioning(
+            pre_launch_info["bios"])
 
     print_step(_("Formatting and mounting partitions..."), clear=False)
 
-    format_partition(root_partition, part_format_type[root_partition], part_mount_point[root_partition], True)
-    if part_format_type[root_partition] == "btrfs":
+    format_partition(partitioning_info["root_partition"],
+                     partitioning_info["part_format_type"][partitioning_info["root_partition"]],
+                     partitioning_info["part_mount_point"][partitioning_info["root_partition"]], True)
+    if partitioning_info["part_format_type"][partitioning_info["root_partition"]] == "btrfs":
         system_info["btrfs_in_use"] = True
 
-    for partition in partitions:
-        if part_format_type[partition] == "btrfs":
+    for partition in partitioning_info["partitions"]:
+        if partitioning_info["part_format_type"][partition] == "btrfs":
             system_info["btrfs_in_use"] = True
-        if not bios and part_type[partition] == "EFI":
-            format_partition(partition, part_format_type[partition], part_mount_point[partition],
-                             part_format.get(partition))
-        elif part_type[partition] == "HOME":
-            format_partition(partition, part_format_type[partition], part_mount_point[partition],
-                             part_format.get(partition))
-        elif part_type[partition] == "SWAP":
+        if not pre_launch_info["bios"] and partitioning_info["part_type"][partition] == "EFI":
+            format_partition(partition, partitioning_info["part_format_type"][partition],
+                             partitioning_info["part_mount_point"][partition],
+                             partitioning_info["part_format"].get(partition))
+        elif partitioning_info["part_type"][partition] == "HOME":
+            format_partition(partition, partitioning_info["part_format_type"][partition],
+                             partitioning_info["part_mount_point"][partition],
+                             partitioning_info["part_format"].get(partition))
+        elif partitioning_info["part_type"][partition] == "SWAP":
             os.system(f'mkswap "{partition}"')
             os.system(f'swapon "{partition}"')
-        elif part_type[partition] == "OTHER":
-            format_partition(partition, part_format_type[partition], part_mount_point[partition],
-                             part_format.get(partition))
+        elif partitioning_info["part_type"][partition] == "OTHER":
+            format_partition(partition, partitioning_info["part_format_type"][partition],
+                             partitioning_info["part_mount_point"][partition],
+                             partitioning_info["part_format"].get(partition))
 
     print_step(_("Updating mirrors..."), clear=False)
     os.system(
-        f'reflector --save /etc/pacman.d/mirrorlist --protocol https --age 12 --country "{detected_country_code}" --fastest 10 --threads $(nproc --all) --sort score')
+        f'reflector --save /etc/pacman.d/mirrorlist --protocol https --age 12 --country "{pre_launch_info["detected_country_code"]}" --fastest 10 --threads $(nproc --all) --sort score')
 
     print_step(_("Installation of the base..."), clear=False)
     pkgs = set()
     pkgs.update(["base", "base-devel", "linux-firmware", "man-db", "man-pages", "texinfo", "nano", "vim", "git", "curl",
-            "grub", "os-prober", "efibootmgr", "networkmanager", "xdg-user-dirs", "reflector", "numlockx", "net-tools",
-            "polkit"])
+                 "grub", "os-prober", "efibootmgr", "networkmanager", "xdg-user-dirs", "reflector", "numlockx",
+                 "net-tools",
+                 "polkit"])
     if system_info["btrfs_in_use"]:
         pkgs.add("btrfs-progs")
     if system_info["microcodes"] == "GenuineIntel":
@@ -905,10 +908,10 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
         pkgs.add("terminus-font")
     if system_info["desktop"] == "gnome":
         pkgs.add(["gnome", "gnome-extra", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "xdg-desktop-portal",
-                     "xdg-desktop-portal-gnome", "qt5-wayland"])
+                  "xdg-desktop-portal-gnome", "qt5-wayland"])
     elif system_info["desktop"] == "plasma":
         pkgs.add(["plasma", "kde-applications", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
-                     "xdg-desktop-portal", "xdg-desktop-portal-kde"])
+                  "xdg-desktop-portal", "xdg-desktop-portal-kde"])
         if system_info["plasma_wayland"]:
             pkgs.update(["plasma-wayland-session", "qt5-wayland"])
             if system_info["nvidia_driver"]:
@@ -972,14 +975,14 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
         pkgs.update(system_info["more_pkgs"])
     os.system(f'pacstrap /mnt {" ".join(pkgs)}')
 
-    if "SWAP" not in part_type.values() and swapfile_size is not None:
+    if "SWAP" not in partitioning_info["part_type"].values() and partitioning_info["swapfile_size"] is not None:
         print_step(_("Creation and activation of the swapfile..."), clear=False)
-        if part_format_type[root_partition] == "btrfs":
+        if partitioning_info["part_format_type"][partitioning_info["root_partition"]] == "btrfs":
             os.system(
                 "btrfs subvolume create /mnt/swap && cd /mnt/swap && truncate -s 0 ./swapfile && chattr +C ./swapfile && btrfs property set ./swapfile compression none && cd -")
         else:
             os.system("mkdir -p /mnt/swap")
-        os.system(f'fallocate -l "{swapfile_size}" /mnt/swap/swapfile')
+        os.system(f'fallocate -l "{partitioning_info["swapfile_size"]}" /mnt/swap/swapfile')
         os.system('chmod 600 /mnt/swap/swapfile')
         os.system('mkswap /mnt/swap/swapfile')
         os.system('swapon /mnt/swap/swapfile')
@@ -988,13 +991,13 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
     os.system('genfstab -U /mnt >>/mnt/etc/fstab')
     os.system('sed -i "s|#en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|g" /mnt/etc/locale.gen')
     os.system('sed -i "s|#en_US ISO-8859-1|en_US ISO-8859-1|g" /mnt/etc/locale.gen')
-    if global_language == "FR":
+    if pre_launch_info["global_language"] == "FR":
         os.system('sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /mnt/etc/locale.gen')
         os.system('sed -i "s|#fr_FR ISO-8859-1|fr_FR ISO-8859-1|g" /mnt/etc/locale.gen')
         os.system('echo "LANG=fr_FR.UTF-8" >/mnt/etc/locale.conf')
     else:
         os.system('echo "LANG=en_US.UTF-8" >/mnt/etc/locale.conf')
-    os.system(f'echo "KEYMAP={keymap}" >/mnt/etc/vconsole.conf')
+    os.system(f'echo "KEYMAP={pre_launch_info["keymap"]}" >/mnt/etc/vconsole.conf')
     if system_info["terminus_font"]:
         os.system('echo "FONT=ter-v16b" >>/mnt/etc/vconsole.conf')
     else:
@@ -1010,7 +1013,7 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
         }} >>/mnt/etc/hostname
     ''')
     os.system('sed -i "/^GRUB_CMDLINE_LINUX=.*/a GRUB_DISABLE_OS_PROBER=false" /mnt/etc/default/grub')
-    if part_format_type[root_partition] in {"ext4"}:
+    if partitioning_info["part_format_type"][partitioning_info["root_partition"]] in {"ext4"}:
         os.system('sed -i "s|GRUB_DEFAULT=.*|GRUB_DEFAULT=saved|g" /mnt/etc/default/grub')
         os.system('sed -i "/^GRUB_DEFAULT=.*/a GRUB_SAVEDEFAULT=true" /mnt/etc/default/grub')
 
@@ -1021,8 +1024,8 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
     os.system('arch-chroot /mnt bash -c "systemctl enable NetworkManager"')
     os.system('arch-chroot /mnt bash -c "systemctl enable systemd-timesyncd"')
     print_step(_("Installation and configuration of the grub..."), clear=False)
-    if bios:
-        os.system(f'arch-chroot /mnt bash -c "grub-install --target=i386-pc {main_disk}"')
+    if pre_launch_info["bios"]:
+        os.system(f'arch-chroot /mnt bash -c "grub-install --target=i386-pc {partitioning_info["main_disk"]}"')
     else:
         os.system(
             'arch-chroot /mnt bash -c "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=\'Arch Linux\'"')
@@ -1038,11 +1041,11 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
     if system_info["desktop"] in {"enlightenment", "i3", "sway"}:
         os.system('arch-chroot /mnt bash -c "systemctl enable acpid"')
     if system_info["desktop"] == "sway":
-        if "fr" in keymap:
+        if "fr" in pre_launch_info["keymap"]:
             os.system("echo 'XKB_DEFAULT_LAYOUT=fr' >> /mnt/etc/environment")
     if system_info["desktop"] != _("none"):
         os.system('arch-chroot /mnt bash -c "amixer sset Master unmute"')
-        if "fr" in keymap:
+        if "fr" in pre_launch_info["keymap"]:
             setup_chroot_keyboard("fr")
     if system_info["cups"]:
         os.system('arch-chroot /mnt bash -c "systemctl enable avahi-daemon"')
@@ -1076,7 +1079,7 @@ def main(bios, detected_country_code, detected_timezone, global_language, keymap
     print_step(_("Installation complete ! You can reboot your system."), clear=False)
 
 
-def pre_launch_steps():
+def pre_launch_steps() -> {}:
     """
     The method to proceed to the pre-launch steps
     :return:
@@ -1097,21 +1100,23 @@ def pre_launch_steps():
     detected_language = str(geoip_info["languages"]).split(",", maxsplit=1)[0]
     detected_timezone = geoip_info["timezone"]
     detected_country_code = geoip_info["country_code"]
-    bios, global_language, keymap = environment_config(detected_language)
-    locale_setup(keymap=keymap, global_language=global_language)
-    return bios, detected_country_code, detected_timezone, global_language, keymap
+    pre_launch_info = environment_config(detected_language)
+    pre_launch_info["detected_country_code"] = detected_country_code
+    pre_launch_info["detected_timezone"] = detected_timezone
+    locale_setup(keymap=pre_launch_info["keymap"], global_language=pre_launch_info["global_language"])
+    return pre_launch_info
 
 
 if __name__ == '__main__':
     _ = gettext.gettext
     try:
-        BIOS, DETECTED_COUNTRE_CODE, DETECTED_TIMEZONE, GLOBAL_LANGUAGE, KEYMAP = pre_launch_steps()
-        if GLOBAL_LANGUAGE != "EN":
+        PRE_LAUNCH_INFO = pre_launch_steps()
+        if PRE_LAUNCH_INFO["global_language"] != "EN":
             translation = gettext.translation('archlinux-install', localedir='/usr/share/locale',
-                                              languages=[GLOBAL_LANGUAGE.lower()])
+                                              languages=[PRE_LAUNCH_INFO["global_language"].lower()])
             translation.install()
             _ = translation.gettext
-        main(BIOS, DETECTED_COUNTRE_CODE, DETECTED_TIMEZONE, GLOBAL_LANGUAGE, KEYMAP)
+        main(PRE_LAUNCH_INFO)
     except KeyboardInterrupt:
         print_error(_("Script execution interrupted by the user !"), do_pause=False)
         umount_partitions()
