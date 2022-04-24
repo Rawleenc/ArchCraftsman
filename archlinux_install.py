@@ -261,6 +261,18 @@ def setup_chroot_keyboard(layout: str):
         keyboard_config_file.writelines(content)
 
 
+def configure_zram():
+    """
+    The method to configure zram generator.
+    """
+    content = [
+        "[zram0]\n",
+        "zram-size = ram / 2\n"
+    ]
+    with open("/mnt/etc/systemd/zram-generator.conf", "w", encoding="UTF-8") as zram_config_file:
+        zram_config_file.writelines(content)
+
+
 def ask_swapfile_size(disk: Disk) -> str:
     """
     The method to ask the user for the swapfile size.
@@ -743,6 +755,7 @@ def system_config(detected_timezone) -> {}:
         system_info["grml_zsh"] = prompt_bool(_("Install ZSH with GRML configuration ? (y/N) : "), default=False)
         system_info["main_fonts"] = prompt_bool(_("Install a set of main fonts ? (y/N) : "), default=False)
         system_info["main_file_systems"] = prompt_bool(_("Install main file systems support ? (y/N) : "), default=False)
+        system_info["zram"] = prompt_bool(_("Install and enable ZRAM ? (y/N) : "), default=False)
         default_timezone_file = f'/usr/share/zoneinfo/{detected_timezone}'
         system_info["timezone"] = prompt_ln(_("Your timezone (%s) : ") % default_timezone_file,
                                             default=default_timezone_file)
@@ -795,6 +808,8 @@ def system_config(detected_timezone) -> {}:
             print_sub_step(_("Install a set of main fonts."))
         if system_info["main_file_systems"]:
             print_sub_step(_("Install main file systems support."))
+        if system_info["zram"]:
+            print_sub_step(_("Install and enable ZRAM."))
         print_sub_step(_("Your timezone : %s") % system_info["timezone"])
         if system_info["user_name"] != "":
             print_sub_step(_("Additional user name : %s") % system_info["user_name"])
@@ -899,9 +914,9 @@ def main(pre_launch_info):
     if system_info["microcodes"] == "AuthenticAMD":
         pkgs.add("amd-ucode")
     if system_info["lts_kernel"]:
-        pkgs.add(["linux-lts", "linux-lts-headers"])
+        pkgs.update(["linux-lts", "linux-lts-headers"])
     else:
-        pkgs.add(["linux", "linux-headers"])
+        pkgs.update(["linux", "linux-headers"])
     if system_info["nvidia_driver"] and system_info["lts_kernel"]:
         pkgs.add("nvidia-lts")
     elif system_info["nvidia_driver"] and not system_info["lts_kernel"]:
@@ -909,10 +924,10 @@ def main(pre_launch_info):
     if system_info["terminus_font"]:
         pkgs.add("terminus-font")
     if system_info["desktop"] == "gnome":
-        pkgs.add(["gnome", "gnome-extra", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "xdg-desktop-portal",
+        pkgs.update(["gnome", "gnome-extra", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "xdg-desktop-portal",
                   "xdg-desktop-portal-gnome", "qt5-wayland"])
     elif system_info["desktop"] == "plasma":
-        pkgs.add(["plasma", "kde-applications", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
+        pkgs.update(["plasma", "kde-applications", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
                   "xdg-desktop-portal", "xdg-desktop-portal-kde"])
         if system_info["plasma_wayland"]:
             pkgs.update(["plasma-wayland-session", "qt5-wayland"])
@@ -973,6 +988,8 @@ def main(pre_launch_info):
         pkgs.update(
             ["btrfs-progs", "dosfstools", "exfatprogs", "f2fs-tools", "e2fsprogs", "jfsutils", "nilfs-utils",
              "ntfs-3g", "reiserfsprogs", "udftools", "xfsprogs"])
+    if system_info["zram"]:
+        pkgs.add("zram-generator")
     if len(system_info["more_pkgs"]) > 0:
         pkgs.update(system_info["more_pkgs"])
     os.system(f'pacstrap /mnt {" ".join(pkgs)}')
@@ -1053,6 +1070,8 @@ def main(pre_launch_info):
         os.system('arch-chroot /mnt bash -c "systemctl enable avahi-daemon"')
         os.system('arch-chroot /mnt bash -c "systemctl enable cups"')
         os.system('arch-chroot /mnt bash -c "systemctl enable cups-browsed"')
+    if system_info["zram"]:
+        configure_zram()
 
     print_step(_("Users configuration..."), clear=False)
     print_sub_step(_("root account configuration..."))
