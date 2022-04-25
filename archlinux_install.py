@@ -293,20 +293,28 @@ def ask_swapfile_size(disk: Disk) -> str:
     return swapfile_size
 
 
-def ask_format_type(supported_format_types: list) -> str:
+def get_default_format() -> str:
+    return "ext4"
+
+
+def get_supported_format_types() -> []:
+    return ["ext4", "btrfs"]
+
+
+def ask_format_type() -> str:
     """
     The method to ask the user for the format type.
     :return:
     """
-    default_format_type = "ext4"
+    default_format_type = get_default_format()
     format_type_ok = False
     format_type = None
     print_step(_("Supported format types : "), clear=False)
-    print_sub_step(", ".join(supported_format_types))
+    print_sub_step(", ".join(get_supported_format_types()))
     while not format_type_ok:
         format_type = prompt_ln(
             _("Which format type do you want ? (%s) : ") % default_format_type, default=default_format_type).lower()
-        if format_type in supported_format_types:
+        if format_type in get_supported_format_types():
             format_type_ok = True
         else:
             print_error(_("Format type '%s' is not supported.") % format_type, do_pause=False)
@@ -322,7 +330,6 @@ def manual_partitioning(bios: str) -> {}:
     """
     partitioning_info = {"partitions": [], "part_type": {}, "part_mount_point": {}, "part_format": {},
                          "part_format_type": {}, "root_partition": None, "swapfile_size": None, "main_disk": None}
-    supported_format_types = ["ext4", "btrfs"]
     user_answer = False
     partitioned_disks = set()
     while not user_answer:
@@ -366,7 +373,7 @@ def manual_partitioning(bios: str) -> {}:
             elif partition_type == "1":
                 partitioning_info["part_type"][partition] = "ROOT"
                 partitioning_info["part_mount_point"][partition] = "/"
-                partitioning_info["part_format_type"][partition] = ask_format_type(supported_format_types)
+                partitioning_info["part_format_type"][partition] = ask_format_type()
                 partitioning_info["root_partition"] = partition
                 main_disk_label = re.sub('\\s+', '', os.popen(f'lsblk -ndo PKNAME {partition}').read())
                 partitioning_info["main_disk"] = f'/dev/{main_disk_label}'
@@ -375,7 +382,7 @@ def manual_partitioning(bios: str) -> {}:
                 partitioning_info["part_mount_point"][partition] = "/home"
                 partitioning_info["part_format"][partition] = prompt_bool(_("Format the Home partition ? (Y/n) : "))
                 if partitioning_info["part_format"].get(partition):
-                    partitioning_info["part_format_type"][partition] = ask_format_type(supported_format_types)
+                    partitioning_info["part_format_type"][partition] = ask_format_type()
             elif partition_type == "3":
                 partitioning_info["part_type"][partition] = "SWAP"
             elif partition_type == "4":
@@ -387,7 +394,7 @@ def manual_partitioning(bios: str) -> {}:
                 partitioning_info["part_format"][partition] = prompt_bool(
                     _("Format the %s partition ? (Y/n) : ") % partition)
                 if partitioning_info["part_format"].get(partition):
-                    partitioning_info["part_format_type"][partition] = ask_format_type(supported_format_types)
+                    partitioning_info["part_format_type"][partition] = ask_format_type()
         if not bios and "EFI" not in partitioning_info["part_type"].values():
             print_error(_("The EFI partition is required for system installation."))
             partitioning_info["partitions"].clear()
@@ -481,6 +488,7 @@ def auto_partitioning(bios: str) -> {}:
         disk = Disk(target_disk)
         swap_type = prompt(_("What type of Swap do you want ? (1: Partition, other: File) : "))
         want_home = prompt_bool(_("Do you want a separated Home ? (y/N) : "), default=False)
+        part_format_type = ask_format_type()
         efi_partition = disk.get_efi_partition()
         if not bios and len(
                 disk.partitions) > 0 and efi_partition.path != "" and efi_partition.fs_type == "vfat" and disk.free_space > from_iec(
@@ -513,7 +521,7 @@ def auto_partitioning(bios: str) -> {}:
             partitioning_info["part_type"][partition] = "OTHER"
             partitioning_info["part_mount_point"][partition] = "/boot"
             partitioning_info["part_format"][partition] = True
-            partitioning_info["part_format_type"][partition] = "ext4"
+            partitioning_info["part_format_type"][partition] = part_format_type
             partitioning_info["partitions"].append(partition)
         else:
             if not want_dual_boot:
@@ -568,7 +576,7 @@ def auto_partitioning(bios: str) -> {}:
             partition = build_partition_name(target_disk, str(index))
             partitioning_info["part_type"][partition] = "ROOT"
             partitioning_info["part_mount_point"][partition] = "/"
-            partitioning_info["part_format_type"][partition] = "ext4"
+            partitioning_info["part_format_type"][partition] = part_format_type
             partitioning_info["root_partition"] = partition
             partitioning_info["partitions"].append(partition)
             # HOME
@@ -583,7 +591,7 @@ def auto_partitioning(bios: str) -> {}:
             partitioning_info["part_type"][partition] = "HOME"
             partitioning_info["part_mount_point"][partition] = "/home"
             partitioning_info["part_format"][partition] = True
-            partitioning_info["part_format_type"][partition] = "ext4"
+            partitioning_info["part_format_type"][partition] = part_format_type
             partitioning_info["partitions"].append(partition)
         else:
             # ROOT
@@ -597,7 +605,7 @@ def auto_partitioning(bios: str) -> {}:
             partition = build_partition_name(target_disk, str(index))
             partitioning_info["part_type"][partition] = "ROOT"
             partitioning_info["part_mount_point"][partition] = "/"
-            partitioning_info["part_format_type"][partition] = "ext4"
+            partitioning_info["part_format_type"][partition] = part_format_type
             partitioning_info["root_partition"] = partition
             partitioning_info["partitions"].append(partition)
         # WRITE
