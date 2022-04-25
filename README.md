@@ -50,7 +50,7 @@ Some informations will be gathered using your IP address with ipapi.co API in or
 - Country code, to propose a better mirror sorting
 - Timezone, to propose an adapted default value for the timezone
 
-Time will be synchronized using ntpd.
+Time will be synchronized using systemd timesyncd.
 
 Optionally an additional user, added to the wheel group and sudo configured to allow members of the wheel group.
 
