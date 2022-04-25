@@ -6,6 +6,20 @@
 [![main workflow](https://github.com/rawleenc/archlinux-install/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/rawleenc/archlinux-install/actions)
 [![dev workflow](https://github.com/rawleenc/archlinux-install/actions/workflows/main.yml/badge.svg?branch=dev)](https://github.com/rawleenc/archlinux-install/actions)
 
+# Usage
+
+### On the Arch Linux live iso :
+```bash
+python <(curl -L git.io/JXjXG)
+```
+
+If you wish to test the latest development version, you can run it with this command :
+```bash
+python <(curl -L git.io/JXFOn)
+```
+*However, this is absolutely not recommended for any other purpose than tests.*
+
+Answer the questions and let the magic happen ;)
 
 # Purpose
 
@@ -56,21 +70,6 @@ Some informations will be gathered using your IP address with ipapi.co API in or
 Time will be synchronized using ntpd.
 
 Optionally an additional user, added to the wheel group and sudo configured to allow members of the wheel group.
-
-# Usage
-
-### On the Arch Linux live iso :
-```bash
-python <(curl -L git.io/JXjXG)
-```
-
-If you wish to test the latest development version, you can run it with this command :
-```bash
-python <(curl -L git.io/JXFOn)
-```
-*However, this is absolutely not recommended for any other purpose than tests.*
-
-Answer the questions and let the magic happen ;)
 
 # Disclaimer
 
