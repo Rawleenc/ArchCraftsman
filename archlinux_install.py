@@ -1051,6 +1051,8 @@ def main(pre_launch_info):
     if partitioning_info["part_format_type"][partitioning_info["root_partition"]] in {"ext4"}:
         os.system('sed -i "s|GRUB_DEFAULT=.*|GRUB_DEFAULT=saved|g" /mnt/etc/default/grub')
         os.system('sed -i "/^GRUB_DEFAULT=.*/a GRUB_SAVEDEFAULT=true" /mnt/etc/default/grub')
+    if system_info["desktop"] in {"xfce", "cinnamon", "mate"}:
+        os.system('sed -i "s|#logind-check-graphical=false|logind-check-graphical=true|g" /')
 
     print_step(_("Locales configuration..."), clear=False)
     os.system(f'arch-chroot /mnt bash -c "ln -sf {system_info["timezone"]} /etc/localtime"')
