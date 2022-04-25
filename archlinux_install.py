@@ -294,10 +294,18 @@ def ask_swapfile_size(disk: Disk) -> str:
 
 
 def get_default_format() -> str:
+    """
+    The method to get the default format type.
+    :return:
+    """
     return "ext4"
 
 
 def get_supported_format_types() -> []:
+    """
+    The method to get all supported format types.
+    :return:
+    """
     return ["ext4", "btrfs"]
 
 
@@ -933,10 +941,10 @@ def main(pre_launch_info):
         pkgs.add("terminus-font")
     if system_info["desktop"] == "gnome":
         pkgs.update(["gnome", "gnome-extra", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "xdg-desktop-portal",
-                  "xdg-desktop-portal-gnome", "qt5-wayland"])
+                     "xdg-desktop-portal-gnome", "qt5-wayland"])
     elif system_info["desktop"] == "plasma":
         pkgs.update(["plasma", "kde-applications", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
-                  "xdg-desktop-portal", "xdg-desktop-portal-kde"])
+                     "xdg-desktop-portal", "xdg-desktop-portal-kde"])
         if system_info["plasma_wayland"]:
             pkgs.update(["plasma-wayland-session", "qt5-wayland"])
             if system_info["nvidia_driver"]:
