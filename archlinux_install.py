@@ -1009,7 +1009,11 @@ def main(pre_launch_info):
         pkgs.add("zram-generator")
     if len(system_info["more_pkgs"]) > 0:
         pkgs.update(system_info["more_pkgs"])
-    subprocess.run(f'pacstrap /mnt {" ".join(pkgs)}', shell=True)
+    try:
+        subprocess.run(f'pacstrap /mnt {" ".join(pkgs)}', shell=True, check=True)
+    except subprocess.CalledProcessError:
+        print_error(_("Pacstrap execution failed !"), do_pause=False)
+        umount_partitions()
 
     if "SWAP" not in partitioning_info["part_type"].values() and partitioning_info["swapfile_size"] is not None:
         print_step(_("Creation and activation of the swapfile..."), clear=False)
