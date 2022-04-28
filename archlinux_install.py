@@ -1008,7 +1008,7 @@ def main(pre_launch_info):
         pkgs.add("zram-generator")
     if len(system_info["more_pkgs"]) > 0:
         pkgs.update(system_info["more_pkgs"])
-    os.system(f'pacstrap /mnt {" ".join(pkgs)}')
+    os.system(f'yes | pacstrap /mnt {" ".join(pkgs)}')
 
     if "SWAP" not in partitioning_info["part_type"].values() and partitioning_info["swapfile_size"] is not None:
         print_step(_("Creation and activation of the swapfile..."), clear=False)
