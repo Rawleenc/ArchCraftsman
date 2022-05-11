@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2022-05-11 22:11+0200\n"
-"PO-Revision-Date: 2022-05-11 22:12+0200\n"
+"POT-Creation-Date: 2022-05-11 22:28+0200\n"
+"PO-Revision-Date: 2022-05-11 22:29+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -181,8 +181,8 @@ msgid "What type of Swap do you want ? (1: Partition, other: File) : "
 msgstr "Quel type de Swap voulez-vous ? (1: Partition, autre: Fichier) : "
 
 #: archlinux_install.py:499
-msgid "Do you want a separated Home ? (y/N) : "
-msgstr "Voulez-vous un Home séparé ? (o/N) : "
+msgid "Do you want a separated Home ? (Y/n) : "
+msgstr "Voulez-vous un Home séparé ? (O/n) : "
 
 #: archlinux_install.py:505
 msgid "Do you want to install Arch Linux next to other systems ? (Y/n) : "
@@ -431,11 +431,11 @@ msgstr "Installation de la base..."
 msgid "Installation of the remaining packages..."
 msgstr "Installation des paquets restants..."
 
-#: archlinux_install.py:1022
+#: archlinux_install.py:1024
 msgid "Creation and activation of the swapfile..."
 msgstr "Création et activation du fichier d'échange..."
 
-#: archlinux_install.py:1033
+#: archlinux_install.py:1035
 msgid "System configuration..."
 msgstr "Configuration du système..."
 
