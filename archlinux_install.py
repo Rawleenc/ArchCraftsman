@@ -1037,10 +1037,6 @@ def main(pre_launch_info):
             echo "127.0.1.1 {system_info["hostname"]}.localdomain {system_info["hostname"]}"
         }} >>/mnt/etc/hostname
     ''')
-    os.system('sed -i "/^GRUB_CMDLINE_LINUX=.*/a GRUB_DISABLE_OS_PROBER=false" /mnt/etc/default/grub')
-    if partitioning_info["part_format_type"][partitioning_info["root_partition"]] in {"ext4"}:
-        os.system('sed -i "s|GRUB_DEFAULT=.*|GRUB_DEFAULT=saved|g" /mnt/etc/default/grub')
-        os.system('sed -i "/^GRUB_DEFAULT=.*/a GRUB_SAVEDEFAULT=true" /mnt/etc/default/grub')
 
     print_step(_("Locales configuration..."), clear=False)
     os.system(f'arch-chroot /mnt bash -c "ln -sf {system_info["timezone"]} /etc/localtime"')
@@ -1066,6 +1062,7 @@ def main(pre_launch_info):
     print_step(_("Network configuration..."), clear=False)
     os.system('arch-chroot /mnt bash -c "systemctl enable NetworkManager"')
     os.system('arch-chroot /mnt bash -c "systemctl enable systemd-timesyncd"')
+
     print_step(_("Installation and configuration of the grub..."), clear=False)
     if pre_launch_info["bios"]:
         os.system(f'arch-chroot /mnt bash -c "grub-install --target=i386-pc {partitioning_info["main_disk"]}"')
@@ -1073,6 +1070,10 @@ def main(pre_launch_info):
         os.system(
             'arch-chroot /mnt bash -c "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=\'Arch Linux\'"')
     os.system('arch-chroot /mnt bash -c "grub-mkconfig -o /boot/grub/grub.cfg"')
+    os.system('sed -i "/^GRUB_CMDLINE_LINUX=.*/a GRUB_DISABLE_OS_PROBER=false" /mnt/etc/default/grub')
+    if partitioning_info["part_format_type"][partitioning_info["root_partition"]] in {"ext4"}:
+        os.system('sed -i "s|GRUB_DEFAULT=.*|GRUB_DEFAULT=saved|g" /mnt/etc/default/grub')
+        os.system('sed -i "/^GRUB_DEFAULT=.*/a GRUB_SAVEDEFAULT=true" /mnt/etc/default/grub')
 
     print_step(_("Extra packages configuration if needed..."), clear=False)
     if system_info["desktop"] in {"gnome", "budgie"}:
