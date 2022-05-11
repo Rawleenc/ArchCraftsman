@@ -916,16 +916,12 @@ def main(pre_launch_info):
     os.system(
         f'reflector --save /etc/pacman.d/mirrorlist --protocol https --age 12 --country "{pre_launch_info["detected_country_code"]}" --fastest 10 --threads $(nproc --all) --sort score')
 
-    print_step(_("Installation of the base..."), clear=False)
-
     base_pkgs = set()
     base_pkgs.update(["base", "base-devel", "linux-firmware"])
     if system_info["lts_kernel"]:
         base_pkgs.update(["linux-lts", "linux-lts-headers"])
     else:
         base_pkgs.update(["linux", "linux-headers"])
-
-    print_step(_("Installation of the remaining packages..."), clear=False)
 
     pkgs = set()
     pkgs.update(["man-db", "man-pages", "texinfo", "nano", "vim", "git", "curl", "grub", "os-prober", "efibootmgr",
@@ -1015,22 +1011,8 @@ def main(pre_launch_info):
     if len(system_info["more_pkgs"]) > 0:
         pkgs.update(system_info["more_pkgs"])
 
+    print_step(_("Installation of the base..."), clear=False)
     subprocess.run(f'pacstrap /mnt {" ".join(base_pkgs)}', shell=True, check=True)
-    os.system('sed -i "s|#Color|Color|g" /mnt/etc/pacman.conf')
-    os.system('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5|g" /mnt/etc/pacman.conf')
-    subprocess.run(f'arch-chroot /mnt bash -c "pacman --noconfirm -S {" ".join(pkgs)}"', shell=True, check=True)
-
-    if "SWAP" not in partitioning_info["part_type"].values() and partitioning_info["swapfile_size"] is not None:
-        print_step(_("Creation and activation of the swapfile..."), clear=False)
-        if partitioning_info["part_format_type"][partitioning_info["root_partition"]] == "btrfs":
-            os.system(
-                "btrfs subvolume create /mnt/swap && cd /mnt/swap && truncate -s 0 ./swapfile && chattr +C ./swapfile && btrfs property set ./swapfile compression none && cd -")
-        else:
-            os.system("mkdir -p /mnt/swap")
-        os.system(f'fallocate -l "{partitioning_info["swapfile_size"]}" /mnt/swap/swapfile')
-        os.system('chmod 600 /mnt/swap/swapfile')
-        os.system('mkswap /mnt/swap/swapfile')
-        os.system('swapon /mnt/swap/swapfile')
 
     print_step(_("System configuration..."), clear=False)
     os.system('genfstab -U /mnt >>/mnt/etc/fstab')
@@ -1059,13 +1041,28 @@ def main(pre_launch_info):
     if partitioning_info["part_format_type"][partitioning_info["root_partition"]] in {"ext4"}:
         os.system('sed -i "s|GRUB_DEFAULT=.*|GRUB_DEFAULT=saved|g" /mnt/etc/default/grub')
         os.system('sed -i "/^GRUB_DEFAULT=.*/a GRUB_SAVEDEFAULT=true" /mnt/etc/default/grub')
-    if system_info["desktop"] in {"xfce", "cinnamon", "mate"}:
-        os.system(
-            'sed -i "s|#logind-check-graphical=false|logind-check-graphical=true|g" /mnt/etc/lightdm/lightdm.conf')
 
     print_step(_("Locales configuration..."), clear=False)
     os.system(f'arch-chroot /mnt bash -c "ln -sf {system_info["timezone"]} /etc/localtime"')
     os.system('arch-chroot /mnt bash -c "locale-gen"')
+
+    print_step(_("Installation of the remaining packages..."), clear=False)
+    os.system('sed -i "s|#Color|Color|g" /mnt/etc/pacman.conf')
+    os.system('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5|g" /mnt/etc/pacman.conf')
+    subprocess.run(f'arch-chroot /mnt bash -c "pacman --noconfirm -S {" ".join(pkgs)}"', shell=True, check=True)
+
+    if "SWAP" not in partitioning_info["part_type"].values() and partitioning_info["swapfile_size"] is not None:
+        print_step(_("Creation and activation of the swapfile..."), clear=False)
+        if partitioning_info["part_format_type"][partitioning_info["root_partition"]] == "btrfs":
+            os.system(
+                "btrfs subvolume create /mnt/swap && cd /mnt/swap && truncate -s 0 ./swapfile && chattr +C ./swapfile && btrfs property set ./swapfile compression none && cd -")
+        else:
+            os.system("mkdir -p /mnt/swap")
+        os.system(f'fallocate -l "{partitioning_info["swapfile_size"]}" /mnt/swap/swapfile')
+        os.system('chmod 600 /mnt/swap/swapfile')
+        os.system('mkswap /mnt/swap/swapfile')
+        os.system('swapon /mnt/swap/swapfile')
+
     print_step(_("Network configuration..."), clear=False)
     os.system('arch-chroot /mnt bash -c "systemctl enable NetworkManager"')
     os.system('arch-chroot /mnt bash -c "systemctl enable systemd-timesyncd"')
@@ -1089,6 +1086,9 @@ def main(pre_launch_info):
     if system_info["desktop"] == "sway":
         if "fr" in pre_launch_info["keymap"]:
             os.system("echo 'XKB_DEFAULT_LAYOUT=fr' >> /mnt/etc/environment")
+    if system_info["desktop"] in {"xfce", "cinnamon", "mate"}:
+        os.system(
+            'sed -i "s|#logind-check-graphical=false|logind-check-graphical=true|g" /mnt/etc/lightdm/lightdm.conf')
     if system_info["desktop"] != _("none"):
         os.system('arch-chroot /mnt bash -c "amixer sset Master unmute"')
         if "fr" in pre_launch_info["keymap"]:
