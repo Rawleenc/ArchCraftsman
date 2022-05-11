@@ -1016,6 +1016,8 @@ def main(pre_launch_info):
         pkgs.update(system_info["more_pkgs"])
 
     subprocess.run(f'pacstrap /mnt {" ".join(base_pkgs)}', shell=True, check=True)
+    os.system('sed -i "s|#Color|Color|g" /mnt/etc/pacman.conf')
+    os.system('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5|g" /mnt/etc/pacman.conf')
     subprocess.run(f'arch-chroot /mnt bash -c "pacman --noconfirm -S {" ".join(pkgs)}"', shell=True, check=True)
 
     if "SWAP" not in partitioning_info["part_type"].values() and partitioning_info["swapfile_size"] is not None:
@@ -1045,8 +1047,6 @@ def main(pre_launch_info):
         os.system('echo "FONT=ter-v16b" >>/mnt/etc/vconsole.conf')
     else:
         os.system('echo "FONT=eurlatgr" >>/mnt/etc/vconsole.conf')
-    os.system('sed -i "s|#Color|Color|g" /mnt/etc/pacman.conf')
-    os.system('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5|g" /mnt/etc/pacman.conf')
     os.system(f'echo "{system_info["hostname"]}" >/mnt/etc/hostname')
     os.system(f'''
         {{
