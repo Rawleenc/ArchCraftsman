@@ -917,10 +917,19 @@ def main(pre_launch_info):
         f'reflector --save /etc/pacman.d/mirrorlist --protocol https --age 12 --country "{pre_launch_info["detected_country_code"]}" --fastest 10 --threads $(nproc --all) --sort score')
 
     print_step(_("Installation of the base..."), clear=False)
+
+    base_pkgs = set()
+    base_pkgs.update(["base", "base-devel", "linux-firmware"])
+    if system_info["lts_kernel"]:
+        base_pkgs.update(["linux-lts", "linux-lts-headers"])
+    else:
+        base_pkgs.update(["linux", "linux-headers"])
+
+    print_step(_("Installation of the remaining packages..."), clear=False)
+
     pkgs = set()
-    pkgs.update(["base", "base-devel", "linux-firmware", "man-db", "man-pages", "texinfo", "nano", "vim", "git", "curl",
-                 "grub", "os-prober", "efibootmgr", "networkmanager", "xdg-user-dirs", "reflector", "numlockx",
-                 "net-tools", "polkit", "pacman-contrib"])
+    pkgs.update(["man-db", "man-pages", "texinfo", "nano", "vim", "git", "curl", "grub", "os-prober", "efibootmgr",
+                 "networkmanager", "xdg-user-dirs", "reflector", "numlockx", "net-tools", "polkit", "pacman-contrib"])
     if pre_launch_info["global_language"].lower() != "en" and os.system(
             f"pacman -Si man-pages-{pre_launch_info['global_language'].lower()} &>/dev/null") == 0:
         pkgs.add(f"man-pages-{pre_launch_info['global_language'].lower()}")
@@ -930,10 +939,6 @@ def main(pre_launch_info):
         pkgs.add("intel-ucode")
     if system_info["microcodes"] == "AuthenticAMD":
         pkgs.add("amd-ucode")
-    if system_info["lts_kernel"]:
-        pkgs.update(["linux-lts", "linux-lts-headers"])
-    else:
-        pkgs.update(["linux", "linux-headers"])
     if system_info["nvidia_driver"] and system_info["lts_kernel"]:
         pkgs.add("nvidia-lts")
     elif system_info["nvidia_driver"] and not system_info["lts_kernel"]:
@@ -1009,7 +1014,9 @@ def main(pre_launch_info):
         pkgs.add("zram-generator")
     if len(system_info["more_pkgs"]) > 0:
         pkgs.update(system_info["more_pkgs"])
-    subprocess.run(f'pacstrap /mnt {" ".join(pkgs)}', shell=True, check=True)
+
+    subprocess.run(f'pacstrap /mnt {" ".join(base_pkgs)}', shell=True, check=True)
+    subprocess.run(f'arch-chroot /mnt bash -c "pacman --noconfirm -S {" ".join(pkgs)}"', shell=True, check=True)
 
     if "SWAP" not in partitioning_info["part_type"].values() and partitioning_info["swapfile_size"] is not None:
         print_step(_("Creation and activation of the swapfile..."), clear=False)
