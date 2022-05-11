@@ -1037,6 +1037,7 @@ def main(pre_launch_info):
             echo "127.0.1.1 {system_info["hostname"]}.localdomain {system_info["hostname"]}"
         }} >>/mnt/etc/hostname
     ''')
+    os.system('cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist')
 
     print_step(_("Locales configuration..."), clear=False)
     os.system(f'arch-chroot /mnt bash -c "ln -sf {system_info["timezone"]} /etc/localtime"')
