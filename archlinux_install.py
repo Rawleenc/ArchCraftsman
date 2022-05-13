@@ -1015,7 +1015,6 @@ def main(pre_launch_info):
     subprocess.run(f'pacstrap /mnt {" ".join(base_pkgs)}', shell=True, check=True)
 
     print_step(_("System configuration..."), clear=False)
-    os.system('genfstab -U /mnt >>/mnt/etc/fstab')
     os.system('sed -i "s|#en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|g" /mnt/etc/locale.gen')
     os.system('sed -i "s|#en_US ISO-8859-1|en_US ISO-8859-1|g" /mnt/etc/locale.gen')
     if pre_launch_info["global_language"] == "FR":
@@ -1059,6 +1058,9 @@ def main(pre_launch_info):
         os.system('chmod 600 /mnt/swap/swapfile')
         os.system('mkswap /mnt/swap/swapfile')
         os.system('swapon /mnt/swap/swapfile')
+
+    print_step(_("Generating fstab..."), clear=False)
+    os.system('genfstab -U /mnt >>/mnt/etc/fstab')
 
     print_step(_("Network configuration..."), clear=False)
     os.system('arch-chroot /mnt bash -c "systemctl enable NetworkManager"')

@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2022-05-11 22:28+0200\n"
-"PO-Revision-Date: 2022-05-11 22:29+0200\n"
+"POT-Creation-Date: 2022-05-13 20:25+0200\n"
+"PO-Revision-Date: 2022-05-13 20:26+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -248,7 +248,7 @@ msgstr "Saisissez à nouveau le mot de passe de %s pour confirmer : "
 msgid "Passwords entered don't match."
 msgstr "Les mots de passe saisis ne correspondent pas."
 
-#: archlinux_install.py:745 archlinux_install.py:759 archlinux_install.py:1092
+#: archlinux_install.py:745 archlinux_install.py:759 archlinux_install.py:1096
 msgid "none"
 msgstr "aucun"
 
@@ -423,75 +423,79 @@ msgstr "Démontage des partitions..."
 msgid "Updating mirrors..."
 msgstr "Mise à jour des miroirs..."
 
-#: archlinux_install.py:919
+#: archlinux_install.py:1014
 msgid "Installation of the base..."
 msgstr "Installation de la base..."
 
-#: archlinux_install.py:928
-msgid "Installation of the remaining packages..."
-msgstr "Installation des paquets restants..."
-
-#: archlinux_install.py:1024
-msgid "Creation and activation of the swapfile..."
-msgstr "Création et activation du fichier d'échange..."
-
-#: archlinux_install.py:1035
+#: archlinux_install.py:1017
 msgid "System configuration..."
 msgstr "Configuration du système..."
 
-#: archlinux_install.py:1066
+#: archlinux_install.py:1041
 msgid "Locales configuration..."
 msgstr "Configuration des locales..."
 
-#: archlinux_install.py:1069
+#: archlinux_install.py:1045
+msgid "Installation of the remaining packages..."
+msgstr "Installation des paquets restants..."
+
+#: archlinux_install.py:1051
+msgid "Creation and activation of the swapfile..."
+msgstr "Création et activation du fichier d'échange..."
+
+#: archlinux_install.py:1062
+msgid "Generating fstab..."
+msgstr "Génération du fstab..."
+
+#: archlinux_install.py:1065
 msgid "Network configuration..."
 msgstr "Configuration du réseau..."
 
-#: archlinux_install.py:1072
+#: archlinux_install.py:1069
 msgid "Installation and configuration of the grub..."
 msgstr "Installation et configuration du grub..."
 
-#: archlinux_install.py:1080
+#: archlinux_install.py:1081
 msgid "Extra packages configuration if needed..."
 msgstr "Configuration de paquets supplémentaires si nécessaire..."
 
-#: archlinux_install.py:1103
+#: archlinux_install.py:1107
 msgid "Users configuration..."
 msgstr "Configuration des utilisateurs..."
 
-#: archlinux_install.py:1104
+#: archlinux_install.py:1108
 msgid "root account configuration..."
 msgstr "Configuration du compte root..."
 
-#: archlinux_install.py:1110
+#: archlinux_install.py:1114
 msgid "%s account configuration..."
 msgstr "Configuration du compte %s..."
 
-#: archlinux_install.py:1127
+#: archlinux_install.py:1131
 msgid "Installation complete ! You can reboot your system."
 msgstr "L'installation est terminée ! Vous pouvez redémarrer votre système."
 
-#: archlinux_install.py:1135
+#: archlinux_install.py:1139
 msgid "Running pre-launch steps : "
 msgstr "Exécution des étapes de pré-lancement : "
 
-#: archlinux_install.py:1138
+#: archlinux_install.py:1142
 msgid "Synchronising repositories..."
 msgstr "Synchronisation des dépôts..."
 
-#: archlinux_install.py:1140
+#: archlinux_install.py:1144
 msgid "Downloading and formatting translations..."
 msgstr "Téléchargement et formatage des traductions..."
 
-#: archlinux_install.py:1145
+#: archlinux_install.py:1149
 msgid "Querying IP geolocation informations..."
 msgstr "Interrogation des informations de géolocalisation IP..."
 
-#: archlinux_install.py:1169
+#: archlinux_install.py:1173
 msgid "Script execution interrupted by the user !"
 msgstr "Exécution du script interrompue par l'utilisateur !"
 
-#: archlinux_install.py:1172
+#: archlinux_install.py:1176
 msgid "A subprocess execution failed !"
 msgstr "L'exécution d'un sous-processus a échoué !"
 
