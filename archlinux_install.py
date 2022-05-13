@@ -234,7 +234,10 @@ def locale_setup(keymap: str = "de-latin1", global_language: str = "EN"):
     """
     print_step(_("Configuring live environment..."), clear=False)
     os.system(f'loadkeys "{keymap}"')
-    os.system('setfont eurlatgr')
+    os.system('setfont ter-v16b')
+    dimensions = os.popen('stty size').read().split(" ")
+    if dimensions is not None and len(dimensions) > 0 and int(dimensions[0]) >= 80:
+        os.system('setfont ter-v32b')
     if global_language == "FR":
         os.system('sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /etc/locale.gen')
         os.system('locale-gen')
