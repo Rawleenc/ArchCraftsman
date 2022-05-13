@@ -226,17 +226,20 @@ def pause(start_newline: bool = False, end_newline: bool = False):
         print("")
 
 
-def locale_setup(keymap: str = "de-latin1", global_language: str = "EN"):
+def locale_setup(keymap: str = "de-latin1", global_language: str = "EN") -> str:
     """
     The method to setup environment locale.
     :param keymap:
     :param global_language:
+    :return: The configured live system console font (terminus 16 or 32)
     """
     print_step(_("Configuring live environment..."), clear=False)
     os.system(f'loadkeys "{keymap}"')
+    font = 'ter-v16b'
     os.system('setfont ter-v16b')
     dimensions = os.popen('stty size').read().split(" ")
     if dimensions is not None and len(dimensions) > 0 and int(dimensions[0]) >= 80:
+        font = 'ter-v32b'
         os.system('setfont ter-v32b')
     if global_language == "FR":
         os.system('sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /etc/locale.gen')
@@ -246,6 +249,7 @@ def locale_setup(keymap: str = "de-latin1", global_language: str = "EN"):
     else:
         os.putenv('LANG', 'en_US.UTF-8')
         os.putenv('LANGUAGE', 'en_US.UTF-8')
+    return font
 
 
 def setup_chroot_keyboard(layout: str):
@@ -1028,7 +1032,7 @@ def main(pre_launch_info):
         os.system('echo "LANG=en_US.UTF-8" >/mnt/etc/locale.conf')
     os.system(f'echo "KEYMAP={pre_launch_info["keymap"]}" >/mnt/etc/vconsole.conf')
     if system_info["terminus_font"]:
-        os.system('echo "FONT=ter-v16b" >>/mnt/etc/vconsole.conf')
+        os.system(f'echo "FONT={pre_launch_info["live_console_font"]}" >>/mnt/etc/vconsole.conf')
     else:
         os.system('echo "FONT=eurlatgr" >>/mnt/etc/vconsole.conf')
     os.system(f'echo "{system_info["hostname"]}" >/mnt/etc/hostname')
@@ -1158,7 +1162,8 @@ def pre_launch_steps() -> {}:
     pre_launch_info = environment_config(detected_language)
     pre_launch_info["detected_country_code"] = detected_country_code
     pre_launch_info["detected_timezone"] = detected_timezone
-    locale_setup(keymap=pre_launch_info["keymap"], global_language=pre_launch_info["global_language"])
+    pre_launch_info["live_console_font"] = locale_setup(keymap=pre_launch_info["keymap"],
+                                                        global_language=pre_launch_info["global_language"])
     return pre_launch_info
 
 
