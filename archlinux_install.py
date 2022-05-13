@@ -1033,8 +1033,6 @@ def main(pre_launch_info):
     os.system(f'echo "KEYMAP={pre_launch_info["keymap"]}" >/mnt/etc/vconsole.conf')
     if system_info["terminus_font"]:
         os.system(f'echo "FONT={pre_launch_info["live_console_font"]}" >>/mnt/etc/vconsole.conf')
-    else:
-        os.system('echo "FONT=eurlatgr" >>/mnt/etc/vconsole.conf')
     os.system(f'echo "{system_info["hostname"]}" >/mnt/etc/hostname')
     os.system(f'''
         {{
