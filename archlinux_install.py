@@ -291,10 +291,13 @@ def ask_swapfile_size(disk: Disk) -> str:
     swapfile_size_pattern = re.compile("^([0-9]*[.,][0-9][0-9]*|[0-9][0-9]*)([GMk])$")
     default_swapfile_size = to_iec(int(disk.total / 32))
     while not swapfile_ok:
-        swapfile_size = prompt(_("Swapfile size ? (%s) : ") % default_swapfile_size)
+        swapfile_size = prompt(_("Swapfile size ? (%s, type '0' for none) : ") % default_swapfile_size)
         if swapfile_size is None or swapfile_size == "":
             swapfile_size = default_swapfile_size
-        if swapfile_size_pattern.match(swapfile_size):
+        if swapfile_size == "0":
+            swapfile_size = None
+            swapfile_ok = True
+        elif swapfile_size_pattern.match(swapfile_size):
             swapfile_ok = True
         else:
             print_error("Invalid swapfile size.")
