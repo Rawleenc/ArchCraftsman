@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2022-05-18 22:15+0200\n"
-"PO-Revision-Date: 2022-05-18 22:16+0200\n"
+"POT-Creation-Date: 2022-05-18 22:42+0200\n"
+"PO-Revision-Date: 2022-05-18 22:44+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -359,7 +359,7 @@ msgstr "Installer le noyau Linux LTS."
 
 #: archlinux_install.py:829
 msgid "Install proprietary Nvidia driver."
-msgstr "Installez le pilote propriétaire Nvidia."
+msgstr "Installer le pilote propriétaire Nvidia."
 
 #: archlinux_install.py:831
 msgid "Install terminus console font."
@@ -372,7 +372,7 @@ msgstr "Environnement de bureau : %s"
 #: archlinux_install.py:834
 msgid "Install a minimal environment (no extra packages, only base)."
 msgstr ""
-"Installez un environnement minimal (pas de paquets supplémentaires, "
+"Installer un environnement minimal (pas de paquets supplémentaires, "
 "seulement la base)."
 
 #: archlinux_install.py:836
@@ -381,7 +381,7 @@ msgstr "Installer le support Wayland pour la session plasma."
 
 #: archlinux_install.py:838
 msgid "Install Cups."
-msgstr "Installez Cups."
+msgstr "Installer Cups."
 
 #: archlinux_install.py:840
 msgid "Install ZSH with GRML configuration."
@@ -389,7 +389,7 @@ msgstr "Installer ZSH avec la configuration GRML."
 
 #: archlinux_install.py:842
 msgid "Install a set of main fonts."
-msgstr "Installez un ensemble de polices principales."
+msgstr "Installer un ensemble de polices principales."
 
 #: archlinux_install.py:844
 msgid "Install main file systems support."
@@ -518,10 +518,10 @@ msgstr "L'exécution d'un sous-processus a échoué !"
 #~ msgstr "Installer LightDM ? (o/N) : "
 
 #~ msgid "Install GDM."
-#~ msgstr "Installez GDM."
+#~ msgstr "Installer GDM."
 
 #~ msgid "Install LightDM."
-#~ msgstr "Installez LightDM."
+#~ msgstr "Installer LightDM."
 
 #~ msgid ""
 #~ "Choose your installation's language (%s, type 'h' or 'help' to list "
