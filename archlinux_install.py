@@ -1069,7 +1069,7 @@ def main(pre_launch_info):
 
     print_step(_("Installation of the remaining packages..."), clear=False)
     os.system('sed -i "s|#Color|Color|g" /mnt/etc/pacman.conf')
-    os.system('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\nDisableDownloadTimeout|g" /mnt/etc/pacman.conf')
+    os.system('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /mnt/etc/pacman.conf')
     subprocess.run(f'arch-chroot /mnt bash -c "pacman --noconfirm -S {" ".join(pkgs)}"', shell=True, check=True)
 
     if "SWAP" not in partitioning_info["part_type"].values() and partitioning_info["swapfile_size"] is not None:
@@ -1163,7 +1163,7 @@ def pre_launch_steps() -> {}:
     """
     print_step(_("Running pre-launch steps : "), clear=False)
     os.system('sed -i "s|#Color|Color|g" /etc/pacman.conf')
-    os.system('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\nDisableDownloadTimeout|g" /etc/pacman.conf')
+    os.system('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /etc/pacman.conf')
     print_sub_step(_("Synchronising repositories..."))
     os.system("pacman -Sy &>/dev/null")
     print_sub_step(_("Downloading and formatting translations..."))
