@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2022-05-18 21:14+0200\n"
-"PO-Revision-Date: 2022-05-18 21:15+0200\n"
+"POT-Creation-Date: 2022-05-18 22:15+0200\n"
+"PO-Revision-Date: 2022-05-18 22:16+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -114,7 +114,7 @@ msgid "The Root partition is required for system installation."
 msgstr "La partition Root est nécessaire pour l'installation du système."
 
 #: archlinux_install.py:429 archlinux_install.py:633 archlinux_install.py:722
-#: archlinux_install.py:817
+#: archlinux_install.py:822
 msgid "Summary of choices :"
 msgstr "Résumé des choix :"
 
@@ -156,7 +156,7 @@ msgid "Swapfile size : %s"
 msgstr "Taille du fichier d'échange : %s"
 
 #: archlinux_install.py:455 archlinux_install.py:659 archlinux_install.py:725
-#: archlinux_install.py:847
+#: archlinux_install.py:854
 msgid "Is the informations correct ? (y/N) : "
 msgstr "Les informations sont-elles correctes ? (o/N) : "
 
@@ -248,7 +248,7 @@ msgstr "Saisissez à nouveau le mot de passe de %s pour confirmer : "
 msgid "Passwords entered don't match."
 msgstr "Les mots de passe saisis ne correspondent pas."
 
-#: archlinux_install.py:755 archlinux_install.py:769 archlinux_install.py:1104
+#: archlinux_install.py:755 archlinux_install.py:769 archlinux_install.py:1121
 msgid "none"
 msgstr "aucun"
 
@@ -285,40 +285,46 @@ msgid "Desktop environment '%s' is not supported."
 msgstr "L'environnement de bureau '%s' n'est pas pris en charge."
 
 #: archlinux_install.py:779
+msgid "Install a minimal environment (no extra packages, only base) ? (y/N) : "
+msgstr ""
+"Installer un environnement minimal (pas de paquets supplémentaires, "
+"seulement la base) ? (o/N) : "
+
+#: archlinux_install.py:784
 msgid "Install Wayland support for the plasma session ? (y/N) : "
 msgstr "Installer le support Wayland pour la session plasma ? (o/N) : "
 
-#: archlinux_install.py:781
+#: archlinux_install.py:786
 msgid "Install Cups ? (y/N) : "
 msgstr "Installer Cups ? (o/N) : "
 
-#: archlinux_install.py:782
+#: archlinux_install.py:787
 msgid "Install ZSH with GRML configuration ? (y/N) : "
 msgstr "Installer ZSH avec la configuration GRML ? (o/N) : "
 
-#: archlinux_install.py:783
+#: archlinux_install.py:788
 msgid "Install a set of main fonts ? (y/N) : "
 msgstr "Installer un jeu de polices principales ? (o/N) : "
 
-#: archlinux_install.py:784
+#: archlinux_install.py:789
 msgid "Install main file systems support ? (y/N) : "
 msgstr "Installer le support des systèmes de fichiers principaux ? (o/N) : "
 
-#: archlinux_install.py:785
+#: archlinux_install.py:790
 msgid "Install and enable ZRAM ? (y/N) : "
 msgstr "Installer et activer ZRAM ? (o/N) : "
 
-#: archlinux_install.py:787
+#: archlinux_install.py:792
 msgid "Your timezone (%s) : "
 msgstr "Votre fuseau horaire (%s) : "
 
-#: archlinux_install.py:789
+#: archlinux_install.py:794
 msgid "Would you like to add a user? (type username, leave blank if none) : "
 msgstr ""
 "Voulez-vous ajouter un utilisateur ? (tapez le nom d'utilisateur, laissez "
 "vide si vous n'en avez pas) : "
 
-#: archlinux_install.py:793
+#: archlinux_install.py:798
 msgid ""
 "What is the %s's full name (type the entire full name, leave blank if "
 "none) : "
@@ -326,7 +332,7 @@ msgstr ""
 "Quel est le nom complet de %s (tapez le nom complet, laissez un blanc si "
 "vous n'en avez pas) : "
 
-#: archlinux_install.py:800
+#: archlinux_install.py:805
 msgid ""
 "Install more packages ? (type extra packages full names, example : 'htop "
 "neofetch', leave blank if none) : "
@@ -335,167 +341,173 @@ msgstr ""
 "supplémentaires, exemple : 'htop neofetch', laissez vide si vous n'en avez "
 "pas) : "
 
-#: archlinux_install.py:806
+#: archlinux_install.py:811
 msgid "Package %s doesn't exist."
 msgstr "Le paquet %s n'existe pas."
 
-#: archlinux_install.py:818
+#: archlinux_install.py:823
 msgid "Your hostname : %s"
 msgstr "Votre nom d'hôte : %s"
 
-#: archlinux_install.py:820
+#: archlinux_install.py:825
 msgid "Microcodes to install : %s"
 msgstr "Microcodes à installer : %s"
 
-#: archlinux_install.py:822
+#: archlinux_install.py:827
 msgid "Install LTS Linux kernel."
 msgstr "Installer le noyau Linux LTS."
 
-#: archlinux_install.py:824
+#: archlinux_install.py:829
 msgid "Install proprietary Nvidia driver."
 msgstr "Installez le pilote propriétaire Nvidia."
 
-#: archlinux_install.py:826
+#: archlinux_install.py:831
 msgid "Install terminus console font."
 msgstr "Installer la police de la console Terminus."
 
-#: archlinux_install.py:827
+#: archlinux_install.py:832
 msgid "Desktop environment : %s"
 msgstr "Environnement de bureau : %s"
 
-#: archlinux_install.py:829
+#: archlinux_install.py:834
+msgid "Install a minimal environment (no extra packages, only base)."
+msgstr ""
+"Installez un environnement minimal (pas de paquets supplémentaires, "
+"seulement la base)."
+
+#: archlinux_install.py:836
 msgid "Install Wayland support for the plasma session."
 msgstr "Installer le support Wayland pour la session plasma."
 
-#: archlinux_install.py:831
+#: archlinux_install.py:838
 msgid "Install Cups."
 msgstr "Installez Cups."
 
-#: archlinux_install.py:833
+#: archlinux_install.py:840
 msgid "Install ZSH with GRML configuration."
 msgstr "Installer ZSH avec la configuration GRML."
 
-#: archlinux_install.py:835
+#: archlinux_install.py:842
 msgid "Install a set of main fonts."
 msgstr "Installez un ensemble de polices principales."
 
-#: archlinux_install.py:837
+#: archlinux_install.py:844
 msgid "Install main file systems support."
 msgstr "Installer le support des systèmes de fichiers principaux."
 
-#: archlinux_install.py:839
+#: archlinux_install.py:846
 msgid "Install and enable ZRAM."
 msgstr "Installer et activer ZRAM."
 
-#: archlinux_install.py:840
+#: archlinux_install.py:847
 msgid "Your timezone : %s"
 msgstr "Votre fuseau horaire : %s"
 
-#: archlinux_install.py:842
+#: archlinux_install.py:849
 msgid "Additional user name : %s"
 msgstr "Nom d'utilisateur supplémentaire : %s"
 
-#: archlinux_install.py:844
+#: archlinux_install.py:851
 msgid "User's full name : %s"
 msgstr "Nom complet de l'utilisateur : %s"
 
-#: archlinux_install.py:846
+#: archlinux_install.py:853
 msgid "More packages to install : %s"
 msgstr "Plus de paquets à installer : %s"
 
-#: archlinux_install.py:855
+#: archlinux_install.py:862
 msgid "Unmounting partitions..."
 msgstr "Démontage des partitions..."
 
-#: archlinux_install.py:890
+#: archlinux_install.py:897
 msgid "Partitioning :"
 msgstr "Partitionnement :"
 
-#: archlinux_install.py:891
+#: archlinux_install.py:898
 msgid "Do you want an automatic partitioning ? (y/N) : "
 msgstr "Voulez-vous un partitionnement automatique ? (o/N) : "
 
-#: archlinux_install.py:898
+#: archlinux_install.py:905
 msgid "Formatting and mounting partitions..."
 msgstr "Démontage des partitions..."
 
-#: archlinux_install.py:925
+#: archlinux_install.py:932
 msgid "Updating mirrors..."
 msgstr "Mise à jour des miroirs..."
 
-#: archlinux_install.py:1024
+#: archlinux_install.py:1041
 msgid "Installation of the base..."
 msgstr "Installation de la base..."
 
-#: archlinux_install.py:1027
+#: archlinux_install.py:1044
 msgid "System configuration..."
 msgstr "Configuration du système..."
 
-#: archlinux_install.py:1049
+#: archlinux_install.py:1066
 msgid "Locales configuration..."
 msgstr "Configuration des locales..."
 
-#: archlinux_install.py:1053
+#: archlinux_install.py:1070
 msgid "Installation of the remaining packages..."
 msgstr "Installation des paquets restants..."
 
-#: archlinux_install.py:1059
+#: archlinux_install.py:1076
 msgid "Creation and activation of the swapfile..."
 msgstr "Création et activation du fichier d'échange..."
 
-#: archlinux_install.py:1070
+#: archlinux_install.py:1087
 msgid "Generating fstab..."
 msgstr "Génération du fstab..."
 
-#: archlinux_install.py:1073
+#: archlinux_install.py:1090
 msgid "Network configuration..."
 msgstr "Configuration du réseau..."
 
-#: archlinux_install.py:1077
+#: archlinux_install.py:1094
 msgid "Installation and configuration of the grub..."
 msgstr "Installation et configuration du grub..."
 
-#: archlinux_install.py:1089
+#: archlinux_install.py:1106
 msgid "Extra packages configuration if needed..."
 msgstr "Configuration de paquets supplémentaires si nécessaire..."
 
-#: archlinux_install.py:1115
+#: archlinux_install.py:1132
 msgid "Users configuration..."
 msgstr "Configuration des utilisateurs..."
 
-#: archlinux_install.py:1116
+#: archlinux_install.py:1133
 msgid "root account configuration..."
 msgstr "Configuration du compte root..."
 
-#: archlinux_install.py:1122
+#: archlinux_install.py:1139
 msgid "%s account configuration..."
 msgstr "Configuration du compte %s..."
 
-#: archlinux_install.py:1139
+#: archlinux_install.py:1156
 msgid "Installation complete ! You can reboot your system."
 msgstr "L'installation est terminée ! Vous pouvez redémarrer votre système."
 
-#: archlinux_install.py:1147
+#: archlinux_install.py:1164
 msgid "Running pre-launch steps : "
 msgstr "Exécution des étapes de pré-lancement : "
 
-#: archlinux_install.py:1150
+#: archlinux_install.py:1167
 msgid "Synchronising repositories..."
 msgstr "Synchronisation des dépôts..."
 
-#: archlinux_install.py:1152
+#: archlinux_install.py:1169
 msgid "Downloading and formatting translations..."
 msgstr "Téléchargement et formatage des traductions..."
 
-#: archlinux_install.py:1157
+#: archlinux_install.py:1174
 msgid "Querying IP geolocation informations..."
 msgstr "Interrogation des informations de géolocalisation IP..."
 
-#: archlinux_install.py:1182
+#: archlinux_install.py:1199
 msgid "Script execution interrupted by the user !"
 msgstr "Exécution du script interrompue par l'utilisateur !"
 
-#: archlinux_install.py:1185
+#: archlinux_install.py:1202
 msgid "A subprocess execution failed !"
 msgstr "L'exécution d'un sous-processus a échoué !"
 

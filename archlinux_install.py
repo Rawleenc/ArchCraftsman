@@ -774,6 +774,11 @@ def system_config(detected_timezone) -> {}:
                 print_error(_("Desktop environment '%s' is not supported.") % desktop, do_pause=False)
                 continue
 
+        if system_info["desktop"] in {"gnome", "plasma", "xfce", "deepin", "mate"}:
+            system_info["want_minimal"] = prompt_bool(
+                _("Install a minimal environment (no extra packages, only base) ? (y/N) : "),
+                default=False)
+
         system_info["plasma_wayland"] = False
         if system_info["desktop"] == "plasma":
             system_info["plasma_wayland"] = prompt_bool(_("Install Wayland support for the plasma session ? (y/N) : "),
@@ -825,6 +830,8 @@ def system_config(detected_timezone) -> {}:
         if system_info["terminus_font"]:
             print_sub_step(_("Install terminus console font."))
         print_sub_step(_("Desktop environment : %s") % system_info["desktop"])
+        if system_info["desktop"] in {"gnome", "plasma", "xfce", "deepin", "mate"} and system_info["want_minimal"]:
+            print_sub_step(_("Install a minimal environment (no extra packages, only base)."))
         if system_info["desktop"] == "plasma" and system_info["plasma_wayland"]:
             print_sub_step(_("Install Wayland support for the plasma session."))
         if system_info["cups"]:
@@ -952,19 +959,25 @@ def main(pre_launch_info):
     if system_info["terminus_font"]:
         pkgs.add("terminus-font")
     if system_info["desktop"] == "gnome":
-        pkgs.update(["gnome", "gnome-extra", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "xdg-desktop-portal",
+        pkgs.update(["gnome", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "xdg-desktop-portal",
                      "xdg-desktop-portal-gnome", "qt5-wayland"])
+        if system_info["want_minimal"] is not True:
+            pkgs.add("gnome-extra")
     elif system_info["desktop"] == "plasma":
-        pkgs.update(["plasma", "kde-applications", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
+        pkgs.update(["plasma", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
                      "xdg-desktop-portal", "xdg-desktop-portal-kde"])
         if system_info["plasma_wayland"]:
             pkgs.update(["plasma-wayland-session", "qt5-wayland"])
             if system_info["nvidia_driver"]:
                 pkgs.add("egl-wayland")
+        if system_info["want_minimal"] is not True:
+            pkgs.add("kde-applications")
     elif system_info["desktop"] == "xfce":
         pkgs.update(
-            ["xfce4", "xfce4-goodies", "lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings", "xorg-server",
+            ["xfce4", "lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings", "xorg-server",
              "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol", "network-manager-applet"])
+        if system_info["want_minimal"] is not True:
+            pkgs.add("xfce4-goodies")
     elif system_info["desktop"] == "budgie":
         pkgs.update(["budgie-desktop", "budgie-desktop-view", "budgie-screensaver", "gnome-control-center",
                      "network-manager-applet", "gnome", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
@@ -977,7 +990,9 @@ def main(pre_launch_info):
     elif system_info["desktop"] == "cutefish":
         pkgs.update(["cutefish", "sddm", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol"])
     elif system_info["desktop"] == "deepin":
-        pkgs.update(["deepin", "deepin-extra", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa"])
+        pkgs.update(["deepin", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa"])
+        if system_info["want_minimal"] is not True:
+            pkgs.add("deepin-extra")
     elif system_info["desktop"] == "lxqt":
         pkgs.update(
             ["lxqt", "sddm", "xorg-server", "breeze-icons", "xdg-utils", "xscreensaver", "xautolock", "libpulse",
@@ -985,8 +1000,10 @@ def main(pre_launch_info):
              "pulseaudio-alsa", "pavucontrol", "network-manager-applet"])
     elif system_info["desktop"] == "mate":
         pkgs.update(
-            ["mate", "mate-extra", "lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings", "xorg-server",
+            ["mate", "lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings", "xorg-server",
              "alsa-utils", "pulseaudio", "pulseaudio-alsa", "network-manager-applet"])
+        if system_info["want_minimal"] is not True:
+            pkgs.add("mate-extra")
     elif system_info["desktop"] == "enlightenment":
         pkgs.update(
             ["enlightenment", "terminology", "xorg-server", "xorg-xinit", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
