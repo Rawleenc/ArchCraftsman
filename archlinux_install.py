@@ -167,7 +167,7 @@ def print_sub_step(message: str):
     print(f'{CYAN}  * {message}{NOCOLOR}')
 
 
-def print_help(message: str, do_pause: bool = True):
+def print_help(message: str, do_pause: bool = False):
     """
     A method to print an help message.
     :param message:
