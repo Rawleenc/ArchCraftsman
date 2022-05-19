@@ -195,7 +195,7 @@ def prompt(message: str, default: str = None, help_msg: str = None) -> str:
         if user_input == "?" and help_msg is not None and help_msg != "":
             print_help(help_msg)
             continue
-        elif user_input == "" and default is not None:
+        if user_input == "" and default is not None:
             user_input = default
         user_input_ok = True
     return user_input
@@ -364,11 +364,19 @@ def ask_format_type() -> str:
 
 
 def get_main_file_systems() -> [str]:
+    """
+    The method to get the package list of the main file systems group.
+    :return:
+    """
     return ["btrfs-progs", "dosfstools", "exfatprogs", "f2fs-tools", "e2fsprogs", "jfsutils", "nilfs-utils",
             "ntfs-3g", "reiserfsprogs", "udftools", "xfsprogs"]
 
 
 def get_main_fonts() -> [str]:
+    """
+    The method to get the package list of the main fonts group.
+    :return:
+    """
     return ["gnu-free-fonts", "noto-fonts", "ttf-bitstream-vera", "ttf-dejavu", "ttf-hack", "ttf-droid",
             "ttf-fira-code", "ttf-fira-mono", "ttf-fira-sans", "ttf-font-awesome", "ttf-inconsolata",
             "ttf-input", "ttf-liberation", "ttf-nerd-fonts-symbols", "ttf-opensans", "ttf-roboto",
@@ -845,7 +853,16 @@ def system_config(detected_timezone) -> {}:
         default_timezone_file = f'/usr/share/zoneinfo/{detected_timezone}'
         system_info["timezone"] = prompt_ln(_("Your timezone (%s) : ") % default_timezone_file,
                                             default=default_timezone_file)
-        system_info["user_name"] = prompt_ln(_("Would you like to add a user? (type username, leave blank if none) : "))
+        user_name_pattern = re.compile("^[a-z][-a-z\\d_]*$")
+        user_name_ok = False
+        while not user_name_ok:
+            system_info["user_name"] = prompt_ln(_("Would you like to add a user? (type username, leave blank if "
+                                                   "none) : "))
+            if system_info["user_name"] is not None and system_info["user_name"] != "" and not user_name_pattern.match(
+                    system_info["user_name"]):
+                print_error(_("Invalid user name."))
+                continue
+            user_name_ok = True
         system_info["user_full_name"] = ""
         if system_info["user_name"] != "":
             system_info["user_full_name"] = prompt_ln(
