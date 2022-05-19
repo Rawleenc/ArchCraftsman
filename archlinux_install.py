@@ -64,9 +64,9 @@ class Partition:
             self.path = part_str.split(" ")[0]
             self.size = from_iec(re.sub('\\s', '', os.popen(f'lsblk -nl "{self.path}" -o SIZE').read()))
             self.part_type = str(
-                re.sub('[^a-zA-Z0-9 ]', '', os.popen(f'lsblk -nl "{self.path}" -o PARTTYPENAME').read()))
+                re.sub('[^a-zA-Z\\d ]', '', os.popen(f'lsblk -nl "{self.path}" -o PARTTYPENAME').read()))
             self.fs_type = str(
-                re.sub('[^a-zA-Z0-9 ]', '', os.popen(f'lsblk -nl "{self.path}" -o FSTYPE').read()))
+                re.sub('[^a-zA-Z\\d ]', '', os.popen(f'lsblk -nl "{self.path}" -o FSTYPE').read()))
 
     def __str__(self) -> str:
         """
@@ -167,39 +167,62 @@ def print_sub_step(message: str):
     print(f'{CYAN}  * {message}{NOCOLOR}')
 
 
-def prompt(message: str, default: str = None) -> str:
+def print_help(message: str, do_pause: bool = True):
+    """
+    A method to print an help message.
+    :param message:
+    :param do_pause:
+    :return:
+    """
+    print_step(_("Help :"))
+    print_sub_step(message)
+    if do_pause:
+        pause(end_newline=True)
+
+
+def prompt(message: str, default: str = None, help_msg: str = None) -> str:
     """
     A method to prompt for a user input.
     :param message:
     :param default:
+    :param help_msg:
     :return:
     """
-    user_input = input(f'{ORANGE}{message}{NOCOLOR}')
-    if user_input == "" and default is not None:
-        user_input = default
+    user_input_ok = False
+    user_input = None
+    while not user_input_ok:
+        user_input = input(f'{ORANGE}{message}{NOCOLOR}')
+        if user_input == "?" and help_msg is not None and help_msg != "":
+            print_help(help_msg)
+            continue
+        elif user_input == "" and default is not None:
+            user_input = default
+        user_input_ok = True
     return user_input
 
 
-def prompt_ln(message: str, default: str = None) -> str:
+def prompt_ln(message: str, default: str = None, help_msg: str = None) -> str:
     """
     A method to prompt for a user input with a new line for the user input.
     :param message:
     :param default:
+    :param help_msg:
     :return:
     """
-    return prompt(f'{message}\n', default)
+    return prompt(f'{message}\n', default=default, help_msg=help_msg)
 
 
-def prompt_bool(message: str, default: bool = True) -> bool:
+def prompt_bool(message: str, default: bool = True, help_msg: str = None) -> bool:
     """
     A method to prompt for a boolean choice.
     :param message:
     :param default:
+    :param help_msg:
     :return:
     """
     if not default:
-        return input(f'{ORANGE}{message}{NOCOLOR}').upper() in {"Y", "O"}
-    return input(f'{ORANGE}{message}{NOCOLOR}').upper() != "N"
+        return prompt(f'{message}', help_msg=help_msg).upper() in {"Y", "O"}
+    return prompt(f'{message}', help_msg=help_msg).upper() != "N"
 
 
 def prompt_passwd(message: str):
@@ -288,12 +311,11 @@ def ask_swapfile_size(disk: Disk) -> str:
     """
     swapfile_ok = False
     swapfile_size = ""
-    swapfile_size_pattern = re.compile("^([0-9]*[.,][0-9][0-9]*|[0-9][0-9]*)([GMk])$")
+    swapfile_size_pattern = re.compile("^(\\d*[.,]\\d+|\\d+)([GMk])$")
     default_swapfile_size = to_iec(int(disk.total / 32))
     while not swapfile_ok:
-        swapfile_size = prompt(_("Swapfile size ? (%s, type '0' for none) : ") % default_swapfile_size)
-        if swapfile_size is None or swapfile_size == "":
-            swapfile_size = default_swapfile_size
+        swapfile_size = prompt(_("Swapfile size ? (%s, type '0' for none) : ") % default_swapfile_size,
+                               default=default_swapfile_size)
         if swapfile_size == "0":
             swapfile_size = None
             swapfile_ok = True
@@ -341,6 +363,18 @@ def ask_format_type() -> str:
     return format_type
 
 
+def get_main_file_systems() -> [str]:
+    return ["btrfs-progs", "dosfstools", "exfatprogs", "f2fs-tools", "e2fsprogs", "jfsutils", "nilfs-utils",
+            "ntfs-3g", "reiserfsprogs", "udftools", "xfsprogs"]
+
+
+def get_main_fonts() -> [str]:
+    return ["gnu-free-fonts", "noto-fonts", "ttf-bitstream-vera", "ttf-dejavu", "ttf-hack", "ttf-droid",
+            "ttf-fira-code", "ttf-fira-mono", "ttf-fira-sans", "ttf-font-awesome", "ttf-inconsolata",
+            "ttf-input", "ttf-liberation", "ttf-nerd-fonts-symbols", "ttf-opensans", "ttf-roboto",
+            "ttf-roboto-mono", "ttf-ubuntu-font-family", "ttf-jetbrains-mono"]
+
+
 def manual_partitioning(bios: str) -> {}:
     """
     The method to proceed to the manual partitioning.
@@ -382,7 +416,8 @@ def manual_partitioning(bios: str) -> {}:
                     _("What is the role of this partition ? (1: Root, 2: Home, 3: Swap, 4: Not used, other: Other) : "))
             else:
                 partition_type = prompt(
-                    _("What is the role of this partition ? (0: EFI, 1: Root, 2: Home, 3: Swap, 4: Not used, other: Other) : "))
+                    _("What is the role of this partition ? (0: EFI, 1: Root, 2: Home, 3: Swap, 4: Not used, "
+                      "other: Other) : "))
             if not bios and partition_type == "0":
                 partitioning_info["part_type"][partition] = "EFI"
                 partitioning_info["part_mount_point"][partition] = "/boot/efi"
@@ -506,12 +541,14 @@ def auto_partitioning(bios: str) -> {}:
         partitioning_info["main_disk"] = target_disk
         disk = Disk(target_disk)
         swap_type = prompt(_("What type of Swap do you want ? (1: Partition, 2: None, other: File) : "))
-        want_home = prompt_bool(_("Do you want a separated Home ? (Y/n) : "), default=True)
+        want_home = prompt_bool(_("Do you want a separated Home ? (Y/n) : "))
         part_format_type = ask_format_type()
         efi_partition = disk.get_efi_partition()
-        if not bios and len(
-                disk.partitions) > 0 and efi_partition.path != "" and efi_partition.fs_type == "vfat" and disk.free_space > from_iec(
-            "32G"):
+        if not bios \
+                and len(disk.partitions) > 0 \
+                and efi_partition.path != "" \
+                and efi_partition.fs_type == "vfat" \
+                and disk.free_space > from_iec("32G"):
             want_dual_boot = prompt_bool(_("Do you want to install Arch Linux next to other systems ? (Y/n) : "))
         else:
             want_dual_boot = False
@@ -679,7 +716,8 @@ def environment_config(detected_language: str) -> {}:
         pre_launch_info["bios"] = not os.path.exists("/sys/firmware/efi")
         if pre_launch_info["bios"]:
             print_error(
-                _("BIOS detected ! The script will act accordingly. Don't forget to select a DOS label type before partitioning."))
+                _("BIOS detected ! The script will act accordingly. Don't forget to select a DOS label type before "
+                  "partitioning."))
 
         print_step(_("Environment configuration : "), clear=False)
 
@@ -778,18 +816,32 @@ def system_config(detected_timezone) -> {}:
 
         if system_info["desktop"] in {"gnome", "plasma", "xfce", "deepin", "mate"}:
             system_info["want_minimal"] = prompt_bool(
-                _("Install a minimal environment (no extra packages, only base) ? (y/N) : "),
-                default=False)
+                _("Install a minimal environment ? (y/N/?) : "),
+                default=False,
+                help_msg=_("If yes, the script will not install any extra packages, only base packages."))
 
         system_info["plasma_wayland"] = False
         if system_info["desktop"] == "plasma":
             system_info["plasma_wayland"] = prompt_bool(_("Install Wayland support for the plasma session ? (y/N) : "),
                                                         default=False)
         system_info["cups"] = prompt_bool(_("Install Cups ? (y/N) : "), default=False)
-        system_info["grml_zsh"] = prompt_bool(_("Install ZSH with GRML configuration ? (y/N) : "), default=False)
-        system_info["main_fonts"] = prompt_bool(_("Install a set of main fonts ? (y/N) : "), default=False)
-        system_info["main_file_systems"] = prompt_bool(_("Install main file systems support ? (y/N) : "), default=False)
-        system_info["zram"] = prompt_bool(_("Install and enable ZRAM ? (y/N) : "), default=False)
+        system_info["grml_zsh"] = prompt_bool(_("Install ZSH with GRML configuration ? (y/N/?) : "), default=False,
+                                              help_msg=_(
+                                                  "If yes, the script will install the ZSH shell with GRML "
+                                                  "configuration. GRML is a ZSH pre-configuration used by Archlinux's "
+                                                  "live environment."))
+        system_info["main_fonts"] = \
+            prompt_bool(_("Install a set of main fonts ? (y/N/?) : "), default=False,
+                        help_msg=_("If yes, the following packages will be installed :\n%s") % " ".join(
+                            get_main_fonts()))
+        system_info["main_file_systems"] = prompt_bool(_("Install main file systems support ? (y/N/?) : "),
+                                                       default=False, help_msg=_(
+                "If yes, the following packages will be installed :\n%s") % " ".join(get_main_file_systems()))
+        system_info["zram"] = prompt_bool(_("Install and enable ZRAM ? (y/N/?) : "), default=False, help_msg=_(
+            "ZRAM is a process to compress datas directly in the RAM instead of moving them in a swap. Enabled ZRAM "
+            "will allow you to compress up to half of your RAM before having to swap. This method is more efficient "
+            "than the swap and do not use your disk but is more CPU demanding. ZRAM is fully compatible with a swap, "
+            "it just has a higher priority."))
         default_timezone_file = f'/usr/share/zoneinfo/{detected_timezone}'
         system_info["timezone"] = prompt_ln(_("Your timezone (%s) : ") % default_timezone_file,
                                             default=default_timezone_file)
@@ -804,7 +856,8 @@ def system_config(detected_timezone) -> {}:
         while not pkgs_select_ok:
             system_info["more_pkgs"] = set()
             more_pkgs_str = prompt_ln(
-                _("Install more packages ? (type extra packages full names, example : 'htop neofetch', leave blank if none) : "))
+                _("Install more packages ? (type extra packages full names, example : 'htop neofetch', leave blank if "
+                  "none) : "))
             pkgs_select_ok = True
             if more_pkgs_str != "":
                 for pkg in more_pkgs_str.split():
@@ -933,7 +986,8 @@ def main(pre_launch_info):
 
     print_step(_("Updating mirrors..."), clear=False)
     os.system(
-        f'reflector --save /etc/pacman.d/mirrorlist --threads $(nproc --all) --protocol https --age 12 --country "{pre_launch_info["detected_country_code"]}" --fastest 10 --sort rate')
+        f'reflector --save /etc/pacman.d/mirrorlist --threads $(nproc --all) --protocol https --age 12 --country '
+        f'"{pre_launch_info["detected_country_code"]}" --fastest 10 --sort rate')
 
     base_pkgs = set()
     base_pkgs.update(["base", "base-devel", "linux-firmware"])
@@ -1027,14 +1081,9 @@ def main(pre_launch_info):
     else:
         pkgs.add("bash-completion")
     if system_info["main_fonts"]:
-        pkgs.update(["gnu-free-fonts", "noto-fonts", "ttf-bitstream-vera", "ttf-dejavu", "ttf-hack", "ttf-droid",
-                     "ttf-fira-code", "ttf-fira-mono", "ttf-fira-sans", "ttf-font-awesome", "ttf-inconsolata",
-                     "ttf-input", "ttf-liberation", "ttf-nerd-fonts-symbols", "ttf-opensans", "ttf-roboto",
-                     "ttf-roboto-mono", "ttf-ubuntu-font-family", "ttf-jetbrains-mono"])
+        pkgs.update(get_main_fonts())
     if system_info["main_file_systems"]:
-        pkgs.update(
-            ["btrfs-progs", "dosfstools", "exfatprogs", "f2fs-tools", "e2fsprogs", "jfsutils", "nilfs-utils",
-             "ntfs-3g", "reiserfsprogs", "udftools", "xfsprogs"])
+        pkgs.update(get_main_file_systems())
     if system_info["zram"]:
         pkgs.add("zram-generator")
     if len(system_info["more_pkgs"]) > 0:
@@ -1078,7 +1127,12 @@ def main(pre_launch_info):
         print_step(_("Creation and activation of the swapfile..."), clear=False)
         if partitioning_info["part_format_type"][partitioning_info["root_partition"]] == "btrfs":
             os.system(
-                "btrfs subvolume create /mnt/swap && cd /mnt/swap && truncate -s 0 ./swapfile && chattr +C ./swapfile && btrfs property set ./swapfile compression none && cd -")
+                "btrfs subvolume create /mnt/swap && "
+                "cd /mnt/swap && "
+                "truncate -s 0 ./swapfile && "
+                "chattr +C ./swapfile && "
+                "btrfs property set ./swapfile compression none && "
+                "cd -")
         else:
             os.system("mkdir -p /mnt/swap")
         os.system(f'fallocate -l "{partitioning_info["swapfile_size"]}" /mnt/swap/swapfile')
@@ -1098,7 +1152,8 @@ def main(pre_launch_info):
         os.system(f'arch-chroot /mnt bash -c "grub-install --target=i386-pc {partitioning_info["main_disk"]}"')
     else:
         os.system(
-            'arch-chroot /mnt bash -c "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=\'Arch Linux\'"')
+            'arch-chroot /mnt bash -c "grub-install --target=x86_64-efi --efi-directory=/boot/efi '
+            '--bootloader-id=\'Arch Linux\'"')
     os.system('arch-chroot /mnt bash -c "grub-mkconfig -o /boot/grub/grub.cfg"')
     os.system('sed -i "/^GRUB_CMDLINE_LINUX=.*/a GRUB_DISABLE_OS_PROBER=false" /mnt/etc/default/grub')
     if partitioning_info["part_format_type"][partitioning_info["root_partition"]] in {"ext4"}:
@@ -1142,16 +1197,19 @@ def main(pre_launch_info):
         os.system('sed -i "s|# %wheel ALL=(ALL:ALL) ALL|%wheel ALL=(ALL:ALL) ALL|g" /mnt/etc/sudoers')
         if system_info["grml_zsh"]:
             os.system(
-                f'arch-chroot /mnt bash -c "useradd --shell=/bin/zsh --groups=wheel --create-home {system_info["user_name"]}"')
+                f'arch-chroot /mnt bash -c "useradd --shell=/bin/zsh --groups=wheel '
+                f'--create-home {system_info["user_name"]}"')
         else:
             os.system(
-                f'arch-chroot /mnt bash -c "useradd --shell=/bin/bash --groups=wheel --create-home {system_info["user_name"]}"')
+                f'arch-chroot /mnt bash -c "useradd --shell=/bin/bash --groups=wheel '
+                f'--create-home {system_info["user_name"]}"')
         if system_info["user_full_name"] != "":
             os.system(
                 f'arch-chroot /mnt bash -c "chfn -f \'{system_info["user_full_name"]}\' {system_info["user_name"]}"')
         if system_info["user_password"] != "":
             os.system(
-                f'arch-chroot /mnt bash -c "echo \'{system_info["user_name"]}:{system_info["user_password"]}\' | chpasswd"')
+                f'arch-chroot /mnt bash -c "echo \'{system_info["user_name"]}:'
+                f'{system_info["user_password"]}\' | chpasswd"')
 
     umount_partitions()
 
