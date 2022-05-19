@@ -174,7 +174,7 @@ def print_help(message: str, do_pause: bool = True):
     :param do_pause:
     :return:
     """
-    print_step(_("Help :"))
+    print_step(_("Help :"), clear=False)
     print_sub_step(message)
     if do_pause:
         pause(end_newline=True)
