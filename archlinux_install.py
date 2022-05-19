@@ -886,7 +886,7 @@ def system_config(detected_timezone) -> {}:
             print_sub_step(_("Install terminus console font."))
         print_sub_step(_("Desktop environment : %s") % system_info["desktop"])
         if system_info["desktop"] in {"gnome", "plasma", "xfce", "deepin", "mate"} and system_info["want_minimal"]:
-            print_sub_step(_("Install a minimal environment (no extra packages, only base)."))
+            print_sub_step(_("Install a minimal environment."))
         if system_info["desktop"] == "plasma" and system_info["plasma_wayland"]:
             print_sub_step(_("Install Wayland support for the plasma session."))
         if system_info["cups"]:

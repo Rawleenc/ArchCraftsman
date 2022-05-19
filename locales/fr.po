@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2022-05-19 21:31+0200\n"
-"PO-Revision-Date: 2022-05-19 21:40+0200\n"
+"POT-Creation-Date: 2022-05-19 22:06+0200\n"
+"PO-Revision-Date: 2022-05-19 22:07+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -405,17 +405,15 @@ msgstr "Installer le pilote propriétaire Nvidia."
 
 #: archlinux_install.py:886
 msgid "Install terminus console font."
-msgstr "Installer la police de la console Terminus."
+msgstr "Installer la police de console Terminus."
 
 #: archlinux_install.py:887
 msgid "Desktop environment : %s"
 msgstr "Environnement de bureau : %s"
 
 #: archlinux_install.py:889
-msgid "Install a minimal environment (no extra packages, only base)."
-msgstr ""
-"Installer un environnement minimal (pas de paquets supplémentaires, "
-"seulement la base)."
+msgid "Install a minimal environment."
+msgstr "Installer un environnement minimal."
 
 #: archlinux_install.py:891
 msgid "Install Wayland support for the plasma session."
