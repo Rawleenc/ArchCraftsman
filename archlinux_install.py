@@ -505,7 +505,7 @@ def auto_partitioning(bios: str) -> {}:
             continue
         partitioning_info["main_disk"] = target_disk
         disk = Disk(target_disk)
-        swap_type = prompt(_("What type of Swap do you want ? (1: Partition, other: File) : "))
+        swap_type = prompt(_("What type of Swap do you want ? (1: Partition, 2: None, other: File) : "))
         want_home = prompt_bool(_("Do you want a separated Home ? (Y/n) : "), default=True)
         part_format_type = ask_format_type()
         efi_partition = disk.get_efi_partition()
@@ -522,6 +522,8 @@ def auto_partitioning(bios: str) -> {}:
             root_size = to_iec(int(disk.total / 4))
             swap_size = to_iec(int(disk.total / 32))
         if swap_type != "1":
+            if swap_type == "2":
+                swap_size = None
             partitioning_info["swapfile_size"] = swap_size
         auto_part_str = ""
         index = 0
