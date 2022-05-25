@@ -1003,8 +1003,8 @@ def main(pre_launch_info):
 
     print_step(_("Updating mirrors..."), clear=False)
     os.system(
-        f'reflector --save /etc/pacman.d/mirrorlist --threads $(nproc --all) --protocol https --age 12 --country '
-        f'"{pre_launch_info["detected_country_code"]}" --fastest 10 --sort rate')
+        'reflector --save /etc/pacman.d/mirrorlist --threads $(nproc --all) --protocol https --age 2 --latest 10 '
+        '--fastest 10 --sort rate')
 
     base_pkgs = set()
     base_pkgs.update(["base", "base-devel", "linux-firmware"])
