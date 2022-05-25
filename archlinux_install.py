@@ -1002,7 +1002,7 @@ def main(pre_launch_info):
                              partitioning_info["part_format"].get(partition))
 
     print_step(_("Updating mirrors..."), clear=False)
-    os.system('reflector --verbose -phttps -f10 -l10 --sort rate -a2 --save /etc/pacman.d/mirrorlist')
+    os.system('reflector --verbose -phttps -f10 -l10 --sort rate -a12 --save /etc/pacman.d/mirrorlist')
 
     base_pkgs = set()
     base_pkgs.update(["base", "base-devel", "linux-firmware"])
