@@ -72,7 +72,6 @@ Optional packages bundles are also available :
 
 Some informations will be gathered using your IP address with ipapi.co API in order to propose more relevant default values for prompts and better mirror sorting :  
 - Language, to propose an adapted default global language and keymap
-- Country code, to propose a better mirror sorting
 - Timezone, to propose an adapted default value for the timezone
 
 Time will be synchronized using systemd timesyncd.

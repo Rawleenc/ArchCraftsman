@@ -1251,9 +1251,7 @@ def pre_launch_steps() -> {}:
         geoip_info = json.loads(response.read())
     detected_language = str(geoip_info["languages"]).split(",", maxsplit=1)[0]
     detected_timezone = geoip_info["timezone"]
-    detected_country_code = geoip_info["country_code"]
     pre_launch_info = environment_config(detected_language)
-    pre_launch_info["detected_country_code"] = detected_country_code
     pre_launch_info["detected_timezone"] = detected_timezone
     pre_launch_info["live_console_font"] = locale_setup(keymap=pre_launch_info["keymap"],
                                                         global_language=pre_launch_info["global_language"])
