@@ -45,13 +45,20 @@ You will then have the possibility to choose to format or not the EFI and Home p
 
 Normally, only Linux related partitions should be detected. However, if the detected partitions contain one that you don't want to use, you'll be able to tell the script that a partition will not be used.
 
-If the EFI partition has to be formatted it will be formatted in vfat, otherwise the script expects the EFI partition to be already formatted in vfat (this is the case for windows 10 for example) and all other partitions will be formatted in ext4. If you choose to not create a Swap partition, you will be proposed a swapfile of the size you want, called swapfile. It will be created and placed at the base of the Root partition.
+For both partitioning options you will have the possibility to choose the partition format you want between the following ones :
+- ext4
+- btrfs
+
+In automatic partitioning, the chosen format type will be applied for all partitions except the EFI partition.  
+In manual partitioning you will be able to choose the format type to use for each partition individually except for the EFI partition.
+
+If the EFI partition has to be formatted it will be formatted in vfat, otherwise the script expects the EFI partition to be already formatted in vfat (this is the case for windows 10 for example) and all other partitions will be formatted in the format you want. If you choose to not create a Swap partition, you will be proposed a swapfile of the size you want, called swapfile. It will be created and placed at the base of the Root partition. If you specify 0 for the swapfile size, no swap will be created.
 
 Packages included in the base :  
-`base base-devel linux-firmware linux/linux-lts man-db man-pages texinfo nano vim git curl grub os-prober efibootmgr networkmanager xdg-user-dirs reflector numlockx net-tools polkit`
+`base base-devel linux-firmware linux/linux-lts linux-headers/linux-lts-headers pacman-contrib man-db man-pages texinfo nano vim git curl grub os-prober efibootmgr networkmanager xdg-user-dirs reflector numlockx net-tools polkit`
 
 Optional packages available :  
-`intel-ucode amd-ucode nvidia/nvidia-lts terminus-font`
+`intel-ucode amd-ucode nvidia/nvidia-lts terminus-font man-pages-{LOCALE}`
 
 Optional packages bundles are also available :
 - Desktop environment (Gnome, KDE Plasma, XFCE, Budgie, Cinnamon, CuteFish, Deepin, LxQT, Mate, Enlightenment, i3 or Sway)
@@ -59,6 +66,7 @@ Optional packages bundles are also available :
 - Zsh with GRML config
 - Main fonts
 - Main file systems support
+- ZRAM
 
 **Warning :** Sway doesn't start in a virtual machine nor with the Nvidia proprietary driver, but it works in a physical install with an Intel or AMD GPU.
 
