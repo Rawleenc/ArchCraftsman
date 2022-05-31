@@ -1125,7 +1125,7 @@ def main(pre_launch_info):
             echo "127.0.0.1 localhost"
             echo "::1 localhost"
             echo "127.0.1.1 {system_info["hostname"]}.localdomain {system_info["hostname"]}"
-        }} >>/mnt/etc/hostname
+        }} >>/mnt/etc/hosts
     ''')
     os.system('cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist')
 
