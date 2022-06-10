@@ -10,12 +10,12 @@
 
 ### On the Arch Linux live iso :
 ```bash
-python <(curl -L git.io/JXjXG)
+python <(curl -L tiny.one/aimain)
 ```
 
 If you wish to test the latest development version, you can run it with this command :
 ```bash
-python <(curl -L git.io/JXFOn)
+python <(curl -L tiny.one/aidev)
 ```
 *However, this is absolutely not recommended for any other purpose than tests.*
 
