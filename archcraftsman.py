@@ -1,6 +1,6 @@
 """
 LICENSE
-archlinux-install, a very quick Arch Linux base installation script.
+ArchCraftsman, The careful yet very fast Arch Linux Craftsman.
 Copyright (C) 2021  Rawleenc
 
 This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 DISCLAIMER
-archlinux-install  Copyright (C) 2021  Rawleenc
+ArchCraftsman  Copyright (C) 2022  Rawleenc
 
 This program comes with ABSOLUTELY NO WARRANTY; See the
 GNU General Public License for more details.
@@ -720,7 +720,7 @@ def environment_config(detected_language: str) -> {}:
     pre_launch_info = {"global_language": None, "keymap": None, "bios": None}
     user_answer = False
     while not user_answer:
-        print_step(_("Welcome to the archlinux-install script !"))
+        print_step(_("Welcome to ArchCraftsman !"))
         pre_launch_info["bios"] = not os.path.exists("/sys/firmware/efi")
         if pre_launch_info["bios"]:
             print_error(
@@ -1243,9 +1243,9 @@ def pre_launch_steps() -> {}:
     os.system("pacman -Sy &>/dev/null")
     print_sub_step(_("Downloading and formatting translations..."))
     if not os.path.exists("fr.po"):
-        urllib.request.urlretrieve("https://raw.githubusercontent.com/rawleenc/archlinux-install/dev/locales/fr.po",
+        urllib.request.urlretrieve("https://raw.githubusercontent.com/rawleenc/ArchCraftsman/dev/locales/fr.po",
                                    "fr.po")
-    os.system('msgfmt -o /usr/share/locale/fr/LC_MESSAGES/archlinux-install.mo fr.po &>/dev/null')
+    os.system('msgfmt -o /usr/share/locale/fr/LC_MESSAGES/ArchCraftsman.mo fr.po &>/dev/null')
     print_sub_step(_("Querying IP geolocation informations..."))
     with urllib.request.urlopen('https://ipapi.co/json') as response:
         geoip_info = json.loads(response.read())
@@ -1263,7 +1263,7 @@ if __name__ == '__main__':
     try:
         PRE_LAUNCH_INFO = pre_launch_steps()
         if PRE_LAUNCH_INFO["global_language"] != "EN":
-            translation = gettext.translation('archlinux-install', localedir='/usr/share/locale',
+            translation = gettext.translation('ArchCraftsman', localedir='/usr/share/locale',
                                               languages=[PRE_LAUNCH_INFO["global_language"].lower()])
             translation.install()
             _ = translation.gettext

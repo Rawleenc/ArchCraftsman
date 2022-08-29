@@ -1,10 +1,10 @@
-# Archlinux Install
+# ArchCraftsman
 
 [![archlinux](https://img.shields.io/badge/-Arch%20Linux-grey?logo=archlinux)](https://archlinux.org)
 [![usage](https://img.shields.io/badge/Usage-Installation%20script-1693d0)](https://wiki.archlinux.org/title/Installation_guide)
-[![release](https://img.shields.io/github/tag/rawleenc/archlinux-install?label=Release)](https://github.com/rawleenc/archlinux-install/releases)
-[![main workflow](https://github.com/rawleenc/archlinux-install/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/rawleenc/archlinux-install/actions)
-[![dev workflow](https://github.com/rawleenc/archlinux-install/actions/workflows/main.yml/badge.svg?branch=dev)](https://github.com/rawleenc/archlinux-install/actions)
+[![release](https://img.shields.io/github/tag/rawleenc/ArchCraftsman?label=Release)](https://github.com/rawleenc/ArchCraftsman/releases)
+[![main workflow](https://github.com/rawleenc/ArchCraftsman/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/rawleenc/ArchCraftsman/actions)
+[![dev workflow](https://github.com/rawleenc/ArchCraftsman/actions/workflows/main.yml/badge.svg?branch=dev)](https://github.com/rawleenc/ArchCraftsman/actions)
 
 # Usage
 
@@ -52,7 +52,7 @@ For both partitioning options you will have the possibility to choose the partit
 In automatic partitioning, the chosen format type will be applied for all partitions except the EFI partition.  
 In manual partitioning you will be able to choose the format type to use for each partition individually except for the EFI partition.
 
-If the EFI partition has to be formatted it will be formatted in vfat, otherwise the script expects the EFI partition to be already formatted in vfat (this is the case for windows 10 for example) and all other partitions will be formatted in the format you want. If you choose to not create a Swap partition, you will be proposed a swapfile of the size you want, called swapfile. It will be created and placed at the base of the Root partition. If you specify 0 for the swapfile size, no swap will be created.
+If the EFI partition has to be formatted it will be formatted in vfat, otherwise the script expects the EFI partition to be already formatted in vfat (this is the case for Windows 10 for example) and all other partitions will be formatted in the format you want. If you choose to not create a Swap partition, you will be proposed a swapfile of the size you want, called swapfile. It will be created and placed at the base of the Root partition. If you specify 0 for the swapfile size, no swap will be created.
 
 Packages included in the base :  
 `base base-devel linux-firmware linux/linux-lts linux-headers/linux-lts-headers pacman-contrib man-db man-pages texinfo nano vim git curl grub os-prober efibootmgr networkmanager xdg-user-dirs reflector numlockx net-tools polkit`
@@ -68,9 +68,9 @@ Optional packages bundles are also available :
 - Main file systems support
 - ZRAM
 
-**Warning :** Sway doesn't start in a virtual machine nor with the Nvidia proprietary driver, but it works in a physical install with an Intel or AMD GPU.
+**Warning :** Sway doesn't start in a virtual machine nor with the Nvidia proprietary driver, but it works in a physical installation with an Intel or AMD GPU.
 
-Some informations will be gathered using your IP address with ipapi.co API in order to propose more relevant default values for prompts and better mirror sorting :  
+Some information will be gathered using your IP address with ipapi.co API in order to propose more relevant default values for prompts and better mirror sorting :  
 - Language, to propose an adapted default global language and keymap
 - Timezone, to propose an adapted default value for the timezone
 
@@ -80,7 +80,7 @@ Optionally an additional user, added to the wheel group and sudo configured to a
 
 # Disclaimer
 
-archlinux-install  Copyright (C) 2021  Rawleenc  
+ArchCraftsman  Copyright (C) 2022  Rawleenc  
 
 This program comes with ABSOLUTELY NO WARRANTY; See the [GNU General Public License](LICENSE) for more details.  
 
