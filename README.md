@@ -10,12 +10,12 @@
 
 ### On the Arch Linux live iso :
 ```bash
-python <(curl -L tiny.one/aimain)
+python <(curl -L tiny.one/acmain)
 ```
 
 If you wish to test the latest development version, you can run it with this command :
 ```bash
-python <(curl -L tiny.one/aidev)
+python <(curl -L tiny.one/acdev)
 ```
 *However, this is absolutely not recommended for any other purpose than tests.*
 
@@ -23,7 +23,7 @@ Answer the questions and let the magic happen ;)
 
 # Purpose
 
-The purpose of this script is to install Arch Linux very quickly. The customization options are therefore not numerous. However, some flexibility is still allowed.  
+The purpose of this script is to propose a very fast and straightforward Arch Linux installation while bringing all the care I put on my own installations. The customization options are therefore not countless. However, some flexibility is still proposed.  
 This script supports both UEFI and BIOS.  
 
 You'll have two differents partitioning options. An automatic one and a manual one.  
