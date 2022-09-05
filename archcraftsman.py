@@ -379,7 +379,7 @@ def get_main_fonts() -> [str]:
     """
     return ["gnu-free-fonts", "noto-fonts", "ttf-bitstream-vera", "ttf-dejavu", "ttf-hack", "ttf-droid",
             "ttf-fira-code", "ttf-fira-mono", "ttf-fira-sans", "ttf-font-awesome", "ttf-inconsolata",
-            "ttf-input", "ttf-liberation", "ttf-nerd-fonts-symbols", "ttf-opensans", "ttf-roboto",
+            "ttf-input", "ttf-liberation", "ttf-nerd-fonts-symbols-2048-em", "ttf-opensans", "ttf-roboto",
             "ttf-roboto-mono", "ttf-ubuntu-font-family", "ttf-jetbrains-mono"]
 
 
@@ -1241,6 +1241,8 @@ def pre_launch_steps() -> {}:
     os.system('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /etc/pacman.conf')
     print_sub_step(_("Synchronising repositories..."))
     os.system("pacman -Sy &>/dev/null")
+    print_sub_step(_("Updating archlinux-keyring..."))
+    os.system("pacman -S archlinux-keyring &>/dev/null")
     print_sub_step(_("Downloading and formatting translations..."))
     if not os.path.exists("fr.po"):
         urllib.request.urlretrieve("https://raw.githubusercontent.com/rawleenc/ArchCraftsman/dev/locales/fr.po",
