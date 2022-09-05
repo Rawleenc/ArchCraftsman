@@ -1133,7 +1133,7 @@ def main(pre_launch_info):
     os.system(f'arch-chroot /mnt bash -c "ln -sf {system_info["timezone"]} /etc/localtime"')
     os.system('arch-chroot /mnt bash -c "locale-gen"')
 
-    print_step(_("Updating archlinux-keyring and system..."))
+    print_step(_("Updating archlinux-keyring and system..."), clear=False)
     os.system(
         'arch-chroot /mnt bash -c "pacman --noconfirm -Sy archlinux-keyring && pacman --noconfirm -Su &>/dev/null"')
 
