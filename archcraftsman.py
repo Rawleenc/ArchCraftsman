@@ -1133,6 +1133,10 @@ def main(pre_launch_info):
     os.system(f'arch-chroot /mnt bash -c "ln -sf {system_info["timezone"]} /etc/localtime"')
     os.system('arch-chroot /mnt bash -c "locale-gen"')
 
+    print_step(_("Updating archlinux-keyring and system..."))
+    os.system(
+        'arch-chroot /mnt bash -c "pacman --noconfirm -Sy archlinux-keyring && pacman --noconfirm -Su &>/dev/null"')
+
     print_step(_("Installation of the remaining packages..."), clear=False)
     os.system('sed -i "s|#Color|Color|g" /mnt/etc/pacman.conf')
     os.system('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /mnt/etc/pacman.conf')
@@ -1241,8 +1245,6 @@ def pre_launch_steps() -> {}:
     os.system('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /etc/pacman.conf')
     print_sub_step(_("Synchronising repositories..."))
     os.system("pacman -Sy &>/dev/null")
-    print_sub_step(_("Updating archlinux-keyring..."))
-    os.system("pacman --noconfirm -S archlinux-keyring &>/dev/null")
     print_sub_step(_("Downloading and formatting translations..."))
     if not os.path.exists("fr.po"):
         urllib.request.urlretrieve("https://raw.githubusercontent.com/rawleenc/ArchCraftsman/dev/locales/fr.po",
