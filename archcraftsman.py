@@ -77,7 +77,7 @@ class Partition:
 
 class Disk:
     """
-    A partition to represent a disk.
+    A class to represent a disk.
     """
     path: str
     partitions: list
@@ -119,6 +119,141 @@ class Disk:
         Disk str formatting
         """
         return "\n".join([str(p) for p in self.partitions])
+
+
+class BootLoader:
+    """
+    A class to represent a bootloader.
+    """
+
+    def install(self, system_info, pre_launch_info, partitioning_info):
+        """
+        Bootloader installation method.
+        :param system_info:
+        :param pre_launch_info:
+        :param partitioning_info:
+        """
+
+
+class Grub(BootLoader):
+    """
+    The Grub Bootloader class.
+    """
+
+    def install(self, system_info: dict, pre_launch_info: dict, partitioning_info: dict):
+        """
+        Grub installation method.
+        :param system_info:
+        :param pre_launch_info:
+        :param partitioning_info:
+        """
+        os.system(
+            'arch-chroot /mnt bash -c "pacman --noconfirm -S grub"')
+        if is_bios():
+            os.system(f'arch-chroot /mnt bash -c "grub-install --target=i386-pc {partitioning_info["main_disk"]}"')
+        else:
+            os.system(
+                'arch-chroot /mnt bash -c "grub-install --target=x86_64-efi --efi-directory=/boot/efi '
+                '--bootloader-id=\'Arch Linux\'"')
+        os.system('arch-chroot /mnt bash -c "grub-mkconfig -o /boot/grub/grub.cfg"')
+        os.system('sed -i "/^GRUB_CMDLINE_LINUX=.*/a GRUB_DISABLE_OS_PROBER=false" /mnt/etc/default/grub')
+        if partitioning_info["part_format_type"][partitioning_info["root_partition"]] in {"ext4"}:
+            os.system('sed -i "s|GRUB_DEFAULT=.*|GRUB_DEFAULT=saved|g" /mnt/etc/default/grub')
+            os.system('sed -i "/^GRUB_DEFAULT=.*/a GRUB_SAVEDEFAULT=true" /mnt/etc/default/grub')
+
+
+def determine_vmlinuz(system_info: dict) -> str or None:
+    """
+    A method to determine the vmlinuz file name.
+    """
+    if system_info["lts_kernel"]:
+        return "/vmlinuz-linux-lts"
+    return "/vmlinuz-linux"
+
+
+def determine_microcode_img(system_info: dict) -> str or None:
+    """
+    A method to determine the microcode img file name.
+    """
+    match system_info["microcodes"]:
+        case "GenuineIntel":
+            return "/intel-ucode.img"
+        case "AuthenticAMD":
+            return "/amd-ucode.img"
+
+
+def determine_linux_img(system_info: dict, fallback: bool = False) -> str or None:
+    """
+    A method to determine the linux img file name.
+    """
+    if system_info["lts_kernel"]:
+        return "/initramfs-linux-fallback.img" if fallback else "/initramfs-linux.img"
+    return "/initramfs-linux-lts-fallback.img" if fallback else "/initramfs-linux-lts.img"
+
+
+class SystemdBoot(BootLoader):
+    """
+    The Systemd-boot Bootloader class.
+    """
+
+    def install(self, system_info, pre_launch_info, partitioning_info):
+        """
+        Systemd-boot installation method.
+        :param system_info:
+        :param pre_launch_info:
+        :param partitioning_info:
+        """
+        os.system('arch-chroot /mnt bash -c "bootctl install"')
+        os.system("mkdir --parents /boot/efi/loader")
+        os.system("mkdir --parents /boot/efi/loader/entries")
+
+        content = ["title Arch Linux"]
+        content += f"linux {determine_vmlinuz(system_info)}"
+        if system_info["microcodes"] in {"GenuineIntel", "AuthenticAMD"}:
+            content += f"initrd {determine_microcode_img(system_info)}"
+        content += f"initrd {determine_linux_img(system_info)}"
+        content += "options root=\"LABEL=arch_os\" rw"
+        with open("/boot/efi/loader/entries/arch.conf", "w", encoding="UTF-8") as systemd_boot_loader_config:
+            systemd_boot_loader_config.writelines(content)
+
+        content = ["title Arch Linux (fallback initramfs)"]
+        content += f"linux {determine_vmlinuz(system_info)}"
+        if system_info["microcodes"] in {"GenuineIntel", "AuthenticAMD"}:
+            content += f"initrd {determine_microcode_img(system_info)}"
+        content += f"initrd {determine_linux_img(system_info, fallback=True)}"
+        content += "options root=\"LABEL=arch_os\" rw"
+        with open("/boot/efi/loader/entries/arch-fallback.conf", "w", encoding="UTF-8") as systemd_boot_loader_config:
+            systemd_boot_loader_config.writelines(content)
+
+        content = [
+            "default arch.conf",
+            "timeout 4",
+            "console-mode max",
+            "editor no"
+        ]
+        with open("/boot/efi/loader/loader.conf", "w", encoding="UTF-8") as systemd_boot_loader_config:
+            systemd_boot_loader_config.writelines(content)
+
+
+def is_bios() -> bool:
+    """
+    Check if live system run on a bios.
+    :return:
+    """
+    return not os.path.exists("/sys/firmware/efi")
+
+
+def process_bootloader(bootloader: str) -> BootLoader or None:
+    """
+    Process a bootloader name into a BootLoader object.
+    :param bootloader:
+    :return:
+    """
+    match bootloader:
+        case "grub":
+            return Grub()
+        case _:
+            return None
 
 
 def complete(text, state):
@@ -326,20 +461,32 @@ def ask_swapfile_size(disk: Disk) -> str:
     return swapfile_size
 
 
-def get_default_format() -> str:
-    """
-    The method to get the default format type.
-    :return:
-    """
-    return "ext4"
-
-
-def get_supported_format_types() -> []:
+def get_supported_format_types(get_default: bool = False) -> str or []:
     """
     The method to get all supported format types.
     :return:
     """
-    return ["ext4", "btrfs"]
+    return "ext4" if get_default else ["ext4", "btrfs"]
+
+
+def get_supported_desktop_environments(get_default: bool = False) -> str or []:
+    """
+    The method to get all supported desktop environments.
+    :return:
+    """
+    return _("none") if get_default else ["gnome", "plasma", "xfce", "budgie", "cinnamon", "cutefish", "deepin", "lxqt",
+                                          "mate", "enlightenment",
+                                          "i3", "sway", _("none")]
+
+
+def get_supported_bootloaders(get_default: bool = False) -> str or []:
+    """
+    The method to get all supported desktop environments.
+    :return:
+    """
+    if is_bios():
+        return "grub" if get_default else ["grub"]
+    return "grub" if get_default else ["grub", "systemd-boot"]
 
 
 def ask_format_type() -> str:
@@ -347,7 +494,7 @@ def ask_format_type() -> str:
     The method to ask the user for the format type.
     :return:
     """
-    default_format_type = get_default_format()
+    default_format_type = get_supported_format_types(get_default=True)
     format_type_ok = False
     format_type = None
     print_step(_("Supported format types : "), clear=False)
@@ -383,10 +530,9 @@ def get_main_fonts() -> [str]:
             "ttf-roboto-mono", "ttf-ubuntu-font-family", "ttf-jetbrains-mono"]
 
 
-def manual_partitioning(bios: str) -> {}:
+def manual_partitioning() -> {}:
     """
-    The method to proceed to the manual partitioning.
-    :param bios:
+    The method to proceed to the manual partitioning.=
     :return:
     """
     partitioning_info = {"partitions": [], "part_type": {}, "part_mount_point": {}, "part_format": {},
@@ -419,14 +565,14 @@ def manual_partitioning(bios: str) -> {}:
         for partition in partitioning_info["partitions"]:
             print_sub_step(_("Partition : %s") % re.sub('\n', '', os.popen(
                 f'lsblk -nl "{partition}" -o PATH,SIZE,PARTTYPENAME').read()))
-            if bios:
+            if is_bios():
                 partition_type = prompt(
                     _("What is the role of this partition ? (1: Root, 2: Home, 3: Swap, 4: Not used, other: Other) : "))
             else:
                 partition_type = prompt(
                     _("What is the role of this partition ? (0: EFI, 1: Root, 2: Home, 3: Swap, 4: Not used, "
                       "other: Other) : "))
-            if not bios and partition_type == "0":
+            if not is_bios() and partition_type == "0":
                 partitioning_info["part_type"][partition] = "EFI"
                 partitioning_info["part_mount_point"][partition] = "/boot/efi"
                 partitioning_info["part_format"][partition] = prompt_bool(_("Format the EFI partition ? (Y/n) : "))
@@ -457,7 +603,7 @@ def manual_partitioning(bios: str) -> {}:
                     _("Format the %s partition ? (Y/n) : ") % partition)
                 if partitioning_info["part_format"].get(partition):
                     partitioning_info["part_format_type"][partition] = ask_format_type()
-        if not bios and "EFI" not in partitioning_info["part_type"].values():
+        if not is_bios() and "EFI" not in partitioning_info["part_type"].values():
             print_error(_("The EFI partition is required for system installation."))
             partitioning_info["partitions"].clear()
             partitioned_disks.clear()
@@ -526,10 +672,9 @@ def from_iec(size: str) -> int:
     return int(re.sub('\\s', '', os.popen(f'printf "{size}" | numfmt --from=iec').read()))
 
 
-def auto_partitioning(bios: str) -> {}:
+def auto_partitioning() -> {}:
     """
     The method to proceed to the automatic partitioning.
-    :param bios:
     :return:
     """
     partitioning_info = {"partitions": [], "part_type": {}, "part_mount_point": {}, "part_format": {},
@@ -552,7 +697,7 @@ def auto_partitioning(bios: str) -> {}:
         want_home = prompt_bool(_("Do you want a separated Home ? (Y/n) : "))
         part_format_type = ask_format_type()
         efi_partition = disk.get_efi_partition()
-        if not bios \
+        if not is_bios() \
                 and len(disk.partitions) > 0 \
                 and efi_partition.path != "" \
                 and efi_partition.fs_type == "vfat" \
@@ -572,7 +717,7 @@ def auto_partitioning(bios: str) -> {}:
             partitioning_info["swapfile_size"] = swap_size
         auto_part_str = ""
         index = 0
-        if bios:
+        if is_bios():
             # DOS LABEL
             auto_part_str += "o\n"  # Create a new empty DOS partition table
             # BOOT
@@ -615,14 +760,14 @@ def auto_partitioning(bios: str) -> {}:
         if swap_type == "1":
             # SWAP
             auto_part_str += "n\n"  # Add a new partition
-            if bios:
+            if is_bios():
                 auto_part_str += "p\n"  # Partition primary (Accept default: primary)
             auto_part_str += " \n"  # Partition number (Accept default: auto)
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += f'+{swap_size}\n'  # Last sector (Accept default: varies)
             auto_part_str += "t\n"  # Change partition type
             auto_part_str += " \n"  # Partition number (Accept default: auto)
-            if bios:
+            if is_bios():
                 auto_part_str += "82\n"  # Type Linux Swap
             else:
                 auto_part_str += "19\n"  # Type Linux Swap
@@ -633,7 +778,7 @@ def auto_partitioning(bios: str) -> {}:
         if want_home:
             # ROOT
             auto_part_str += "n\n"  # Add a new partition
-            if bios:
+            if is_bios():
                 auto_part_str += "p\n"  # Partition primary (Accept default: primary)
             auto_part_str += " \n"  # Partition number (Accept default: auto)
             auto_part_str += " \n"  # First sector (Accept default: 1)
@@ -647,7 +792,7 @@ def auto_partitioning(bios: str) -> {}:
             partitioning_info["partitions"].append(partition)
             # HOME
             auto_part_str += "n\n"  # Add a new partition
-            if bios:
+            if is_bios():
                 auto_part_str += "p\n"  # Partition primary (Accept default: primary)
             auto_part_str += " \n"  # Partition number (Accept default: auto)
             auto_part_str += " \n"  # First sector (Accept default: 1)
@@ -662,7 +807,7 @@ def auto_partitioning(bios: str) -> {}:
         else:
             # ROOT
             auto_part_str += "n\n"  # Add a new partition
-            if bios:
+            if is_bios():
                 auto_part_str += "p\n"  # Partition primary (Accept default: primary)
             auto_part_str += " \n"  # Partition number (Accept default: auto)
             auto_part_str += " \n"  # First sector (Accept default: 1)
@@ -717,12 +862,11 @@ def environment_config(detected_language: str) -> {}:
     :param detected_language:
     :return:
     """
-    pre_launch_info = {"global_language": None, "keymap": None, "bios": None}
+    pre_launch_info = {"global_language": None, "keymap": None}
     user_answer = False
     while not user_answer:
         print_step(_("Welcome to ArchCraftsman !"))
-        pre_launch_info["bios"] = not os.path.exists("/sys/firmware/efi")
-        if pre_launch_info["bios"]:
+        if is_bios():
             print_error(
                 _("BIOS detected ! The script will act accordingly. Don't forget to select a DOS label type before "
                   "partitioning."))
@@ -799,8 +943,6 @@ def system_config(detected_timezone) -> {}:
     """
     system_info = {}
     user_answer = False
-    supported_desktops = ["gnome", "plasma", "xfce", "budgie", "cinnamon", "cutefish", "deepin", "lxqt", "mate",
-                          "enlightenment", "i3", "sway", _("none")]
     while not user_answer:
         print_step(_("System configuration : "))
         system_info["hostname"] = prompt(_("What will be your hostname (archlinux) : "), default="archlinux")
@@ -808,14 +950,30 @@ def system_config(detected_timezone) -> {}:
         system_info["nvidia_driver"] = prompt_bool(_("Install proprietary Nvidia driver ? (y/N) : "), default=False)
         system_info["terminus_font"] = prompt_bool(_("Install terminus console font ? (y/N) : "), default=False)
 
+        print_step(_("Supported bootloaders : "), clear=False)
+        print_sub_step(", ".join(get_supported_bootloaders()))
+        print('')
+        bootloader_ok = False
+        while not bootloader_ok:
+            bootloader = prompt_ln(
+                _("Choose your bootloader ? (%s) : ") % get_supported_bootloaders(get_default=True),
+                default=get_supported_bootloaders(get_default=True)).lower()
+            if bootloader in get_supported_bootloaders():
+                bootloader_ok = True
+                system_info["bootloader"] = process_bootloader(bootloader)
+            else:
+                print_error(_("Bootloader '%s' is not supported.") % bootloader, do_pause=False)
+                continue
+
         print_step(_("Supported desktop environments : "), clear=False)
-        print_sub_step(", ".join(supported_desktops))
+        print_sub_step(", ".join(get_supported_desktop_environments()))
         print('')
         desktop_ok = False
         while not desktop_ok:
             desktop = prompt_ln(
-                _("Install a desktop environment ? (%s) : ") % _("none"), default=_("none")).lower()
-            if desktop in supported_desktops:
+                _("Install a desktop environment ? (%s) : ") % get_supported_desktop_environments(get_default=True),
+                default=get_supported_desktop_environments(get_default=True)).lower()
+            if desktop in get_supported_desktop_environments():
                 desktop_ok = True
                 system_info["desktop"] = desktop
             else:
@@ -969,10 +1127,9 @@ def main(pre_launch_info):
     print_step(_("Partitioning :"))
     want_auto_part = prompt_bool(_("Do you want an automatic partitioning ? (y/N) : "), default=False)
     if want_auto_part:
-        partitioning_info = auto_partitioning(pre_launch_info["bios"])
+        partitioning_info = auto_partitioning()
     else:
-        partitioning_info = manual_partitioning(
-            pre_launch_info["bios"])
+        partitioning_info = manual_partitioning()
 
     print_step(_("Formatting and mounting partitions..."), clear=False)
 
@@ -985,7 +1142,7 @@ def main(pre_launch_info):
     for partition in partitioning_info["partitions"]:
         if partitioning_info["part_format_type"].get(partition) == "btrfs":
             system_info["btrfs_in_use"] = True
-        if not pre_launch_info["bios"] and partitioning_info["part_type"].get(partition) == "EFI":
+        if not is_bios() and partitioning_info["part_type"].get(partition) == "EFI":
             format_partition(partition, partitioning_info["part_format_type"].get(partition),
                              partitioning_info["part_mount_point"].get(partition),
                              partitioning_info["part_format"].get(partition))
@@ -1012,7 +1169,7 @@ def main(pre_launch_info):
         base_pkgs.update(["linux", "linux-headers"])
 
     pkgs = set()
-    pkgs.update(["man-db", "man-pages", "texinfo", "nano", "vim", "git", "curl", "grub", "os-prober", "efibootmgr",
+    pkgs.update(["man-db", "man-pages", "texinfo", "nano", "vim", "git", "curl", "os-prober", "efibootmgr",
                  "networkmanager", "xdg-user-dirs", "reflector", "numlockx", "net-tools", "polkit", "pacman-contrib"])
     if pre_launch_info["global_language"].lower() != "en" and os.system(
             f"pacman -Si man-pages-{pre_launch_info['global_language'].lower()} &>/dev/null") == 0:
@@ -1166,18 +1323,9 @@ def main(pre_launch_info):
     os.system('arch-chroot /mnt bash -c "systemctl enable NetworkManager"')
     os.system('arch-chroot /mnt bash -c "systemctl enable systemd-timesyncd"')
 
-    print_step(_("Installation and configuration of the grub..."), clear=False)
-    if pre_launch_info["bios"]:
-        os.system(f'arch-chroot /mnt bash -c "grub-install --target=i386-pc {partitioning_info["main_disk"]}"')
-    else:
-        os.system(
-            'arch-chroot /mnt bash -c "grub-install --target=x86_64-efi --efi-directory=/boot/efi '
-            '--bootloader-id=\'Arch Linux\'"')
-    os.system('arch-chroot /mnt bash -c "grub-mkconfig -o /boot/grub/grub.cfg"')
-    os.system('sed -i "/^GRUB_CMDLINE_LINUX=.*/a GRUB_DISABLE_OS_PROBER=false" /mnt/etc/default/grub')
-    if partitioning_info["part_format_type"][partitioning_info["root_partition"]] in {"ext4"}:
-        os.system('sed -i "s|GRUB_DEFAULT=.*|GRUB_DEFAULT=saved|g" /mnt/etc/default/grub')
-        os.system('sed -i "/^GRUB_DEFAULT=.*/a GRUB_SAVEDEFAULT=true" /mnt/etc/default/grub')
+    if system_info["bootloader"] is not None:
+        print_step(_("Installation and configuration of the grub..."), clear=False)
+        system_info["bootloader"].install(system_info, pre_launch_info, partitioning_info)
 
     print_step(_("Extra packages configuration if needed..."), clear=False)
     if system_info["desktop"] in {"gnome", "budgie"}:
