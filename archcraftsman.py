@@ -1634,8 +1634,25 @@ def main(pre_launch_info):
         print_step(_("Installation and configuration of the bootloader..."), clear=False)
         system_info["bootloader"].configure(system_info, pre_launch_info, partitioning_info)
 
-    print_step(_("Extra packages configuration if needed..."), clear=False)
+    print_step(_("Users configuration..."), clear=False)
+    print_sub_step(_("root account configuration..."))
+    if system_info["root_password"] != "":
+        os.system(f'arch-chroot /mnt bash -c "echo \'root:{system_info["root_password"]}\' | chpasswd"')
+    if system_info["user_name"] != "":
+        print_sub_step(_("%s account configuration...") % system_info["user_name"])
+        os.system('sed -i "s|# %wheel ALL=(ALL:ALL) ALL|%wheel ALL=(ALL:ALL) ALL|g" /mnt/etc/sudoers')
+        os.system(
+            f'arch-chroot /mnt bash -c "useradd --shell=/bin/bash --groups=wheel '
+            f'--create-home {system_info["user_name"]}"')
+        if system_info["user_full_name"] != "":
+            os.system(
+                f'arch-chroot /mnt bash -c "chfn -f \'{system_info["user_full_name"]}\' {system_info["user_name"]}"')
+        if system_info["user_password"] != "":
+            os.system(
+                f'arch-chroot /mnt bash -c "echo \'{system_info["user_name"]}:'
+                f'{system_info["user_password"]}\' | chpasswd"')
 
+    print_step(_("Extra packages configuration if needed..."), clear=False)
     if system_info["desktop"] is not None:
         system_info["desktop"].configure(system_info, pre_launch_info, partitioning_info)
 
@@ -1646,30 +1663,9 @@ def main(pre_launch_info):
     if system_info["zram"]:
         configure_zram()
 
-    print_step(_("Users configuration..."), clear=False)
-    print_sub_step(_("root account configuration..."))
     if system_info["grml_zsh"]:
         os.system('arch-chroot /mnt bash -c "chsh --shell /bin/zsh"')
-    if system_info["root_password"] != "":
-        os.system(f'arch-chroot /mnt bash -c "echo \'root:{system_info["root_password"]}\' | chpasswd"')
-    if system_info["user_name"] != "":
-        print_sub_step(_("%s account configuration...") % system_info["user_name"])
-        os.system('sed -i "s|# %wheel ALL=(ALL:ALL) ALL|%wheel ALL=(ALL:ALL) ALL|g" /mnt/etc/sudoers')
-        if system_info["grml_zsh"]:
-            os.system(
-                f'arch-chroot /mnt bash -c "useradd --shell=/bin/zsh --groups=wheel '
-                f'--create-home {system_info["user_name"]}"')
-        else:
-            os.system(
-                f'arch-chroot /mnt bash -c "useradd --shell=/bin/bash --groups=wheel '
-                f'--create-home {system_info["user_name"]}"')
-        if system_info["user_full_name"] != "":
-            os.system(
-                f'arch-chroot /mnt bash -c "chfn -f \'{system_info["user_full_name"]}\' {system_info["user_name"]}"')
-        if system_info["user_password"] != "":
-            os.system(
-                f'arch-chroot /mnt bash -c "echo \'{system_info["user_name"]}:'
-                f'{system_info["user_password"]}\' | chpasswd"')
+        os.system(f'arch-chroot /mnt bash -c "chsh --shell /bin/zsh {system_info["user_name"]}"')
 
     umount_partitions()
 
