@@ -202,6 +202,20 @@ class LinuxHardened(Bundle):
         print_sub_step(_("Install Linux hardened kernel."))
 
 
+class NvidiaDriver(Bundle):
+    """
+    The Nvidia driver class.
+    """
+
+    def packages(self, system_info: {}) -> [str]:
+        if system_info["kernel"] and system_info["kernel"].name == "lts":
+            return ["nvidia-lts"]
+        return ["nvidia"]
+
+    def print_resume(self):
+        print_sub_step(_("Install proprietary Nvidia driver."))
+
+
 class Grub(Bundle):
     """
     The Grub Bootloader class.
@@ -1405,7 +1419,8 @@ def system_config(detected_timezone) -> {}:
                                               get_supported_kernels(get_default=True),
                                               get_supported_kernels())
 
-        system_info["nvidia_driver"] = prompt_bool(_("Install proprietary Nvidia driver ? (y/N) : "), default=False)
+        if prompt_bool(_("Install proprietary Nvidia driver ? (y/N) : "), default=False):
+            system_info["nvidia_driver"] = NvidiaDriver("nvidia")
         system_info["terminus_font"] = prompt_bool(_("Install terminus console font ? (y/N) : "), default=False)
 
         system_info["bootloader"] = prompt_bundle(_("Supported bootloaders : "),
@@ -1486,7 +1501,7 @@ def system_config(detected_timezone) -> {}:
         if system_info["kernel"]:
             system_info["kernel"].print_resume()
         if system_info["nvidia_driver"]:
-            print_sub_step(_("Install proprietary Nvidia driver."))
+            system_info["nvidia_driver"].print_resume()
         if system_info["terminus_font"]:
             print_sub_step(_("Install terminus console font."))
         if system_info["bootloader"]:
@@ -1607,10 +1622,8 @@ def main(pre_launch_info):
         pkgs.add("intel-ucode")
     if system_info["microcodes"] == "AuthenticAMD":
         pkgs.add("amd-ucode")
-    if system_info["nvidia_driver"] and system_info["kernel"] and system_info["kernel"].name == "lts":
-        pkgs.add("nvidia-lts")
-    elif system_info["nvidia_driver"] and system_info["kernel"] and not system_info["kernel"].name == "lts":
-        pkgs.add("nvidia")
+    if system_info["nvidia_driver"]:
+        pkgs.update(system_info["nvidia_driver"].packages(system_info))
     if system_info["terminus_font"]:
         pkgs.add("terminus-font")
 
