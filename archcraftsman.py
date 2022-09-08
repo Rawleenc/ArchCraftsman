@@ -216,6 +216,26 @@ class NvidiaDriver(Bundle):
         print_sub_step(_("Install proprietary Nvidia driver."))
 
 
+class Microcodes(Bundle):
+    """
+    The Microcodes class.
+    """
+
+    def __init__(self):
+        super().__init__(re.sub('\\s+', '', os.popen('grep </proc/cpuinfo "vendor" | uniq').read()).split(":")[1])
+
+    def packages(self, system_info: {}) -> [str]:
+        if self.name == "GenuineIntel":
+            return ["intel-ucode"]
+        if self.name == "AuthenticAMD":
+            return ["amd-ucode"]
+        return []
+
+    def print_resume(self):
+        if self.name in {"GenuineIntel", "AuthenticAMD"}:
+            print_sub_step(_("Microcodes to install : %s") % self.name)
+
+
 class Grub(Bundle):
     """
     The Grub Bootloader class.
@@ -254,7 +274,7 @@ def determine_microcode_img(system_info: dict) -> str or None:
     """
     A method to determine the microcode img file name.
     """
-    match system_info["microcodes"]:
+    match system_info["microcodes"].name:
         case "GenuineIntel":
             return "/intel-ucode.img"
         case "AuthenticAMD":
@@ -285,7 +305,7 @@ class SystemdBoot(Bundle):
 
         content = ["title Arch Linux"]
         content += f"linux {determine_vmlinuz(system_info)}"
-        if system_info["microcodes"] in {"GenuineIntel", "AuthenticAMD"}:
+        if system_info["microcodes"].name in {"GenuineIntel", "AuthenticAMD"}:
             content += f"initrd {determine_microcode_img(system_info)}"
         content += f"initrd {determine_linux_img(system_info)}"
         content += "options root=\"LABEL=arch_os\" rw"
@@ -294,7 +314,7 @@ class SystemdBoot(Bundle):
 
         content = ["title Arch Linux (fallback initramfs)"]
         content += f"linux {determine_vmlinuz(system_info)}"
-        if system_info["microcodes"] in {"GenuineIntel", "AuthenticAMD"}:
+        if system_info["microcodes"].name in {"GenuineIntel", "AuthenticAMD"}:
             content += f"initrd {determine_microcode_img(system_info)}"
         content += f"initrd {determine_linux_img(system_info, fallback=True)}"
         content += "options root=\"LABEL=arch_os\" rw"
@@ -1491,13 +1511,11 @@ def system_config(detected_timezone) -> {}:
         if system_info["user_name"] != "":
             system_info["user_password"] = ask_password(system_info["user_name"])
 
-        system_info["microcodes"] = re.sub(
-            '\\s+', '', os.popen('grep </proc/cpuinfo "vendor" | uniq').read()).split(":")[1]
+        system_info["microcodes"] = Microcodes()
 
         print_step(_("Summary of choices :"))
         print_sub_step(_("Your hostname : %s") % system_info["hostname"])
-        if system_info["microcodes"] in {"GenuineIntel", "AuthenticAMD"}:
-            print_sub_step(_("Microcodes to install : %s") % system_info["microcodes"])
+        system_info["microcodes"].print_resume()
         if system_info["kernel"]:
             system_info["kernel"].print_resume()
         if system_info["nvidia_driver"]:
@@ -1618,10 +1636,7 @@ def main(pre_launch_info):
         pkgs.add(f"man-pages-{pre_launch_info['global_language'].lower()}")
     if system_info["btrfs_in_use"]:
         pkgs.add("btrfs-progs")
-    if system_info["microcodes"] == "GenuineIntel":
-        pkgs.add("intel-ucode")
-    if system_info["microcodes"] == "AuthenticAMD":
-        pkgs.add("amd-ucode")
+    pkgs.add(system_info["microcodes"].packages(system_info))
     if system_info["nvidia_driver"]:
         pkgs.update(system_info["nvidia_driver"].packages(system_info))
     if system_info["terminus_font"]:
