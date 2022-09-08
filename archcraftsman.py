@@ -227,6 +227,9 @@ class TerminusFont(Bundle):
     def print_resume(self):
         print_sub_step(_("Install terminus console font."))
 
+    def configure(self, system_info, pre_launch_info, partitioning_info):
+        os.system(f'echo "FONT={pre_launch_info["live_console_font"]}" >>/mnt/etc/vconsole.conf')
+
 
 class Microcodes(Bundle):
     """
@@ -384,7 +387,7 @@ class Plasma(Bundle):
                     "xdg-desktop-portal", "xdg-desktop-portal-kde"]
         if self.plasma_wayland:
             packages.extend(["plasma-wayland-session", "qt5-wayland"])
-            if system_info["nvidia_driver"]:
+            if "nvidia" in [bundle.name for bundle in system_info["bundle"]]:
                 packages.append("egl-wayland")
         if self.minimal is not True:
             packages.append("kde-applications")
@@ -726,7 +729,7 @@ def get_main_file_systems() -> [str]:
             "ntfs-3g", "reiserfsprogs", "udftools", "xfsprogs"]
 
 
-class MainFileSystem(Bundle):
+class MainFileSystems(Bundle):
     """
     The main file systems class.
     """
@@ -1510,6 +1513,7 @@ def system_config(detected_timezone) -> {}:
     while not user_answer:
         print_step(_("System configuration : "))
         system_info["hostname"] = prompt(_("What will be your hostname (archlinux) : "), default="archlinux")
+        system_info["bundles"] = []
 
         system_info["kernel"] = prompt_bundle(_("Supported kernels : "),
                                               _("Choose your kernel ? (%s) : "),
@@ -1517,45 +1521,50 @@ def system_config(detected_timezone) -> {}:
                                               get_supported_kernels(get_default=True),
                                               get_supported_kernels())
 
-        if prompt_bool(_("Install proprietary Nvidia driver ? (y/N) : "), default=False):
-            system_info["nvidia_driver"] = NvidiaDriver("nvidia")
-        if prompt_bool(_("Install terminus console font ? (y/N) : "), default=False):
-            system_info["terminus_font"] = TerminusFont("terminus")
-
         system_info["bootloader"] = prompt_bundle(_("Supported bootloaders : "),
                                                   _("Choose your bootloader ? (%s) : "),
                                                   _("Bootloader '%s' is not supported."),
                                                   get_supported_bootloaders(get_default=True),
                                                   get_supported_bootloaders())
 
-        system_info["desktop"] = prompt_bundle(_("Supported desktop environments : "),
-                                               _("Install a desktop environment ? (%s) : "),
-                                               _("Desktop environment '%s' is not supported."),
-                                               get_supported_desktop_environments(get_default=True),
-                                               get_supported_desktop_environments())
+        if prompt_bool(_("Install proprietary Nvidia driver ? (y/N) : "), default=False):
+            system_info["bundles"].append(NvidiaDriver("nvidia"))
+
+        if prompt_bool(_("Install terminus console font ? (y/N) : "), default=False):
+            system_info["bundles"].append(TerminusFont("terminus"))
+
+        system_info["bundles"].append(prompt_bundle(_("Supported desktop environments : "),
+                                                    _("Install a desktop environment ? (%s) : "),
+                                                    _("Desktop environment '%s' is not supported."),
+                                                    get_supported_desktop_environments(get_default=True),
+                                                    get_supported_desktop_environments()))
 
         if prompt_bool(_("Install Cups ? (y/N) : "), default=False):
-            system_info["cups"] = Cups("cups")
+            system_info["bundles"].append(Cups("cups"))
+
         if prompt_bool(_("Install ZSH with GRML configuration ? (y/N/?) : "), default=False,
                        help_msg=_(
                            "If yes, the script will install the ZSH shell with GRML "
                            "configuration. GRML is a ZSH pre-configuration used by Archlinux's "
                            "live environment.")):
-            system_info["grml_zsh"] = GrmlZsh("grml")
+            system_info["bundles"].append(GrmlZsh("grml"))
+
         if prompt_bool(_("Install a set of main fonts ? (y/N/?) : "), default=False,
                        help_msg=_("If yes, the following packages will be installed :\n%s") % " ".join(
                            get_main_fonts())):
-            system_info["main_fonts"] = MainFonts("mainfonts")
+            system_info["bundles"].append(MainFonts("mainfonts"))
+
         if prompt_bool(_("Install main file systems support ? (y/N/?) : "),
                        default=False, help_msg=_(
                     "If yes, the following packages will be installed :\n%s") % " ".join(get_main_file_systems())):
-            system_info["main_file_systems"] = MainFileSystem("mainfilesystems")
+            system_info["bundles"].append(MainFileSystems("mainfilesystems"))
+
         if prompt_bool(_("Install and enable ZRAM ? (y/N/?) : "), default=False, help_msg=_(
                 "ZRAM is a process to compress datas directly in the RAM instead of moving them in a swap. "
                 "Enabled ZRAM will allow you to compress up to half of your RAM before having to swap. "
                 "This method is more efficient than the swap and do not use your disk but is more CPU demanding. "
                 "ZRAM is fully compatible with a swap, it just has a higher priority.")):
-            system_info["zram"] = Zram("zram")
+            system_info["bundles"].append(Zram("zram"))
 
         default_timezone_file = f'/usr/share/zoneinfo/{detected_timezone}'
         system_info["timezone"] = prompt_ln(_("Your timezone (%s) : ") % default_timezone_file,
@@ -1602,24 +1611,10 @@ def system_config(detected_timezone) -> {}:
         system_info["microcodes"].print_resume()
         if system_info["kernel"]:
             system_info["kernel"].print_resume()
-        if system_info["nvidia_driver"]:
-            system_info["nvidia_driver"].print_resume()
-        if system_info["terminus_font"]:
-            system_info["terminus_font"].print_resume()
         if system_info["bootloader"]:
             system_info["bootloader"].print_resume()
-        if system_info["desktop"]:
-            system_info["desktop"].print_resume()
-        if system_info["cups"]:
-            system_info["cups"].print_resume()
-        if system_info["grml_zsh"]:
-            system_info["grml_zsh"].print_resume()
-        if system_info["main_fonts"]:
-            system_info["main_fonts"].print_resume()
-        if system_info["main_file_systems"]:
-            system_info["main_file_systems"].print_resume()
-        if system_info["zram"]:
-            system_info["zram"].print_resume()
+        for bundle in system_info["bundles"]:
+            bundle.print_resume()
         print_sub_step(_("Your timezone : %s") % system_info["timezone"])
         if system_info["user_name"] != "":
             print_sub_step(_("Additional user name : %s") % system_info["user_name"])
@@ -1668,7 +1663,7 @@ def format_partition(partition: str, format_type: str, mount_point: str, formatt
 def main(pre_launch_info):
     """ The main method. """
     system_info = system_config(pre_launch_info["detected_timezone"])
-    system_info["btrfs_in_use"] = False
+    btrfs_in_use = False
 
     print_step(_("Partitioning :"))
     want_auto_part = prompt_bool(_("Do you want an automatic partitioning ? (y/N) : "), default=False)
@@ -1683,11 +1678,11 @@ def main(pre_launch_info):
                      partitioning_info["part_format_type"][partitioning_info["root_partition"]],
                      partitioning_info["part_mount_point"][partitioning_info["root_partition"]], True)
     if partitioning_info["part_format_type"][partitioning_info["root_partition"]] == "btrfs":
-        system_info["btrfs_in_use"] = True
+        btrfs_in_use = True
 
     for partition in partitioning_info["partitions"]:
         if partitioning_info["part_format_type"].get(partition) == "btrfs":
-            system_info["btrfs_in_use"] = True
+            btrfs_in_use = True
         if not is_bios() and partitioning_info["part_type"].get(partition) == "EFI":
             format_partition(partition, partitioning_info["part_format_type"].get(partition),
                              partitioning_info["part_mount_point"].get(partition),
@@ -1709,6 +1704,7 @@ def main(pre_launch_info):
 
     base_pkgs = set()
     base_pkgs.update(["base", "base-devel", "linux-firmware"])
+
     if system_info["kernel"]:
         base_pkgs.update(system_info["kernel"].packages(system_info))
 
@@ -1719,36 +1715,17 @@ def main(pre_launch_info):
     if pre_launch_info["global_language"].lower() != "en" and os.system(
             f"pacman -Si man-pages-{pre_launch_info['global_language'].lower()} &>/dev/null") == 0:
         pkgs.add(f"man-pages-{pre_launch_info['global_language'].lower()}")
-    if system_info["btrfs_in_use"]:
+
+    if btrfs_in_use:
         pkgs.add("btrfs-progs")
-    pkgs.add(system_info["microcodes"].packages(system_info))
 
-    if system_info["nvidia_driver"]:
-        pkgs.update(system_info["nvidia_driver"].packages(system_info))
+    pkgs.update(system_info["microcodes"].packages(system_info))
 
-    if system_info["terminus_font"]:
-        pkgs.update(system_info["terminus_font"].packages(system_info))
-
-    if system_info["bootloader"] is not None:
+    if system_info["bootloader"]:
         pkgs.update(system_info["bootloader"].packages(system_info))
 
-    if system_info["desktop"] is not None:
-        pkgs.update(system_info["desktop"].packages(system_info))
-
-    if system_info["cups"]:
-        pkgs.update(system_info["cups"].packages(system_info))
-
-    if system_info["grml_zsh"]:
-        pkgs.update(system_info["grml_zsh"].packages(system_info))
-
-    if system_info["main_fonts"]:
-        pkgs.update(system_info["main_fonts"].packages(system_info))
-
-    if system_info["main_file_systems"]:
-        pkgs.update(system_info["main_file_systems"].packages(system_info))
-
-    if system_info["zram"]:
-        pkgs.update(system_info["zram"].packages(system_info))
+    for bundle in system_info["bundles"]:
+        pkgs.update(bundle.packages(system_info))
 
     if len(system_info["more_pkgs"]) > 0:
         pkgs.update(system_info["more_pkgs"])
@@ -1766,8 +1743,6 @@ def main(pre_launch_info):
     else:
         os.system('echo "LANG=en_US.UTF-8" >/mnt/etc/locale.conf')
     os.system(f'echo "KEYMAP={pre_launch_info["keymap"]}" >/mnt/etc/vconsole.conf')
-    if system_info["terminus_font"]:
-        os.system(f'echo "FONT={pre_launch_info["live_console_font"]}" >>/mnt/etc/vconsole.conf')
     os.system(f'echo "{system_info["hostname"]}" >/mnt/etc/hostname')
     os.system(f'''
         {{
@@ -1838,16 +1813,8 @@ def main(pre_launch_info):
                 f'{system_info["user_password"]}\' | chpasswd"')
 
     print_step(_("Extra packages configuration if needed..."), clear=False)
-    if system_info["desktop"] is not None:
-        system_info["desktop"].configure(system_info, pre_launch_info, partitioning_info)
-
-    if system_info["cups"]:
-        system_info["cups"].configure(system_info, pre_launch_info, partitioning_info)
-    if system_info["zram"]:
-        system_info["zram"].configure(system_info, pre_launch_info, partitioning_info)
-
-    if system_info["grml_zsh"]:
-        system_info["grml_zsh"].configure(system_info, pre_launch_info, partitioning_info)
+    for bundle in system_info["bundles"]:
+        bundle.configure(system_info, pre_launch_info, partitioning_info)
 
     umount_partitions()
 
