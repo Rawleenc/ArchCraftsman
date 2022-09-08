@@ -216,6 +216,18 @@ class NvidiaDriver(Bundle):
         print_sub_step(_("Install proprietary Nvidia driver."))
 
 
+class TerminusFont(Bundle):
+    """
+    The Terminus console font class.
+    """
+
+    def packages(self, system_info: {}) -> [str]:
+        return ["terminus-font"]
+
+    def print_resume(self):
+        print_sub_step(_("Install terminus console font."))
+
+
 class Microcodes(Bundle):
     """
     The Microcodes class.
@@ -646,6 +658,24 @@ class Sway(Bundle):
         if "fr" in pre_launch_info["keymap"]:
             os.system("echo 'XKB_DEFAULT_LAYOUT=fr' >> /mnt/etc/environment")
             setup_chroot_keyboard("fr")
+
+
+class Cups(Bundle):
+    """
+    Cups class.
+    """
+
+    def packages(self, system_info: {}) -> [str]:
+        return ["cups", "cups-pdf", "avahi", "samba", "foomatic-db-engine", "foomatic-db", "foomatic-db-ppds",
+                "foomatic-db-nonfree-ppds", "foomatic-db-gutenprint-ppds", "gutenprint", "ghostscript"]
+
+    def print_resume(self):
+        print_sub_step(_("Install Cups."))
+
+    def configure(self, system_info, pre_launch_info, partitioning_info):
+        os.system('arch-chroot /mnt bash -c "systemctl enable avahi-daemon"')
+        os.system('arch-chroot /mnt bash -c "systemctl enable cups"')
+        os.system('arch-chroot /mnt bash -c "systemctl enable cups-browsed"')
 
 
 def is_bios() -> bool:
@@ -1441,7 +1471,8 @@ def system_config(detected_timezone) -> {}:
 
         if prompt_bool(_("Install proprietary Nvidia driver ? (y/N) : "), default=False):
             system_info["nvidia_driver"] = NvidiaDriver("nvidia")
-        system_info["terminus_font"] = prompt_bool(_("Install terminus console font ? (y/N) : "), default=False)
+        if prompt_bool(_("Install terminus console font ? (y/N) : "), default=False):
+            system_info["terminus_font"] = TerminusFont("terminus")
 
         system_info["bootloader"] = prompt_bundle(_("Supported bootloaders : "),
                                                   _("Choose your bootloader ? (%s) : "),
@@ -1455,7 +1486,8 @@ def system_config(detected_timezone) -> {}:
                                                get_supported_desktop_environments(get_default=True),
                                                get_supported_desktop_environments())
 
-        system_info["cups"] = prompt_bool(_("Install Cups ? (y/N) : "), default=False)
+        if prompt_bool(_("Install Cups ? (y/N) : "), default=False):
+            system_info["cups"] = Cups("cups")
         system_info["grml_zsh"] = prompt_bool(_("Install ZSH with GRML configuration ? (y/N/?) : "), default=False,
                                               help_msg=_(
                                                   "If yes, the script will install the ZSH shell with GRML "
@@ -1521,13 +1553,13 @@ def system_config(detected_timezone) -> {}:
         if system_info["nvidia_driver"]:
             system_info["nvidia_driver"].print_resume()
         if system_info["terminus_font"]:
-            print_sub_step(_("Install terminus console font."))
+            system_info["terminus_font"].print_resume()
         if system_info["bootloader"]:
             system_info["bootloader"].print_resume()
         if system_info["desktop"]:
             system_info["desktop"].print_resume()
         if system_info["cups"]:
-            print_sub_step(_("Install Cups."))
+            system_info["cups"].print_resume()
         if system_info["grml_zsh"]:
             print_sub_step(_("Install ZSH with GRML configuration."))
         if system_info["main_fonts"]:
@@ -1649,9 +1681,8 @@ def main(pre_launch_info):
         pkgs.update(system_info["desktop"].packages(system_info))
 
     if system_info["cups"]:
-        pkgs.update(
-            ["cups", "cups-pdf", "avahi", "samba", "foomatic-db-engine", "foomatic-db", "foomatic-db-ppds",
-             "foomatic-db-nonfree-ppds", "foomatic-db-gutenprint-ppds", "gutenprint", "ghostscript"])
+        pkgs.update(system_info["cups"].packages(system_info))
+
     if system_info["grml_zsh"]:
         pkgs.update(["zsh", "zsh-completions", "grml-zsh-config"])
     else:
@@ -1755,9 +1786,7 @@ def main(pre_launch_info):
         system_info["desktop"].configure(system_info, pre_launch_info, partitioning_info)
 
     if system_info["cups"]:
-        os.system('arch-chroot /mnt bash -c "systemctl enable avahi-daemon"')
-        os.system('arch-chroot /mnt bash -c "systemctl enable cups"')
-        os.system('arch-chroot /mnt bash -c "systemctl enable cups-browsed"')
+        system_info["cups"].configure(system_info, pre_launch_info, partitioning_info)
     if system_info["zram"]:
         configure_zram()
 
