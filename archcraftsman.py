@@ -154,6 +154,54 @@ class Bundle:
         """
 
 
+class LinuxCurrent(Bundle):
+    """
+    The Linux current kernel class.
+    """
+
+    def packages(self, system_info: {}) -> [str]:
+        return ["linux", "linux-headers"]
+
+    def print_resume(self):
+        print_sub_step(_("Install Linux current kernel."))
+
+
+class LinuxLts(Bundle):
+    """
+    The Linux LTS kernel class.
+    """
+
+    def packages(self, system_info: {}) -> [str]:
+        return ["linux-lts", "linux-lts-headers"]
+
+    def print_resume(self):
+        print_sub_step(_("Install Linux LTS kernel."))
+
+
+class LinuxZen(Bundle):
+    """
+    The Linux zen kernel class.
+    """
+
+    def packages(self, system_info: {}) -> [str]:
+        return ["linux-zen", "linux-zen-headers"]
+
+    def print_resume(self):
+        print_sub_step(_("Install Linux zen kernel."))
+
+
+class LinuxHardened(Bundle):
+    """
+    The Linux hardened kernel class.
+    """
+
+    def packages(self, system_info: {}) -> [str]:
+        return ["linux-hardened", "linux-hardened-headers"]
+
+    def print_resume(self):
+        print_sub_step(_("Install Linux hardened kernel."))
+
+
 class Grub(Bundle):
     """
     The Grub Bootloader class.
@@ -183,7 +231,7 @@ def determine_vmlinuz(system_info: dict) -> str or None:
     """
     A method to determine the vmlinuz file name.
     """
-    if system_info["lts_kernel"]:
+    if system_info["kernel"] and system_info["kernel"].name == "lts":
         return "/vmlinuz-linux-lts"
     return "/vmlinuz-linux"
 
@@ -203,7 +251,7 @@ def determine_linux_img(system_info: dict, fallback: bool = False) -> str or Non
     """
     A method to determine the linux img file name.
     """
-    if system_info["lts_kernel"]:
+    if system_info["kernel"] and system_info["kernel"].name == "lts":
         return "/initramfs-linux-fallback.img" if fallback else "/initramfs-linux.img"
     return "/initramfs-linux-lts-fallback.img" if fallback else "/initramfs-linux-lts.img"
 
@@ -582,6 +630,14 @@ def process_bundle(name: str) -> Bundle or None:
     """
     bundle = None
     match name:
+        case "current":
+            bundle = LinuxCurrent("current")
+        case "lts":
+            bundle = LinuxLts("lts")
+        case "zen":
+            bundle = LinuxZen("zen")
+        case "hardened":
+            bundle = LinuxHardened("hardened")
         case "grub":
             bundle = Grub("grub")
         case "systemd-boot":
@@ -867,9 +923,17 @@ def get_supported_desktop_environments(get_default: bool = False) -> str or []:
                                           "i3", "sway", _("none")]
 
 
+def get_supported_kernels(get_default: bool = False) -> str or []:
+    """
+    The method to get all supported kernels.
+    :return:
+    """
+    return "current" if get_default else ["current", "lts", "zen", "hardened"]
+
+
 def get_supported_bootloaders(get_default: bool = False) -> str or []:
     """
-    The method to get all supported desktop environments.
+    The method to get all supported bootloaders.
     :return:
     """
     if is_bios():
@@ -1334,7 +1398,13 @@ def system_config(detected_timezone) -> {}:
     while not user_answer:
         print_step(_("System configuration : "))
         system_info["hostname"] = prompt(_("What will be your hostname (archlinux) : "), default="archlinux")
-        system_info["lts_kernel"] = prompt_bool(_("Install LTS Linux kernel ? (y/N) : "), default=False)
+
+        system_info["kernel"] = prompt_bundle(_("Supported kernels : "),
+                                              _("Choose your kernel ? (%s) : "),
+                                              _("Kernel '%s' is not supported."),
+                                              get_supported_kernels(get_default=True),
+                                              get_supported_kernels())
+
         system_info["nvidia_driver"] = prompt_bool(_("Install proprietary Nvidia driver ? (y/N) : "), default=False)
         system_info["terminus_font"] = prompt_bool(_("Install terminus console font ? (y/N) : "), default=False)
 
@@ -1413,14 +1483,16 @@ def system_config(detected_timezone) -> {}:
         print_sub_step(_("Your hostname : %s") % system_info["hostname"])
         if system_info["microcodes"] in {"GenuineIntel", "AuthenticAMD"}:
             print_sub_step(_("Microcodes to install : %s") % system_info["microcodes"])
-        if system_info["lts_kernel"]:
-            print_sub_step(_("Install LTS Linux kernel."))
+        if system_info["kernel"]:
+            system_info["kernel"].print_resume()
         if system_info["nvidia_driver"]:
             print_sub_step(_("Install proprietary Nvidia driver."))
         if system_info["terminus_font"]:
             print_sub_step(_("Install terminus console font."))
-        system_info["bootloader"].print_resume()
-        system_info["desktop"].print_resume()
+        if system_info["bootloader"]:
+            system_info["bootloader"].print_resume()
+        if system_info["desktop"]:
+            system_info["desktop"].print_resume()
         if system_info["cups"]:
             print_sub_step(_("Install Cups."))
         if system_info["grml_zsh"]:
@@ -1520,10 +1592,8 @@ def main(pre_launch_info):
 
     base_pkgs = set()
     base_pkgs.update(["base", "base-devel", "linux-firmware"])
-    if system_info["lts_kernel"]:
-        base_pkgs.update(["linux-lts", "linux-lts-headers"])
-    else:
-        base_pkgs.update(["linux", "linux-headers"])
+    if system_info["kernel"]:
+        base_pkgs.update(system_info["kernel"].packages(system_info))
 
     pkgs = set()
     pkgs.update(["man-db", "man-pages", "texinfo", "nano", "vim", "git", "curl", "os-prober", "efibootmgr",
@@ -1537,9 +1607,9 @@ def main(pre_launch_info):
         pkgs.add("intel-ucode")
     if system_info["microcodes"] == "AuthenticAMD":
         pkgs.add("amd-ucode")
-    if system_info["nvidia_driver"] and system_info["lts_kernel"]:
+    if system_info["nvidia_driver"] and system_info["kernel"] and system_info["kernel"].name == "lts":
         pkgs.add("nvidia-lts")
-    elif system_info["nvidia_driver"] and not system_info["lts_kernel"]:
+    elif system_info["nvidia_driver"] and system_info["kernel"] and not system_info["kernel"].name == "lts":
         pkgs.add("nvidia")
     if system_info["terminus_font"]:
         pkgs.add("terminus-font")
