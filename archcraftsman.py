@@ -678,6 +678,86 @@ class Cups(Bundle):
         os.system('arch-chroot /mnt bash -c "systemctl enable cups-browsed"')
 
 
+class GrmlZsh(Bundle):
+    """
+    Grml ZSH config class.
+    """
+
+    def packages(self, system_info: {}) -> [str]:
+        return ["zsh", "zsh-completions", "grml-zsh-config"]
+
+    def print_resume(self):
+        print_sub_step(_("Install ZSH with GRML configuration."))
+
+    def configure(self, system_info, pre_launch_info, partitioning_info):
+        os.system('arch-chroot /mnt bash -c "chsh --shell /bin/zsh"')
+        os.system(f'arch-chroot /mnt bash -c "chsh --shell /bin/zsh {system_info["user_name"]}"')
+
+
+def get_main_fonts() -> [str]:
+    """
+    The method to get the package list of the main fonts group.
+    :return:
+    """
+    return ["gnu-free-fonts", "noto-fonts", "ttf-bitstream-vera", "ttf-dejavu", "ttf-hack", "ttf-droid",
+            "ttf-fira-code", "ttf-fira-mono", "ttf-fira-sans", "ttf-font-awesome", "ttf-inconsolata",
+            "ttf-input", "ttf-liberation", "ttf-nerd-fonts-symbols-2048-em", "ttf-opensans", "ttf-roboto",
+            "ttf-roboto-mono", "ttf-ubuntu-font-family", "ttf-jetbrains-mono"]
+
+
+class MainFonts(Bundle):
+    """
+    The main fonts class.
+    """
+
+    def packages(self, system_info: {}) -> [str]:
+        return get_main_fonts()
+
+    def print_resume(self):
+        print_sub_step(_("Install a set of main fonts."))
+
+
+def get_main_file_systems() -> [str]:
+    """
+    The method to get the package list of the main file systems group.
+    :return:
+    """
+    return ["btrfs-progs", "dosfstools", "exfatprogs", "f2fs-tools", "e2fsprogs", "jfsutils", "nilfs-utils",
+            "ntfs-3g", "reiserfsprogs", "udftools", "xfsprogs"]
+
+
+class MainFileSystem(Bundle):
+    """
+    The main file systems class.
+    """
+
+    def packages(self, system_info: {}) -> [str]:
+        return get_main_file_systems()
+
+    def print_resume(self):
+        print_sub_step(_("Install main file systems support."))
+
+
+class Zram(Bundle):
+    """
+    The ZRAM class.
+    """
+
+    def packages(self, system_info: {}) -> [str]:
+        return ["zram-generator"]
+
+    def print_resume(self):
+        print_sub_step(_("Install and enable ZRAM."))
+
+    def configure(self, system_info, pre_launch_info, partitioning_info):
+        content = [
+            "[zram0]\n",
+            "zram-size = ram / 2\n"
+        ]
+        with open("/mnt/etc/systemd/zram-generator.conf", "w", encoding="UTF-8") as zram_config_file:
+            zram_config_file.writelines(content)
+
+
 def is_bios() -> bool:
     """
     Check if live system run on a bios.
@@ -935,18 +1015,6 @@ def setup_chroot_keyboard(layout: str):
         keyboard_config_file.writelines(content)
 
 
-def configure_zram():
-    """
-    The method to configure zram generator.
-    """
-    content = [
-        "[zram0]\n",
-        "zram-size = ram / 2\n"
-    ]
-    with open("/mnt/etc/systemd/zram-generator.conf", "w", encoding="UTF-8") as zram_config_file:
-        zram_config_file.writelines(content)
-
-
 def ask_swapfile_size(disk: Disk) -> str:
     """
     The method to ask the user for the swapfile size.
@@ -1024,26 +1092,6 @@ def ask_format_type() -> str:
             print_error(_("Format type '%s' is not supported.") % format_type, do_pause=False)
             continue
     return format_type
-
-
-def get_main_file_systems() -> [str]:
-    """
-    The method to get the package list of the main file systems group.
-    :return:
-    """
-    return ["btrfs-progs", "dosfstools", "exfatprogs", "f2fs-tools", "e2fsprogs", "jfsutils", "nilfs-utils",
-            "ntfs-3g", "reiserfsprogs", "udftools", "xfsprogs"]
-
-
-def get_main_fonts() -> [str]:
-    """
-    The method to get the package list of the main fonts group.
-    :return:
-    """
-    return ["gnu-free-fonts", "noto-fonts", "ttf-bitstream-vera", "ttf-dejavu", "ttf-hack", "ttf-droid",
-            "ttf-fira-code", "ttf-fira-mono", "ttf-fira-sans", "ttf-font-awesome", "ttf-inconsolata",
-            "ttf-input", "ttf-liberation", "ttf-nerd-fonts-symbols-2048-em", "ttf-opensans", "ttf-roboto",
-            "ttf-roboto-mono", "ttf-ubuntu-font-family", "ttf-jetbrains-mono"]
 
 
 def manual_partitioning() -> {}:
@@ -1488,23 +1536,27 @@ def system_config(detected_timezone) -> {}:
 
         if prompt_bool(_("Install Cups ? (y/N) : "), default=False):
             system_info["cups"] = Cups("cups")
-        system_info["grml_zsh"] = prompt_bool(_("Install ZSH with GRML configuration ? (y/N/?) : "), default=False,
-                                              help_msg=_(
-                                                  "If yes, the script will install the ZSH shell with GRML "
-                                                  "configuration. GRML is a ZSH pre-configuration used by Archlinux's "
-                                                  "live environment."))
-        system_info["main_fonts"] = \
-            prompt_bool(_("Install a set of main fonts ? (y/N/?) : "), default=False,
-                        help_msg=_("If yes, the following packages will be installed :\n%s") % " ".join(
-                            get_main_fonts()))
-        system_info["main_file_systems"] = prompt_bool(_("Install main file systems support ? (y/N/?) : "),
-                                                       default=False, help_msg=_(
-                "If yes, the following packages will be installed :\n%s") % " ".join(get_main_file_systems()))
-        system_info["zram"] = prompt_bool(_("Install and enable ZRAM ? (y/N/?) : "), default=False, help_msg=_(
-            "ZRAM is a process to compress datas directly in the RAM instead of moving them in a swap. Enabled ZRAM "
-            "will allow you to compress up to half of your RAM before having to swap. This method is more efficient "
-            "than the swap and do not use your disk but is more CPU demanding. ZRAM is fully compatible with a swap, "
-            "it just has a higher priority."))
+        if prompt_bool(_("Install ZSH with GRML configuration ? (y/N/?) : "), default=False,
+                       help_msg=_(
+                           "If yes, the script will install the ZSH shell with GRML "
+                           "configuration. GRML is a ZSH pre-configuration used by Archlinux's "
+                           "live environment.")):
+            system_info["grml_zsh"] = GrmlZsh("grml")
+        if prompt_bool(_("Install a set of main fonts ? (y/N/?) : "), default=False,
+                       help_msg=_("If yes, the following packages will be installed :\n%s") % " ".join(
+                           get_main_fonts())):
+            system_info["main_fonts"] = MainFonts("mainfonts")
+        if prompt_bool(_("Install main file systems support ? (y/N/?) : "),
+                       default=False, help_msg=_(
+                    "If yes, the following packages will be installed :\n%s") % " ".join(get_main_file_systems())):
+            system_info["main_file_systems"] = MainFileSystem("mainfilesystems")
+        if prompt_bool(_("Install and enable ZRAM ? (y/N/?) : "), default=False, help_msg=_(
+                "ZRAM is a process to compress datas directly in the RAM instead of moving them in a swap. "
+                "Enabled ZRAM will allow you to compress up to half of your RAM before having to swap. "
+                "This method is more efficient than the swap and do not use your disk but is more CPU demanding. "
+                "ZRAM is fully compatible with a swap, it just has a higher priority.")):
+            system_info["zram"] = Zram("zram")
+
         default_timezone_file = f'/usr/share/zoneinfo/{detected_timezone}'
         system_info["timezone"] = prompt_ln(_("Your timezone (%s) : ") % default_timezone_file,
                                             default=default_timezone_file)
@@ -1561,13 +1613,13 @@ def system_config(detected_timezone) -> {}:
         if system_info["cups"]:
             system_info["cups"].print_resume()
         if system_info["grml_zsh"]:
-            print_sub_step(_("Install ZSH with GRML configuration."))
+            system_info["grml_zsh"].print_resume()
         if system_info["main_fonts"]:
-            print_sub_step(_("Install a set of main fonts."))
+            system_info["main_fonts"].print_resume()
         if system_info["main_file_systems"]:
-            print_sub_step(_("Install main file systems support."))
+            system_info["main_file_systems"].print_resume()
         if system_info["zram"]:
-            print_sub_step(_("Install and enable ZRAM."))
+            system_info["zram"].print_resume()
         print_sub_step(_("Your timezone : %s") % system_info["timezone"])
         if system_info["user_name"] != "":
             print_sub_step(_("Additional user name : %s") % system_info["user_name"])
@@ -1663,16 +1715,19 @@ def main(pre_launch_info):
     pkgs = set()
     pkgs.update(["man-db", "man-pages", "texinfo", "nano", "vim", "git", "curl", "os-prober", "efibootmgr",
                  "networkmanager", "xdg-user-dirs", "reflector", "numlockx", "net-tools", "polkit", "pacman-contrib"])
+
     if pre_launch_info["global_language"].lower() != "en" and os.system(
             f"pacman -Si man-pages-{pre_launch_info['global_language'].lower()} &>/dev/null") == 0:
         pkgs.add(f"man-pages-{pre_launch_info['global_language'].lower()}")
     if system_info["btrfs_in_use"]:
         pkgs.add("btrfs-progs")
     pkgs.add(system_info["microcodes"].packages(system_info))
+
     if system_info["nvidia_driver"]:
         pkgs.update(system_info["nvidia_driver"].packages(system_info))
+
     if system_info["terminus_font"]:
-        pkgs.add("terminus-font")
+        pkgs.update(system_info["terminus_font"].packages(system_info))
 
     if system_info["bootloader"] is not None:
         pkgs.update(system_info["bootloader"].packages(system_info))
@@ -1684,15 +1739,16 @@ def main(pre_launch_info):
         pkgs.update(system_info["cups"].packages(system_info))
 
     if system_info["grml_zsh"]:
-        pkgs.update(["zsh", "zsh-completions", "grml-zsh-config"])
-    else:
-        pkgs.add("bash-completion")
+        pkgs.update(system_info["grml_zsh"].packages(system_info))
+
     if system_info["main_fonts"]:
-        pkgs.update(get_main_fonts())
+        pkgs.update(system_info["main_fonts"].packages(system_info))
+
     if system_info["main_file_systems"]:
-        pkgs.update(get_main_file_systems())
+        pkgs.update(system_info["main_file_systems"].packages(system_info))
+
     if system_info["zram"]:
-        pkgs.add("zram-generator")
+        pkgs.update(system_info["zram"].packages(system_info))
 
     if len(system_info["more_pkgs"]) > 0:
         pkgs.update(system_info["more_pkgs"])
@@ -1788,11 +1844,10 @@ def main(pre_launch_info):
     if system_info["cups"]:
         system_info["cups"].configure(system_info, pre_launch_info, partitioning_info)
     if system_info["zram"]:
-        configure_zram()
+        system_info["zram"].configure(system_info, pre_launch_info, partitioning_info)
 
     if system_info["grml_zsh"]:
-        os.system('arch-chroot /mnt bash -c "chsh --shell /bin/zsh"')
-        os.system(f'arch-chroot /mnt bash -c "chsh --shell /bin/zsh {system_info["user_name"]}"')
+        system_info["grml_zsh"].configure(system_info, pre_launch_info, partitioning_info)
 
     umount_partitions()
 
