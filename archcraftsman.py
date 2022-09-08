@@ -42,83 +42,27 @@ ORANGE = "\033[0;33m"
 NOCOLOR = "\033[0m"
 
 
-class Partition:
+def complete(text, state):
     """
-    A class to represent a partition.
+    A file path completer.
+    :param text:
+    :param state:
+    :return:
     """
-    path: str
-    size: int
-    part_type: str
-    fs_type: str
-
-    def __init__(self, part_str: str = None):
-        """
-        Partition initialisation.
-        """
-        if part_str is None:
-            self.path = ""
-            self.size = 0
-            self.part_type = ""
-            self.fs_type = ""
-        else:
-            self.path = part_str.split(" ")[0]
-            self.size = from_iec(re.sub('\\s', '', os.popen(f'lsblk -nl "{self.path}" -o SIZE').read()))
-            self.part_type = str(
-                re.sub('[^a-zA-Z\\d ]', '', os.popen(f'lsblk -nl "{self.path}" -o PARTTYPENAME').read()))
-            self.fs_type = str(
-                re.sub('[^a-zA-Z\\d ]', '', os.popen(f'lsblk -nl "{self.path}" -o FSTYPE').read()))
-
-    def __str__(self) -> str:
-        """
-        Partition str formatting.
-        """
-        return f"'{self.path}' - '{self.size}' - '{self.part_type}' - '{self.fs_type}'"
+    return (glob.glob(text + '*') + [None])[state]
 
 
-class Disk:
+readline.set_completer_delims(' \t\n;')
+readline.parse_and_bind("tab: complete")
+readline.set_completer(complete)
+
+
+def is_bios() -> bool:
     """
-    A class to represent a disk.
+    Check if live system run on a bios.
+    :return:
     """
-    path: str
-    partitions: list
-    total: int
-    free_space: int
-
-    def __init__(self, path: str):
-        """
-        Disk initialisation.
-        """
-        self.path = path
-        detected_partitions = os.popen(f'lsblk -nl "{path}" -o PATH,TYPE | grep part').read()
-        self.partitions = []
-        for partition_info in detected_partitions.splitlines():
-            self.partitions.append(Partition(partition_info))
-        self.total = int(os.popen(f'lsblk -b --output SIZE -n -d "{self.path}"').read())
-        if len(self.partitions) > 0:
-            sector_size = int(
-                re.sub('\\s', '',
-                       os.popen(f'lsblk {path} -o PATH,TYPE,PHY-SEC | grep disk | awk \'{{print $3}}\'').read()))
-            last_partition_path = [p.path for p in self.partitions][len(self.partitions) - 1]
-            last_sector = int(
-                re.sub('\\s', '', os.popen(f'fdisk -l | grep {last_partition_path} | awk \'{{print $3}}\'').read()))
-            self.free_space = self.total - (last_sector * sector_size)
-        else:
-            self.free_space = self.total
-
-    def get_efi_partition(self) -> Partition:
-        """
-        The Disk method to get the EFI partition if it exist. Else return an empty partition object.
-        """
-        try:
-            return [p for p in self.partitions if "EFI" in p.part_type].pop()
-        except IndexError:
-            return Partition()
-
-    def __str__(self) -> str:
-        """
-        Disk str formatting
-        """
-        return "\n".join([str(p) for p in self.partitions])
+    return not os.path.exists("/sys/firmware/efi")
 
 
 class Bundle:
@@ -152,6 +96,14 @@ class Bundle:
         :param pre_launch_info:
         :param partitioning_info:
         """
+
+
+def get_supported_kernels(get_default: bool = False) -> str or []:
+    """
+    The method to get all supported kernels.
+    :return:
+    """
+    return "current" if get_default else ["current", "lts", "zen", "hardened"]
 
 
 class LinuxCurrent(Bundle):
@@ -251,6 +203,16 @@ class Microcodes(Bundle):
             print_sub_step(_("Microcodes to install : %s") % self.name)
 
 
+def get_supported_bootloaders(get_default: bool = False) -> str or []:
+    """
+    The method to get all supported bootloaders.
+    :return:
+    """
+    if is_bios():
+        return "grub" if get_default else ["grub"]
+    return "grub" if get_default else ["grub", "systemdboot"]
+
+
 class Grub(Bundle):
     """
     The Grub Bootloader class.
@@ -344,6 +306,16 @@ class SystemdBoot(Bundle):
         ]
         with open("/boot/efi/loader/loader.conf", "w", encoding="UTF-8") as systemd_boot_loader_config:
             systemd_boot_loader_config.writelines(content)
+
+
+def get_supported_desktop_environments(get_default: bool = False) -> str or []:
+    """
+    The method to get all supported desktop environments.
+    :return:
+    """
+    return _("none") if get_default else ["gnome", "plasma", "xfce", "budgie", "cinnamon", "cutefish", "deepin", "lxqt",
+                                          "mate", "enlightenment",
+                                          "i3", "sway", _("none")]
 
 
 class Gnome(Bundle):
@@ -761,14 +733,6 @@ class Zram(Bundle):
             zram_config_file.writelines(content)
 
 
-def is_bios() -> bool:
-    """
-    Check if live system run on a bios.
-    :return:
-    """
-    return not os.path.exists("/sys/firmware/efi")
-
-
 def process_bundle(name: str) -> Bundle or None:
     """
     Process a bundle name into a Bundle object.
@@ -787,8 +751,8 @@ def process_bundle(name: str) -> Bundle or None:
             bundle = LinuxHardened("hardened")
         case "grub":
             bundle = Grub("grub")
-        case "systemd-boot":
-            bundle = SystemdBoot("systemd-boot")
+        case "systemdboot":
+            bundle = SystemdBoot("systemdboot")
         case "gnome":
             bundle = Gnome("gnome")
         case "plasma":
@@ -816,19 +780,83 @@ def process_bundle(name: str) -> Bundle or None:
     return bundle
 
 
-def complete(text, state):
+class Partition:
     """
-    A file path completer.
-    :param text:
-    :param state:
-    :return:
+    A class to represent a partition.
     """
-    return (glob.glob(text + '*') + [None])[state]
+    path: str
+    size: int
+    part_type: str
+    fs_type: str
+
+    def __init__(self, part_str: str = None):
+        """
+        Partition initialisation.
+        """
+        if part_str is None:
+            self.path = ""
+            self.size = 0
+            self.part_type = ""
+            self.fs_type = ""
+        else:
+            self.path = part_str.split(" ")[0]
+            self.size = from_iec(re.sub('\\s', '', os.popen(f'lsblk -nl "{self.path}" -o SIZE').read()))
+            self.part_type = str(
+                re.sub('[^a-zA-Z\\d ]', '', os.popen(f'lsblk -nl "{self.path}" -o PARTTYPENAME').read()))
+            self.fs_type = str(
+                re.sub('[^a-zA-Z\\d ]', '', os.popen(f'lsblk -nl "{self.path}" -o FSTYPE').read()))
+
+    def __str__(self) -> str:
+        """
+        Partition str formatting.
+        """
+        return f"'{self.path}' - '{self.size}' - '{self.part_type}' - '{self.fs_type}'"
 
 
-readline.set_completer_delims(' \t\n;')
-readline.parse_and_bind("tab: complete")
-readline.set_completer(complete)
+class Disk:
+    """
+    A class to represent a disk.
+    """
+    path: str
+    partitions: list
+    total: int
+    free_space: int
+
+    def __init__(self, path: str):
+        """
+        Disk initialisation.
+        """
+        self.path = path
+        detected_partitions = os.popen(f'lsblk -nl "{path}" -o PATH,TYPE | grep part').read()
+        self.partitions = []
+        for partition_info in detected_partitions.splitlines():
+            self.partitions.append(Partition(partition_info))
+        self.total = int(os.popen(f'lsblk -b --output SIZE -n -d "{self.path}"').read())
+        if len(self.partitions) > 0:
+            sector_size = int(
+                re.sub('\\s', '',
+                       os.popen(f'lsblk {path} -o PATH,TYPE,PHY-SEC | grep disk | awk \'{{print $3}}\'').read()))
+            last_partition_path = [p.path for p in self.partitions][len(self.partitions) - 1]
+            last_sector = int(
+                re.sub('\\s', '', os.popen(f'fdisk -l | grep {last_partition_path} | awk \'{{print $3}}\'').read()))
+            self.free_space = self.total - (last_sector * sector_size)
+        else:
+            self.free_space = self.total
+
+    def get_efi_partition(self) -> Partition:
+        """
+        The Disk method to get the EFI partition if it exist. Else return an empty partition object.
+        """
+        try:
+            return [p for p in self.partitions if "EFI" in p.part_type].pop()
+        except IndexError:
+            return Partition()
+
+    def __str__(self) -> str:
+        """
+        Disk str formatting
+        """
+        return "\n".join([str(p) for p in self.partitions])
 
 
 def print_error(message: str, do_pause: bool = True):
@@ -887,10 +915,10 @@ def prompt(message: str, default: str = None, help_msg: str = None) -> str:
     user_input = None
     while not user_input_ok:
         user_input = input(f'{ORANGE}{message}{NOCOLOR}')
-        if user_input == "?" and help_msg is not None and help_msg != "":
+        if user_input == "?" and help_msg and help_msg != "":
             print_help(help_msg)
             continue
-        if user_input == "" and default is not None:
+        if user_input == "" and default:
             user_input = default
         user_input_ok = True
     return user_input
@@ -955,7 +983,7 @@ def prompt_bundle(supported_msg: str, message: str, error_msg: str, default_bund
         else:
             print_error(error_msg % bundle_name, do_pause=False)
             continue
-    if bundle is not None:
+    if bundle:
         bundle.prompt_extra()
     return bundle
 
@@ -987,7 +1015,7 @@ def locale_setup(keymap: str = "de-latin1", global_language: str = "EN") -> str:
     font = 'ter-v16b'
     os.system('setfont ter-v16b')
     dimensions = os.popen('stty size').read().split(" ")
-    if dimensions is not None and len(dimensions) > 0 and int(dimensions[0]) >= 80:
+    if dimensions and len(dimensions) > 0 and int(dimensions[0]) >= 80:
         font = 'ter-v32b'
         os.system('setfont ter-v32b')
     if global_language == "FR":
@@ -1046,34 +1074,6 @@ def get_supported_format_types(get_default: bool = False) -> str or []:
     :return:
     """
     return "ext4" if get_default else ["ext4", "btrfs"]
-
-
-def get_supported_desktop_environments(get_default: bool = False) -> str or []:
-    """
-    The method to get all supported desktop environments.
-    :return:
-    """
-    return _("none") if get_default else ["gnome", "plasma", "xfce", "budgie", "cinnamon", "cutefish", "deepin", "lxqt",
-                                          "mate", "enlightenment",
-                                          "i3", "sway", _("none")]
-
-
-def get_supported_kernels(get_default: bool = False) -> str or []:
-    """
-    The method to get all supported kernels.
-    :return:
-    """
-    return "current" if get_default else ["current", "lts", "zen", "hardened"]
-
-
-def get_supported_bootloaders(get_default: bool = False) -> str or []:
-    """
-    The method to get all supported bootloaders.
-    :return:
-    """
-    if is_bios():
-        return "grub" if get_default else ["grub"]
-    return "grub" if get_default else ["grub", "systemd-boot"]
 
 
 def ask_format_type() -> str:
@@ -1206,7 +1206,7 @@ def manual_partitioning() -> {}:
                 print_sub_step(_("Other partition : %s (mounting point : %s, format %s, format type %s)")
                                % (partition, partitioning_info["part_mount_point"].get(partition), formatting,
                                   partitioning_info["part_format_type"].get(partition)))
-        if "SWAP" not in partitioning_info["part_type"].values() and partitioning_info["swapfile_size"] is not None:
+        if "SWAP" not in partitioning_info["part_type"].values() and partitioning_info["swapfile_size"]:
             print_sub_step(_("Swapfile size : %s") % partitioning_info["swapfile_size"])
         user_answer = prompt_bool(_("Is the informations correct ? (y/N) : "), default=False)
         if not user_answer:
@@ -1413,7 +1413,7 @@ def auto_partitioning() -> {}:
                 print_sub_step(_("Other partition : %s (mounting point : %s, format %s, format type %s)")
                                % (partition, partitioning_info["part_mount_point"].get(partition), formatting,
                                   partitioning_info["part_format_type"].get(partition)))
-        if "SWAP" not in partitioning_info["part_type"].values() and swap_size is not None:
+        if "SWAP" not in partitioning_info["part_type"].values() and swap_size:
             print_sub_step(_("Swapfile size : %s") % swap_size)
         user_answer = prompt_bool(_("Is the informations correct ? (y/N) : "), default=False)
         if not user_answer:
@@ -1574,7 +1574,7 @@ def system_config(detected_timezone) -> {}:
         while not user_name_ok:
             system_info["user_name"] = prompt_ln(_("Would you like to add a user? (type username, leave blank if "
                                                    "none) : "))
-            if system_info["user_name"] is not None and system_info["user_name"] != "" and not user_name_pattern.match(
+            if system_info["user_name"] and system_info["user_name"] != "" and not user_name_pattern.match(
                     system_info["user_name"]):
                 print_error(_("Invalid user name."))
                 continue
@@ -1766,7 +1766,7 @@ def main(pre_launch_info):
     os.system('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /mnt/etc/pacman.conf')
     subprocess.run(f'arch-chroot /mnt bash -c "pacman --noconfirm -S {" ".join(pkgs)}"', shell=True, check=True)
 
-    if "SWAP" not in partitioning_info["part_type"].values() and partitioning_info["swapfile_size"] is not None:
+    if "SWAP" not in partitioning_info["part_type"].values() and partitioning_info["swapfile_size"]:
         print_step(_("Creation and activation of the swapfile..."), clear=False)
         if partitioning_info["part_format_type"][partitioning_info["root_partition"]] == "btrfs":
             os.system(
@@ -1790,7 +1790,7 @@ def main(pre_launch_info):
     os.system('arch-chroot /mnt bash -c "systemctl enable NetworkManager"')
     os.system('arch-chroot /mnt bash -c "systemctl enable systemd-timesyncd"')
 
-    if system_info["bootloader"] is not None:
+    if system_info["bootloader"]:
         print_step(_("Installation and configuration of the bootloader..."), clear=False)
         system_info["bootloader"].configure(system_info, pre_launch_info, partitioning_info)
 
