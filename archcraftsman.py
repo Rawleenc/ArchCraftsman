@@ -78,6 +78,7 @@ class Bundle:
         """
         Bundle's packages retrieving method.
         """
+        return []
 
     def prompt_extra(self):
         """
@@ -198,19 +199,16 @@ class Microcodes(Bundle):
             return ["amd-ucode"]
         return []
 
+    def microcode_img(self) -> str or None:
+        if self.name == "GenuineIntel":
+            return "/intel-ucode.img"
+        if self.name == "AuthenticAMD":
+            return "/amd-ucode.img"
+        return None
+
     def print_resume(self):
         if self.name in {"GenuineIntel", "AuthenticAMD"}:
             print_sub_step(_("Microcodes to install : %s") % self.name)
-
-
-def get_supported_bootloaders(get_default: bool = False) -> str or []:
-    """
-    The method to get all supported bootloaders.
-    :return:
-    """
-    if is_bios():
-        return "grub" if get_default else ["grub"]
-    return "grub" if get_default else ["grub", "systemdboot"]
 
 
 class Grub(Bundle):
@@ -221,9 +219,6 @@ class Grub(Bundle):
     def packages(self, system_info) -> [str]:
         return ["grub"]
 
-    def print_resume(self):
-        print_sub_step(_("Bootloader : %s") % self.name)
-
     def configure(self, system_info: dict, pre_launch_info: dict, partitioning_info: dict):
         if is_bios():
             os.system(f'arch-chroot /mnt bash -c "grub-install --target=i386-pc {partitioning_info["main_disk"]}"')
@@ -231,81 +226,11 @@ class Grub(Bundle):
             os.system(
                 'arch-chroot /mnt bash -c "grub-install --target=x86_64-efi --efi-directory=/boot/efi '
                 '--bootloader-id=\'Arch Linux\'"')
-        os.system('arch-chroot /mnt bash -c "grub-mkconfig -o /boot/grub/grub.cfg"')
         os.system('sed -i "/^GRUB_CMDLINE_LINUX=.*/a GRUB_DISABLE_OS_PROBER=false" /mnt/etc/default/grub')
         if partitioning_info["part_format_type"][partitioning_info["root_partition"]] in {"ext4"}:
             os.system('sed -i "s|GRUB_DEFAULT=.*|GRUB_DEFAULT=saved|g" /mnt/etc/default/grub')
             os.system('sed -i "/^GRUB_DEFAULT=.*/a GRUB_SAVEDEFAULT=true" /mnt/etc/default/grub')
-
-
-def determine_vmlinuz(system_info: dict) -> str or None:
-    """
-    A method to determine the vmlinuz file name.
-    """
-    if system_info["kernel"] and system_info["kernel"].name == "lts":
-        return "/vmlinuz-linux-lts"
-    return "/vmlinuz-linux"
-
-
-def determine_microcode_img(system_info: dict) -> str or None:
-    """
-    A method to determine the microcode img file name.
-    """
-    match system_info["microcodes"].name:
-        case "GenuineIntel":
-            return "/intel-ucode.img"
-        case "AuthenticAMD":
-            return "/amd-ucode.img"
-
-
-def determine_linux_img(system_info: dict, fallback: bool = False) -> str or None:
-    """
-    A method to determine the linux img file name.
-    """
-    if system_info["kernel"] and system_info["kernel"].name == "lts":
-        return "/initramfs-linux-fallback.img" if fallback else "/initramfs-linux.img"
-    return "/initramfs-linux-lts-fallback.img" if fallback else "/initramfs-linux-lts.img"
-
-
-class SystemdBoot(Bundle):
-    """
-    The Systemd-boot Bootloader class.
-    """
-
-    def print_resume(self):
-        print_sub_step(_("Bootloader : %s") % self.name)
-
-    def configure(self, system_info, pre_launch_info, partitioning_info):
-        os.system('arch-chroot /mnt bash -c "bootctl install"')
-        os.system("mkdir --parents /boot/efi/loader")
-        os.system("mkdir --parents /boot/efi/loader/entries")
-
-        content = ["title Arch Linux"]
-        content += f"linux {determine_vmlinuz(system_info)}"
-        if system_info["microcodes"].name in {"GenuineIntel", "AuthenticAMD"}:
-            content += f"initrd {determine_microcode_img(system_info)}"
-        content += f"initrd {determine_linux_img(system_info)}"
-        content += "options root=\"LABEL=arch_os\" rw"
-        with open("/boot/efi/loader/entries/arch.conf", "w", encoding="UTF-8") as systemd_boot_loader_config:
-            systemd_boot_loader_config.writelines(content)
-
-        content = ["title Arch Linux (fallback initramfs)"]
-        content += f"linux {determine_vmlinuz(system_info)}"
-        if system_info["microcodes"].name in {"GenuineIntel", "AuthenticAMD"}:
-            content += f"initrd {determine_microcode_img(system_info)}"
-        content += f"initrd {determine_linux_img(system_info, fallback=True)}"
-        content += "options root=\"LABEL=arch_os\" rw"
-        with open("/boot/efi/loader/entries/arch-fallback.conf", "w", encoding="UTF-8") as systemd_boot_loader_config:
-            systemd_boot_loader_config.writelines(content)
-
-        content = [
-            "default arch.conf",
-            "timeout 4",
-            "console-mode max",
-            "editor no"
-        ]
-        with open("/boot/efi/loader/loader.conf", "w", encoding="UTF-8") as systemd_boot_loader_config:
-            systemd_boot_loader_config.writelines(content)
+        os.system('arch-chroot /mnt bash -c "grub-mkconfig -o /boot/grub/grub.cfg"')
 
 
 def get_supported_desktop_environments(get_default: bool = False) -> str or []:
@@ -751,8 +676,6 @@ def process_bundle(name: str) -> Bundle or None:
             bundle = LinuxHardened("hardened")
         case "grub":
             bundle = Grub("grub")
-        case "systemdboot":
-            bundle = SystemdBoot("systemdboot")
         case "gnome":
             bundle = Gnome("gnome")
         case "plasma":
@@ -1512,7 +1435,7 @@ def system_config(detected_timezone) -> {}:
     user_answer = False
     while not user_answer:
         print_step(_("System configuration : "))
-        system_info["hostname"] = prompt(_("What will be your hostname (archlinux) : "), default="archlinux")
+        system_info["hostname"] = prompt_ln(_("What will be your hostname (archlinux) : "), default="archlinux")
         system_info["bundles"] = []
 
         system_info["kernel"] = prompt_bundle(_("Supported kernels : "),
@@ -1520,12 +1443,6 @@ def system_config(detected_timezone) -> {}:
                                               _("Kernel '%s' is not supported."),
                                               get_supported_kernels(get_default=True),
                                               get_supported_kernels())
-
-        system_info["bootloader"] = prompt_bundle(_("Supported bootloaders : "),
-                                                  _("Choose your bootloader ? (%s) : "),
-                                                  _("Bootloader '%s' is not supported."),
-                                                  get_supported_bootloaders(get_default=True),
-                                                  get_supported_bootloaders())
 
         if prompt_bool(_("Install proprietary Nvidia driver ? (y/N) : "), default=False):
             system_info["bundles"].append(NvidiaDriver("nvidia"))
@@ -1604,6 +1521,7 @@ def system_config(detected_timezone) -> {}:
         if system_info["user_name"] != "":
             system_info["user_password"] = ask_password(system_info["user_name"])
 
+        system_info["bootloader"] = Grub("grub")
         system_info["microcodes"] = Microcodes()
 
         print_step(_("Summary of choices :"))
@@ -1611,8 +1529,6 @@ def system_config(detected_timezone) -> {}:
         system_info["microcodes"].print_resume()
         if system_info["kernel"]:
             system_info["kernel"].print_resume()
-        if system_info["bootloader"]:
-            system_info["bootloader"].print_resume()
         for bundle in system_info["bundles"]:
             bundle.print_resume()
         print_sub_step(_("Your timezone : %s") % system_info["timezone"])
@@ -1791,7 +1707,7 @@ def main(pre_launch_info):
     os.system('arch-chroot /mnt bash -c "systemctl enable systemd-timesyncd"')
 
     if system_info["bootloader"]:
-        print_step(_("Installation and configuration of the bootloader..."), clear=False)
+        print_step(_("Installation and configuration of the grub..."), clear=False)
         system_info["bootloader"].configure(system_info, pre_launch_info, partitioning_info)
 
     print_step(_("Users configuration..."), clear=False)
