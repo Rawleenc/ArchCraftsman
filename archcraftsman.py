@@ -74,7 +74,7 @@ class Bundle:
     def __init__(self, name: str):
         self.name = name
 
-    def packages(self, system_info: {}) -> [str]:
+    def packages(self, system_info: {}) -> [str]:  # pylint: disable=unused-argument
         """
         Bundle's packages retrieving method.
         """
@@ -200,6 +200,9 @@ class Microcodes(Bundle):
         return []
 
     def microcode_img(self) -> str or None:
+        """
+        The microcode img file name retrieving method.
+        """
         if self.name == "GenuineIntel":
             return "/intel-ucode.img"
         if self.name == "AuthenticAMD":
