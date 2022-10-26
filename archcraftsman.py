@@ -548,7 +548,7 @@ class Sway(Bundle):
     """
 
     def packages(self, system_info) -> [str]:
-        packages = ["sway", "dmenu", "bemenu", "j4-dmenu-desktop", "foot", "grim", "mako", "slurp", "swayidle",
+        packages = ["sway", "dmenu", "bemenu-wayland", "j4-dmenu-desktop", "foot", "grim", "mako", "slurp", "swayidle",
                     "swaylock", "swayimg", "waybar", "swaybg", "wf-recorder", "wl-clipboard", "xorg-xwayland",
                     "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol", "system-config-printer",
                     "network-manager-applet", "acpid", "brightnessctl", "playerctl", "gammastep", "dex",
