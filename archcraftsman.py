@@ -528,7 +528,8 @@ class I3(Bundle):
 
     def packages(self, system_info) -> [str]:
         packages = ["i3", "rofi", "dmenu", "perl", "alacritty", "xorg-server", "xorg-xinit", "alsa-utils", "pulseaudio",
-                    "pulseaudio-alsa", "pavucontrol", "system-config-printer", "network-manager-applet", "acpid"]
+                    "pulseaudio-alsa", "pavucontrol", "system-config-printer", "network-manager-applet", "acpid",
+                    "gnome-keyring", "dex"]
         return packages
 
     def print_resume(self):
@@ -547,9 +548,12 @@ class Sway(Bundle):
     """
 
     def packages(self, system_info) -> [str]:
-        packages = ["sway", "rofi", "dmenu", "alacritty", "grim", "i3status", "mako", "slurp", "swayidle", "swaylock",
-                    "waybar", "swaybg", "wf-recorder", "xorg-xwayland", "alsa-utils", "pulseaudio",
-                    "pulseaudio-alsa", "pavucontrol", "system-config-printer", "network-manager-applet", "acpid"]
+        packages = ["sway", "dmenu", "bemenu", "j4-dmenu-desktop", "foot", "grim", "mako", "slurp", "swayidle",
+                    "swaylock", "swayimg", "waybar", "swaybg", "wf-recorder", "wl-clipboard", "xorg-xwayland",
+                    "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol", "system-config-printer",
+                    "network-manager-applet", "acpid", "brightnessctl", "playerctl", "gammastep", "dex",
+                    "libindicator-gtk2", "libindicator-gtk3", "gnome-keyring", "xdg-desktop-portal",
+                    "xdg-desktop-portal-wlr"]
         return packages
 
     def print_resume(self):
@@ -605,7 +609,7 @@ def get_main_fonts() -> [str]:
     return ["gnu-free-fonts", "noto-fonts", "ttf-bitstream-vera", "ttf-dejavu", "ttf-hack", "ttf-droid",
             "ttf-fira-code", "ttf-fira-mono", "ttf-fira-sans", "ttf-font-awesome", "ttf-inconsolata",
             "ttf-input", "ttf-liberation", "ttf-nerd-fonts-symbols-2048-em", "ttf-opensans", "ttf-roboto",
-            "ttf-roboto-mono", "ttf-ubuntu-font-family", "ttf-jetbrains-mono"]
+            "ttf-roboto-mono", "ttf-ubuntu-font-family", "ttf-jetbrains-mono", "otf-font-awesome"]
 
 
 class MainFonts(Bundle):
