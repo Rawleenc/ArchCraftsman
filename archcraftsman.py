@@ -665,6 +665,19 @@ class Zram(Bundle):
             zram_config_file.writelines(content)
 
 
+class PipeWire(Bundle):
+    """
+    The PipeWire class.
+    """
+
+    def packages(self, system_info: {}) -> [str]:
+        return ["pipewire", "pipewire-alsa", "pipewire-audio", "pipewire-jack", "pipewire-media-session",
+                "pipewire-pulse", "pipewire-v4l2", "pipewire-x11-bell", "pipewire-zeroconf"]
+
+    def print_resume(self):
+        print_sub_step(_("Install PipeWire."))
+
+
 def process_bundle(name: str) -> Bundle or None:
     """
     Process a bundle name into a Bundle object.
@@ -1446,7 +1459,7 @@ def system_config(detected_timezone) -> {}:
         system_info["bundles"] = []
 
         system_info["kernel"] = prompt_bundle(_("Supported kernels : "),
-                                              _("Choose your kernel ? (%s) : "),
+                                              _("Choose your kernel (%s) : "),
                                               _("Kernel '%s' is not supported."),
                                               get_supported_kernels(get_default=True),
                                               get_supported_kernels())
@@ -1489,6 +1502,11 @@ def system_config(detected_timezone) -> {}:
                 "This method is more efficient than the swap and do not use your disk but is more CPU demanding. "
                 "ZRAM is fully compatible with a swap, it just has a higher priority.")):
             system_info["bundles"].append(Zram("zram"))
+
+        if prompt_bool(_("Install PipeWire ? (y/N/?) : "),
+                       default=False, help_msg=_(
+                    "If yes, the PipeWire multimedia framework will be installed to manage audio and video capture.")):
+            system_info["bundles"].append(PipeWire("pipewire"))
 
         default_timezone_file = f'/usr/share/zoneinfo/{detected_timezone}'
         system_info["timezone"] = prompt_ln(_("Your timezone (%s) : ") % default_timezone_file,
@@ -1718,7 +1736,7 @@ def main(pre_launch_info):
         system_info["bootloader"].configure(system_info, pre_launch_info, partitioning_info)
 
     print_step(_("Users configuration..."), clear=False)
-    print_sub_step(_("root account configuration..."))
+    print_sub_step(_("Root account configuration..."))
     if system_info["root_password"] != "":
         os.system(f'arch-chroot /mnt bash -c "echo \'root:{system_info["root_password"]}\' | chpasswd"')
     if system_info["user_name"] != "":
