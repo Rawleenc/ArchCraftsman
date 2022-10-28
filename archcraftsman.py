@@ -1167,22 +1167,22 @@ def build_partition_name(disk_name: str, index: int) -> str or None:
     """
     block_devices_str = os.popen('lsblk -J').read()
     block_devices_json = json.loads(block_devices_str)
-    if block_devices_json is None or type(block_devices_json) is not dict or "blockdevices" not in dict(
+    if block_devices_json is None or not isinstance(block_devices_json, dict) or "blockdevices" not in dict(
             block_devices_json):
         return None
     block_devices = dict(block_devices_json).get("blockdevices")
-    if block_devices is None or type(block_devices) is not list:
+    if block_devices is None or not isinstance(block_devices, list):
         return None
     disk = next((d for d in block_devices if
-                 d is not None and type(d) is dict and "name" in d and dict(d).get("name") == os.path.basename(
+                 d is not None and isinstance(d, dict) and "name" in d and dict(d).get("name") == os.path.basename(
                      disk_name)), None)
-    if disk is None or type(disk) is not dict or "children" not in dict(disk):
+    if disk is None or not isinstance(disk, dict) or "children" not in dict(disk):
         return None
     partitions = dict(disk).get("children")
-    if partitions is None or type(partitions) is not list or len(list(partitions)) <= index:
+    if partitions is None or not isinstance(partitions, list) or len(list(partitions)) <= index:
         return None
     partition = list(partitions)[index]
-    if partition is None or type(partition) is not dict or "name" not in dict(partition):
+    if partition is None or not isinstance(partition, dict) or "name" not in dict(partition):
         return None
     return dict(partition).get("name")
 
