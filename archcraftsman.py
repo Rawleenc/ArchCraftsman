@@ -1158,14 +1158,33 @@ def manual_partitioning() -> {}:
     return partitioning_info
 
 
-def build_partition_name(disk: str, index: str):
+def build_partition_name(disk_name: str, index: int) -> str or None:
     """
     A method to build a partition name with a disk and an index.
-    :param disk:
+    :param disk_name:
     :param index:
     :return:
     """
-    return (f'{disk}{index}', f'{disk}p{index}')["nvme" in disk]
+    block_devices_str = os.popen('lsblk -J').read()
+    block_devices_json = json.loads(block_devices_str)
+    if block_devices_json is None or type(block_devices_json) is not dict or "blockdevices" not in dict(
+            block_devices_json):
+        return None
+    block_devices = dict(block_devices_json).get("blockdevices")
+    if block_devices is None or type(block_devices) is not list:
+        return None
+    disk = next((d for d in block_devices if
+                 d is not None and type(d) is dict and "name" in d and dict(d).get("name") == os.path.basename(
+                     disk_name)), None)
+    if disk is None or type(disk) is not dict or "children" not in dict(disk):
+        return None
+    partitions = dict(disk).get("children")
+    if partitions is None or type(partitions) is not list or len(list(partitions)) <= index:
+        return None
+    partition = list(partitions)[index]
+    if partition is None or type(partition) is not dict or "name" not in dict(partition):
+        return None
+    return dict(partition).get("name")
 
 
 def to_iec(size: int) -> str:
@@ -1237,13 +1256,13 @@ def auto_partitioning() -> {}:
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += "+1G\n"  # Last sector (Accept default: varies)
             auto_part_str += "a\n"  # Toggle bootable flag
-            index += 1
-            partition = build_partition_name(target_disk, str(index))
+            partition = build_partition_name(target_disk, index)
             partitioning_info["part_type"][partition] = "OTHER"
             partitioning_info["part_mount_point"][partition] = "/boot"
             partitioning_info["part_format"][partition] = True
             partitioning_info["part_format_type"][partition] = part_format_type
             partitioning_info["partitions"].append(partition)
+            index += 1
         else:
             if not want_dual_boot:
                 # GPT LABEL
@@ -1256,10 +1275,10 @@ def auto_partitioning() -> {}:
                 auto_part_str += "t\n"  # Change partition type
                 auto_part_str += " \n"  # Partition number (Accept default: auto)
                 auto_part_str += "1\n"  # Type EFI System
-                index += 1
-                partition = build_partition_name(target_disk, str(index))
+                partition = build_partition_name(target_disk, index)
                 partitioning_info["part_format"][partition] = True
                 partitioning_info["part_format_type"][partition] = "vfat"
+                index += 1
             else:
                 index += len(disk.partitions)
                 partition = efi_partition.path
@@ -1281,10 +1300,10 @@ def auto_partitioning() -> {}:
                 auto_part_str += "82\n"  # Type Linux Swap
             else:
                 auto_part_str += "19\n"  # Type Linux Swap
-            index += 1
-            partition = build_partition_name(target_disk, str(index))
+            partition = build_partition_name(target_disk, index)
             partitioning_info["part_type"][partition] = "SWAP"
             partitioning_info["partitions"].append(partition)
+            index += 1
         if want_home:
             # ROOT
             auto_part_str += "n\n"  # Add a new partition
@@ -1293,13 +1312,13 @@ def auto_partitioning() -> {}:
             auto_part_str += " \n"  # Partition number (Accept default: auto)
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += f'+{root_size}\n'  # Last sector (Accept default: varies)
-            index += 1
-            partition = build_partition_name(target_disk, str(index))
+            partition = build_partition_name(target_disk, index)
             partitioning_info["part_type"][partition] = "ROOT"
             partitioning_info["part_mount_point"][partition] = "/"
             partitioning_info["part_format_type"][partition] = part_format_type
             partitioning_info["root_partition"] = partition
             partitioning_info["partitions"].append(partition)
+            index += 1
             # HOME
             auto_part_str += "n\n"  # Add a new partition
             if is_bios():
@@ -1307,13 +1326,13 @@ def auto_partitioning() -> {}:
             auto_part_str += " \n"  # Partition number (Accept default: auto)
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += " \n"  # Last sector (Accept default: varies)
-            index += 1
-            partition = build_partition_name(target_disk, str(index))
+            partition = build_partition_name(target_disk, index)
             partitioning_info["part_type"][partition] = "HOME"
             partitioning_info["part_mount_point"][partition] = "/home"
             partitioning_info["part_format"][partition] = True
             partitioning_info["part_format_type"][partition] = part_format_type
             partitioning_info["partitions"].append(partition)
+            index += 1
         else:
             # ROOT
             auto_part_str += "n\n"  # Add a new partition
@@ -1322,13 +1341,13 @@ def auto_partitioning() -> {}:
             auto_part_str += " \n"  # Partition number (Accept default: auto)
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += " \n"  # Last sector (Accept default: varies)
-            index += 1
-            partition = build_partition_name(target_disk, str(index))
+            partition = build_partition_name(target_disk, index)
             partitioning_info["part_type"][partition] = "ROOT"
             partitioning_info["part_mount_point"][partition] = "/"
             partitioning_info["part_format_type"][partition] = part_format_type
             partitioning_info["root_partition"] = partition
             partitioning_info["partitions"].append(partition)
+            index += 1
         # WRITE
         auto_part_str += "w\n"
 
@@ -1555,7 +1574,8 @@ def system_config(detected_timezone) -> {}:
         if system_info["kernel"]:
             system_info["kernel"].print_resume()
         for bundle in system_info["bundles"]:
-            bundle.print_resume()
+            if bundle is not None and isinstance(bundle, Bundle):
+                bundle.print_resume()
         print_sub_step(_("Your timezone : %s") % system_info["timezone"])
         if system_info["user_name"] != "":
             print_sub_step(_("Additional user name : %s") % system_info["user_name"])
