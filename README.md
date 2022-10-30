@@ -21,6 +21,14 @@ python <(curl -L tiny.one/acdev)
 
 Answer the questions and let the magic happen ;)
 
+# Translations
+
+To create new translations or update existing ones, first run the following command :
+```bash
+python /usr/lib/pythonX.Y/Tools/i18n/pygettext.py -d base -o base.pot archcraftsman.py
+```
+Then use [Poedit](https://archlinux.org/packages/community/x86_64/poedit/) to create or update translations based on the newly generated `base.pot`
+
 # Purpose
 
 The purpose of this script is to propose a very fast and straightforward Arch Linux installation while bringing all the care I put on my own installations. The customization options are therefore not countless. However, some flexibility is still proposed.  
