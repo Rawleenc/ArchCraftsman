@@ -261,6 +261,7 @@ class Gnome(Bundle):
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % "GDM")
 
     def prompt_extra(self):
         self.minimal = prompt_bool(
@@ -295,6 +296,7 @@ class Plasma(Bundle):
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % "SDDM")
         if self.minimal:
             print_sub_step(_("Install a minimal environment."))
         if self.plasma_wayland:
@@ -319,28 +321,36 @@ class Xfce(Bundle):
     """
     Bundle class.
     """
+    display_manager = True
     minimal = False
 
     def packages(self, system_info) -> [str]:
-        packages = ["xfce4", "lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings", "xorg-server",
-                    "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol", "network-manager-applet"]
+        packages = ["xfce4", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol",
+                    "network-manager-applet"]
+        if self.display_manager:
+            packages.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
         if self.minimal is not True:
             packages.append("xfce4-goodies")
         return packages
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % "LightDM" if self.display_manager else _("none"))
         if self.minimal:
             print_sub_step(_("Install a minimal environment."))
 
     def prompt_extra(self):
+        self.display_manager = prompt_bool(
+            _("The display manager to install is '%s'. Do you want to install it ? (Y/n) : ") % "LightDM",
+            default=True)
         self.minimal = prompt_bool(
             _("Install a minimal environment ? (y/N/?) : "),
             default=False,
             help_msg=_("If yes, the script will not install any extra packages, only base packages."))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
-        os.system('arch-chroot /mnt bash -c "systemctl enable lightdm"')
+        if self.display_manager:
+            os.system('arch-chroot /mnt bash -c "systemctl enable lightdm"')
         os.system(
             'sed -i "s|#logind-check-graphical=false|logind-check-graphical=true|g" /mnt/etc/lightdm/lightdm.conf')
         os.system('arch-chroot /mnt bash -c "amixer sset Master unmute"')
@@ -352,18 +362,28 @@ class Budgie(Bundle):
     """
     Bundle class.
     """
+    display_manager = True
 
     def packages(self, system_info) -> [str]:
         packages = ["budgie-desktop", "budgie-desktop-view", "budgie-screensaver", "gnome-control-center",
-                    "network-manager-applet", "gnome", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
-                    "pavucontrol"]
+                    "network-manager-applet", "gnome-terminal", "nautilus", "xorg-server", "alsa-utils", "pulseaudio",
+                    "pulseaudio-alsa", "pavucontrol"]
+        if self.display_manager:
+            packages.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
         return packages
+
+    def prompt_extra(self):
+        self.display_manager = prompt_bool(
+            _("The display manager to install is '%s'. Do you want to install it ? (Y/n) : ") % "LightDM",
+            default=True)
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % "LightDM" if self.display_manager else _("none"))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
-        os.system('arch-chroot /mnt bash -c "systemctl enable gdm"')
+        if self.display_manager:
+            os.system('arch-chroot /mnt bash -c "systemctl enable lightdm"')
         os.system('arch-chroot /mnt bash -c "amixer sset Master unmute"')
         if "fr" in pre_launch_info["keymap"]:
             setup_chroot_keyboard("fr")
@@ -373,19 +393,28 @@ class Cinnamon(Bundle):
     """
     Bundle class.
     """
+    display_manager = True
 
     def packages(self, system_info) -> [str]:
         packages = ["cinnamon", "metacity", "gnome-shell", "gnome-terminal", "blueberry", "cinnamon-translations",
-                    "gnome-panel", "system-config-printer", "wget", "lightdm", "lightdm-gtk-greeter",
-                    "lightdm-gtk-greeter-settings", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
-                    "pavucontrol"]
+                    "gnome-panel", "system-config-printer", "wget", "xorg-server", "alsa-utils", "pulseaudio",
+                    "pulseaudio-alsa", "pavucontrol"]
+        if self.display_manager:
+            packages.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
         return packages
+
+    def prompt_extra(self):
+        self.display_manager = prompt_bool(
+            _("The display manager to install is '%s'. Do you want to install it ? (Y/n) : ") % "LightDM",
+            default=True)
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % "LightDM" if self.display_manager else _("none"))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
-        os.system('arch-chroot /mnt bash -c "systemctl enable lightdm"')
+        if self.display_manager:
+            os.system('arch-chroot /mnt bash -c "systemctl enable lightdm"')
         os.system(
             'sed -i "s|#logind-check-graphical=false|logind-check-graphical=true|g" /mnt/etc/lightdm/lightdm.conf')
         os.system('arch-chroot /mnt bash -c "amixer sset Master unmute"')
@@ -397,16 +426,26 @@ class Cutefish(Bundle):
     """
     Bundle class.
     """
+    display_manager = True
 
     def packages(self, system_info) -> [str]:
-        packages = ["cutefish", "sddm", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol"]
+        packages = ["cutefish", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol"]
+        if self.display_manager:
+            packages.extend(["sddm"])
         return packages
+
+    def prompt_extra(self):
+        self.display_manager = prompt_bool(
+            _("The display manager to install is '%s'. Do you want to install it ? (Y/n) : ") % "SDDM",
+            default=True)
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % "SDDM" if self.display_manager else _("none"))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
-        os.system('arch-chroot /mnt bash -c "systemctl enable sddm"')
+        if self.display_manager:
+            os.system('arch-chroot /mnt bash -c "systemctl enable sddm"')
         os.system('arch-chroot /mnt bash -c "amixer sset Master unmute"')
         if "fr" in pre_launch_info["keymap"]:
             setup_chroot_keyboard("fr")
@@ -426,6 +465,7 @@ class Deepin(Bundle):
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % "LightDM")
         if self.minimal:
             print_sub_step(_("Install a minimal environment."))
 
@@ -448,19 +488,28 @@ class Lxqt(Bundle):
     """
     Bundle class.
     """
+    display_manager = True
 
     def packages(self, system_info) -> [str]:
-        packages = ["lxqt", "sddm", "xorg-server", "breeze-icons", "xdg-utils", "xscreensaver", "xautolock", "libpulse",
+        packages = ["lxqt", "xorg-server", "breeze-icons", "xdg-utils", "xscreensaver", "xautolock", "libpulse",
                     "alsa-lib", "libstatgrab", "libsysstat", "lm_sensors", "system-config-printer", "alsa-utils",
-                    "pulseaudio",
-                    "pulseaudio-alsa", "pavucontrol", "network-manager-applet"]
+                    "pulseaudio", "pulseaudio-alsa", "pavucontrol", "network-manager-applet"]
+        if self.display_manager:
+            packages.extend(["sddm"])
         return packages
+
+    def prompt_extra(self):
+        self.display_manager = prompt_bool(
+            _("The display manager to install is '%s'. Do you want to install it ? (Y/n) : ") % "SDDM",
+            default=True)
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % "SDDM" if self.display_manager else _("none"))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
-        os.system('arch-chroot /mnt bash -c "systemctl enable sddm"')
+        if self.display_manager:
+            os.system('arch-chroot /mnt bash -c "systemctl enable sddm"')
         os.system('arch-chroot /mnt bash -c "amixer sset Master unmute"')
         if "fr" in pre_launch_info["keymap"]:
             setup_chroot_keyboard("fr")
@@ -470,28 +519,35 @@ class Mate(Bundle):
     """
     Bundle class.
     """
+    display_manager = True
     minimal = False
 
     def packages(self, system_info) -> [str]:
-        packages = ["mate", "lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings", "xorg-server",
-                    "alsa-utils", "pulseaudio", "pulseaudio-alsa", "network-manager-applet"]
+        packages = ["mate", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "network-manager-applet"]
+        if self.display_manager:
+            packages.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
         if self.minimal is not True:
             packages.append("mate-extra")
         return packages
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % "LightDM" if self.display_manager else _("none"))
         if self.minimal:
             print_sub_step(_("Install a minimal environment."))
 
     def prompt_extra(self):
+        self.display_manager = prompt_bool(
+            _("The display manager to install is '%s'. Do you want to install it ? (Y/n) : ") % "LightDM",
+            default=True)
         self.minimal = prompt_bool(
             _("Install a minimal environment ? (y/N/?) : "),
             default=False,
             help_msg=_("If yes, the script will not install any extra packages, only base packages."))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
-        os.system('arch-chroot /mnt bash -c "systemctl enable lightdm"')
+        if self.display_manager:
+            os.system('arch-chroot /mnt bash -c "systemctl enable lightdm"')
         os.system(
             'sed -i "s|#logind-check-graphical=false|logind-check-graphical=true|g" /mnt/etc/lightdm/lightdm.conf')
         os.system('arch-chroot /mnt bash -c "amixer sset Master unmute"')
@@ -505,14 +561,13 @@ class Enlightenment(Bundle):
     """
 
     def packages(self, system_info) -> [str]:
-        packages = ["lxqt", "sddm", "xorg-server", "breeze-icons", "xdg-utils", "xscreensaver", "xautolock", "libpulse",
-                    "alsa-lib", "libstatgrab", "libsysstat", "lm_sensors", "system-config-printer", "alsa-utils",
-                    "pulseaudio",
-                    "pulseaudio-alsa", "pavucontrol", "network-manager-applet"]
+        packages = ["enlightenment", "terminology", "xorg-server", "xorg-xinit", "alsa-utils", "pulseaudio",
+                    "pulseaudio-alsa", "pavucontrol", "system-config-printer", "network-manager-applet", "acpid"]
         return packages
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % _("none"))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
         os.system('arch-chroot /mnt bash -c "systemctl enable acpid"')
@@ -534,6 +589,7 @@ class I3(Bundle):
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % _("none"))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
         os.system('arch-chroot /mnt bash -c "systemctl enable acpid"')
@@ -558,6 +614,7 @@ class Sway(Bundle):
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % _("none"))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
         os.system('arch-chroot /mnt bash -c "systemctl enable acpid"')
