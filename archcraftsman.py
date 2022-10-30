@@ -335,7 +335,7 @@ class Xfce(Bundle):
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
-        print_sub_step(_("Display manager : %s") % "LightDM" if self.display_manager else _("none"))
+        print_sub_step(_("Display manager : %s") % ("LightDM" if self.display_manager else _("none")))
         if self.minimal:
             print_sub_step(_("Install a minimal environment."))
 
@@ -379,7 +379,7 @@ class Budgie(Bundle):
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
-        print_sub_step(_("Display manager : %s") % "LightDM" if self.display_manager else _("none"))
+        print_sub_step(_("Display manager : %s") % ("LightDM" if self.display_manager else _("none")))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
         if self.display_manager:
@@ -410,7 +410,7 @@ class Cinnamon(Bundle):
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
-        print_sub_step(_("Display manager : %s") % "LightDM" if self.display_manager else _("none"))
+        print_sub_step(_("Display manager : %s") % ("LightDM" if self.display_manager else _("none")))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
         if self.display_manager:
@@ -441,7 +441,7 @@ class Cutefish(Bundle):
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
-        print_sub_step(_("Display manager : %s") % "SDDM" if self.display_manager else _("none"))
+        print_sub_step(_("Display manager : %s") % ("SDDM" if self.display_manager else _("none")))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
         if self.display_manager:
@@ -505,7 +505,7 @@ class Lxqt(Bundle):
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
-        print_sub_step(_("Display manager : %s") % "SDDM" if self.display_manager else _("none"))
+        print_sub_step(_("Display manager : %s") % ("SDDM" if self.display_manager else _("none")))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
         if self.display_manager:
@@ -532,7 +532,7 @@ class Mate(Bundle):
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
-        print_sub_step(_("Display manager : %s") % "LightDM" if self.display_manager else _("none"))
+        print_sub_step(_("Display manager : %s") % ("LightDM" if self.display_manager else _("none")))
         if self.minimal:
             print_sub_step(_("Install a minimal environment."))
 
