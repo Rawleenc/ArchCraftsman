@@ -98,7 +98,7 @@ msgid ""
 "The display manager to install is '%s'. Do you want to install it ? (Y/n) : "
 msgstr ""
 "Le gestionnaire d'afficher à installer est '%s'. Voulez-vous l'installer ? "
-"(O/n)"
+"(O/n) : "
 
 #: archcraftsman.py:637
 msgid "Install Cups."

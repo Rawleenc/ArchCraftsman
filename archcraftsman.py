@@ -1241,7 +1241,7 @@ def build_partition_name(disk_name: str, index: int) -> str or None:
     partition = list(partitions)[index]
     if partition is None or not isinstance(partition, dict) or "name" not in dict(partition):
         return None
-    return dict(partition).get("name")
+    return f'/dev/{dict(partition).get("name")}'
 
 
 def to_iec(size: int) -> str:
