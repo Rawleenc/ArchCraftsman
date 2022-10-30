@@ -17,7 +17,7 @@ current_branch="$($git_path symbolic-ref --short HEAD)"
 usage() {
   printf "Usage : ./release [OPTION] TAG\n\n"
   printf "Options :\n"
-  printf "\t-h          : Display this help.\n"
+  printf "\t-h          : Display this help.\n"²
 }
 
 print_step() {
@@ -122,21 +122,16 @@ check_prerequisites() {
   require_clean_work_tree
 }
 
-merge_in_main() {
-  print_step "Merging into main branch..."
-
-  print_sub_step "  * Merge on main branch"
-  $git_path merge --quiet --no-edit $main_branch
-
-  print_sub_step "  * Push main branch"
-  $git_path push --quiet -o ci.skip origin $main_branch
-
-  $git_path checkout --quiet $main_branch
-}
-
 release() {
-  print_step "Pushing release $tag..."
+  print_step "Releasing $tag..."
 
+  if [ "$current_branch" = "$dev_branch" ]; then
+    print_sub_step "  * Merge dev on main branch"
+    $git_path checkout --quiet $main_branch
+    $git_path merge --quiet --no-edit $dev_branch
+  fi
+
+  print_sub_step "  * Prepare files"
   sed -i "s|https://raw.githubusercontent.com/rawleenc/ArchCraftsman/dev|https://raw.githubusercontent.com/rawleenc/ArchCraftsman/main|g" archcraftsman.py
   $git_path add --all . >/dev/null
 
@@ -147,42 +142,29 @@ release() {
   $git_path tag --annotate $tag --message="Release $tag"
 
   print_sub_step "  * Push release commit and tag"
-  $git_path push --quiet origin $current_branch
+  $git_path push --quiet origin $main_branch
   $git_path push --quiet origin $tag
 }
 
-merge_in_dev() {
-  print_step "Merging into dev branch..."
-
-  print_sub_step "  * Merge on dev branch"
-  $git_path merge --quiet --no-edit $dev_branch
-
-  print_sub_step "  * Push dev branch"
-  $git_path push --quiet -o ci.skip origin $dev_branch
-
-  $git_path checkout --quiet $dev_branch
-}
-
 prepare_next_version() {
-  print_step "Prepare next version..."
+  print_step "Preparing next version..."
+
+  print_sub_step "  * Merge main on dev branch"
+  $git_path checkout --quiet $dev_branch
+  $git_path merge --quiet --no-edit $main_branch
 
   sed -i "s|https://raw.githubusercontent.com/rawleenc/ArchCraftsman/main|https://raw.githubusercontent.com/rawleenc/ArchCraftsman/dev|g" archcraftsman.py
   $git_path add --all . >/dev/null
 
   print_sub_step "  * Create preparation commit"
-  $git_path commit --quiet --allow-empty --message="Release $tag"
+  $git_path commit --quiet --allow-empty --message="Prepare next version"
 
   print_sub_step "  * Push preparation commit"
-  $git_path push --quiet origin $current_branch
-  $git_path push --quiet origin $tag
+  $git_path push --quiet origin $dev_branch
 }
 
 check_prerequisites
-if [ "$current_branch" = "$dev_branch" ]; then
-  merge_in_main
-fi
 release
-merge_in_dev
 prepare_next_version
 
 echo "-------------------"
