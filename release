@@ -17,7 +17,7 @@ current_branch="$($git_path symbolic-ref --short HEAD)"
 usage() {
   printf "Usage : ./release [OPTION] TAG\n\n"
   printf "Options :\n"
-  printf "\t-h          : Display this help.\n"²
+  printf "\t-h          : Display this help.\n"
 }
 
 print_step() {
