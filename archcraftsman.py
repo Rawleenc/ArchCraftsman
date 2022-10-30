@@ -1692,7 +1692,7 @@ def main(pre_launch_info):
         pkgs.update(system_info["more_pkgs"])
 
     print_step(_("Installation of the base..."), clear=False)
-    subprocess.run(f'pacstrap /mnt {" ".join(base_pkgs)}', shell=True, check=True)
+    subprocess.run(f'pacstrap -K /mnt {" ".join(base_pkgs)}', shell=True, check=True)
 
     print_step(_("System configuration..."), clear=False)
     os.system('sed -i "s|#en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|g" /mnt/etc/locale.gen')
@@ -1717,10 +1717,6 @@ def main(pre_launch_info):
     print_step(_("Locales configuration..."), clear=False)
     os.system(f'arch-chroot /mnt bash -c "ln -sf {system_info["timezone"]} /etc/localtime"')
     os.system('arch-chroot /mnt bash -c "locale-gen"')
-
-    print_step(_("Updating archlinux-keyring and system..."), clear=False)
-    os.system(
-        'arch-chroot /mnt bash -c "pacman --noconfirm -Sy archlinux-keyring && pacman --noconfirm -Su &>/dev/null"')
 
     print_step(_("Installation of the remaining packages..."), clear=False)
     os.system('sed -i "s|#Color|Color|g" /mnt/etc/pacman.conf')
