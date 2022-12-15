@@ -261,6 +261,7 @@ class Gnome(Bundle):
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % "GDM")
 
     def prompt_extra(self):
         self.minimal = prompt_bool(
@@ -295,6 +296,7 @@ class Plasma(Bundle):
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % "SDDM")
         if self.minimal:
             print_sub_step(_("Install a minimal environment."))
         if self.plasma_wayland:
@@ -319,28 +321,36 @@ class Xfce(Bundle):
     """
     Bundle class.
     """
+    display_manager = True
     minimal = False
 
     def packages(self, system_info) -> [str]:
-        packages = ["xfce4", "lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings", "xorg-server",
-                    "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol", "network-manager-applet"]
+        packages = ["xfce4", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol",
+                    "network-manager-applet"]
+        if self.display_manager:
+            packages.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
         if self.minimal is not True:
             packages.append("xfce4-goodies")
         return packages
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % ("LightDM" if self.display_manager else _("none")))
         if self.minimal:
             print_sub_step(_("Install a minimal environment."))
 
     def prompt_extra(self):
+        self.display_manager = prompt_bool(
+            _("The display manager to install is '%s'. Do you want to install it ? (Y/n) : ") % "LightDM",
+            default=True)
         self.minimal = prompt_bool(
             _("Install a minimal environment ? (y/N/?) : "),
             default=False,
             help_msg=_("If yes, the script will not install any extra packages, only base packages."))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
-        os.system('arch-chroot /mnt bash -c "systemctl enable lightdm"')
+        if self.display_manager:
+            os.system('arch-chroot /mnt bash -c "systemctl enable lightdm"')
         os.system(
             'sed -i "s|#logind-check-graphical=false|logind-check-graphical=true|g" /mnt/etc/lightdm/lightdm.conf')
         os.system('arch-chroot /mnt bash -c "amixer sset Master unmute"')
@@ -352,18 +362,28 @@ class Budgie(Bundle):
     """
     Bundle class.
     """
+    display_manager = True
 
     def packages(self, system_info) -> [str]:
         packages = ["budgie-desktop", "budgie-desktop-view", "budgie-screensaver", "gnome-control-center",
-                    "network-manager-applet", "gnome", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
-                    "pavucontrol"]
+                    "network-manager-applet", "gnome-terminal", "nautilus", "xorg-server", "alsa-utils", "pulseaudio",
+                    "pulseaudio-alsa", "pavucontrol", "arc-gtk-theme", "arc-icon-theme"]
+        if self.display_manager:
+            packages.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
         return packages
+
+    def prompt_extra(self):
+        self.display_manager = prompt_bool(
+            _("The display manager to install is '%s'. Do you want to install it ? (Y/n) : ") % "LightDM",
+            default=True)
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % ("LightDM" if self.display_manager else _("none")))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
-        os.system('arch-chroot /mnt bash -c "systemctl enable gdm"')
+        if self.display_manager:
+            os.system('arch-chroot /mnt bash -c "systemctl enable lightdm"')
         os.system('arch-chroot /mnt bash -c "amixer sset Master unmute"')
         if "fr" in pre_launch_info["keymap"]:
             setup_chroot_keyboard("fr")
@@ -373,19 +393,28 @@ class Cinnamon(Bundle):
     """
     Bundle class.
     """
+    display_manager = True
 
     def packages(self, system_info) -> [str]:
         packages = ["cinnamon", "metacity", "gnome-shell", "gnome-terminal", "blueberry", "cinnamon-translations",
-                    "gnome-panel", "system-config-printer", "wget", "lightdm", "lightdm-gtk-greeter",
-                    "lightdm-gtk-greeter-settings", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
-                    "pavucontrol"]
+                    "gnome-panel", "system-config-printer", "wget", "xorg-server", "alsa-utils", "pulseaudio",
+                    "pulseaudio-alsa", "pavucontrol"]
+        if self.display_manager:
+            packages.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
         return packages
+
+    def prompt_extra(self):
+        self.display_manager = prompt_bool(
+            _("The display manager to install is '%s'. Do you want to install it ? (Y/n) : ") % "LightDM",
+            default=True)
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % ("LightDM" if self.display_manager else _("none")))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
-        os.system('arch-chroot /mnt bash -c "systemctl enable lightdm"')
+        if self.display_manager:
+            os.system('arch-chroot /mnt bash -c "systemctl enable lightdm"')
         os.system(
             'sed -i "s|#logind-check-graphical=false|logind-check-graphical=true|g" /mnt/etc/lightdm/lightdm.conf')
         os.system('arch-chroot /mnt bash -c "amixer sset Master unmute"')
@@ -397,16 +426,26 @@ class Cutefish(Bundle):
     """
     Bundle class.
     """
+    display_manager = True
 
     def packages(self, system_info) -> [str]:
-        packages = ["cutefish", "sddm", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol"]
+        packages = ["cutefish", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol"]
+        if self.display_manager:
+            packages.extend(["sddm"])
         return packages
+
+    def prompt_extra(self):
+        self.display_manager = prompt_bool(
+            _("The display manager to install is '%s'. Do you want to install it ? (Y/n) : ") % "SDDM",
+            default=True)
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % ("SDDM" if self.display_manager else _("none")))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
-        os.system('arch-chroot /mnt bash -c "systemctl enable sddm"')
+        if self.display_manager:
+            os.system('arch-chroot /mnt bash -c "systemctl enable sddm"')
         os.system('arch-chroot /mnt bash -c "amixer sset Master unmute"')
         if "fr" in pre_launch_info["keymap"]:
             setup_chroot_keyboard("fr")
@@ -426,6 +465,7 @@ class Deepin(Bundle):
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % "LightDM")
         if self.minimal:
             print_sub_step(_("Install a minimal environment."))
 
@@ -448,19 +488,28 @@ class Lxqt(Bundle):
     """
     Bundle class.
     """
+    display_manager = True
 
     def packages(self, system_info) -> [str]:
-        packages = ["lxqt", "sddm", "xorg-server", "breeze-icons", "xdg-utils", "xscreensaver", "xautolock", "libpulse",
+        packages = ["lxqt", "xorg-server", "breeze-icons", "xdg-utils", "xscreensaver", "xautolock", "libpulse",
                     "alsa-lib", "libstatgrab", "libsysstat", "lm_sensors", "system-config-printer", "alsa-utils",
-                    "pulseaudio",
-                    "pulseaudio-alsa", "pavucontrol", "network-manager-applet"]
+                    "pulseaudio", "pulseaudio-alsa", "pavucontrol", "network-manager-applet"]
+        if self.display_manager:
+            packages.extend(["sddm"])
         return packages
+
+    def prompt_extra(self):
+        self.display_manager = prompt_bool(
+            _("The display manager to install is '%s'. Do you want to install it ? (Y/n) : ") % "SDDM",
+            default=True)
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % ("SDDM" if self.display_manager else _("none")))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
-        os.system('arch-chroot /mnt bash -c "systemctl enable sddm"')
+        if self.display_manager:
+            os.system('arch-chroot /mnt bash -c "systemctl enable sddm"')
         os.system('arch-chroot /mnt bash -c "amixer sset Master unmute"')
         if "fr" in pre_launch_info["keymap"]:
             setup_chroot_keyboard("fr")
@@ -470,28 +519,35 @@ class Mate(Bundle):
     """
     Bundle class.
     """
+    display_manager = True
     minimal = False
 
     def packages(self, system_info) -> [str]:
-        packages = ["mate", "lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings", "xorg-server",
-                    "alsa-utils", "pulseaudio", "pulseaudio-alsa", "network-manager-applet"]
+        packages = ["mate", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "network-manager-applet"]
+        if self.display_manager:
+            packages.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
         if self.minimal is not True:
             packages.append("mate-extra")
         return packages
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % ("LightDM" if self.display_manager else _("none")))
         if self.minimal:
             print_sub_step(_("Install a minimal environment."))
 
     def prompt_extra(self):
+        self.display_manager = prompt_bool(
+            _("The display manager to install is '%s'. Do you want to install it ? (Y/n) : ") % "LightDM",
+            default=True)
         self.minimal = prompt_bool(
             _("Install a minimal environment ? (y/N/?) : "),
             default=False,
             help_msg=_("If yes, the script will not install any extra packages, only base packages."))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
-        os.system('arch-chroot /mnt bash -c "systemctl enable lightdm"')
+        if self.display_manager:
+            os.system('arch-chroot /mnt bash -c "systemctl enable lightdm"')
         os.system(
             'sed -i "s|#logind-check-graphical=false|logind-check-graphical=true|g" /mnt/etc/lightdm/lightdm.conf')
         os.system('arch-chroot /mnt bash -c "amixer sset Master unmute"')
@@ -505,14 +561,13 @@ class Enlightenment(Bundle):
     """
 
     def packages(self, system_info) -> [str]:
-        packages = ["lxqt", "sddm", "xorg-server", "breeze-icons", "xdg-utils", "xscreensaver", "xautolock", "libpulse",
-                    "alsa-lib", "libstatgrab", "libsysstat", "lm_sensors", "system-config-printer", "alsa-utils",
-                    "pulseaudio",
-                    "pulseaudio-alsa", "pavucontrol", "network-manager-applet"]
+        packages = ["enlightenment", "terminology", "xorg-server", "xorg-xinit", "alsa-utils", "pulseaudio",
+                    "pulseaudio-alsa", "pavucontrol", "system-config-printer", "network-manager-applet", "acpid"]
         return packages
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % _("none"))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
         os.system('arch-chroot /mnt bash -c "systemctl enable acpid"')
@@ -534,6 +589,7 @@ class I3(Bundle):
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % _("none"))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
         os.system('arch-chroot /mnt bash -c "systemctl enable acpid"')
@@ -548,7 +604,7 @@ class Sway(Bundle):
     """
 
     def packages(self, system_info) -> [str]:
-        packages = ["sway", "dmenu", "bemenu", "j4-dmenu-desktop", "foot", "grim", "mako", "slurp", "swayidle",
+        packages = ["sway", "dmenu", "bemenu-wayland", "j4-dmenu-desktop", "foot", "grim", "mako", "slurp", "swayidle",
                     "swaylock", "swayimg", "waybar", "swaybg", "wf-recorder", "wl-clipboard", "xorg-xwayland",
                     "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol", "system-config-printer",
                     "network-manager-applet", "acpid", "brightnessctl", "playerctl", "gammastep", "dex",
@@ -558,6 +614,7 @@ class Sway(Bundle):
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
+        print_sub_step(_("Display manager : %s") % _("none"))
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
         os.system('arch-chroot /mnt bash -c "systemctl enable acpid"')
@@ -609,7 +666,7 @@ def get_main_fonts() -> [str]:
     return ["gnu-free-fonts", "noto-fonts", "ttf-bitstream-vera", "ttf-dejavu", "ttf-hack", "ttf-droid",
             "ttf-fira-code", "ttf-fira-mono", "ttf-fira-sans", "ttf-font-awesome", "ttf-inconsolata",
             "ttf-input", "ttf-liberation", "ttf-nerd-fonts-symbols-2048-em", "ttf-opensans", "ttf-roboto",
-            "ttf-roboto-mono", "ttf-ubuntu-font-family", "ttf-jetbrains-mono", "otf-font-awesome"]
+            "ttf-roboto-mono", "ttf-ubuntu-font-family", "ttf-jetbrains-mono", "otf-font-awesome", "noto-fonts-emoji"]
 
 
 class MainFonts(Bundle):
@@ -663,6 +720,19 @@ class Zram(Bundle):
         ]
         with open("/mnt/etc/systemd/zram-generator.conf", "w", encoding="UTF-8") as zram_config_file:
             zram_config_file.writelines(content)
+
+
+class PipeWire(Bundle):
+    """
+    The PipeWire class.
+    """
+
+    def packages(self, system_info: {}) -> [str]:
+        return ["pipewire", "pipewire-alsa", "pipewire-audio", "pipewire-jack", "pipewire-media-session",
+                "pipewire-pulse", "pipewire-v4l2", "pipewire-x11-bell", "pipewire-zeroconf"]
+
+    def print_resume(self):
+        print_sub_step(_("Install PipeWire."))
 
 
 def process_bundle(name: str) -> Bundle or None:
@@ -1145,14 +1215,33 @@ def manual_partitioning() -> {}:
     return partitioning_info
 
 
-def build_partition_name(disk: str, index: str):
+def build_partition_name(disk_name: str, index: int) -> str or None:
     """
     A method to build a partition name with a disk and an index.
-    :param disk:
+    :param disk_name:
     :param index:
     :return:
     """
-    return (f'{disk}{index}', f'{disk}p{index}')["nvme" in disk]
+    block_devices_str = os.popen('lsblk -J').read()
+    block_devices_json = json.loads(block_devices_str)
+    if block_devices_json is None or not isinstance(block_devices_json, dict) or "blockdevices" not in dict(
+            block_devices_json):
+        return None
+    block_devices = dict(block_devices_json).get("blockdevices")
+    if block_devices is None or not isinstance(block_devices, list):
+        return None
+    disk = next((d for d in block_devices if
+                 d is not None and isinstance(d, dict) and "name" in d and dict(d).get("name") == os.path.basename(
+                     disk_name)), None)
+    if disk is None or not isinstance(disk, dict) or "children" not in dict(disk):
+        return None
+    partitions = dict(disk).get("children")
+    if partitions is None or not isinstance(partitions, list) or len(list(partitions)) <= index:
+        return None
+    partition = list(partitions)[index]
+    if partition is None or not isinstance(partition, dict) or "name" not in dict(partition):
+        return None
+    return f'/dev/{dict(partition).get("name")}'
 
 
 def to_iec(size: int) -> str:
@@ -1224,13 +1313,13 @@ def auto_partitioning() -> {}:
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += "+1G\n"  # Last sector (Accept default: varies)
             auto_part_str += "a\n"  # Toggle bootable flag
-            index += 1
-            partition = build_partition_name(target_disk, str(index))
+            partition = build_partition_name(target_disk, index)
             partitioning_info["part_type"][partition] = "OTHER"
             partitioning_info["part_mount_point"][partition] = "/boot"
             partitioning_info["part_format"][partition] = True
             partitioning_info["part_format_type"][partition] = part_format_type
             partitioning_info["partitions"].append(partition)
+            index += 1
         else:
             if not want_dual_boot:
                 # GPT LABEL
@@ -1243,10 +1332,10 @@ def auto_partitioning() -> {}:
                 auto_part_str += "t\n"  # Change partition type
                 auto_part_str += " \n"  # Partition number (Accept default: auto)
                 auto_part_str += "1\n"  # Type EFI System
-                index += 1
-                partition = build_partition_name(target_disk, str(index))
+                partition = build_partition_name(target_disk, index)
                 partitioning_info["part_format"][partition] = True
                 partitioning_info["part_format_type"][partition] = "vfat"
+                index += 1
             else:
                 index += len(disk.partitions)
                 partition = efi_partition.path
@@ -1268,10 +1357,10 @@ def auto_partitioning() -> {}:
                 auto_part_str += "82\n"  # Type Linux Swap
             else:
                 auto_part_str += "19\n"  # Type Linux Swap
-            index += 1
-            partition = build_partition_name(target_disk, str(index))
+            partition = build_partition_name(target_disk, index)
             partitioning_info["part_type"][partition] = "SWAP"
             partitioning_info["partitions"].append(partition)
+            index += 1
         if want_home:
             # ROOT
             auto_part_str += "n\n"  # Add a new partition
@@ -1280,13 +1369,13 @@ def auto_partitioning() -> {}:
             auto_part_str += " \n"  # Partition number (Accept default: auto)
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += f'+{root_size}\n'  # Last sector (Accept default: varies)
-            index += 1
-            partition = build_partition_name(target_disk, str(index))
+            partition = build_partition_name(target_disk, index)
             partitioning_info["part_type"][partition] = "ROOT"
             partitioning_info["part_mount_point"][partition] = "/"
             partitioning_info["part_format_type"][partition] = part_format_type
             partitioning_info["root_partition"] = partition
             partitioning_info["partitions"].append(partition)
+            index += 1
             # HOME
             auto_part_str += "n\n"  # Add a new partition
             if is_bios():
@@ -1294,13 +1383,13 @@ def auto_partitioning() -> {}:
             auto_part_str += " \n"  # Partition number (Accept default: auto)
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += " \n"  # Last sector (Accept default: varies)
-            index += 1
-            partition = build_partition_name(target_disk, str(index))
+            partition = build_partition_name(target_disk, index)
             partitioning_info["part_type"][partition] = "HOME"
             partitioning_info["part_mount_point"][partition] = "/home"
             partitioning_info["part_format"][partition] = True
             partitioning_info["part_format_type"][partition] = part_format_type
             partitioning_info["partitions"].append(partition)
+            index += 1
         else:
             # ROOT
             auto_part_str += "n\n"  # Add a new partition
@@ -1309,13 +1398,13 @@ def auto_partitioning() -> {}:
             auto_part_str += " \n"  # Partition number (Accept default: auto)
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += " \n"  # Last sector (Accept default: varies)
-            index += 1
-            partition = build_partition_name(target_disk, str(index))
+            partition = build_partition_name(target_disk, index)
             partitioning_info["part_type"][partition] = "ROOT"
             partitioning_info["part_mount_point"][partition] = "/"
             partitioning_info["part_format_type"][partition] = part_format_type
             partitioning_info["root_partition"] = partition
             partitioning_info["partitions"].append(partition)
+            index += 1
         # WRITE
         auto_part_str += "w\n"
 
@@ -1446,7 +1535,7 @@ def system_config(detected_timezone) -> {}:
         system_info["bundles"] = []
 
         system_info["kernel"] = prompt_bundle(_("Supported kernels : "),
-                                              _("Choose your kernel ? (%s) : "),
+                                              _("Choose your kernel (%s) : "),
                                               _("Kernel '%s' is not supported."),
                                               get_supported_kernels(get_default=True),
                                               get_supported_kernels())
@@ -1489,6 +1578,11 @@ def system_config(detected_timezone) -> {}:
                 "This method is more efficient than the swap and do not use your disk but is more CPU demanding. "
                 "ZRAM is fully compatible with a swap, it just has a higher priority.")):
             system_info["bundles"].append(Zram("zram"))
+
+        if prompt_bool(_("Install PipeWire ? (y/N/?) : "),
+                       default=False, help_msg=_(
+                    "If yes, the PipeWire multimedia framework will be installed to manage audio and video capture.")):
+            system_info["bundles"].append(PipeWire("pipewire"))
 
         default_timezone_file = f'/usr/share/zoneinfo/{detected_timezone}'
         system_info["timezone"] = prompt_ln(_("Your timezone (%s) : ") % default_timezone_file,
@@ -1537,7 +1631,8 @@ def system_config(detected_timezone) -> {}:
         if system_info["kernel"]:
             system_info["kernel"].print_resume()
         for bundle in system_info["bundles"]:
-            bundle.print_resume()
+            if bundle is not None and isinstance(bundle, Bundle):
+                bundle.print_resume()
         print_sub_step(_("Your timezone : %s") % system_info["timezone"])
         if system_info["user_name"] != "":
             print_sub_step(_("Additional user name : %s") % system_info["user_name"])
@@ -1654,7 +1749,7 @@ def main(pre_launch_info):
         pkgs.update(system_info["more_pkgs"])
 
     print_step(_("Installation of the base..."), clear=False)
-    subprocess.run(f'pacstrap /mnt {" ".join(base_pkgs)}', shell=True, check=True)
+    subprocess.run(f'pacstrap -K /mnt {" ".join(base_pkgs)}', shell=True, check=True)
 
     print_step(_("System configuration..."), clear=False)
     os.system('sed -i "s|#en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|g" /mnt/etc/locale.gen')
@@ -1679,10 +1774,6 @@ def main(pre_launch_info):
     print_step(_("Locales configuration..."), clear=False)
     os.system(f'arch-chroot /mnt bash -c "ln -sf {system_info["timezone"]} /etc/localtime"')
     os.system('arch-chroot /mnt bash -c "locale-gen"')
-
-    print_step(_("Updating archlinux-keyring and system..."), clear=False)
-    os.system(
-        'arch-chroot /mnt bash -c "pacman --noconfirm -Sy archlinux-keyring && pacman --noconfirm -Su &>/dev/null"')
 
     print_step(_("Installation of the remaining packages..."), clear=False)
     os.system('sed -i "s|#Color|Color|g" /mnt/etc/pacman.conf')
@@ -1718,7 +1809,7 @@ def main(pre_launch_info):
         system_info["bootloader"].configure(system_info, pre_launch_info, partitioning_info)
 
     print_step(_("Users configuration..."), clear=False)
-    print_sub_step(_("root account configuration..."))
+    print_sub_step(_("Root account configuration..."))
     if system_info["root_password"] != "":
         os.system(f'arch-chroot /mnt bash -c "echo \'root:{system_info["root_password"]}\' | chpasswd"')
     if system_info["user_name"] != "":

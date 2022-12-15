@@ -1,0 +1,174 @@
+#!/bin/bash
+
+set -e
+
+git_path=$(which git)
+
+CURRENT_PATH=$(dirname "$(readlink -f "$0")")
+
+GREEN="\033[0;32m"
+CYAN="\033[0;36m"
+NOCOLOR="\033[0m"
+
+main_branch="main"
+dev_branch="dev"
+current_branch="$($git_path symbolic-ref --short HEAD)"
+
+usage() {
+  printf "Usage : ./release [OPTION] TAG\n\n"
+  printf "Options :\n"
+  printf "\t-h          : Display this help.\n"
+}
+
+print_step() {
+  echo -e "${GREEN}$1${NOCOLOR}"
+}
+
+print_sub_step() {
+  echo -e "${CYAN}$1${NOCOLOR}"
+}
+
+while getopts ":h" opt; do
+  case ${opt} in
+  h)
+    usage
+    exit 1
+    ;;
+  \?)
+    echo "Invalid option: -$OPTARG" 1>&2
+    exit 1
+    ;;
+  :)
+    echo "Option -$OPTARG requires an argument." >&2
+    exit 1
+    ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if [ -z "$@" ]; then
+  echo "Please provide a tag name"
+  exit 1
+fi
+
+tag=$@
+shift
+
+cd "$(dirname "$0")"
+
+repo_url=$(echo "$($git_path remote -v | grep -m1 '^origin')" | sed -Ene's#.*(git@[^[:space:]]*).*#\1#p' | sed -Ene's#git@(.*):(.*).git#https://\1/\2#p')
+
+# https://github.com/git/git/blob/master/git-sh-setup.sh
+require_clean_work_tree() {
+  $git_path rev-parse --verify HEAD >/dev/null || exit 1
+  $git_path update-index -q --ignore-submodules --refresh
+  err=0
+
+  if ! $git_path diff-files --quiet --ignore-submodules; then
+    echo >&2 "You have unstaged changes."
+    err=1
+  fi
+
+  if ! $git_path diff-index --cached --quiet --ignore-submodules HEAD --; then
+    echo >&2 "Your index contains uncommitted changes."
+    err=1
+  fi
+
+  if [ -n "$($git_path status --porcelain)" ]; then
+    echo >&2 "You have untracked files."
+    err=1
+  fi
+
+  if test $err = 1; then
+    test -n "$2" && echo "$2" >&2
+    exit 1
+  fi
+}
+
+ensure_tag_dont_exist() {
+  local remote=$($git_path ls-remote --tags origin $tag)
+  local local=$($git_path tag -l $tag)
+  if [ ! -z "$remote" ] || [ ! -z "$local" ]; then
+    echo "Tag '$tag' exist on remote or on local"
+    exit 1
+  fi
+}
+
+# https://gist.github.com/rverst/1f0b97da3cbeb7d93f4986df6e8e5695
+function check_version() {
+  if [[ $1 =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*))*))?(\+([0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*))?$ ]]; then
+    echo "$1"
+  else
+    echo ""
+  fi
+}
+
+ensure_tag_format() {
+  if ! $git_path check-ref-format "tags/$tag"; then
+    echo "Tag '$tag' is not a valid name"
+    exit 1
+  fi
+
+  semver=$(check_version "$tag")
+  if [[ ! "$semver" ]]; then
+    echo "Tag '$tag' doesn't follow semantic version (https://semver.org/)"
+    exit 1
+  fi
+}
+
+check_prerequisites() {
+  ensure_tag_format
+  ensure_tag_dont_exist
+  require_clean_work_tree
+}
+
+release() {
+  print_step "Releasing $tag..."
+
+  if [ "$current_branch" = "$dev_branch" ]; then
+    print_sub_step "  * Merge dev on main branch"
+    $git_path checkout --quiet $main_branch
+    $git_path merge --quiet --no-edit $dev_branch
+  fi
+
+  print_sub_step "  * Prepare files"
+  sed -i "s|https://raw.githubusercontent.com/rawleenc/ArchCraftsman/dev|https://raw.githubusercontent.com/rawleenc/ArchCraftsman/main|g" archcraftsman.py
+  $git_path add --all . >/dev/null
+
+  print_sub_step "  * Create release commit"
+  $git_path commit --quiet --allow-empty --message="Release $tag"
+
+  print_sub_step "  * Create tag"
+  $git_path tag --annotate $tag --message="Release $tag"
+
+  print_sub_step "  * Push release commit and tag"
+  $git_path push --quiet origin $main_branch
+  $git_path push --quiet origin $tag
+}
+
+prepare_next_version() {
+  print_step "Preparing next version..."
+
+  print_sub_step "  * Merge main on dev branch"
+  $git_path checkout --quiet $dev_branch
+  $git_path merge --quiet --no-edit $main_branch
+
+  sed -i "s|https://raw.githubusercontent.com/rawleenc/ArchCraftsman/main|https://raw.githubusercontent.com/rawleenc/ArchCraftsman/dev|g" archcraftsman.py
+  $git_path add --all . >/dev/null
+
+  print_sub_step "  * Create preparation commit"
+  $git_path commit --quiet --allow-empty --message="Prepare next version"
+
+  print_sub_step "  * Push preparation commit"
+  $git_path push --quiet origin $dev_branch
+}
+
+check_prerequisites
+release
+prepare_next_version
+
+echo "-------------------"
+echo -e "Release '$tag' pushed on remote :"
+echo -e "   \033[4m$repo_url/releases/tag/$tag\033[0m"
+echo -e "-> Add any necessary release notes"
+echo "-------------------"
