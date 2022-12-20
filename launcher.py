@@ -6,13 +6,13 @@ REPO_BASE_URL = "https://raw.githubusercontent.com/rawleenc/ArchCraftsman/splitt
 CMD = 'python -m src.archcraftsman'
 
 
-def download_if_not_exist(file_name: str, desination: str):
+def download_if_not_exist(file_name: str, destination: str):
     print(f"Downloading '{file_name}'...")
-    if not os.path.exists(desination):
-        parent = os.path.dirname(line)
+    if not os.path.exists(destination):
+        parent = os.path.dirname(destination)
         if parent:
             os.makedirs(parent)
-        urllib.request.urlretrieve(f"{REPO_BASE_URL}/{file_name}", desination)
+        urllib.request.urlretrieve(f"{REPO_BASE_URL}/{file_name}", destination)
 
 
 if __name__ == '__main__':
