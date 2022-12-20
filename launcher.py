@@ -9,7 +9,9 @@ CMD = 'python -m src.archcraftsman'
 def download_if_not_exist(file_name: str, desination: str):
     print(f"Downloading '{file_name}'...")
     if not os.path.exists(desination):
-        os.makedirs(desination)
+        parent = os.path.dirname(line)
+        if parent:
+            os.makedirs(parent)
         urllib.request.urlretrieve(f"{REPO_BASE_URL}/{file_name}", desination)
 
 
