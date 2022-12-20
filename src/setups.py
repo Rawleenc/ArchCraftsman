@@ -1,11 +1,11 @@
 import os
 import re
 
-from src.archcraftsman import _
 from src.bundles.bundle import Bundle
 from src.bundles.cups import Cups
 from src.bundles.grmlzsh import GrmlZsh
 from src.bundles.grub import Grub
+from src.bundles.i18n import I18n
 from src.bundles.mainfilesystems import get_main_file_systems, MainFileSystems
 from src.bundles.mainfonts import get_main_fonts, MainFonts
 from src.bundles.microcodes import Microcodes
@@ -16,6 +16,7 @@ from src.utils import print_step, is_bios, print_error, print_sub_step, prompt_l
     get_supported_kernels, get_supported_desktop_environments, ask_password
 from src.bundles.zram import Zram
 
+_ = I18n().gettext
 
 def setup_locale(keymap: str = "de-latin1", global_language: str = "EN") -> str:
     """

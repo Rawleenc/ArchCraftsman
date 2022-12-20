@@ -36,6 +36,7 @@ import urllib.request
 import readline
 
 from src.autopart import auto_partitioning
+from src.bundles.i18n import I18n
 from src.manualpart import manual_partitioning
 from src.setups import setup_locale, setup_environment, setup_system
 from src.utils import is_bios, print_error, print_step, \
@@ -251,14 +252,15 @@ def pre_launch_steps() -> {}:
 
 
 if __name__ == '__main__':
-    _ = gettext.gettext
+    i18n = I18n()
+    _ = i18n.gettext
     try:
         PRE_LAUNCH_INFO = pre_launch_steps()
         if PRE_LAUNCH_INFO["global_language"] != "EN":
             translation = gettext.translation('ArchCraftsman', localedir='/usr/share/locale',
                                               languages=[PRE_LAUNCH_INFO["global_language"].lower()])
             translation.install()
-            _ = translation.gettext
+            _ = i18n.update_method(translation.gettext)
         main(PRE_LAUNCH_INFO)
     except KeyboardInterrupt:
         print_error(_("Script execution interrupted by the user !"), do_pause=False)

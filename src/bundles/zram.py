@@ -1,7 +1,8 @@
-from src.archcraftsman import _
 from src.bundles.bundle import Bundle
+from src.bundles.i18n import I18n
 from src.utils import print_sub_step
 
+_ = I18n().gettext
 
 class Zram(Bundle):
     """

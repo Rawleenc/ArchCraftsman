@@ -10,6 +10,7 @@ src/bundles/enlightenment.py
 src/bundles/gnome.py
 src/bundles/grmlzsh.py
 src/bundles/grub.py
+src/bundles/i18n.py
 src/bundles/i3.py
 src/bundles/linux.py
 src/bundles/lxqt.py

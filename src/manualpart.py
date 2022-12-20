@@ -1,11 +1,12 @@
 import os
 import re
 
-from src.archcraftsman import _
+from src.bundles.i18n import I18n
 from src.disk import Disk
 from src.utils import print_step, print_sub_step, prompt, print_error, prompt_bool, is_bios, ask_format_type, \
     ask_swapfile_size
 
+_ = I18n().gettext
 
 def manual_partitioning() -> {}:
     """

@@ -3,12 +3,12 @@ import json
 import os
 import re
 
-from src.archcraftsman import _
 from src.bundles.budgie import Budgie
 from src.bundles.bundle import Bundle
 from src.bundles.cinnamon import Cinnamon
 from src.bundles.cutefish import Cutefish
 from src.bundles.deepin import Deepin
+from src.bundles.i18n import I18n
 from src.disk import Disk
 from src.bundles.enlightenment import Enlightenment
 from src.bundles.gnome import Gnome
@@ -27,6 +27,7 @@ CYAN = "\033[0;36m"
 ORANGE = "\033[0;33m"
 NOCOLOR = "\033[0m"
 
+_ = I18n().gettext
 
 def is_bios() -> bool:
     """
