@@ -11,7 +11,7 @@ def download_if_not_exist(file_name: str, destination: str):
     if not os.path.exists(destination):
         parent = os.path.dirname(destination)
         if parent:
-            os.makedirs(parent)
+            os.system(f"mkdir -p {parent}")
         urllib.request.urlretrieve(f"{REPO_BASE_URL}/{file_name}", destination)
 
 
