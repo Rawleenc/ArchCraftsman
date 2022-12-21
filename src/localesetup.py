@@ -1,3 +1,6 @@
+"""
+The locale related setup module
+"""
 import os
 
 from src.i18n import I18n
@@ -8,7 +11,7 @@ _ = I18n().gettext
 
 def setup_locale(keymap: str = "de-latin1", global_language: str = "EN") -> str:
     """
-    The method to setup environment locale.
+    The method to set up environment locale.
     :param keymap:
     :param global_language:
     :return: The configured live system console font (terminus 16 or 32)

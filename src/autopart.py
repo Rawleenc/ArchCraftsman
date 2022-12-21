@@ -1,3 +1,6 @@
+"""
+The automatic partitioning system module
+"""
 import os
 
 from src.disk import Disk

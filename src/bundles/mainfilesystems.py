@@ -1,3 +1,6 @@
+"""
+The main file systems bundle module
+"""
 from src.bundles.bundle import Bundle
 from src.i18n import I18n
 from src.utils import print_sub_step

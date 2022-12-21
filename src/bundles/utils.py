@@ -1,3 +1,6 @@
+"""
+The bundles related utility methods and tools module
+"""
 from src.bundles.budgie import Budgie
 from src.bundles.bundle import Bundle
 from src.bundles.cinnamon import Cinnamon

@@ -1,3 +1,6 @@
+"""
+The microcodes auto-installation bundle module
+"""
 import os
 import re
 

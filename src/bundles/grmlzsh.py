@@ -1,3 +1,6 @@
+"""
+The grml zsh bundle module
+"""
 import os
 
 from src.bundles.bundle import Bundle

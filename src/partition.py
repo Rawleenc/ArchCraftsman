@@ -1,3 +1,6 @@
+"""
+The partition class module
+"""
 import os
 import re
 

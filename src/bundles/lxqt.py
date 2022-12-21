@@ -1,3 +1,6 @@
+"""
+The lxqt bundle module
+"""
 import os
 
 from src.bundles.bundle import Bundle

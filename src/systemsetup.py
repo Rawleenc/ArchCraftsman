@@ -1,3 +1,6 @@
+"""
+The system setup module
+"""
 import os
 import re
 
@@ -14,8 +17,8 @@ from src.bundles.terminus import TerminusFont
 from src.bundles.utils import prompt_bundle
 from src.bundles.zram import Zram
 from src.i18n import I18n
-from src.utils import get_supported_kernels, get_supported_desktop_environments, ask_password, print_error, \
-    print_step, print_sub_step, prompt_ln, prompt_bool
+from src.utils import print_error, print_step, print_sub_step, prompt_ln, prompt_bool, \
+    get_supported_kernels, get_supported_desktop_environments, ask_password
 
 _ = I18n().gettext
 

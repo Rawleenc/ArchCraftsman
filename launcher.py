@@ -8,7 +8,14 @@ REPO_BASE_URL = "https://raw.githubusercontent.com/rawleenc/ArchCraftsman/dev"
 CMD = 'python -m src.archcraftsman'
 
 
-def download_if_not_exist(file_path: str, destination: str, replace: bool = False):
+def download(file_path: str, destination: str, replace: bool = False):
+    """
+    A method to download a file
+    :param file_path: the file to download
+    :param destination: the download destination
+    :param replace: if any existing file have to be replaced
+    :return:
+    """
     print(f"Downloading '{file_path}'...")
     if replace and os.path.exists(destination):
         os.system(f"rm -rf {destination}")
@@ -20,7 +27,7 @@ def download_if_not_exist(file_path: str, destination: str, replace: bool = Fals
 
 
 if __name__ == '__main__':
-    download_if_not_exist("modules_list", "modules_list", replace=True)
+    download("modules_list", "modules_list", replace=True)
     modules_list_file = open('modules_list', 'r')
     module_files = modules_list_file.readlines()
 
@@ -29,11 +36,11 @@ if __name__ == '__main__':
         futures = []
         for module_file in module_files:
             line = module_file.strip()
-            exe.submit(download_if_not_exist, line, line, True)
+            exe.submit(download, line, line, True)
         for future in as_completed(futures):
             future.result()
 
-    download_if_not_exist("locales/fr.po", "fr.po")
+    download("locales/fr.po", "fr.po")
     os.system('msgfmt -o /usr/share/locale/fr/LC_MESSAGES/ArchCraftsman.mo fr.po &>/dev/null')
 
     try:

@@ -1,3 +1,6 @@
+"""
+All supported linux kernel bundles module
+"""
 from src.bundles import bundle
 from src.bundles.bundle import Bundle
 from src.i18n import I18n

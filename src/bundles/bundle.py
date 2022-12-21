@@ -1,3 +1,6 @@
+"""
+The generic bundle blueprint module
+"""
 class Bundle:
     """
     A class to represent a bootloader.

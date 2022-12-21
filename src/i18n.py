@@ -1,10 +1,13 @@
+"""
+The I18n management singleton module
+"""
 import gettext
 from threading import Lock
 
 
 class I18nMeta(type):
     """
-    This is a thread-safe implementation of Singleton.
+    Thread-safe implementation of Singleton to manage translations.
     """
 
     _instances = {}
@@ -23,17 +26,27 @@ class I18nMeta(type):
 
 
 class I18n(metaclass=I18nMeta):
+    """
+    The singleton implementation containing the translation method to use.
+    """
     gettext_method = None
-    """
-    We'll use this property to prove that our Singleton really works.
-    """
 
     def __init__(self) -> None:
         self.gettext_method = gettext.gettext
 
     def update_method(self, method):
+        """
+        Update the translation method.
+        :param method:
+        :return:
+        """
         self.gettext_method = method
         return self.gettext_method
 
     def gettext(self, message):
+        """
+        Translate the given text with the translation method.
+        :param message:
+        :return:
+        """
         return self.gettext_method(message)

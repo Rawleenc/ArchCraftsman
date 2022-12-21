@@ -1,3 +1,6 @@
+"""
+The general utility methods and tools module
+"""
 import getpass
 import json
 import os

@@ -1,3 +1,6 @@
+"""
+The disk class module
+"""
 import os
 import re
 

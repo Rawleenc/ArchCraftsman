@@ -1,3 +1,6 @@
+"""
+The manual partitioning system module
+"""
 import os
 import re
 

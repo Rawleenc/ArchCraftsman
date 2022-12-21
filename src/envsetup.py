@@ -1,7 +1,10 @@
+"""
+The environment setup module
+"""
 import os
 
 from src.i18n import I18n
-from src.utils import is_bios, print_error, print_step, print_sub_step, prompt_ln, prompt_bool
+from src.utils import print_step, is_bios, print_error, print_sub_step, prompt_ln, prompt_bool
 
 _ = I18n().gettext
 

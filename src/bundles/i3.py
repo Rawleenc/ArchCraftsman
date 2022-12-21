@@ -1,3 +1,6 @@
+"""
+The i3 bundle module
+"""
 import os
 
 from src.bundles.bundle import Bundle

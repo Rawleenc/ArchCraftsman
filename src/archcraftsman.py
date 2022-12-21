@@ -1,7 +1,7 @@
 """
 LICENSE
 ArchCraftsman, The careful yet very fast Arch Linux Craftsman.
-Copyright (C) 2021  Rawleenc
+Copyright (C) 2022  Rawleenc
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,11 +36,11 @@ import urllib.request
 import readline
 
 from src.autopart import auto_partitioning
+from src.systemsetup import setup_system
 from src.envsetup import setup_environment
-from src.i18n import I18n
 from src.localesetup import setup_locale
+from src.i18n import I18n
 from src.manualpart import manual_partitioning
-from src.syssetup import setup_system
 from src.utils import is_bios, format_partition, print_error, print_step, print_sub_step, prompt_bool
 
 
