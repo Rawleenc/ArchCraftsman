@@ -1843,8 +1843,8 @@ def pre_launch_steps() -> {}:
     print_step(_("Running pre-launch steps : "), clear=False)
     os.system('sed -i "s|#Color|Color|g" /etc/pacman.conf')
     os.system('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /etc/pacman.conf')
-    print_sub_step(_("Synchronising repositories..."))
-    os.system("pacman -Sy &>/dev/null")
+    print_sub_step(_("Synchronising repositories and keyring..."))
+    os.system("pacman --noconfirm -Sy --needed archlinux-keyring &>/dev/null")
     print_sub_step(_("Downloading and formatting translations..."))
     if not os.path.exists("fr.po"):
         urllib.request.urlretrieve("https://raw.githubusercontent.com/rawleenc/ArchCraftsman/dev/locales/fr.po",
