@@ -34,13 +34,17 @@ class I18n(metaclass=I18nMeta):
     def __init__(self) -> None:
         self.gettext_method = gettext.gettext
 
-    def update_method(self, method):
+    def update_method(self, global_language: str):
         """
-        Update the translation method.
-        :param method:
+        Update the translation method to use according to the global language.
+        :param global_language:
         :return:
         """
-        self.gettext_method = method
+        if global_language != "EN":
+            translation = gettext.translation('ArchCraftsman', localedir='/usr/share/locale',
+                                              languages=[global_language.lower()])
+            translation.install()
+            self.gettext_method = translation.gettext
         return self.gettext_method
 
     def gettext(self, message):

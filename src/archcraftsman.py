@@ -25,7 +25,6 @@ GNU General Public License for more details.
 This is free software, and you are welcome to redistribute it
 under certain conditions; See the GNU General Public License for more details.
 """
-import gettext
 import glob
 import json
 import os
@@ -259,11 +258,7 @@ if __name__ == '__main__':
     _ = i18n.gettext
     try:
         PRE_LAUNCH_INFO = pre_launch_steps()
-        if PRE_LAUNCH_INFO["global_language"] != "EN":
-            translation = gettext.translation('ArchCraftsman', localedir='/usr/share/locale',
-                                              languages=[PRE_LAUNCH_INFO["global_language"].lower()])
-            translation.install()
-            _ = i18n.update_method(translation.gettext)
+        _ = i18n.update_method(PRE_LAUNCH_INFO["global_language"])
         main(PRE_LAUNCH_INFO)
     except KeyboardInterrupt:
         print_error(_("Script execution interrupted by the user !"), do_pause=False)
