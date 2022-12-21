@@ -12,7 +12,7 @@ def download_if_not_exist(file_path: str, destination: str, replace: bool = Fals
     print(f"Downloading '{file_path}'...")
     if replace and os.path.exists(destination):
         os.system(f"rm -rf {destination}")
-    elif not os.path.exists(destination):
+    if not os.path.exists(destination):
         parent = os.path.dirname(destination)
         if parent:
             os.system(f"mkdir -p {parent}")
