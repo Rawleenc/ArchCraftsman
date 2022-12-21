@@ -16,7 +16,7 @@ def auto_partitioning() -> {}:
     The method to proceed to the automatic partitioning.
     :return:
     """
-    partitioning_info = {"partitions": [], "part_type": {}, "part_mount_point": {}, "part_format": {},
+    partitioning_info = {"partitions": set(), "part_type": {}, "part_mount_point": {}, "part_format": {},
                          "part_format_type": {}, "root_partition": None, "swapfile_size": None, "main_disk": None}
     user_answer = False
     while not user_answer:
@@ -71,7 +71,7 @@ def auto_partitioning() -> {}:
             partitioning_info["part_mount_point"][partition] = "/boot"
             partitioning_info["part_format"][partition] = True
             partitioning_info["part_format_type"][partition] = part_format_type
-            partitioning_info["partitions"].append(partition)
+            partitioning_info["partitions"].add(partition)
             index += 1
         else:
             if not want_dual_boot:
@@ -95,7 +95,7 @@ def auto_partitioning() -> {}:
                 partitioning_info["part_format"][partition] = False
             partitioning_info["part_type"][partition] = "EFI"
             partitioning_info["part_mount_point"][partition] = "/boot/efi"
-            partitioning_info["partitions"].append(partition)
+            partitioning_info["partitions"].add(partition)
         if swap_type == "1":
             # SWAP
             auto_part_str += "n\n"  # Add a new partition
@@ -112,7 +112,7 @@ def auto_partitioning() -> {}:
                 auto_part_str += "19\n"  # Type Linux Swap
             partition = build_partition_name(target_disk, index)
             partitioning_info["part_type"][partition] = "SWAP"
-            partitioning_info["partitions"].append(partition)
+            partitioning_info["partitions"].add(partition)
             index += 1
         if want_home:
             # ROOT
@@ -127,7 +127,7 @@ def auto_partitioning() -> {}:
             partitioning_info["part_mount_point"][partition] = "/"
             partitioning_info["part_format_type"][partition] = part_format_type
             partitioning_info["root_partition"] = partition
-            partitioning_info["partitions"].append(partition)
+            partitioning_info["partitions"].add(partition)
             index += 1
             # HOME
             auto_part_str += "n\n"  # Add a new partition
@@ -141,7 +141,7 @@ def auto_partitioning() -> {}:
             partitioning_info["part_mount_point"][partition] = "/home"
             partitioning_info["part_format"][partition] = True
             partitioning_info["part_format_type"][partition] = part_format_type
-            partitioning_info["partitions"].append(partition)
+            partitioning_info["partitions"].add(partition)
             index += 1
         else:
             # ROOT
@@ -156,7 +156,7 @@ def auto_partitioning() -> {}:
             partitioning_info["part_mount_point"][partition] = "/"
             partitioning_info["part_format_type"][partition] = part_format_type
             partitioning_info["root_partition"] = partition
-            partitioning_info["partitions"].append(partition)
+            partitioning_info["partitions"].add(partition)
             index += 1
         # WRITE
         auto_part_str += "w\n"
