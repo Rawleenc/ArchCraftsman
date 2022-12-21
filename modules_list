@@ -10,7 +10,6 @@ src/bundles/enlightenment.py
 src/bundles/gnome.py
 src/bundles/grmlzsh.py
 src/bundles/grub.py
-src/bundles/i18n.py
 src/bundles/i3.py
 src/bundles/linux.py
 src/bundles/lxqt.py
@@ -23,12 +22,16 @@ src/bundles/pipewire.py
 src/bundles/plasma.py
 src/bundles/sway.py
 src/bundles/terminus.py
+src/bundles/utils.py
 src/bundles/xfce.py
 src/bundles/zram.py
 src/bundles/__init__.py
 src/disk.py
+src/envsetup.py
+src/i18n.py
+src/localesetup.py
 src/manualpart.py
 src/partition.py
-src/setups.py
+src/syssetup.py
 src/utils.py
 src/__init__.py

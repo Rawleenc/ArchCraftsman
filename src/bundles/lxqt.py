@@ -1,8 +1,8 @@
 import os
 
 from src.bundles.bundle import Bundle
-from src.bundles.i18n import I18n
-from src.setups import setup_chroot_keyboard
+from src.i18n import I18n
+from src.localesetup import setup_chroot_keyboard
 from src.utils import print_sub_step, prompt_bool
 
 _ = I18n().gettext

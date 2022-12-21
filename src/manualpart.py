@@ -1,10 +1,10 @@
 import os
 import re
 
-from src.bundles.i18n import I18n
+from src.i18n import I18n
 from src.disk import Disk
-from src.utils import print_step, print_sub_step, prompt, print_error, prompt_bool, is_bios, ask_format_type, \
-    ask_swapfile_size
+from src.utils import is_bios, ask_format_type, \
+    ask_swapfile_size, print_error, print_step, print_sub_step, prompt, prompt_bool
 
 _ = I18n().gettext
 

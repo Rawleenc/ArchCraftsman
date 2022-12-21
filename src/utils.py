@@ -3,23 +3,8 @@ import json
 import os
 import re
 
-from src.bundles.budgie import Budgie
-from src.bundles.bundle import Bundle
-from src.bundles.cinnamon import Cinnamon
-from src.bundles.cutefish import Cutefish
-from src.bundles.deepin import Deepin
-from src.bundles.i18n import I18n
+from src.i18n import I18n
 from src.disk import Disk
-from src.bundles.enlightenment import Enlightenment
-from src.bundles.gnome import Gnome
-from src.bundles.grub import Grub
-from src.bundles.i3 import I3
-from src.bundles.linux import LinuxCurrent, LinuxHardened, LinuxLts, LinuxZen
-from src.bundles.lxqt import Lxqt
-from src.bundles.mate import Mate
-from src.bundles.plasma import Plasma
-from src.bundles.sway import Sway
-from src.bundles.xfce import Xfce
 
 RED = "\033[0;31m"
 GREEN = "\033[0;32m"
@@ -53,195 +38,6 @@ def get_supported_desktop_environments(get_default: bool = False) -> str or []:
     return _("none") if get_default else ["gnome", "plasma", "xfce", "budgie", "cinnamon", "cutefish", "deepin", "lxqt",
                                           "mate", "enlightenment",
                                           "i3", "sway", _("none")]
-
-
-def process_bundle(name: str) -> Bundle or None:
-    """
-    Process a bundle name into a Bundle object.
-    :param name:
-    :return:
-    """
-    bundle = None
-    match name:
-        case "current":
-            bundle = LinuxCurrent("current")
-        case "lts":
-            bundle = LinuxLts("lts")
-        case "zen":
-            bundle = LinuxZen("zen")
-        case "hardened":
-            bundle = LinuxHardened("hardened")
-        case "grub":
-            bundle = Grub("grub")
-        case "gnome":
-            bundle = Gnome("gnome")
-        case "plasma":
-            bundle = Plasma("plasma")
-        case "xfce":
-            bundle = Xfce("xfce")
-        case "budgie":
-            bundle = Budgie("budgie")
-        case "cinnamon":
-            bundle = Cinnamon("cinnamon")
-        case "cutefish":
-            bundle = Cutefish("cutefish")
-        case "deepin":
-            bundle = Deepin("deepin")
-        case "lxqt":
-            bundle = Lxqt("lxqt")
-        case "mate":
-            bundle = Mate("mate")
-        case "enlightenment":
-            bundle = Enlightenment("enlightenment")
-        case "i3":
-            bundle = I3("i3")
-        case "sway":
-            bundle = Sway("sway")
-    return bundle
-
-
-def print_error(message: str, do_pause: bool = True):
-    """
-    A method to print an error.
-    :param message:
-    :param do_pause:
-    :return:
-    """
-    print(f'\n{RED}  /!\\ {message}{NOCOLOR}\n')
-    if do_pause:
-        pause(end_newline=True)
-
-
-def print_step(message: str, clear: bool = True):
-    """
-    A method to print a step message.
-    :param message:
-    :param clear:
-    """
-    if clear:
-        os.system('clear')
-    print(f'\n{GREEN}{message}{NOCOLOR}')
-
-
-def print_sub_step(message: str):
-    """
-    A method to print a sub step message.
-    :param message:
-    """
-    print(f'{CYAN}  * {message}{NOCOLOR}')
-
-
-def print_help(message: str, do_pause: bool = False):
-    """
-    A method to print an help message.
-    :param message:
-    :param do_pause:
-    :return:
-    """
-    print_step(_("Help :"), clear=False)
-    print_sub_step(message)
-    if do_pause:
-        pause(end_newline=True)
-
-
-def prompt(message: str, default: str = None, help_msg: str = None) -> str:
-    """
-    A method to prompt for a user input.
-    :param message:
-    :param default:
-    :param help_msg:
-    :return:
-    """
-    user_input_ok = False
-    user_input = None
-    while not user_input_ok:
-        user_input = input(f'{ORANGE}{message}{NOCOLOR}')
-        if user_input == "?" and help_msg and help_msg != "":
-            print_help(help_msg)
-            continue
-        if user_input == "" and default:
-            user_input = default
-        user_input_ok = True
-    return user_input
-
-
-def prompt_ln(message: str, default: str = None, help_msg: str = None) -> str:
-    """
-    A method to prompt for a user input with a new line for the user input.
-    :param message:
-    :param default:
-    :param help_msg:
-    :return:
-    """
-    return prompt(f'{message}\n', default=default, help_msg=help_msg)
-
-
-def prompt_bool(message: str, default: bool = True, help_msg: str = None) -> bool:
-    """
-    A method to prompt for a boolean choice.
-    :param message:
-    :param default:
-    :param help_msg:
-    :return:
-    """
-    if not default:
-        return prompt(f'{message}', help_msg=help_msg).upper() in {"Y", "O"}
-    return prompt(f'{message}', help_msg=help_msg).upper() != "N"
-
-
-def prompt_passwd(message: str):
-    """
-    A method to prompt for a password without displaying an echo.
-    :param message:
-    :return:
-    """
-    return getpass.getpass(prompt=f'{ORANGE}{message}{NOCOLOR}')
-
-
-def prompt_bundle(supported_msg: str, message: str, error_msg: str, default_bundle: str,
-                  supported_bundles: [str]) -> Bundle or None:
-    """
-    A method to prompt for a bundle.
-    :param supported_msg:
-    :param message:
-    :param error_msg:
-    :param default_bundle:
-    :param supported_bundles:
-    :return:
-    """
-    print_step(supported_msg, clear=False)
-    print_sub_step(", ".join(supported_bundles))
-    print('')
-    bundle_ok = False
-    bundle = None
-    while not bundle_ok:
-        bundle_name = prompt_ln(
-            message % default_bundle,
-            default=default_bundle).lower()
-        if bundle_name in supported_bundles:
-            bundle_ok = True
-            bundle = process_bundle(bundle_name)
-        else:
-            print_error(error_msg % bundle_name, do_pause=False)
-            continue
-    if bundle:
-        bundle.prompt_extra()
-    return bundle
-
-
-def pause(start_newline: bool = False, end_newline: bool = False):
-    """
-    A method to insert a one key press pause.
-    :param start_newline:
-    :param end_newline:
-    """
-    message = _("Press any key to continue...")
-    if start_newline:
-        print("")
-    print(f'{ORANGE}{message}{NOCOLOR}')
-    os.system('read -n 1 -sr')
-    if end_newline:
-        print("")
 
 
 def to_iec(size: int) -> str:
@@ -375,3 +171,116 @@ def format_partition(partition: str, format_type: str, mount_point: str, formatt
                 os.system(f'mkfs.ext4 "{partition}"')
             os.system(f'mkdir -p "/mnt{mount_point}"')
             os.system(f'mount "{partition}" "/mnt{mount_point}"')
+
+
+def print_error(message: str, do_pause: bool = True):
+    """
+    A method to print an error.
+    :param message:
+    :param do_pause:
+    :return:
+    """
+    print(f'\n{RED}  /!\\ {message}{NOCOLOR}\n')
+    if do_pause:
+        pause(end_newline=True)
+
+
+def print_step(message: str, clear: bool = True):
+    """
+    A method to print a step message.
+    :param message:
+    :param clear:
+    """
+    if clear:
+        os.system('clear')
+    print(f'\n{GREEN}{message}{NOCOLOR}')
+
+
+def print_sub_step(message: str):
+    """
+    A method to print a sub step message.
+    :param message:
+    """
+    print(f'{CYAN}  * {message}{NOCOLOR}')
+
+
+def print_help(message: str, do_pause: bool = False):
+    """
+    A method to print an help message.
+    :param message:
+    :param do_pause:
+    :return:
+    """
+    print_step(_("Help :"), clear=False)
+    print_sub_step(message)
+    if do_pause:
+        pause(end_newline=True)
+
+
+def prompt(message: str, default: str = None, help_msg: str = None) -> str:
+    """
+    A method to prompt for a user input.
+    :param message:
+    :param default:
+    :param help_msg:
+    :return:
+    """
+    user_input_ok = False
+    user_input = None
+    while not user_input_ok:
+        user_input = input(f'{ORANGE}{message}{NOCOLOR}')
+        if user_input == "?" and help_msg and help_msg != "":
+            print_help(help_msg)
+            continue
+        if user_input == "" and default:
+            user_input = default
+        user_input_ok = True
+    return user_input
+
+
+def prompt_ln(message: str, default: str = None, help_msg: str = None) -> str:
+    """
+    A method to prompt for a user input with a new line for the user input.
+    :param message:
+    :param default:
+    :param help_msg:
+    :return:
+    """
+    return prompt(f'{message}\n', default=default, help_msg=help_msg)
+
+
+def prompt_bool(message: str, default: bool = True, help_msg: str = None) -> bool:
+    """
+    A method to prompt for a boolean choice.
+    :param message:
+    :param default:
+    :param help_msg:
+    :return:
+    """
+    if not default:
+        return prompt(f'{message}', help_msg=help_msg).upper() in {"Y", "O"}
+    return prompt(f'{message}', help_msg=help_msg).upper() != "N"
+
+
+def prompt_passwd(message: str):
+    """
+    A method to prompt for a password without displaying an echo.
+    :param message:
+    :return:
+    """
+    return getpass.getpass(prompt=f'{ORANGE}{message}{NOCOLOR}')
+
+
+def pause(start_newline: bool = False, end_newline: bool = False):
+    """
+    A method to insert a one key press pause.
+    :param start_newline:
+    :param end_newline:
+    """
+    message = _("Press any key to continue...")
+    if start_newline:
+        print("")
+    print(f'{ORANGE}{message}{NOCOLOR}')
+    os.system('read -n 1 -sr')
+    if end_newline:
+        print("")

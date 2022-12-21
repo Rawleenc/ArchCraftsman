@@ -5,122 +5,19 @@ from src.bundles.bundle import Bundle
 from src.bundles.cups import Cups
 from src.bundles.grmlzsh import GrmlZsh
 from src.bundles.grub import Grub
-from src.bundles.i18n import I18n
+from src.i18n import I18n
 from src.bundles.mainfilesystems import get_main_file_systems, MainFileSystems
 from src.bundles.mainfonts import get_main_fonts, MainFonts
 from src.bundles.microcodes import Microcodes
 from src.bundles.nvidia import NvidiaDriver
 from src.bundles.pipewire import PipeWire
 from src.bundles.terminus import TerminusFont
-from src.utils import print_step, is_bios, print_error, print_sub_step, prompt_ln, prompt_bool, prompt_bundle, \
-    get_supported_kernels, get_supported_desktop_environments, ask_password
+from src.utils import get_supported_kernels, get_supported_desktop_environments, ask_password, print_error, print_step, \
+    print_sub_step, prompt_ln, prompt_bool
+from src.bundles.utils import prompt_bundle
 from src.bundles.zram import Zram
 
 _ = I18n().gettext
-
-def setup_locale(keymap: str = "de-latin1", global_language: str = "EN") -> str:
-    """
-    The method to setup environment locale.
-    :param keymap:
-    :param global_language:
-    :return: The configured live system console font (terminus 16 or 32)
-    """
-    print_step(_("Configuring live environment..."), clear=False)
-    os.system(f'loadkeys "{keymap}"')
-    font = 'ter-v16b'
-    os.system('setfont ter-v16b')
-    dimensions = os.popen('stty size').read().split(" ")
-    if dimensions and len(dimensions) > 0 and int(dimensions[0]) >= 80:
-        font = 'ter-v32b'
-        os.system('setfont ter-v32b')
-    if global_language == "FR":
-        os.system('sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /etc/locale.gen')
-        os.system('locale-gen')
-        os.putenv('LANG', 'fr_FR.UTF-8')
-        os.putenv('LANGUAGE', 'fr_FR.UTF-8')
-    else:
-        os.putenv('LANG', 'en_US.UTF-8')
-        os.putenv('LANGUAGE', 'en_US.UTF-8')
-    return font
-
-
-def setup_chroot_keyboard(layout: str):
-    """
-    The method to set the X keyboard of the chrooted system.
-    :param layout:
-    """
-    content = [
-        "Section \"InputClass\"\n",
-        "    Identifier \"system-keyboard\"\n",
-        "    MatchIsKeyboard \"on\"\n",
-        f"    Option \"XkbLayout\" \"{layout}\"\n",
-        "EndSection\n"
-    ]
-    os.system("mkdir --parents /mnt/etc/X11/xorg.conf.d/")
-    with open("/mnt/etc/X11/xorg.conf.d/00-keyboard.conf", "w", encoding="UTF-8") as keyboard_config_file:
-        keyboard_config_file.writelines(content)
-
-
-def setup_environment(detected_language: str) -> {}:
-    """
-    The method to get environment configurations from the user.
-    :param detected_language:
-    :return:
-    """
-    pre_launch_info = {"global_language": None, "keymap": None}
-    user_answer = False
-    while not user_answer:
-        print_step(_("Welcome to ArchCraftsman !"))
-        if is_bios():
-            print_error(
-                _("BIOS detected ! The script will act accordingly. Don't forget to select a DOS label type before "
-                  "partitioning."))
-
-        print_step(_("Environment configuration : "), clear=False)
-
-        supported_global_languages = ["FR", "EN"]
-        if detected_language == "fr-FR":
-            default_language = "FR"
-        else:
-            default_language = "EN"
-
-        print_step(_("Supported languages : "), clear=False)
-        print_sub_step(", ".join(supported_global_languages))
-        print('')
-        global_language_ok = False
-        pre_launch_info["global_language"] = None
-        pre_launch_info["keymap"] = None
-        while not global_language_ok:
-            pre_launch_info["global_language"] = prompt_ln(
-                _("Choose your installation's language (%s) : ") % default_language,
-                default=default_language).upper()
-            if pre_launch_info["global_language"] in supported_global_languages:
-                global_language_ok = True
-            else:
-                print_error(_("Global language '%s' is not supported.") % pre_launch_info["global_language"],
-                            do_pause=False)
-                continue
-
-        if detected_language == "fr-FR":
-            default_keymap = "fr-latin9"
-        else:
-            default_keymap = "de-latin1"
-
-        keymap_ok = False
-        while not keymap_ok:
-            pre_launch_info["keymap"] = prompt_ln(_("Type your installation's keymap (%s) : ") % default_keymap,
-                                                  default=default_keymap)
-            if os.system(f'localectl list-keymaps | grep "^{pre_launch_info["keymap"]}$" &>/dev/null') == 0:
-                keymap_ok = True
-            else:
-                print_error(_("Keymap %s doesn't exist.") % pre_launch_info["keymap"])
-                continue
-
-        print_step(_("Summary of choices :"), clear=False)
-        print_sub_step(_("Your installation's language : %s") % pre_launch_info["global_language"])
-        print_sub_step(_("Your installation's keymap : %s") % pre_launch_info["keymap"])
-        user_answer = prompt_bool(_("Is the informations correct ? (y/N) : "), default=False)
-    return pre_launch_info
 
 
 def setup_system(detected_timezone) -> {}:

@@ -36,11 +36,12 @@ import urllib.request
 import readline
 
 from src.autopart import auto_partitioning
-from src.bundles.i18n import I18n
+from src.i18n import I18n
 from src.manualpart import manual_partitioning
-from src.setups import setup_locale, setup_environment, setup_system
-from src.utils import is_bios, print_error, print_step, \
-    print_sub_step, prompt_bool, format_partition
+from src.syssetup import setup_system
+from src.envsetup import setup_environment
+from src.localesetup import setup_locale
+from src.utils import is_bios, format_partition, print_error, print_step, print_sub_step, prompt_bool
 
 
 def complete(text, state):

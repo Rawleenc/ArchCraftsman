@@ -1,18 +1,17 @@
 import os
 import subprocess
-import urllib.request
 
 REPO_BASE_URL = "https://raw.githubusercontent.com/rawleenc/ArchCraftsman/splitting"
 CMD = 'python -m src.archcraftsman'
 
 
-def download_if_not_exist(file_name: str, destination: str):
-    print(f"Downloading '{file_name}'...")
+def download_if_not_exist(file_path: str, destination: str):
+    print(f"Downloading '{file_path}'...")
     if not os.path.exists(destination):
         parent = os.path.dirname(destination)
         if parent:
             os.system(f"mkdir -p {parent}")
-        urllib.request.urlretrieve(f"{REPO_BASE_URL}/{file_name}", destination)
+        os.system(f"curl -Ls {REPO_BASE_URL}/{file_path} -o {destination}")
 
 
 if __name__ == '__main__':

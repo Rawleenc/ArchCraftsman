@@ -1,9 +1,9 @@
 import os
 
-from src.bundles.i18n import I18n
+from src.i18n import I18n
 from src.disk import Disk
-from src.utils import print_step, prompt, print_error, prompt_bool, ask_format_type, is_bios, from_iec, to_iec, \
-    build_partition_name, print_sub_step
+from src.utils import ask_format_type, is_bios, from_iec, to_iec, \
+    build_partition_name, print_error, print_step, print_sub_step, prompt, prompt_bool
 
 _ = I18n().gettext
 
