@@ -1,6 +1,10 @@
+"""
+The ArchCraftsman entry point. A launcher to download all ArchCraftsman's modules and run it.
+"""
 import multiprocessing
 import os
 import subprocess
+import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.request import urlretrieve
 
@@ -28,8 +32,8 @@ def download(file_path: str, destination: str, replace: bool = False):
 
 if __name__ == '__main__':
     download("modules_list", "modules_list", replace=True)
-    modules_list_file = open('modules_list', 'r')
-    module_files = modules_list_file.readlines()
+    with open('modules_list', 'r', encoding="UTF-8") as modules_list_file:
+        module_files = modules_list_file.readlines()
 
     cpus = multiprocessing.cpu_count()
     with ThreadPoolExecutor(max_workers=cpus) as exe:
@@ -46,6 +50,6 @@ if __name__ == '__main__':
     try:
         subprocess.run(CMD, shell=True, check=True)
     except KeyboardInterrupt:
-        exit(1)
+        sys.exit(1)
     except subprocess.CalledProcessError as e:
-        exit(e.returncode)
+        sys.exit(e.returncode)
