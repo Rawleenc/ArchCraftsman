@@ -8,7 +8,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.request import urlretrieve
 
-REPO_BASE_URL = "https://raw.githubusercontent.com/rawleenc/ArchCraftsman/dev"
+REPO_BASE_URL = "https://raw.githubusercontent.com/rawleenc/ArchCraftsman/main"
 CMD = 'python -m src.archcraftsman'
 
 
