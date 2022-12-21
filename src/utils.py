@@ -4,7 +4,6 @@ import os
 import re
 
 from src.i18n import I18n
-from src.disk import Disk
 
 RED = "\033[0;31m"
 GREEN = "\033[0;32m"
@@ -81,28 +80,6 @@ def build_partition_name(disk_name: str, index: int) -> str or None:
     if partition is None or not isinstance(partition, dict) or "name" not in dict(partition):
         return None
     return f'/dev/{dict(partition).get("name")}'
-
-
-def ask_swapfile_size(disk: Disk) -> str:
-    """
-    The method to ask the user for the swapfile size.
-    :return:
-    """
-    swapfile_ok = False
-    swapfile_size = ""
-    swapfile_size_pattern = re.compile("^(\\d*[.,]\\d+|\\d+)([GMk])$")
-    default_swapfile_size = to_iec(int(disk.total / 32))
-    while not swapfile_ok:
-        swapfile_size = prompt(_("Swapfile size ? (%s, type '0' for none) : ") % default_swapfile_size,
-                               default=default_swapfile_size)
-        if swapfile_size == "0":
-            swapfile_size = None
-            swapfile_ok = True
-        elif swapfile_size_pattern.match(swapfile_size):
-            swapfile_ok = True
-        else:
-            print_error("Invalid swapfile size.")
-    return swapfile_size
 
 
 def get_supported_format_types(get_default: bool = False) -> str or []:

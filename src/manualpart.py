@@ -4,7 +4,7 @@ import re
 from src.i18n import I18n
 from src.disk import Disk
 from src.utils import is_bios, ask_format_type, \
-    ask_swapfile_size, print_error, print_step, print_sub_step, prompt, prompt_bool
+    print_error, print_step, print_sub_step, prompt, prompt_bool
 
 _ = I18n().gettext
 
@@ -92,7 +92,7 @@ def manual_partitioning() -> {}:
             partitioned_disks.clear()
             continue
         if "SWAP" not in partitioning_info["part_type"].values():
-            partitioning_info["swapfile_size"] = ask_swapfile_size(Disk(partitioning_info["main_disk"]))
+            partitioning_info["swapfile_size"] = Disk(partitioning_info["main_disk"]).ask_swapfile_size()
         print_step(_("Summary of choices :"))
         for partition in partitioning_info["partitions"]:
             if partitioning_info["part_format"].get(partition):

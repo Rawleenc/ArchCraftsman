@@ -1,7 +1,11 @@
 import os
 import re
 
+from src.i18n import I18n
 from src.partition import Partition
+from src.utils import to_iec, prompt, print_error
+
+_ = I18n().gettext
 
 
 class Disk:
@@ -42,6 +46,27 @@ class Disk:
             return [p for p in self.partitions if "EFI" in p.part_type].pop()
         except IndexError:
             return Partition()
+
+    def ask_swapfile_size(self) -> str:
+        """
+        The method to ask the user for the swapfile size.
+        :return:
+        """
+        swapfile_ok = False
+        swapfile_size = ""
+        swapfile_size_pattern = re.compile("^(\\d*[.,]\\d+|\\d+)([GMk])$")
+        default_swapfile_size = to_iec(int(self.total / 32))
+        while not swapfile_ok:
+            swapfile_size = prompt(_("Swapfile size ? (%s, type '0' for none) : ") % default_swapfile_size,
+                                   default=default_swapfile_size)
+            if swapfile_size == "0":
+                swapfile_size = None
+                swapfile_ok = True
+            elif swapfile_size_pattern.match(swapfile_size):
+                swapfile_ok = True
+            else:
+                print_error("Invalid swapfile size.")
+        return swapfile_size
 
     def __str__(self) -> str:
         """
