@@ -5,17 +5,17 @@ from src.bundles.bundle import Bundle
 from src.bundles.cups import Cups
 from src.bundles.grmlzsh import GrmlZsh
 from src.bundles.grub import Grub
-from src.i18n import I18n
 from src.bundles.mainfilesystems import get_main_file_systems, MainFileSystems
 from src.bundles.mainfonts import get_main_fonts, MainFonts
 from src.bundles.microcodes import Microcodes
 from src.bundles.nvidia import NvidiaDriver
 from src.bundles.pipewire import PipeWire
 from src.bundles.terminus import TerminusFont
-from src.utils import get_supported_kernels, get_supported_desktop_environments, ask_password, print_error, print_step, \
-    print_sub_step, prompt_ln, prompt_bool
 from src.bundles.utils import prompt_bundle
 from src.bundles.zram import Zram
+from src.i18n import I18n
+from src.utils import get_supported_kernels, get_supported_desktop_environments, ask_password, print_error, \
+    print_step, print_sub_step, prompt_ln, prompt_bool
 
 _ = I18n().gettext
 

@@ -5,6 +5,7 @@ from src.utils import is_bios, print_error, print_step, print_sub_step, prompt_l
 
 _ = I18n().gettext
 
+
 def setup_environment(detected_language: str) -> {}:
     """
     The method to get environment configurations from the user.

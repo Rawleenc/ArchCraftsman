@@ -4,6 +4,7 @@ from src.utils import print_sub_step
 
 _ = I18n().gettext
 
+
 def get_main_file_systems() -> [str]:
     """
     The method to get the package list of the main file systems group.

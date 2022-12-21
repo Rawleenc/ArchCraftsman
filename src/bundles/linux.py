@@ -5,6 +5,7 @@ from src.utils import print_sub_step
 
 _ = I18n().gettext
 
+
 class LinuxCurrent(bundle.Bundle):
     """
     The Linux current kernel class.

@@ -5,6 +5,7 @@ from src.utils import print_step
 
 _ = I18n().gettext
 
+
 def setup_locale(keymap: str = "de-latin1", global_language: str = "EN") -> str:
     """
     The method to setup environment locale.

@@ -6,6 +6,7 @@ from src.utils import print_sub_step
 
 _ = I18n().gettext
 
+
 class Cups(Bundle):
     """
     Cups class.

@@ -7,6 +7,7 @@ from src.utils import print_sub_step, prompt_bool
 
 _ = I18n().gettext
 
+
 class Plasma(Bundle):
     """
     Bundle class.

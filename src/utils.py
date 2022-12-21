@@ -13,6 +13,7 @@ NOCOLOR = "\033[0m"
 
 _ = I18n().gettext
 
+
 def is_bios() -> bool:
     """
     Check if live system run on a bios.
