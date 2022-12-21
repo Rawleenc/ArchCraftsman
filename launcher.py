@@ -4,7 +4,7 @@ import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.request import urlretrieve
 
-REPO_BASE_URL = "https://raw.githubusercontent.com/rawleenc/ArchCraftsman/splitting"
+REPO_BASE_URL = "https://raw.githubusercontent.com/rawleenc/ArchCraftsman/dev"
 CMD = 'python -m src.archcraftsman'
 
 
