@@ -36,4 +36,9 @@ if __name__ == '__main__':
     download_if_not_exist("locales/fr.po", "fr.po")
     os.system('msgfmt -o /usr/share/locale/fr/LC_MESSAGES/ArchCraftsman.mo fr.po &>/dev/null')
 
-    subprocess.run(CMD, shell=True, check=True)
+    try:
+        subprocess.run(CMD, shell=True, check=True)
+    except KeyboardInterrupt:
+        exit(1)
+    except subprocess.CalledProcessError as e:
+        exit(e.returncode)
