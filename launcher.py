@@ -26,9 +26,4 @@ if __name__ == '__main__':
     download_if_not_exist("locales/fr.po", "fr.po")
     os.system('msgfmt -o /usr/share/locale/fr/LC_MESSAGES/ArchCraftsman.mo fr.po &>/dev/null')
 
-    p = subprocess.Popen(CMD, stdout=subprocess.PIPE, shell=True)
-
-    out, err = p.communicate()
-    result = out.splitlines()
-    for line in result:
-        print(line)
+    subprocess.run(CMD, shell=True, check=True)
