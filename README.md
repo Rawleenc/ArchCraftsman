@@ -25,7 +25,7 @@ Answer the questions and let the magic happen ;)
 
 To create new translations or update existing ones, first run the following command :
 ```bash
-python /usr/lib/pythonX.Y/Tools/i18n/pygettext.py -d base -o base.pot archcraftsman.py
+python /usr/lib/pythonX.Y/Tools/i18n/pygettext.py -d base -o base.pot src
 ```
 Then use [Poedit](https://archlinux.org/packages/community/x86_64/poedit/) to create or update translations based on the newly generated `base.pot`
 
