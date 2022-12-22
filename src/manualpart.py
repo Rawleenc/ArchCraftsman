@@ -17,7 +17,7 @@ def manual_partitioning() -> {}:
     The method to proceed to the manual partitioning.=
     :return:
     """
-    partitioning_info = {"partitions": [], "part_type": {}, "part_mount_point": {}, "part_format": {},
+    partitioning_info = {"partitions": set(), "part_type": {}, "part_mount_point": {}, "part_format": {},
                          "part_format_type": {}, "root_partition": None, "swapfile_size": None, "main_disk": None}
     user_answer = False
     partitioned_disks = set()
@@ -42,7 +42,7 @@ def manual_partitioning() -> {}:
             detected_partitions = os.popen(
                 f'lsblk -nl "{disk}" -o PATH,PARTTYPENAME | grep -iE "linux|efi|swap" | awk \'{{print $1}}\'').read()
             for partition in detected_partitions.splitlines():
-                partitioning_info["partitions"].append(partition)
+                partitioning_info["partitions"].add(partition)
         print_step(_("Detected target drive partitions : %s") % " ".join(partitioning_info["partitions"]))
         for partition in partitioning_info["partitions"]:
             print_sub_step(_("Partition : %s") % re.sub('\n', '', os.popen(
