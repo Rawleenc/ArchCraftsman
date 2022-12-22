@@ -88,13 +88,16 @@ def auto_partitioning() -> {}:
                 auto_part_str += "1\n"  # Type EFI System
                 partitioning_info_by_index["part_format"][index] = True
                 partitioning_info_by_index["part_format_type"][index] = "vfat"
+                partitioning_info_by_index["part_type"][index] = "EFI"
+                partitioning_info_by_index["part_mount_point"][index] = "/boot/efi"
+                partitioning_info_by_index["indexes"].add(index)
                 index += 1
             else:
+                partitioning_info_by_index["part_format"][efi_partition.index] = False
+                partitioning_info_by_index["part_type"][efi_partition.index] = "EFI"
+                partitioning_info_by_index["part_mount_point"][efi_partition.index] = "/boot/efi"
+                partitioning_info_by_index["indexes"].add(efi_partition.index)
                 index += len(disk.partitions)
-                partitioning_info_by_index["part_format"][index] = False
-            partitioning_info_by_index["part_type"][index] = "EFI"
-            partitioning_info_by_index["part_mount_point"][index] = "/boot/efi"
-            partitioning_info_by_index["indexes"].add(index)
         if swap_type == "1":
             # SWAP
             auto_part_str += "n\n"  # Add a new partition

@@ -11,15 +11,17 @@ class Partition:
     """
     A class to represent a partition.
     """
+    index: int
     path: str
     size: int
     part_type: str
     fs_type: str
 
-    def __init__(self, part_str: str = None):
+    def __init__(self, index: int or None, part_str: str = None):
         """
         Partition initialisation.
         """
+        self.index = index
         if part_str is None:
             self.path = ""
             self.size = 0

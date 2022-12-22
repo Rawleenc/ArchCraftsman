@@ -27,8 +27,10 @@ class Disk:
         self.path = path
         detected_partitions = os.popen(f'lsblk -nl "{path}" -o PATH,TYPE | grep part').read()
         self.partitions = []
+        index = 0
         for partition_info in detected_partitions.splitlines():
-            self.partitions.append(Partition(partition_info))
+            self.partitions.append(Partition(index, partition_info))
+            index += 1
         self.total = int(os.popen(f'lsblk -b --output SIZE -n -d "{self.path}"').read())
         if len(self.partitions) > 0:
             sector_size = int(
@@ -48,7 +50,7 @@ class Disk:
         try:
             return [p for p in self.partitions if "EFI" in p.part_type].pop()
         except IndexError:
-            return Partition()
+            return Partition(None)
 
     def ask_swapfile_size(self) -> str:
         """
