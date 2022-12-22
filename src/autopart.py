@@ -165,21 +165,21 @@ def auto_partitioning() -> {}:
                 formatting = _("no")
             if partitioning_info_by_index["part_type"].get(index) == "EFI":
                 print_sub_step(_("EFI partition : %s (mounting point : %s, format %s, format type %s)")
-                               % (index, partitioning_info_by_index["part_mount_point"].get(index), formatting,
+                               % (index+1, partitioning_info_by_index["part_mount_point"].get(index), formatting,
                                   partitioning_info_by_index["part_format_type"].get(index)))
             if partitioning_info_by_index["part_type"].get(index) == "ROOT":
                 print_sub_step(_("ROOT partition : %s (mounting point : %s, format type %s)")
-                               % (index, partitioning_info_by_index["part_mount_point"].get(index),
+                               % (index+1, partitioning_info_by_index["part_mount_point"].get(index),
                                   partitioning_info_by_index["part_format_type"].get(index)))
             if partitioning_info_by_index["part_type"].get(index) == "HOME":
                 print_sub_step(_("Home partition : %s (mounting point : %s, format %s, format type %s)")
-                               % (index, partitioning_info_by_index["part_mount_point"].get(index), formatting,
+                               % (index+1, partitioning_info_by_index["part_mount_point"].get(index), formatting,
                                   partitioning_info_by_index["part_format_type"].get(index)))
             if partitioning_info_by_index["part_type"].get(index) == "SWAP":
-                print_sub_step(_("Swap partition : %s") % index)
+                print_sub_step(_("Swap partition : %s") % index+1)
             if partitioning_info_by_index["part_type"].get(index) == "OTHER":
                 print_sub_step(_("Other partition : %s (mounting point : %s, format %s, format type %s)")
-                               % (index, partitioning_info_by_index["part_mount_point"].get(index), formatting,
+                               % (index+1, partitioning_info_by_index["part_mount_point"].get(index), formatting,
                                   partitioning_info_by_index["part_format_type"].get(index)))
         if "SWAP" not in partitioning_info_by_index["part_type"].values() and swap_size:
             print_sub_step(_("Swapfile size : %s") % swap_size)
