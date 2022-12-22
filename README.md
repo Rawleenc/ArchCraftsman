@@ -10,12 +10,12 @@
 
 ### On the Arch Linux live iso :
 ```bash
-python <(curl -L tiny.one/aclmain)
+python <(curl -L rotf.lol/acmain)
 ```
 
 If you wish to test the latest development version, you can run it with this command :
 ```bash
-python <(curl -L tiny.one/acldev)
+python <(curl -L rotf.lol/acdev)
 ```
 *However, this is absolutely not recommended for any other purpose than tests.*
 
