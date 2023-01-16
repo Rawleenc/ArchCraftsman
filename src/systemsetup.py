@@ -48,11 +48,13 @@ def setup_system(detected_timezone) -> {}:
         if prompt_bool(_("Install terminus console font ? (y/N) : "), default=False):
             system_info["bundles"].append(TerminusFont("terminus"))
 
-        system_info["bundles"].append(prompt_bundle(_("Supported desktop environments : "),
+        desktop = prompt_bundle(_("Supported desktop environments : "),
                                                     _("Install a desktop environment ? (%s) : "),
                                                     _("Desktop environment '%s' is not supported."),
                                                     get_supported_desktop_environments(get_default=True),
-                                                    get_supported_desktop_environments()))
+                                                    get_supported_desktop_environments())
+        if desktop is not None:
+            system_info["bundles"].append(desktop)
 
         if prompt_bool(_("Install Cups ? (y/N) : "), default=False):
             system_info["bundles"].append(Cups("cups"))
