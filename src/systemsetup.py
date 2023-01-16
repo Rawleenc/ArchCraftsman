@@ -49,10 +49,10 @@ def setup_system(detected_timezone) -> {}:
             system_info["bundles"].append(TerminusFont("terminus"))
 
         desktop = prompt_bundle(_("Supported desktop environments : "),
-                                                    _("Install a desktop environment ? (%s) : "),
-                                                    _("Desktop environment '%s' is not supported."),
-                                                    get_supported_desktop_environments(get_default=True),
-                                                    get_supported_desktop_environments())
+                                _("Install a desktop environment ? (%s) : "),
+                                _("Desktop environment '%s' is not supported."),
+                                get_supported_desktop_environments(get_default=True),
+                                get_supported_desktop_environments())
         if desktop is not None:
             system_info["bundles"].append(desktop)
 
