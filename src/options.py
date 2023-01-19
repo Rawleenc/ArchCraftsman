@@ -99,6 +99,7 @@ class PartType(OptionEnum):
     NOT_USED = auto()
     OTHER = auto()
 
+
 class EFIPartType(OptionEnum):
     """
     All partition type options including efi.

@@ -17,8 +17,8 @@ from src.bundles.plasma import Plasma
 from src.bundles.sway import Sway
 from src.bundles.xfce import Xfce
 from src.options import Kernel, BootLoader, DesktopEnv
-from src.utils import prompt_option
 from src.options import OptionEnum
+from src.utils import prompt_option
 
 
 def process_bundle(name: OptionEnum) -> Bundle or None:
@@ -66,7 +66,8 @@ def process_bundle(name: OptionEnum) -> Bundle or None:
     return bundle
 
 
-def prompt_bundle(supported_msg: str, message: str, error_msg: str, options: type(OptionEnum), default: OptionEnum) -> Bundle or None:
+def prompt_bundle(supported_msg: str, message: str, error_msg: str, options: type(OptionEnum),
+                  default: OptionEnum) -> Bundle or None:
     """
     A method to prompt for a bundle.
     :param supported_msg:
