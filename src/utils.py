@@ -5,7 +5,7 @@ import getpass
 import json
 import os
 import re
-from enum import OptionEnum
+from src.options import OptionEnum
 
 from src.i18n import I18n
 from src.options import FSFormat
@@ -217,7 +217,7 @@ def prompt_option(supported_msg: str, message: str, error_msg: str, options: typ
     """
     default_option = list(options)[0]
     print_step(supported_msg, clear=False)
-    print_sub_step(", ".join(list(options)))
+    print_sub_step(", ".join([option.title() for option in list(options)]))
     print('')
     option_ok = False
     option = None

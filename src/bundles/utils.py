@@ -18,7 +18,7 @@ from src.bundles.sway import Sway
 from src.bundles.xfce import Xfce
 from src.options import Kernel, BootLoader, DesktopEnv
 from src.utils import prompt_option
-from enum import OptionEnum
+from src.options import OptionEnum
 
 
 def process_bundle(name: OptionEnum) -> Bundle or None:

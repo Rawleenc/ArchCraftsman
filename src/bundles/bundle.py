@@ -1,7 +1,7 @@
 """
 The generic bundle blueprint module
 """
-from enum import OptionEnum
+from src.options import OptionEnum
 
 
 class Bundle:
