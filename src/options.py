@@ -21,7 +21,7 @@ class OptionEnum(IntEnum):
         A method to display the option's human-readable title
         :return:
         """
-        return "%s: %s" % (self.value, self.name.lower())
+        return f"{self.value}: {self.name.lower()}"
 
 
 class Kernel(OptionEnum):
