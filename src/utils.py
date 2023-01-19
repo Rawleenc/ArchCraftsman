@@ -5,7 +5,7 @@ import getpass
 import json
 import os
 import re
-from enum import StrEnum
+from enum import OptionEnum
 
 from src.i18n import I18n
 from src.options import FSFormat
@@ -206,7 +206,7 @@ def prompt_ln(message: str, default: str = None, help_msg: str = None) -> str:
     return prompt(f'{message}\n', default=default, help_msg=help_msg)
 
 
-def prompt_option(supported_msg: str, message: str, error_msg: str, options: type(StrEnum)) -> StrEnum or None:
+def prompt_option(supported_msg: str, message: str, error_msg: str, options: type(OptionEnum)) -> OptionEnum or None:
     """
     A method to prompt for a bundle.
     :param supported_msg:

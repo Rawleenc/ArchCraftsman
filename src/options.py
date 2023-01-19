@@ -1,14 +1,23 @@
-from enum import StrEnum, auto
+from enum import IntEnum, auto
 
 
-class Kernel(StrEnum):
+class OptionEnum(IntEnum):
+
+    def __str__(self):
+        return self._name_.lower()
+
+    def title(self):
+        return "%s: %s" % (self._value_, self._name_)
+
+
+class Kernel(OptionEnum):
     CURRENT = auto()
     LTS = auto()
     ZEN = auto()
     HARDENED = auto()
 
 
-class DesktopEnv(StrEnum):
+class DesktopEnv(OptionEnum):
     NONE = auto()
     GNOME = auto()
     PLASMA = auto()
@@ -24,11 +33,11 @@ class DesktopEnv(StrEnum):
     SWAY = auto()
 
 
-class BootLoader(StrEnum):
+class BootLoader(OptionEnum):
     GRUB = auto()
 
 
-class Other(StrEnum):
+class Other(OptionEnum):
     CUPS = auto()
     GRML = auto()
     MAINFILESYSTEMS = auto()
@@ -40,12 +49,12 @@ class Other(StrEnum):
     ZRAM = auto()
 
 
-class FSFormat(StrEnum):
+class FSFormat(OptionEnum):
     EXT4 = auto()
     BTRFS = auto()
 
 
-class Swap(StrEnum):
+class Swap(OptionEnum):
     FILE = auto()
     PARTITION = auto()
     NONE = auto()

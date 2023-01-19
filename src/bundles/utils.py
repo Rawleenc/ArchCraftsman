@@ -1,8 +1,6 @@
 """
 The bundles related utility methods and tools module
 """
-from enum import StrEnum
-
 from src.bundles.budgie import Budgie
 from src.bundles.bundle import Bundle
 from src.bundles.cinnamon import Cinnamon
@@ -20,9 +18,10 @@ from src.bundles.sway import Sway
 from src.bundles.xfce import Xfce
 from src.options import Kernel, BootLoader, DesktopEnv
 from src.utils import prompt_option
+from enum import OptionEnum
 
 
-def process_bundle(name: StrEnum) -> Bundle or None:
+def process_bundle(name: OptionEnum) -> Bundle or None:
     """
     Process a bundle name into a Bundle object.
     :param name:
@@ -67,7 +66,7 @@ def process_bundle(name: StrEnum) -> Bundle or None:
     return bundle
 
 
-def prompt_bundle(supported_msg: str, message: str, error_msg: str, options: type(StrEnum)) -> Bundle or None:
+def prompt_bundle(supported_msg: str, message: str, error_msg: str, options: type(OptionEnum)) -> Bundle or None:
     """
     A method to prompt for a bundle.
     :param supported_msg:
