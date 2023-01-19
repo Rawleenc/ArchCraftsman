@@ -75,10 +75,10 @@ def main(pre_launch_info):
     system_info = setup_system(pre_launch_info["detected_timezone"])
     btrfs_in_use = False
 
-    print_step(_("Partitioning :"))
-    want_auto_part = prompt_bool(_("Do you want an automatic partitioning ? (y/N) : "), default=False)
     partitioning_info = None
     while partitioning_info is None:
+        print_step(_("Partitioning :"))
+        want_auto_part = prompt_bool(_("Do you want an automatic partitioning ? (y/N) : "), default=False)
         if want_auto_part:
             partitioning_info = auto_partitioning()
         else:
