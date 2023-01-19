@@ -217,8 +217,9 @@ def prompt_option(supported_msg: str, message: str, error_msg: str, options: typ
     :param default:
     :return:
     """
+    supported_options = [option for option in list(options) if option not in ignores]
     print_step(supported_msg, clear=False)
-    print_sub_step(", ".join([option for option in list(options) if option not in ignores]))
+    print_sub_step(", ".join(supported_options))
     print('')
     option_ok = False
     option = None
@@ -226,7 +227,7 @@ def prompt_option(supported_msg: str, message: str, error_msg: str, options: typ
         option_name = prompt_ln(
             message % default,
             default=default).lower()
-        if option_name in options:
+        if option_name in supported_options:
             option_ok = True
             option = options(option_name)
         else:

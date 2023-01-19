@@ -76,6 +76,7 @@ class FSFormat(OptionEnum):
     """
     All file system format options.
     """
+    VFAT = auto()
     EXT4 = auto()
     BTRFS = auto()
 
@@ -99,8 +100,3 @@ class PartType(OptionEnum):
     SWAP = auto()
     NOT_USED = auto()
     OTHER = auto()
-
-
-if __name__ == '__main__':
-    print(", ".join([option for option in list(PartType) if option not in [PartType.EFI]]))
-    print(", ".join(list(PartType)))

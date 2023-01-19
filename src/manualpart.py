@@ -6,7 +6,7 @@ import re
 
 from src.disk import Disk
 from src.i18n import I18n
-from src.options import PartType
+from src.options import PartType, FSFormat
 from src.utils import is_bios, ask_format_type, \
     print_error, print_step, print_sub_step, prompt, prompt_bool, prompt_option
 
@@ -63,7 +63,7 @@ def manual_partitioning() -> {}:
                 partitioning_info["part_mount_point"][partition] = "/boot/efi"
                 partitioning_info["part_format"][partition] = prompt_bool(_("Format the EFI partition ? (Y/n) : "))
                 if partitioning_info["part_format"].get(partition):
-                    partitioning_info["part_format_type"][partition] = "vfat"
+                    partitioning_info["part_format_type"][partition] = FSFormat.VFAT
             elif partition_type == PartType.ROOT:
                 partitioning_info["part_type"][partition] = PartType.ROOT
                 partitioning_info["part_mount_point"][partition] = "/"
@@ -107,25 +107,25 @@ def manual_partitioning() -> {}:
                 formatting = _("yes")
             else:
                 formatting = _("no")
-            if partitioning_info["part_type"].get(partition) == "EFI":
+            if partitioning_info["part_type"].get(partition) == PartType.EFI:
                 print_sub_step(_("EFI partition : %s (mounting point : %s, format %s, format type %s)")
                                % (partition, partitioning_info["part_mount_point"].get(partition), formatting,
                                   partitioning_info["part_format_type"].get(partition)))
-            if partitioning_info["part_type"].get(partition) == "ROOT":
+            if partitioning_info["part_type"].get(partition) == PartType.ROOT:
                 print_sub_step(_("ROOT partition : %s (mounting point : %s, format type %s)")
                                % (partition, partitioning_info["part_mount_point"].get(partition),
                                   partitioning_info["part_format_type"].get(partition)))
-            if partitioning_info["part_type"].get(partition) == "HOME":
+            if partitioning_info["part_type"].get(partition) == PartType.HOME:
                 print_sub_step(_("Home partition : %s (mounting point : %s, format %s, format type %s)")
                                % (partition, partitioning_info["part_mount_point"].get(partition), formatting,
                                   partitioning_info["part_format_type"].get(partition)))
-            if partitioning_info["part_type"].get(partition) == "SWAP":
+            if partitioning_info["part_type"].get(partition) == PartType.SWAP:
                 print_sub_step(_("Swap partition : %s") % partition)
-            if partitioning_info["part_type"].get(partition) == "OTHER":
+            if partitioning_info["part_type"].get(partition) == PartType.OTHER:
                 print_sub_step(_("Other partition : %s (mounting point : %s, format %s, format type %s)")
                                % (partition, partitioning_info["part_mount_point"].get(partition), formatting,
                                   partitioning_info["part_format_type"].get(partition)))
-        if "SWAP" not in partitioning_info["part_type"].values() and partitioning_info["swapfile_size"]:
+        if PartType.SWAP not in partitioning_info["part_type"].values() and partitioning_info["swapfile_size"]:
             print_sub_step(_("Swapfile size : %s") % partitioning_info["swapfile_size"])
         user_answer = prompt_bool(_("Is the informations correct ? (y/N) : "), default=False)
         if not user_answer:

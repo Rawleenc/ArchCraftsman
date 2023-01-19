@@ -5,7 +5,7 @@ import os
 
 from src.disk import Disk
 from src.i18n import I18n
-from src.options import Swap
+from src.options import Swap, PartType, FSFormat
 from src.utils import ask_format_type, is_bios, from_iec, to_iec, \
     build_partition_name, print_error, print_step, print_sub_step, prompt, prompt_bool, prompt_option
 
@@ -74,7 +74,7 @@ def auto_partitioning() -> {}:
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += "+1G\n"  # Last sector (Accept default: varies)
             auto_part_str += "a\n"  # Toggle bootable flag
-            partitioning_info_by_index["part_type"][index] = "OTHER"
+            partitioning_info_by_index["part_type"][index] = PartType.OTHER
             partitioning_info_by_index["part_mount_point"][index] = "/boot"
             partitioning_info_by_index["part_format"][index] = True
             partitioning_info_by_index["part_format_type"][index] = part_format_type
@@ -93,14 +93,14 @@ def auto_partitioning() -> {}:
                 auto_part_str += " \n"  # Partition number (Accept default: auto)
                 auto_part_str += "1\n"  # Type EFI System
                 partitioning_info_by_index["part_format"][index] = True
-                partitioning_info_by_index["part_format_type"][index] = "vfat"
-                partitioning_info_by_index["part_type"][index] = "EFI"
+                partitioning_info_by_index["part_format_type"][index] = FSFormat.VFAT
+                partitioning_info_by_index["part_type"][index] = PartType.EFI
                 partitioning_info_by_index["part_mount_point"][index] = "/boot/efi"
                 partitioning_info_by_index["indexes"].add(index)
                 index += 1
             else:
                 partitioning_info_by_index["part_format"][efi_partition.index] = False
-                partitioning_info_by_index["part_type"][efi_partition.index] = "EFI"
+                partitioning_info_by_index["part_type"][efi_partition.index] = PartType.EFI
                 partitioning_info_by_index["part_mount_point"][efi_partition.index] = "/boot/efi"
                 partitioning_info_by_index["indexes"].add(efi_partition.index)
                 index += len(disk.partitions)
@@ -118,7 +118,7 @@ def auto_partitioning() -> {}:
                 auto_part_str += "82\n"  # Type Linux Swap
             else:
                 auto_part_str += "19\n"  # Type Linux Swap
-            partitioning_info_by_index["part_type"][index] = "SWAP"
+            partitioning_info_by_index["part_type"][index] = PartType.SWAP
             partitioning_info_by_index["indexes"].add(index)
             index += 1
         if want_home:
@@ -129,7 +129,7 @@ def auto_partitioning() -> {}:
             auto_part_str += " \n"  # Partition number (Accept default: auto)
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += f'+{root_size}\n'  # Last sector (Accept default: varies)
-            partitioning_info_by_index["part_type"][index] = "ROOT"
+            partitioning_info_by_index["part_type"][index] = PartType.ROOT
             partitioning_info_by_index["part_mount_point"][index] = "/"
             partitioning_info_by_index["part_format_type"][index] = part_format_type
             partitioning_info_by_index["indexes"].add(index)
@@ -141,7 +141,7 @@ def auto_partitioning() -> {}:
             auto_part_str += " \n"  # Partition number (Accept default: auto)
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += " \n"  # Last sector (Accept default: varies)
-            partitioning_info_by_index["part_type"][index] = "HOME"
+            partitioning_info_by_index["part_type"][index] = PartType.HOME
             partitioning_info_by_index["part_mount_point"][index] = "/home"
             partitioning_info_by_index["part_format"][index] = True
             partitioning_info_by_index["part_format_type"][index] = part_format_type
@@ -155,7 +155,7 @@ def auto_partitioning() -> {}:
             auto_part_str += " \n"  # Partition number (Accept default: auto)
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += " \n"  # Last sector (Accept default: varies)
-            partitioning_info_by_index["part_type"][index] = "ROOT"
+            partitioning_info_by_index["part_type"][index] = PartType.ROOT
             partitioning_info_by_index["part_mount_point"][index] = "/"
             partitioning_info_by_index["part_format_type"][index] = part_format_type
             partitioning_info_by_index["indexes"].add(index)
@@ -169,21 +169,21 @@ def auto_partitioning() -> {}:
                 formatting = _("yes")
             else:
                 formatting = _("no")
-            if partitioning_info_by_index["part_type"].get(index) == "EFI":
+            if partitioning_info_by_index["part_type"].get(index) == PartType.EFI:
                 print_sub_step(_("EFI partition : %s (mounting point : %s, format %s, format type %s)")
                                % (index + 1, partitioning_info_by_index["part_mount_point"].get(index), formatting,
                                   partitioning_info_by_index["part_format_type"].get(index)))
-            if partitioning_info_by_index["part_type"].get(index) == "ROOT":
+            if partitioning_info_by_index["part_type"].get(index) == PartType.ROOT:
                 print_sub_step(_("ROOT partition : %s (mounting point : %s, format type %s)")
                                % (index + 1, partitioning_info_by_index["part_mount_point"].get(index),
                                   partitioning_info_by_index["part_format_type"].get(index)))
-            if partitioning_info_by_index["part_type"].get(index) == "HOME":
+            if partitioning_info_by_index["part_type"].get(index) == PartType.HOME:
                 print_sub_step(_("Home partition : %s (mounting point : %s, format %s, format type %s)")
                                % (index + 1, partitioning_info_by_index["part_mount_point"].get(index), formatting,
                                   partitioning_info_by_index["part_format_type"].get(index)))
-            if partitioning_info_by_index["part_type"].get(index) == "SWAP":
+            if partitioning_info_by_index["part_type"].get(index) == PartType.SWAP:
                 print_sub_step(_("Swap partition : %s") % index + 1)
-            if partitioning_info_by_index["part_type"].get(index) == "OTHER":
+            if partitioning_info_by_index["part_type"].get(index) == PartType.OTHER:
                 print_sub_step(_("Other partition : %s (mounting point : %s, format %s, format type %s)")
                                % (index + 1, partitioning_info_by_index["part_mount_point"].get(index), formatting,
                                   partitioning_info_by_index["part_format_type"].get(index)))
@@ -208,7 +208,7 @@ def auto_partitioning() -> {}:
                     index)
                 partitioning_info["part_format"][partition] = partitioning_info_by_index["part_format"].get(index)
 
-                if partitioning_info_by_index["part_type"].get(index) == "ROOT":
+                if partitioning_info_by_index["part_type"].get(index) == PartType.ROOT:
                     partitioning_info["root_partition"] = partition
 
                 partitioning_info["partitions"].add(partition)

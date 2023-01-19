@@ -39,6 +39,7 @@ from src.envsetup import setup_environment
 from src.i18n import I18n
 from src.localesetup import setup_locale
 from src.manualpart import manual_partitioning
+from src.options import PartType, FSFormat
 from src.systemsetup import setup_system
 from src.utils import is_bios, format_partition, print_error, print_step, print_sub_step, prompt_bool
 
@@ -89,24 +90,24 @@ def main(pre_launch_info):
     format_partition(partitioning_info["root_partition"],
                      partitioning_info["part_format_type"][partitioning_info["root_partition"]],
                      partitioning_info["part_mount_point"][partitioning_info["root_partition"]], True)
-    if partitioning_info["part_format_type"][partitioning_info["root_partition"]] == "btrfs":
+    if partitioning_info["part_format_type"][partitioning_info["root_partition"]] == FSFormat.BTRFS:
         btrfs_in_use = True
 
     for partition in partitioning_info["partitions"]:
-        if partitioning_info["part_format_type"].get(partition) == "btrfs":
+        if partitioning_info["part_format_type"].get(partition) == FSFormat.BTRFS:
             btrfs_in_use = True
-        if not is_bios() and partitioning_info["part_type"].get(partition) == "EFI":
+        if not is_bios() and partitioning_info["part_type"].get(partition) == PartType.EFI:
             format_partition(partition, partitioning_info["part_format_type"].get(partition),
                              partitioning_info["part_mount_point"].get(partition),
                              partitioning_info["part_format"].get(partition))
-        elif partitioning_info["part_type"].get(partition) == "HOME":
+        elif partitioning_info["part_type"].get(partition) == PartType.HOME:
             format_partition(partition, partitioning_info["part_format_type"].get(partition),
                              partitioning_info["part_mount_point"].get(partition),
                              partitioning_info["part_format"].get(partition))
-        elif partitioning_info["part_type"].get(partition) == "SWAP":
+        elif partitioning_info["part_type"].get(partition) == PartType.SWAP:
             os.system(f'mkswap "{partition}"')
             os.system(f'swapon "{partition}"')
-        elif partitioning_info["part_type"].get(partition) == "OTHER":
+        elif partitioning_info["part_type"].get(partition) == PartType.OTHER:
             format_partition(partition, partitioning_info["part_format_type"].get(partition),
                              partitioning_info["part_mount_point"].get(partition),
                              partitioning_info["part_format"].get(partition))
@@ -176,9 +177,9 @@ def main(pre_launch_info):
     subprocess.run('arch-chroot /mnt bash -c "pacman --noconfirm -Su"', shell=True, check=True)
     subprocess.run(f'arch-chroot /mnt bash -c "pacman --noconfirm -S {" ".join(pkgs)}"', shell=True, check=True)
 
-    if "SWAP" not in partitioning_info["part_type"].values() and partitioning_info["swapfile_size"]:
+    if PartType.SWAP not in partitioning_info["part_type"].values() and partitioning_info["swapfile_size"]:
         print_step(_("Creation and activation of the swapfile..."), clear=False)
-        if partitioning_info["part_format_type"][partitioning_info["root_partition"]] == "btrfs":
+        if partitioning_info["part_format_type"][partitioning_info["root_partition"]] == FSFormat.BTRFS:
             os.system(
                 "btrfs subvolume create /mnt/swap && "
                 "cd /mnt/swap && "
