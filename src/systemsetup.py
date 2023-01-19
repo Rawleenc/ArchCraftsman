@@ -17,8 +17,9 @@ from src.bundles.terminus import TerminusFont
 from src.bundles.utils import prompt_bundle
 from src.bundles.zram import Zram
 from src.i18n import I18n
+from src.options import Kernel, DesktopEnv, Other, BootLoader
 from src.utils import print_error, print_step, print_sub_step, prompt_ln, prompt_bool, \
-    get_supported_kernels, get_supported_desktop_environments, ask_password
+    ask_password
 
 _ = I18n().gettext
 
@@ -39,54 +40,52 @@ def setup_system(detected_timezone) -> {}:
         system_info["kernel"] = prompt_bundle(_("Supported kernels : "),
                                               _("Choose your kernel (%s) : "),
                                               _("Kernel '%s' is not supported."),
-                                              get_supported_kernels(get_default=True),
-                                              get_supported_kernels())
+                                              Kernel)
 
         if prompt_bool(_("Install proprietary Nvidia driver ? (y/N) : "), default=False):
-            system_info["bundles"].append(NvidiaDriver("nvidia"))
+            system_info["bundles"].append(NvidiaDriver(Other.NVIDIA))
 
         if prompt_bool(_("Install terminus console font ? (y/N) : "), default=False):
-            system_info["bundles"].append(TerminusFont("terminus"))
+            system_info["bundles"].append(TerminusFont(Other.TERMINUS))
 
         desktop = prompt_bundle(_("Supported desktop environments : "),
                                 _("Install a desktop environment ? (%s) : "),
                                 _("Desktop environment '%s' is not supported."),
-                                get_supported_desktop_environments(get_default=True),
-                                get_supported_desktop_environments())
+                                DesktopEnv)
         if desktop is not None:
             system_info["bundles"].append(desktop)
 
         if prompt_bool(_("Install Cups ? (y/N) : "), default=False):
-            system_info["bundles"].append(Cups("cups"))
+            system_info["bundles"].append(Cups(Other.CUPS))
 
         if prompt_bool(_("Install ZSH with GRML configuration ? (y/N/?) : "), default=False,
                        help_msg=_(
                            "If yes, the script will install the ZSH shell with GRML "
                            "configuration. GRML is a ZSH pre-configuration used by Archlinux's "
                            "live environment.")):
-            system_info["bundles"].append(GrmlZsh("grml"))
+            system_info["bundles"].append(GrmlZsh(Other.GRML))
 
         if prompt_bool(_("Install a set of main fonts ? (y/N/?) : "), default=False,
                        help_msg=_("If yes, the following packages will be installed :\n%s") % " ".join(
                            get_main_fonts())):
-            system_info["bundles"].append(MainFonts("mainfonts"))
+            system_info["bundles"].append(MainFonts(Other.MAINFONTS))
 
         if prompt_bool(_("Install main file systems support ? (y/N/?) : "),
                        default=False, help_msg=_(
                     "If yes, the following packages will be installed :\n%s") % " ".join(get_main_file_systems())):
-            system_info["bundles"].append(MainFileSystems("mainfilesystems"))
+            system_info["bundles"].append(MainFileSystems(Other.MAINFILESYSTEMS))
 
         if prompt_bool(_("Install and enable ZRAM ? (y/N/?) : "), default=False, help_msg=_(
                 "ZRAM is a process to compress datas directly in the RAM instead of moving them in a swap. "
                 "Enabled ZRAM will allow you to compress up to half of your RAM before having to swap. "
                 "This method is more efficient than the swap and do not use your disk but is more CPU demanding. "
                 "ZRAM is fully compatible with a swap, it just has a higher priority.")):
-            system_info["bundles"].append(Zram("zram"))
+            system_info["bundles"].append(Zram(Other.ZRAM))
 
         if prompt_bool(_("Install PipeWire ? (y/N/?) : "),
                        default=False, help_msg=_(
                     "If yes, the PipeWire multimedia framework will be installed to manage audio and video capture.")):
-            system_info["bundles"].append(PipeWire("pipewire"))
+            system_info["bundles"].append(PipeWire(Other.PIPEWIRE))
 
         default_timezone_file = f'/usr/share/zoneinfo/{detected_timezone}'
         system_info["timezone"] = prompt_ln(_("Your timezone (%s) : ") % default_timezone_file,
@@ -126,7 +125,7 @@ def setup_system(detected_timezone) -> {}:
         if system_info["user_name"] != "":
             system_info["user_password"] = ask_password(system_info["user_name"])
 
-        system_info["bootloader"] = Grub("grub")
+        system_info["bootloader"] = Grub(BootLoader.GRUB)
         system_info["microcodes"] = Microcodes()
 
         print_step(_("Summary of choices :"))

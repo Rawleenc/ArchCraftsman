@@ -5,8 +5,10 @@ import getpass
 import json
 import os
 import re
+from enum import StrEnum
 
 from src.i18n import I18n
+from src.options import FSFormat
 
 RED = "\033[0;31m"
 GREEN = "\033[0;32m"
@@ -23,24 +25,6 @@ def is_bios() -> bool:
     :return:
     """
     return not os.path.exists("/sys/firmware/efi")
-
-
-def get_supported_kernels(get_default: bool = False) -> str or []:
-    """
-    The method to get all supported kernels.
-    :return:
-    """
-    return "current" if get_default else ["current", "lts", "zen", "hardened"]
-
-
-def get_supported_desktop_environments(get_default: bool = False) -> str or []:
-    """
-    The method to get all supported desktop environments.
-    :return:
-    """
-    return _("none") if get_default else ["gnome", "plasma", "xfce", "budgie", "cinnamon", "cutefish", "deepin", "lxqt",
-                                          "mate", "enlightenment",
-                                          "i3", "sway", _("none")]
 
 
 def to_iec(size: int) -> str:
@@ -86,28 +70,20 @@ def build_partition_name(disk_name: str, index: int) -> str or None:
     return f'/dev/{dict(partition).get("name")}'
 
 
-def get_supported_format_types(get_default: bool = False) -> str or []:
-    """
-    The method to get all supported format types.
-    :return:
-    """
-    return "ext4" if get_default else ["ext4", "btrfs"]
-
-
 def ask_format_type() -> str:
     """
     The method to ask the user for the format type.
     :return:
     """
-    default_format_type = get_supported_format_types(get_default=True)
+    default_format_type = list(FSFormat)[0]
     format_type_ok = False
     format_type = None
     print_step(_("Supported format types : "), clear=False)
-    print_sub_step(", ".join(get_supported_format_types()))
+    print_sub_step(", ".join(list(FSFormat)))
     while not format_type_ok:
         format_type = prompt_ln(
             _("Which format type do you want ? (%s) : ") % default_format_type, default=default_format_type).lower()
-        if format_type in get_supported_format_types():
+        if format_type in FSFormat:
             format_type_ok = True
         else:
             print_error(_("Format type '%s' is not supported.") % format_type, do_pause=False)
@@ -228,6 +204,34 @@ def prompt_ln(message: str, default: str = None, help_msg: str = None) -> str:
     :return:
     """
     return prompt(f'{message}\n', default=default, help_msg=help_msg)
+
+
+def prompt_option(supported_msg: str, message: str, error_msg: str, options: type(StrEnum)) -> StrEnum or None:
+    """
+    A method to prompt for a bundle.
+    :param supported_msg:
+    :param message:
+    :param error_msg:
+    :param options:
+    :return:
+    """
+    default_option = list(options)[0]
+    print_step(supported_msg, clear=False)
+    print_sub_step(", ".join(list(options)))
+    print('')
+    option_ok = False
+    option = None
+    while not option_ok:
+        option_name = prompt_ln(
+            message % default_option,
+            default=default_option).lower()
+        if option_name in options:
+            option_ok = True
+            option = options(option_name)
+        else:
+            print_error(error_msg % option_name, do_pause=False)
+            continue
+    return option
 
 
 def prompt_bool(message: str, default: bool = True, help_msg: str = None) -> bool:

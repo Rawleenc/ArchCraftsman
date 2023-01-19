@@ -1,15 +1,16 @@
 """
 The generic bundle blueprint module
 """
+from enum import StrEnum
 
 
 class Bundle:
     """
     A class to represent a bootloader.
     """
-    name: str
+    name: StrEnum
 
-    def __init__(self, name: str):
+    def __init__(self, name: StrEnum):
         self.name = name
 
     def packages(self, system_info: {}) -> [str]:  # pylint: disable=unused-argument

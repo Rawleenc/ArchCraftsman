@@ -1,6 +1,8 @@
 """
 The bundles related utility methods and tools module
 """
+from enum import StrEnum
+
 from src.bundles.budgie import Budgie
 from src.bundles.bundle import Bundle
 from src.bundles.cinnamon import Cinnamon
@@ -16,10 +18,11 @@ from src.bundles.mate import Mate
 from src.bundles.plasma import Plasma
 from src.bundles.sway import Sway
 from src.bundles.xfce import Xfce
-from src.utils import print_error, print_step, print_sub_step, prompt_ln
+from src.options import Kernel, BootLoader, DesktopEnv
+from src.utils import prompt_option
 
 
-def process_bundle(name: str) -> Bundle or None:
+def process_bundle(name: StrEnum) -> Bundle or None:
     """
     Process a bundle name into a Bundle object.
     :param name:
@@ -27,69 +30,56 @@ def process_bundle(name: str) -> Bundle or None:
     """
     bundle = None
     match name:
-        case "current":
-            bundle = LinuxCurrent("current")
-        case "lts":
-            bundle = LinuxLts("lts")
-        case "zen":
-            bundle = LinuxZen("zen")
-        case "hardened":
-            bundle = LinuxHardened("hardened")
-        case "grub":
-            bundle = Grub("grub")
-        case "gnome":
-            bundle = Gnome("gnome")
-        case "plasma":
-            bundle = Plasma("plasma")
-        case "xfce":
-            bundle = Xfce("xfce")
-        case "budgie":
-            bundle = Budgie("budgie")
-        case "cinnamon":
-            bundle = Cinnamon("cinnamon")
-        case "cutefish":
-            bundle = Cutefish("cutefish")
-        case "deepin":
-            bundle = Deepin("deepin")
-        case "lxqt":
-            bundle = Lxqt("lxqt")
-        case "mate":
-            bundle = Mate("mate")
-        case "enlightenment":
-            bundle = Enlightenment("enlightenment")
-        case "i3":
-            bundle = I3("i3")
-        case "sway":
-            bundle = Sway("sway")
+        case Kernel.CURRENT:
+            bundle = LinuxCurrent(name)
+        case Kernel.LTS:
+            bundle = LinuxLts(name)
+        case Kernel.ZEN:
+            bundle = LinuxZen(name)
+        case Kernel.HARDENED:
+            bundle = LinuxHardened(name)
+        case BootLoader.GRUB:
+            bundle = Grub(name)
+        case DesktopEnv.GNOME:
+            bundle = Gnome(name)
+        case DesktopEnv.PLASMA:
+            bundle = Plasma(name)
+        case DesktopEnv.XFCE:
+            bundle = Xfce(name)
+        case DesktopEnv.BUDGIE:
+            bundle = Budgie(name)
+        case DesktopEnv.CINNAMON:
+            bundle = Cinnamon(name)
+        case DesktopEnv.CUTEFISH:
+            bundle = Cutefish(name)
+        case DesktopEnv.DEEPIN:
+            bundle = Deepin(name)
+        case DesktopEnv.LXQT:
+            bundle = Lxqt(name)
+        case DesktopEnv.MATE:
+            bundle = Mate(name)
+        case DesktopEnv.ENLIGHTENMENT:
+            bundle = Enlightenment(name)
+        case DesktopEnv.I3:
+            bundle = I3(name)
+        case DesktopEnv.SWAY:
+            bundle = Sway(name)
     return bundle
 
 
-def prompt_bundle(supported_msg: str, message: str, error_msg: str, default_bundle: str,
-                  supported_bundles: [str]) -> Bundle or None:
+def prompt_bundle(supported_msg: str, message: str, error_msg: str, options: type(StrEnum)) -> Bundle or None:
     """
     A method to prompt for a bundle.
     :param supported_msg:
     :param message:
     :param error_msg:
-    :param default_bundle:
-    :param supported_bundles:
+    :param options:
     :return:
     """
-    print_step(supported_msg, clear=False)
-    print_sub_step(", ".join(supported_bundles))
-    print('')
-    bundle_ok = False
-    bundle = None
-    while not bundle_ok:
-        bundle_name = prompt_ln(
-            message % default_bundle,
-            default=default_bundle).lower()
-        if bundle_name in supported_bundles:
-            bundle_ok = True
-            bundle = process_bundle(bundle_name)
-        else:
-            print_error(error_msg % bundle_name, do_pause=False)
-            continue
+    option = prompt_option(supported_msg, message, error_msg, options)
+    if not option:
+        return None
+    bundle = process_bundle(option)
     if bundle:
         bundle.prompt_extra()
     return bundle

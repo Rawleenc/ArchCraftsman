@@ -5,8 +5,9 @@ import os
 
 from src.disk import Disk
 from src.i18n import I18n
+from src.options import Swap
 from src.utils import ask_format_type, is_bios, from_iec, to_iec, \
-    build_partition_name, print_error, print_step, print_sub_step, prompt, prompt_bool
+    build_partition_name, print_error, print_step, print_sub_step, prompt, prompt_bool, prompt_option
 
 _ = I18n().gettext
 
@@ -34,9 +35,6 @@ def auto_partitioning() -> {}:
             continue
         partitioning_info["main_disk"] = target_disk
         disk = Disk(target_disk)
-        swap_type = prompt(_("What type of Swap do you want ? (1: Partition, 2: None, other: File) : "))
-        want_home = prompt_bool(_("Do you want a separated Home ? (Y/n) : "))
-        part_format_type = ask_format_type()
         efi_partition = disk.get_efi_partition()
         if not is_bios() \
                 and len(disk.partitions) > 0 \
@@ -46,15 +44,23 @@ def auto_partitioning() -> {}:
             want_dual_boot = prompt_bool(_("Do you want to install Arch Linux next to other systems ? (Y/n) : "))
         else:
             want_dual_boot = False
+
+        swap_type = prompt_option(_("Supported Swap types : "),
+                                  _("What type of Swap do you want ? (%s) : "),
+                                  _("Swap type '%s' is not supported."),
+                                  Swap)
+
+        want_home = prompt_bool(_("Do you want a separated Home ? (Y/n) : "))
+        part_format_type = ask_format_type()
         if want_dual_boot:
             root_size = to_iec(int(disk.free_space / 4))
             swap_size = to_iec(int(disk.free_space / 32))
         else:
             root_size = to_iec(int(disk.total / 4))
             swap_size = to_iec(int(disk.total / 32))
-        if swap_type != "1":
-            if swap_type == "2":
-                swap_size = None
+        if swap_type == Swap.NONE:
+            swap_size = None
+        elif swap_type == Swap.FILE:
             partitioning_info["swapfile_size"] = swap_size
         auto_part_str = ""
         index = 0
@@ -98,7 +104,7 @@ def auto_partitioning() -> {}:
                 partitioning_info_by_index["part_mount_point"][efi_partition.index] = "/boot/efi"
                 partitioning_info_by_index["indexes"].add(efi_partition.index)
                 index += len(disk.partitions)
-        if swap_type == "1":
+        if swap_type == Swap.PARTITION:
             # SWAP
             auto_part_str += "n\n"  # Add a new partition
             if is_bios():
