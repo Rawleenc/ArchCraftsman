@@ -1,16 +1,33 @@
+"""
+The all available options module.
+"""
 from enum import IntEnum, auto
 
 
 class OptionEnum(IntEnum):
+    """
+    The Enum base method for options.
+    """
 
     def __str__(self):
-        return self._name_.lower()
+        """
+        __str__ override to return the name in lowercase.
+        :return:
+        """
+        return self.name.lower()
 
     def title(self):
-        return "%s: %s" % (self._value_, self._name_)
+        """
+        A method to display the option's human-readable title
+        :return:
+        """
+        return "%s: %s" % (self.value, self.name.lower())
 
 
 class Kernel(OptionEnum):
+    """
+    All kernel options.
+    """
     CURRENT = auto()
     LTS = auto()
     ZEN = auto()
@@ -18,6 +35,9 @@ class Kernel(OptionEnum):
 
 
 class DesktopEnv(OptionEnum):
+    """
+    All desktop environment options.
+    """
     NONE = auto()
     GNOME = auto()
     PLASMA = auto()
@@ -34,10 +54,16 @@ class DesktopEnv(OptionEnum):
 
 
 class BootLoader(OptionEnum):
+    """
+    All bootloader options.
+    """
     GRUB = auto()
 
 
 class Other(OptionEnum):
+    """
+    All other options.
+    """
     CUPS = auto()
     GRML = auto()
     MAINFILESYSTEMS = auto()
@@ -50,11 +76,17 @@ class Other(OptionEnum):
 
 
 class FSFormat(OptionEnum):
+    """
+    All file system format options.
+    """
     EXT4 = auto()
     BTRFS = auto()
 
 
 class Swap(OptionEnum):
+    """
+    All sway type options.
+    """
     FILE = auto()
     PARTITION = auto()
     NONE = auto()
