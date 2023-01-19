@@ -93,20 +93,14 @@ class PartType(OptionEnum):
     """
     All partition type options.
     """
-    ROOT = auto()
-    HOME = auto()
-    SWAP = auto()
-    NOT_USED = auto()
-    OTHER = auto()
-
-
-class EFIPartType(OptionEnum):
-    """
-    All partition type options including efi.
-    """
     EFI = auto()
     ROOT = auto()
     HOME = auto()
     SWAP = auto()
     NOT_USED = auto()
     OTHER = auto()
+
+
+if __name__ == '__main__':
+    print(", ".join([option for option in list(PartType) if option not in [PartType.EFI]]))
+    print(", ".join(list(PartType)))

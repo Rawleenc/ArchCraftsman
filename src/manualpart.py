@@ -6,7 +6,7 @@ import re
 
 from src.disk import Disk
 from src.i18n import I18n
-from src.options import EFIPartType, PartType
+from src.options import PartType
 from src.utils import is_bios, ask_format_type, \
     print_error, print_step, print_sub_step, prompt, prompt_bool, prompt_option
 
@@ -52,54 +52,54 @@ def manual_partitioning() -> {}:
                 partition_type = prompt_option(_("Supported Partition types : "),
                                                _("What is the role of this partition ? (%s) : "),
                                                _("Partition type '%s' is not supported."),
-                                               PartType, PartType.OTHER)
+                                               PartType, PartType.OTHER, PartType.EFI)
             else:
                 partition_type = prompt_option(_("Supported Partition types : "),
                                                _("What is the role of this partition ? (%s) : "),
                                                _("Partition type '%s' is not supported."),
-                                               EFIPartType, EFIPartType.OTHER)
-            if not is_bios() and partition_type == EFIPartType.EFI:
-                partitioning_info["part_type"][partition] = "EFI"
+                                               PartType, PartType.OTHER)
+            if not is_bios() and partition_type == PartType.EFI:
+                partitioning_info["part_type"][partition] = PartType.EFI
                 partitioning_info["part_mount_point"][partition] = "/boot/efi"
                 partitioning_info["part_format"][partition] = prompt_bool(_("Format the EFI partition ? (Y/n) : "))
                 if partitioning_info["part_format"].get(partition):
                     partitioning_info["part_format_type"][partition] = "vfat"
             elif partition_type == PartType.ROOT:
-                partitioning_info["part_type"][partition] = "ROOT"
+                partitioning_info["part_type"][partition] = PartType.ROOT
                 partitioning_info["part_mount_point"][partition] = "/"
                 partitioning_info["part_format_type"][partition] = ask_format_type()
                 partitioning_info["root_partition"] = partition
                 main_disk_label = re.sub('\\s+', '', os.popen(f'lsblk -ndo PKNAME {partition}').read())
                 partitioning_info["main_disk"] = f'/dev/{main_disk_label}'
             elif partition_type == PartType.HOME:
-                partitioning_info["part_type"][partition] = "HOME"
+                partitioning_info["part_type"][partition] = PartType.HOME
                 partitioning_info["part_mount_point"][partition] = "/home"
                 partitioning_info["part_format"][partition] = prompt_bool(_("Format the Home partition ? (Y/n) : "))
                 if partitioning_info["part_format"].get(partition):
                     partitioning_info["part_format_type"][partition] = ask_format_type()
             elif partition_type == PartType.SWAP:
-                partitioning_info["part_type"][partition] = "SWAP"
+                partitioning_info["part_type"][partition] = PartType.SWAP
             elif partition_type == PartType.NOT_USED:
                 continue
             elif partition_type == PartType.OTHER:
-                partitioning_info["part_type"][partition] = "OTHER"
+                partitioning_info["part_type"][partition] = PartType.OTHER
                 partitioning_info["part_mount_point"][partition] = prompt(
                     _("What is the mounting point of this partition ? : "))
                 partitioning_info["part_format"][partition] = prompt_bool(
                     _("Format the %s partition ? (Y/n) : ") % partition)
                 if partitioning_info["part_format"].get(partition):
                     partitioning_info["part_format_type"][partition] = ask_format_type()
-        if not is_bios() and "EFI" not in partitioning_info["part_type"].values():
+        if not is_bios() and PartType.EFI not in partitioning_info["part_type"].values():
             print_error(_("The EFI partition is required for system installation."))
             partitioning_info["partitions"].clear()
             partitioned_disks.clear()
             continue
-        if "ROOT" not in partitioning_info["part_type"].values():
+        if PartType.ROOT not in partitioning_info["part_type"].values():
             print_error(_("The Root partition is required for system installation."))
             partitioning_info["partitions"].clear()
             partitioned_disks.clear()
             continue
-        if "SWAP" not in partitioning_info["part_type"].values():
+        if PartType.SWAP not in partitioning_info["part_type"].values():
             partitioning_info["swapfile_size"] = Disk(partitioning_info["main_disk"]).ask_swapfile_size()
         print_step(_("Summary of choices :"))
         for partition in partitioning_info["partitions"]:

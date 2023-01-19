@@ -207,7 +207,7 @@ def prompt_ln(message: str, default: str = None, help_msg: str = None) -> str:
 
 
 def prompt_option(supported_msg: str, message: str, error_msg: str, options: type(OptionEnum),
-                  default: OptionEnum) -> OptionEnum or None:
+                  default: OptionEnum, *ignores: OptionEnum) -> OptionEnum or None:
     """
     A method to prompt for a bundle.
     :param supported_msg:
@@ -218,7 +218,7 @@ def prompt_option(supported_msg: str, message: str, error_msg: str, options: typ
     :return:
     """
     print_step(supported_msg, clear=False)
-    print_sub_step(", ".join([option.title() for option in list(options)]))
+    print_sub_step(", ".join([option for option in list(options) if option not in ignores]))
     print('')
     option_ok = False
     option = None
