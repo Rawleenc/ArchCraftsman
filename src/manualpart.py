@@ -125,6 +125,9 @@ def manual_partitioning() -> {}:
             print_sub_step(_("Swapfile size : %s") % partitioning_info["swapfile_size"])
         user_answer = prompt_bool(_("Is the informations correct ? (y/N) : "), default=False)
         if not user_answer:
+            want_to_change = prompt_bool(_("Do you want to change the partitioning mode ? (y/N) : "), default=False)
+            if want_to_change:
+                return None
             partitioning_info["partitions"].clear()
             partitioned_disks.clear()
     return partitioning_info

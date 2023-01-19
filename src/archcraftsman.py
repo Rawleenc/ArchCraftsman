@@ -77,10 +77,12 @@ def main(pre_launch_info):
 
     print_step(_("Partitioning :"))
     want_auto_part = prompt_bool(_("Do you want an automatic partitioning ? (y/N) : "), default=False)
-    if want_auto_part:
-        partitioning_info = auto_partitioning()
-    else:
-        partitioning_info = manual_partitioning()
+    partitioning_info = None
+    while partitioning_info is None:
+        if want_auto_part:
+            partitioning_info = auto_partitioning()
+        else:
+            partitioning_info = manual_partitioning()
 
     print_step(_("Formatting and mounting partitions..."), clear=False)
 
