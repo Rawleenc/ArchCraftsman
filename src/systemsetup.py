@@ -40,7 +40,7 @@ def setup_system(detected_timezone) -> {}:
         system_info["kernel"] = prompt_bundle(_("Supported kernels : "),
                                               _("Choose your kernel (%s) : "),
                                               _("Kernel '%s' is not supported."),
-                                              Kernel)
+                                              Kernel, Kernel.CURRENT)
 
         if prompt_bool(_("Install proprietary Nvidia driver ? (y/N) : "), default=False):
             system_info["bundles"].append(NvidiaDriver(Other.NVIDIA))
@@ -51,7 +51,7 @@ def setup_system(detected_timezone) -> {}:
         desktop = prompt_bundle(_("Supported desktop environments : "),
                                 _("Install a desktop environment ? (%s) : "),
                                 _("Desktop environment '%s' is not supported."),
-                                DesktopEnv)
+                                DesktopEnv, DesktopEnv.NONE)
         if desktop is not None:
             system_info["bundles"].append(desktop)
 
@@ -68,12 +68,12 @@ def setup_system(detected_timezone) -> {}:
         if prompt_bool(_("Install a set of main fonts ? (y/N/?) : "), default=False,
                        help_msg=_("If yes, the following packages will be installed :\n%s") % " ".join(
                            get_main_fonts())):
-            system_info["bundles"].append(MainFonts(Other.MAINFONTS))
+            system_info["bundles"].append(MainFonts(Other.MAIN_FONTS))
 
         if prompt_bool(_("Install main file systems support ? (y/N/?) : "),
                        default=False, help_msg=_(
                     "If yes, the following packages will be installed :\n%s") % " ".join(get_main_file_systems())):
-            system_info["bundles"].append(MainFileSystems(Other.MAINFILESYSTEMS))
+            system_info["bundles"].append(MainFileSystems(Other.MAIN_FILE_SYSTEMS))
 
         if prompt_bool(_("Install and enable ZRAM ? (y/N/?) : "), default=False, help_msg=_(
                 "ZRAM is a process to compress datas directly in the RAM instead of moving them in a swap. "

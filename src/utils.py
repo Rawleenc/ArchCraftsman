@@ -206,16 +206,16 @@ def prompt_ln(message: str, default: str = None, help_msg: str = None) -> str:
     return prompt(f'{message}\n', default=default, help_msg=help_msg)
 
 
-def prompt_option(supported_msg: str, message: str, error_msg: str, options: type(OptionEnum)) -> OptionEnum or None:
+def prompt_option(supported_msg: str, message: str, error_msg: str, options: type(OptionEnum), default: OptionEnum) -> OptionEnum or None:
     """
     A method to prompt for a bundle.
     :param supported_msg:
     :param message:
     :param error_msg:
     :param options:
+    :param default:
     :return:
     """
-    default_option = list(options)[0]
     print_step(supported_msg, clear=False)
     print_sub_step(", ".join([option.title() for option in list(options)]))
     print('')
@@ -223,8 +223,8 @@ def prompt_option(supported_msg: str, message: str, error_msg: str, options: typ
     option = None
     while not option_ok:
         option_name = prompt_ln(
-            message % default_option,
-            default=default_option).lower()
+            message % default,
+            default=default).lower()
         if option_name in options:
             option_ok = True
             option = options(option_name)

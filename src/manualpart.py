@@ -6,8 +6,9 @@ import re
 
 from src.disk import Disk
 from src.i18n import I18n
+from src.options import EFIPartType, PartType
 from src.utils import is_bios, ask_format_type, \
-    print_error, print_step, print_sub_step, prompt, prompt_bool
+    print_error, print_step, print_sub_step, prompt, prompt_bool, prompt_option
 
 _ = I18n().gettext
 
@@ -48,36 +49,39 @@ def manual_partitioning() -> {}:
             print_sub_step(_("Partition : %s") % re.sub('\n', '', os.popen(
                 f'lsblk -nl "{partition}" -o PATH,SIZE,PARTTYPENAME').read()))
             if is_bios():
-                partition_type = prompt(
-                    _("What is the role of this partition ? (1: Root, 2: Home, 3: Swap, 4: Not used, other: Other) : "))
+                partition_type = prompt_option(_("Supported Partition types : "),
+                                               _("What is the role of this partition ? (%s) : "),
+                                               _("Partition type '%s' is not supported."),
+                                               PartType, PartType.OTHER)
             else:
-                partition_type = prompt(
-                    _("What is the role of this partition ? (0: EFI, 1: Root, 2: Home, 3: Swap, 4: Not used, "
-                      "other: Other) : "))
-            if not is_bios() and partition_type == "0":
+                partition_type = prompt_option(_("Supported Partition types : "),
+                                               _("What is the role of this partition ? (%s) : "),
+                                               _("Partition type '%s' is not supported."),
+                                               EFIPartType, EFIPartType.OTHER)
+            if not is_bios() and partition_type == EFIPartType.EFI:
                 partitioning_info["part_type"][partition] = "EFI"
                 partitioning_info["part_mount_point"][partition] = "/boot/efi"
                 partitioning_info["part_format"][partition] = prompt_bool(_("Format the EFI partition ? (Y/n) : "))
                 if partitioning_info["part_format"].get(partition):
                     partitioning_info["part_format_type"][partition] = "vfat"
-            elif partition_type == "1":
+            elif partition_type == PartType.ROOT:
                 partitioning_info["part_type"][partition] = "ROOT"
                 partitioning_info["part_mount_point"][partition] = "/"
                 partitioning_info["part_format_type"][partition] = ask_format_type()
                 partitioning_info["root_partition"] = partition
                 main_disk_label = re.sub('\\s+', '', os.popen(f'lsblk -ndo PKNAME {partition}').read())
                 partitioning_info["main_disk"] = f'/dev/{main_disk_label}'
-            elif partition_type == "2":
+            elif partition_type == PartType.HOME:
                 partitioning_info["part_type"][partition] = "HOME"
                 partitioning_info["part_mount_point"][partition] = "/home"
                 partitioning_info["part_format"][partition] = prompt_bool(_("Format the Home partition ? (Y/n) : "))
                 if partitioning_info["part_format"].get(partition):
                     partitioning_info["part_format_type"][partition] = ask_format_type()
-            elif partition_type == "3":
+            elif partition_type == PartType.SWAP:
                 partitioning_info["part_type"][partition] = "SWAP"
-            elif partition_type == "4":
+            elif partition_type == PartType.NOT_USED:
                 continue
-            else:
+            elif partition_type == PartType.OTHER:
                 partitioning_info["part_type"][partition] = "OTHER"
                 partitioning_info["part_mount_point"][partition] = prompt(
                     _("What is the mounting point of this partition ? : "))

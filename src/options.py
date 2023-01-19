@@ -1,27 +1,24 @@
 """
 The all available options module.
 """
-from enum import IntEnum, auto
+from enum import Enum, auto
+
+from src.i18n import I18n
+
+_ = I18n().gettext
 
 
-class OptionEnum(IntEnum):
+class OptionEnum(str, Enum):
     """
     The Enum base method for options.
     """
 
-    def __str__(self):
-        """
-        __str__ override to return the name in lowercase.
-        :return:
-        """
-        return self.name.lower()
+    @staticmethod
+    def _generate_next_value_(name: str, start: int, count: int, last_values: list) -> str:
+        return name.lower().replace("_", "")
 
-    def title(self):
-        """
-        A method to display the option's human-readable title
-        :return:
-        """
-        return f"{self.value}: {self.name.lower()}"
+    def __str__(self):
+        return _(self.name.lower().replace('_', ' ').capitalize())
 
 
 class Kernel(OptionEnum):
@@ -38,7 +35,6 @@ class DesktopEnv(OptionEnum):
     """
     All desktop environment options.
     """
-    NONE = auto()
     GNOME = auto()
     PLASMA = auto()
     XFCE = auto()
@@ -51,6 +47,7 @@ class DesktopEnv(OptionEnum):
     ENLIGHTENMENT = auto()
     I3 = auto()
     SWAY = auto()
+    NONE = auto()
 
 
 class BootLoader(OptionEnum):
@@ -66,8 +63,8 @@ class Other(OptionEnum):
     """
     CUPS = auto()
     GRML = auto()
-    MAINFILESYSTEMS = auto()
-    MAINFONTS = auto()
+    MAIN_FILE_SYSTEMS = auto()
+    MAIN_FONTS = auto()
     MICROCODES = auto()
     NVIDIA = auto()
     PIPEWIRE = auto()
@@ -87,6 +84,28 @@ class Swap(OptionEnum):
     """
     All sway type options.
     """
-    FILE = auto()
     PARTITION = auto()
+    FILE = auto()
     NONE = auto()
+
+
+class PartType(OptionEnum):
+    """
+    All partition type options.
+    """
+    ROOT = auto()
+    HOME = auto()
+    SWAP = auto()
+    NOT_USED = auto()
+    OTHER = auto()
+
+class EFIPartType(OptionEnum):
+    """
+    All partition type options including efi.
+    """
+    EFI = auto()
+    ROOT = auto()
+    HOME = auto()
+    SWAP = auto()
+    NOT_USED = auto()
+    OTHER = auto()

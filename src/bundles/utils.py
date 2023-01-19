@@ -66,16 +66,17 @@ def process_bundle(name: OptionEnum) -> Bundle or None:
     return bundle
 
 
-def prompt_bundle(supported_msg: str, message: str, error_msg: str, options: type(OptionEnum)) -> Bundle or None:
+def prompt_bundle(supported_msg: str, message: str, error_msg: str, options: type(OptionEnum), default: OptionEnum) -> Bundle or None:
     """
     A method to prompt for a bundle.
     :param supported_msg:
     :param message:
     :param error_msg:
     :param options:
+    :param default:
     :return:
     """
-    option = prompt_option(supported_msg, message, error_msg, options)
+    option = prompt_option(supported_msg, message, error_msg, options, default)
     if not option:
         return None
     bundle = process_bundle(option)

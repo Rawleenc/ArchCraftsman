@@ -48,7 +48,7 @@ def auto_partitioning() -> {}:
         swap_type = prompt_option(_("Supported Swap types : "),
                                   _("What type of Swap do you want ? (%s) : "),
                                   _("Swap type '%s' is not supported."),
-                                  Swap)
+                                  Swap, Swap.FILE)
 
         want_home = prompt_bool(_("Do you want a separated Home ? (Y/n) : "))
         part_format_type = ask_format_type()
