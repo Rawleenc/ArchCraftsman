@@ -8,8 +8,6 @@ import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.request import urlretrieve
 
-from src.utils import execute
-
 REPO_BASE_URL = "https://raw.githubusercontent.com/rawleenc/ArchCraftsman/dev"
 CMD = 'python -m src.archcraftsman'
 GREEN = "\033[0;32m"
@@ -24,7 +22,7 @@ def print_step(message: str, clear: bool = True):
     :param clear:
     """
     if clear:
-        execute('clear', force=True)
+        subprocess.run('clear', shell=True, check=True)
     print(f'\n{GREEN}{message}{NOCOLOR}')
 
 
@@ -47,11 +45,11 @@ def download(file_path: str, destination: str, replace: bool = False):
     """
     print_sub_step(f"Downloading '{file_path}'...")
     if replace and os.path.exists(destination):
-        execute(f"rm -rf {destination}")
+        subprocess.run(f"rm -rf {destination}", shell=True, check=True)
     if not os.path.exists(destination):
         parent = os.path.dirname(destination)
         if parent:
-            execute(f"mkdir -p {parent}")
+            subprocess.run(f"mkdir -p {parent}", shell=True, check=True)
         urlretrieve(f"{REPO_BASE_URL}/{file_path}", destination)
 
 
@@ -71,7 +69,8 @@ if __name__ == '__main__':
             future.result()
 
     download("locales/fr.po", "fr.po")
-    execute('msgfmt -o /usr/share/locale/fr/LC_MESSAGES/ArchCraftsman.mo fr.po &>/dev/null')
+    subprocess.run('msgfmt -o /usr/share/locale/fr/LC_MESSAGES/ArchCraftsman.mo fr.po &>/dev/null', shell=True,
+                   check=True)
 
     try:
         subprocess.run(CMD, shell=True, check=True)
