@@ -292,7 +292,8 @@ def putenv(name: str, value: str):
     os.putenv(name, value)
 
 
-def execute(command: str, check: bool = True, capture_output: bool = False, force: bool = False) -> subprocess.CompletedProcess:
+def execute(command: str, check: bool = True, capture_output: bool = False,
+            force: bool = False) -> subprocess.CompletedProcess:
     """
     A method to exec a command.
     :param command:
