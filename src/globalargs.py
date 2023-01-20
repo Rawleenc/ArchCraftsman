@@ -35,4 +35,8 @@ class GlobalArgs(metaclass=GlobalArgsMeta):
         self.args = args
 
     def test(self) -> bool:
+        """
+        Check if the installer is in fake test mode.
+        :return:
+        """
         return self.args.test
