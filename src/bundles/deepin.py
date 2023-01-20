@@ -38,6 +38,5 @@ class Deepin(Bundle):
         execute('arch-chroot /mnt bash -c "systemctl enable lightdm"')
         execute(
             'sed -i "s|#logind-check-graphical=false|logind-check-graphical=true|g" /mnt/etc/lightdm/lightdm.conf')
-        execute('arch-chroot /mnt bash -c "amixer sset Master unmute"')
         if "fr" in pre_launch_info["keymap"]:
             setup_chroot_keyboard("fr")

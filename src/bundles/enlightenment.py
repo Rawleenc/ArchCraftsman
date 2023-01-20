@@ -26,6 +26,5 @@ class Enlightenment(Bundle):
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
         execute('arch-chroot /mnt bash -c "systemctl enable acpid"')
-        execute('arch-chroot /mnt bash -c "amixer sset Master unmute"')
         if "fr" in pre_launch_info["keymap"]:
             setup_chroot_keyboard("fr")
