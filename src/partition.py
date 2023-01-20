@@ -1,10 +1,9 @@
 """
 The partition class module
 """
-import os
 import re
 
-from src.utils import from_iec
+from src.utils import from_iec, execute
 
 
 class Partition:
@@ -29,11 +28,12 @@ class Partition:
             self.fs_type = ""
         else:
             self.path = part_str.split(" ")[0]
-            self.size = from_iec(re.sub('\\s', '', os.popen(f'lsblk -nl "{self.path}" -o SIZE').read()))
+            self.size = from_iec(
+                re.sub('\\s', '', execute(f'lsblk -nl "{self.path}" -o SIZE', capture_output=True).stdout))
             self.part_type = str(
-                re.sub('[^a-zA-Z\\d ]', '', os.popen(f'lsblk -nl "{self.path}" -o PARTTYPENAME').read()))
+                re.sub('[^a-zA-Z\\d ]', '', execute(f'lsblk -nl "{self.path}" -o PARTTYPENAME', capture_output=True).stdout))
             self.fs_type = str(
-                re.sub('[^a-zA-Z\\d ]', '', os.popen(f'lsblk -nl "{self.path}" -o FSTYPE').read()))
+                re.sub('[^a-zA-Z\\d ]', '', execute(f'lsblk -nl "{self.path}" -o FSTYPE', capture_output=True).stdout))
 
     def __str__(self) -> str:
         """

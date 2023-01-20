@@ -1,13 +1,12 @@
 """
 The disk class module
 """
-import os
 import re
 
 from src.i18n import I18n
 from src.options import PartType
 from src.partition import Partition
-from src.utils import to_iec, prompt, print_error
+from src.utils import to_iec, prompt, print_error, execute
 
 _ = I18n().gettext
 
@@ -26,20 +25,22 @@ class Disk:
         Disk initialisation.
         """
         self.path = path
-        detected_partitions = os.popen(f'lsblk -nl "{path}" -o PATH,TYPE | grep part').read()
+        detected_partitions = execute(f'lsblk -nl "{path}" -o PATH,TYPE | grep part', capture_output=True).stdout
         self.partitions = []
         index = 0
         for partition_info in detected_partitions.splitlines():
             self.partitions.append(Partition(index, partition_info))
             index += 1
-        self.total = int(os.popen(f'lsblk -b --output SIZE -n -d "{self.path}"').read())
+        self.total = int(execute(f'lsblk -b --output SIZE -n -d "{self.path}"', capture_output=True).stdout)
         if len(self.partitions) > 0:
             sector_size = int(
                 re.sub('\\s', '',
-                       os.popen(f'lsblk {path} -o PATH,TYPE,PHY-SEC | grep disk | awk \'{{print $3}}\'').read()))
+                       execute(f'lsblk {path} -o PATH,TYPE,PHY-SEC | grep disk | awk \'{{print $3}}\'',
+                               capture_output=True).stdout))
             last_partition_path = [p.path for p in self.partitions][len(self.partitions) - 1]
             last_sector = int(
-                re.sub('\\s', '', os.popen(f'fdisk -l | grep {last_partition_path} | awk \'{{print $3}}\'').read()))
+                re.sub('\\s', '', execute(f'fdisk -l | grep {last_partition_path} | awk \'{{print $3}}\'',
+                                          capture_output=True).stdout))
             self.free_space = self.total - (last_sector * sector_size)
         else:
             self.free_space = self.total

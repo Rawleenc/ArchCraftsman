@@ -8,6 +8,8 @@ import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.request import urlretrieve
 
+from src.utils import execute
+
 REPO_BASE_URL = "https://raw.githubusercontent.com/rawleenc/ArchCraftsman/dev"
 CMD = 'python -m src.archcraftsman'
 GREEN = "\033[0;32m"
@@ -22,7 +24,7 @@ def print_step(message: str, clear: bool = True):
     :param clear:
     """
     if clear:
-        os.system('clear')
+        execute('clear')
     print(f'\n{GREEN}{message}{NOCOLOR}')
 
 
@@ -45,11 +47,11 @@ def download(file_path: str, destination: str, replace: bool = False):
     """
     print_sub_step(f"Downloading '{file_path}'...")
     if replace and os.path.exists(destination):
-        os.system(f"rm -rf {destination}")
+        execute(f"rm -rf {destination}")
     if not os.path.exists(destination):
         parent = os.path.dirname(destination)
         if parent:
-            os.system(f"mkdir -p {parent}")
+            execute(f"mkdir -p {parent}")
         urlretrieve(f"{REPO_BASE_URL}/{file_path}", destination)
 
 
@@ -69,7 +71,7 @@ if __name__ == '__main__':
             future.result()
 
     download("locales/fr.po", "fr.po")
-    os.system('msgfmt -o /usr/share/locale/fr/LC_MESSAGES/ArchCraftsman.mo fr.po &>/dev/null')
+    execute('msgfmt -o /usr/share/locale/fr/LC_MESSAGES/ArchCraftsman.mo fr.po &>/dev/null')
 
     try:
         subprocess.run(CMD, shell=True, check=True)

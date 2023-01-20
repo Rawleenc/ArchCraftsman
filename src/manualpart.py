@@ -8,7 +8,7 @@ from src.disk import Disk
 from src.i18n import I18n
 from src.options import PartType, FSFormat
 from src.utils import is_bios, ask_format_type, \
-    print_error, print_step, print_sub_step, prompt, prompt_bool, prompt_option
+    print_error, print_step, print_sub_step, prompt, prompt_bool, prompt_option, execute
 
 _ = I18n().gettext
 
@@ -25,29 +25,30 @@ def manual_partitioning() -> {}:
     while not user_answer:
         print_step(_("Manual partitioning :"))
         print_sub_step(_("Partitioned drives so far : %s") % " ".join(partitioned_disks))
-        os.system('fdisk -l')
+        execute('fdisk -l')
         target_disk = prompt(
             _("Which drive do you want to partition ? (type the entire name, for example '/dev/sda') : "))
         if not os.path.exists(target_disk):
             print_error(_("The chosen target drive doesn't exist."))
             continue
         partitioned_disks.add(target_disk)
-        os.system(f'cfdisk "{target_disk}"')
+        execute(f'cfdisk "{target_disk}"')
         print_step(_("Manual partitioning :"))
         print_sub_step(_("Partitioned drives so far : %s") % " ".join(partitioned_disks))
-        os.system('fdisk -l')
+        execute('fdisk -l')
         other_drive = prompt_bool(_("Do you want to partition an other drive ? (y/N) : "), default=False)
         if other_drive:
             continue
         for disk in partitioned_disks:
-            detected_partitions = os.popen(
-                f'lsblk -nl "{disk}" -o PATH,PARTTYPENAME | grep -iE "linux|efi|swap" | awk \'{{print $1}}\'').read()
+            detected_partitions = execute(
+                f'lsblk -nl "{disk}" -o PATH,PARTTYPENAME | grep -iE "linux|efi|swap" | awk \'{{print $1}}\'',
+                capture_output=True).stdout
             for partition in detected_partitions.splitlines():
                 partitioning_info["partitions"].add(partition)
         print_step(_("Detected target drive partitions : %s") % " ".join(partitioning_info["partitions"]))
         for partition in partitioning_info["partitions"]:
-            print_sub_step(_("Partition : %s") % re.sub('\n', '', os.popen(
-                f'lsblk -nl "{partition}" -o PATH,SIZE,PARTTYPENAME').read()))
+            print_sub_step(_("Partition : %s") % re.sub('\n', '', execute(
+                f'lsblk -nl "{partition}" -o PATH,SIZE,PARTTYPENAME', capture_output=True).stdout))
             if is_bios():
                 partition_type = prompt_option(_("Supported Partition types : "),
                                                _("What is the role of this partition ? (%s) : "),
@@ -69,7 +70,8 @@ def manual_partitioning() -> {}:
                 partitioning_info["part_mount_point"][partition] = "/"
                 partitioning_info["part_format_type"][partition] = ask_format_type()
                 partitioning_info["root_partition"] = partition
-                main_disk_label = re.sub('\\s+', '', os.popen(f'lsblk -ndo PKNAME {partition}').read())
+                main_disk_label = re.sub('\\s+', '',
+                                         execute(f'lsblk -ndo PKNAME {partition}', capture_output=True).stdout)
                 partitioning_info["main_disk"] = f'/dev/{main_disk_label}'
             elif partition_type == PartType.HOME:
                 partitioning_info["part_type"][partition] = PartType.HOME

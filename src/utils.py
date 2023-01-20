@@ -5,7 +5,9 @@ import getpass
 import json
 import os
 import re
+import subprocess
 
+from src.globalargs import GlobalArgs
 from src.i18n import I18n
 from src.options import FSFormat
 from src.options import OptionEnum
@@ -14,9 +16,11 @@ RED = "\033[0;31m"
 GREEN = "\033[0;32m"
 CYAN = "\033[0;36m"
 ORANGE = "\033[0;33m"
+GRAY = "\033[0;37m"
 NOCOLOR = "\033[0m"
 
 _ = I18n().gettext
+args = GlobalArgs().args
 
 
 def is_bios() -> bool:
@@ -31,14 +35,14 @@ def to_iec(size: int) -> str:
     """
     The method to convert a size in iec format.
     """
-    return re.sub('\\s', '', os.popen(f'printf "{size}" | numfmt --to=iec').read())
+    return re.sub('\\s', '', execute(f'printf "{size}" | numfmt --to=iec', capture_output=True).stdout)
 
 
 def from_iec(size: str) -> int:
     """
     The method to convert an iec formatted size in bytes.
     """
-    return int(re.sub('\\s', '', os.popen(f'printf "{size}" | numfmt --from=iec').read()))
+    return int(re.sub('\\s', '', execute(f'printf "{size}" | numfmt --from=iec', capture_output=True).stdout))
 
 
 def build_partition_name(disk_name: str, index: int) -> str or None:
@@ -48,7 +52,7 @@ def build_partition_name(disk_name: str, index: int) -> str or None:
     :param index:
     :return:
     """
-    block_devices_str = os.popen('lsblk -J').read()
+    block_devices_str = execute('lsblk -J', capture_output=True).stdout
     block_devices_json = json.loads(block_devices_str)
     if block_devices_json is None or not isinstance(block_devices_json, dict) or "blockdevices" not in dict(
             block_devices_json):
@@ -115,19 +119,19 @@ def format_partition(partition: str, format_type: str, mount_point: str, formatt
     match format_type:
         case "vfat":
             if formatting:
-                os.system(f'mkfs.vfat "{partition}"')
-            os.system(f'mkdir -p "/mnt{mount_point}"')
-            os.system(f'mount "{partition}" "/mnt{mount_point}"')
+                execute(f'mkfs.vfat "{partition}"')
+            execute(f'mkdir -p "/mnt{mount_point}"')
+            execute(f'mount "{partition}" "/mnt{mount_point}"')
         case "btrfs":
             if formatting:
-                os.system(f'mkfs.btrfs -f "{partition}"')
-            os.system(f'mkdir -p "/mnt{mount_point}"')
-            os.system(f'mount -o compress=zstd "{partition}" "/mnt{mount_point}"')
+                execute(f'mkfs.btrfs -f "{partition}"')
+            execute(f'mkdir -p "/mnt{mount_point}"')
+            execute(f'mount -o compress=zstd "{partition}" "/mnt{mount_point}"')
         case _:
             if formatting:
-                os.system(f'mkfs.ext4 "{partition}"')
-            os.system(f'mkdir -p "/mnt{mount_point}"')
-            os.system(f'mount "{partition}" "/mnt{mount_point}"')
+                execute(f'mkfs.ext4 "{partition}"')
+            execute(f'mkdir -p "/mnt{mount_point}"')
+            execute(f'mount "{partition}" "/mnt{mount_point}"')
 
 
 def print_error(message: str, do_pause: bool = True):
@@ -149,7 +153,7 @@ def print_step(message: str, clear: bool = True):
     :param clear:
     """
     if clear:
-        os.system('clear')
+        execute('clear')
     print(f'\n{GREEN}{message}{NOCOLOR}')
 
 
@@ -159,6 +163,15 @@ def print_sub_step(message: str):
     :param message:
     """
     print(f'{CYAN}  * {message}{NOCOLOR}')
+
+
+def print_log(message: str):
+    """
+    A method to print a log message.
+    :param message:
+    :return:
+    """
+    print(f'{GRAY}> {message}{NOCOLOR}')
 
 
 def print_help(message: str, do_pause: bool = False):
@@ -268,6 +281,35 @@ def pause(start_newline: bool = False, end_newline: bool = False):
     if start_newline:
         print("")
     print(f'{ORANGE}{message}{NOCOLOR}')
-    os.system('read -n 1 -sr')
+    execute('read -n 1 -sr')
     if end_newline:
         print("")
+
+
+def putenv(name: str, value: str):
+    """
+    A method to put environment variable into the system.
+    :param name:
+    :param value:
+    :return:
+    """
+    if args.test:
+        print_log(f"Fake put of env variable: {name}={value}")
+    os.putenv(name, value)
+
+
+def execute(command: str, capture_output: bool = False) -> subprocess.CompletedProcess:
+    """
+    A method to exec a command
+    :param command:
+    :param capture_output:
+    :return:
+    """
+    if args.test:
+        print_log(f"Fake execution of: '{command}'")
+        fake_result = subprocess.CompletedProcess(args=command, returncode=0)
+        if capture_output:
+            fake_result.stdout = ""
+        return fake_result
+    else:
+        return subprocess.run(command, shell=True, check=True, capture_output=capture_output)

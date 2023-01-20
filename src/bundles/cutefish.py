@@ -1,12 +1,11 @@
 """
 The cutefish bundle module
 """
-import os
 
 from src.bundles.bundle import Bundle
 from src.i18n import I18n
 from src.localesetup import setup_chroot_keyboard
-from src.utils import print_sub_step, prompt_bool
+from src.utils import print_sub_step, prompt_bool, execute
 
 _ = I18n().gettext
 
@@ -34,7 +33,7 @@ class Cutefish(Bundle):
 
     def configure(self, system_info, pre_launch_info, partitioning_info):
         if self.display_manager:
-            os.system('arch-chroot /mnt bash -c "systemctl enable sddm"')
-        os.system('arch-chroot /mnt bash -c "amixer sset Master unmute"')
+            execute('arch-chroot /mnt bash -c "systemctl enable sddm"')
+        execute('arch-chroot /mnt bash -c "amixer sset Master unmute"')
         if "fr" in pre_launch_info["keymap"]:
             setup_chroot_keyboard("fr")

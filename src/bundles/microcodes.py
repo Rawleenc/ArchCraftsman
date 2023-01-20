@@ -1,13 +1,12 @@
 """
 The microcodes auto-installation bundle module
 """
-import os
 import re
 
 from src.bundles.bundle import Bundle
 from src.i18n import I18n
 from src.options import Other
-from src.utils import print_sub_step
+from src.utils import print_sub_step, execute
 
 _ = I18n().gettext
 
@@ -19,7 +18,8 @@ class Microcodes(Bundle):
 
     def __init__(self):
         super().__init__(Other.MICROCODES)
-        self.microcode_name = re.sub('\\s+', '', os.popen('grep </proc/cpuinfo "vendor" | uniq').read()).split(":")[1]
+        self.microcode_name = \
+            re.sub('\\s+', '', execute('grep </proc/cpuinfo "vendor" | uniq', capture_output=True).stdout).split(":")[1]
 
     def packages(self, system_info: {}) -> [str]:
         if self.microcode_name == "GenuineIntel":

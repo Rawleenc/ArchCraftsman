@@ -25,23 +25,24 @@ GNU General Public License for more details.
 This is free software, and you are welcome to redistribute it
 under certain conditions; See the GNU General Public License for more details.
 """
+import argparse
 import glob
 import json
-import os
 import re
-import subprocess
 import urllib.request
+from subprocess import CalledProcessError
 
 import readline
 
 from src.autopart import auto_partitioning
 from src.envsetup import setup_environment
+from src.globalargs import GlobalArgs
 from src.i18n import I18n
 from src.localesetup import setup_locale
 from src.manualpart import manual_partitioning
 from src.options import PartType, FSFormat
 from src.systemsetup import setup_system
-from src.utils import is_bios, format_partition, print_error, print_step, print_sub_step, prompt_bool
+from src.utils import is_bios, format_partition, print_error, print_step, print_sub_step, prompt_bool, execute
 
 
 def complete(text, state):
@@ -64,11 +65,11 @@ def umount_partitions():
     A method to unmount all mounted partitions.
     """
     print_step(_("Unmounting partitions..."), clear=False)
-    swap = re.sub('\\s', '', os.popen('swapon --noheadings | awk \'{print $1}\'').read())
+    swap = re.sub('\\s', '', execute('swapon --noheadings | awk \'{print $1}\'', capture_output=True).stdout)
     if swap != "":
-        os.system(f'swapoff {swap} &>/dev/null')
+        execute(f'swapoff {swap} &>/dev/null')
 
-    os.system('umount -R /mnt &>/dev/null')
+    execute('umount -R /mnt &>/dev/null')
 
 
 def main(pre_launch_info):
@@ -105,15 +106,15 @@ def main(pre_launch_info):
                              partitioning_info["part_mount_point"].get(partition),
                              partitioning_info["part_format"].get(partition))
         elif partitioning_info["part_type"].get(partition) == PartType.SWAP:
-            os.system(f'mkswap "{partition}"')
-            os.system(f'swapon "{partition}"')
+            execute(f'mkswap "{partition}"')
+            execute(f'swapon "{partition}"')
         elif partitioning_info["part_type"].get(partition) == PartType.OTHER:
             format_partition(partition, partitioning_info["part_format_type"].get(partition),
                              partitioning_info["part_mount_point"].get(partition),
                              partitioning_info["part_format"].get(partition))
 
     print_step(_("Updating mirrors..."), clear=False)
-    os.system('reflector --verbose -phttps -f10 -l10 --sort rate -a2 --save /etc/pacman.d/mirrorlist')
+    execute('reflector --verbose -phttps -f10 -l10 --sort rate -a2 --save /etc/pacman.d/mirrorlist')
 
     base_pkgs = set()
     base_pkgs.update(["base", "base-devel", "linux-firmware"])
@@ -125,8 +126,8 @@ def main(pre_launch_info):
     pkgs.update(["man-db", "man-pages", "texinfo", "nano", "vim", "git", "curl", "os-prober", "efibootmgr",
                  "networkmanager", "xdg-user-dirs", "reflector", "numlockx", "net-tools", "polkit", "pacman-contrib"])
 
-    if pre_launch_info["global_language"].lower() != "en" and os.system(
-            f"pacman -Si man-pages-{pre_launch_info['global_language'].lower()} &>/dev/null") == 0:
+    if pre_launch_info["global_language"].lower() != "en" and execute(
+            f"pacman -Si man-pages-{pre_launch_info['global_language'].lower()} &>/dev/null").returncode == 0:
         pkgs.add(f"man-pages-{pre_launch_info['global_language'].lower()}")
 
     if btrfs_in_use:
@@ -144,43 +145,43 @@ def main(pre_launch_info):
         pkgs.update(system_info["more_pkgs"])
 
     print_step(_("Installation of the base..."), clear=False)
-    subprocess.run(f'pacstrap -K /mnt {" ".join(base_pkgs)}', shell=True, check=True)
+    execute(f'pacstrap -K /mnt {" ".join(base_pkgs)}')
 
     print_step(_("System configuration..."), clear=False)
-    os.system('sed -i "s|#en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|g" /mnt/etc/locale.gen')
-    os.system('sed -i "s|#en_US ISO-8859-1|en_US ISO-8859-1|g" /mnt/etc/locale.gen')
+    execute('sed -i "s|#en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|g" /mnt/etc/locale.gen')
+    execute('sed -i "s|#en_US ISO-8859-1|en_US ISO-8859-1|g" /mnt/etc/locale.gen')
     if pre_launch_info["global_language"] == "FR":
-        os.system('sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /mnt/etc/locale.gen')
-        os.system('sed -i "s|#fr_FR ISO-8859-1|fr_FR ISO-8859-1|g" /mnt/etc/locale.gen')
-        os.system('echo "LANG=fr_FR.UTF-8" >/mnt/etc/locale.conf')
+        execute('sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /mnt/etc/locale.gen')
+        execute('sed -i "s|#fr_FR ISO-8859-1|fr_FR ISO-8859-1|g" /mnt/etc/locale.gen')
+        execute('echo "LANG=fr_FR.UTF-8" >/mnt/etc/locale.conf')
     else:
-        os.system('echo "LANG=en_US.UTF-8" >/mnt/etc/locale.conf')
-    os.system(f'echo "KEYMAP={pre_launch_info["keymap"]}" >/mnt/etc/vconsole.conf')
-    os.system(f'echo "{system_info["hostname"]}" >/mnt/etc/hostname')
-    os.system(f'''
+        execute('echo "LANG=en_US.UTF-8" >/mnt/etc/locale.conf')
+    execute(f'echo "KEYMAP={pre_launch_info["keymap"]}" >/mnt/etc/vconsole.conf')
+    execute(f'echo "{system_info["hostname"]}" >/mnt/etc/hostname')
+    execute(f'''
         {{
             echo "127.0.0.1 localhost"
             echo "::1 localhost"
             echo "127.0.1.1 {system_info["hostname"]}.localdomain {system_info["hostname"]}"
         }} >>/mnt/etc/hosts
     ''')
-    os.system('cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist')
+    execute('cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist')
 
     print_step(_("Locales configuration..."), clear=False)
-    os.system(f'arch-chroot /mnt bash -c "ln -sf {system_info["timezone"]} /etc/localtime"')
-    os.system('arch-chroot /mnt bash -c "locale-gen"')
+    execute(f'arch-chroot /mnt bash -c "ln -sf {system_info["timezone"]} /etc/localtime"')
+    execute('arch-chroot /mnt bash -c "locale-gen"')
 
     print_step(_("Installation of the remaining packages..."), clear=False)
-    os.system('sed -i "s|#Color|Color|g" /mnt/etc/pacman.conf')
-    os.system('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /mnt/etc/pacman.conf')
-    subprocess.run('arch-chroot /mnt bash -c "pacman --noconfirm -Sy archlinux-keyring"', shell=True, check=True)
-    subprocess.run('arch-chroot /mnt bash -c "pacman --noconfirm -Su"', shell=True, check=True)
-    subprocess.run(f'arch-chroot /mnt bash -c "pacman --noconfirm -S {" ".join(pkgs)}"', shell=True, check=True)
+    execute('sed -i "s|#Color|Color|g" /mnt/etc/pacman.conf')
+    execute('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /mnt/etc/pacman.conf')
+    execute('arch-chroot /mnt bash -c "pacman --noconfirm -Sy archlinux-keyring"')
+    execute('arch-chroot /mnt bash -c "pacman --noconfirm -Su"')
+    execute(f'arch-chroot /mnt bash -c "pacman --noconfirm -S {" ".join(pkgs)}"')
 
     if PartType.SWAP not in partitioning_info["part_type"].values() and partitioning_info["swapfile_size"]:
         print_step(_("Creation and activation of the swapfile..."), clear=False)
         if partitioning_info["part_format_type"][partitioning_info["root_partition"]] == FSFormat.BTRFS:
-            os.system(
+            execute(
                 "btrfs subvolume create /mnt/swap && "
                 "cd /mnt/swap && "
                 "truncate -s 0 ./swapfile && "
@@ -188,18 +189,18 @@ def main(pre_launch_info):
                 "btrfs property set ./swapfile compression none && "
                 "cd -")
         else:
-            os.system("mkdir -p /mnt/swap")
-        os.system(f'fallocate -l "{partitioning_info["swapfile_size"]}" /mnt/swap/swapfile')
-        os.system('chmod 600 /mnt/swap/swapfile')
-        os.system('mkswap /mnt/swap/swapfile')
-        os.system('swapon /mnt/swap/swapfile')
+            execute("mkdir -p /mnt/swap")
+        execute(f'fallocate -l "{partitioning_info["swapfile_size"]}" /mnt/swap/swapfile')
+        execute('chmod 600 /mnt/swap/swapfile')
+        execute('mkswap /mnt/swap/swapfile')
+        execute('swapon /mnt/swap/swapfile')
 
     print_step(_("Generating fstab..."), clear=False)
-    os.system('genfstab -U /mnt >>/mnt/etc/fstab')
+    execute('genfstab -U /mnt >>/mnt/etc/fstab')
 
     print_step(_("Network configuration..."), clear=False)
-    os.system('arch-chroot /mnt bash -c "systemctl enable NetworkManager"')
-    os.system('arch-chroot /mnt bash -c "systemctl enable systemd-timesyncd"')
+    execute('arch-chroot /mnt bash -c "systemctl enable NetworkManager"')
+    execute('arch-chroot /mnt bash -c "systemctl enable systemd-timesyncd"')
 
     if system_info["bootloader"]:
         print_step(_("Installation and configuration of the grub..."), clear=False)
@@ -208,18 +209,18 @@ def main(pre_launch_info):
     print_step(_("Users configuration..."), clear=False)
     print_sub_step(_("Root account configuration..."))
     if system_info["root_password"] != "":
-        os.system(f'arch-chroot /mnt bash -c "echo \'root:{system_info["root_password"]}\' | chpasswd"')
+        execute(f'arch-chroot /mnt bash -c "echo \'root:{system_info["root_password"]}\' | chpasswd"')
     if system_info["user_name"] != "":
         print_sub_step(_("%s account configuration...") % system_info["user_name"])
-        os.system('sed -i "s|# %wheel ALL=(ALL:ALL) ALL|%wheel ALL=(ALL:ALL) ALL|g" /mnt/etc/sudoers')
-        os.system(
+        execute('sed -i "s|# %wheel ALL=(ALL:ALL) ALL|%wheel ALL=(ALL:ALL) ALL|g" /mnt/etc/sudoers')
+        execute(
             f'arch-chroot /mnt bash -c "useradd --shell=/bin/bash --groups=wheel '
             f'--create-home {system_info["user_name"]}"')
         if system_info["user_full_name"] != "":
-            os.system(
+            execute(
                 f'arch-chroot /mnt bash -c "chfn -f \'{system_info["user_full_name"]}\' {system_info["user_name"]}"')
         if system_info["user_password"] != "":
-            os.system(
+            execute(
                 f'arch-chroot /mnt bash -c "echo \'{system_info["user_name"]}:'
                 f'{system_info["user_password"]}\' | chpasswd"')
 
@@ -238,11 +239,11 @@ def pre_launch_steps() -> {}:
     :return:
     """
     print_step(_("Running pre-launch steps : "), clear=False)
-    os.system('sed -i "s|#Color|Color|g" /etc/pacman.conf')
-    os.system('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /etc/pacman.conf')
+    execute('sed -i "s|#Color|Color|g" /etc/pacman.conf')
+    execute('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /etc/pacman.conf')
 
     print_sub_step(_("Synchronising repositories and keyring..."))
-    os.system("pacman --noconfirm -Sy --needed archlinux-keyring &>/dev/null")
+    execute("pacman --noconfirm -Sy --needed archlinux-keyring &>/dev/null")
 
     print_sub_step(_("Querying IP geolocation informations..."))
     with urllib.request.urlopen('https://ipapi.co/json') as response:
@@ -257,8 +258,14 @@ def pre_launch_steps() -> {}:
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="The ArchCraftsman installer.")
+    parser.add_argument('-t', '--test', action='store_const', const=True, default=False,
+                        help='Used to test the installer. No command will be executed.')
+    args = parser.parse_args()
+
     i18n = I18n()
     _ = i18n.gettext
+    global_vars = GlobalArgs(args)
     try:
         PRE_LAUNCH_INFO = pre_launch_steps()
         _ = i18n.update_method(PRE_LAUNCH_INFO["global_language"])
@@ -266,6 +273,6 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print_error(_("Script execution interrupted by the user !"), do_pause=False)
         umount_partitions()
-    except subprocess.CalledProcessError:
+    except CalledProcessError:
         print_error(_("A subprocess execution failed !"), do_pause=False)
         umount_partitions()

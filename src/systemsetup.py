@@ -1,7 +1,6 @@
 """
 The system setup module
 """
-import os
 import re
 
 from src.bundles.bundle import Bundle
@@ -19,7 +18,7 @@ from src.bundles.zram import Zram
 from src.i18n import I18n
 from src.options import Kernel, DesktopEnv, Other, BootLoader
 from src.utils import print_error, print_step, print_sub_step, prompt_ln, prompt_bool, \
-    ask_password
+    ask_password, execute
 
 _ = I18n().gettext
 
@@ -115,7 +114,7 @@ def setup_system(detected_timezone) -> {}:
             pkgs_select_ok = True
             if more_pkgs_str != "":
                 for pkg in more_pkgs_str.split():
-                    if os.system(f'pacman -Si {pkg} &>/dev/null') != 0:
+                    if execute(f'pacman -Si {pkg} &>/dev/null').returncode != 0:
                         pkgs_select_ok = False
                         print_error(_("Package %s doesn't exist.") % pkg)
                         break

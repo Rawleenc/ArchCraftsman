@@ -7,7 +7,7 @@ from src.disk import Disk
 from src.i18n import I18n
 from src.options import Swap, PartType, FSFormat
 from src.utils import ask_format_type, is_bios, from_iec, to_iec, \
-    build_partition_name, print_error, print_step, print_sub_step, prompt, prompt_bool, prompt_option
+    build_partition_name, print_error, print_step, print_sub_step, prompt, prompt_bool, prompt_option, execute
 
 _ = I18n().gettext
 
@@ -24,7 +24,7 @@ def auto_partitioning() -> {}:
     user_answer = False
     while not user_answer:
         print_step(_("Automatic partitioning :"))
-        os.system("fdisk -l")
+        execute("fdisk -l")
         target_disk = prompt(
             _("On which drive should Archlinux be installed ? (type the entire name, for example '/dev/sda') : "))
         if target_disk == "":
@@ -196,7 +196,7 @@ def auto_partitioning() -> {}:
                 return None
             partitioning_info_by_index["indexes"].clear()
         else:
-            os.system(f'echo -e "{auto_part_str}" | fdisk "{target_disk}" &>/dev/null')
+            execute(f'echo -e "{auto_part_str}" | fdisk "{target_disk}" &>/dev/null')
 
             for index in partitioning_info_by_index["indexes"]:
                 partition = build_partition_name(target_disk, index)

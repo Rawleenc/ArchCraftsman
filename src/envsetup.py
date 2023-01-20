@@ -1,10 +1,9 @@
 """
 The environment setup module
 """
-import os
 
 from src.i18n import I18n
-from src.utils import print_step, is_bios, print_error, print_sub_step, prompt_ln, prompt_bool
+from src.utils import print_step, is_bios, print_error, print_sub_step, prompt_ln, prompt_bool, execute
 
 _ = I18n().gettext
 
@@ -58,7 +57,7 @@ def setup_environment(detected_language: str) -> {}:
         while not keymap_ok:
             pre_launch_info["keymap"] = prompt_ln(_("Type your installation's keymap (%s) : ") % default_keymap,
                                                   default=default_keymap)
-            if os.system(f'localectl list-keymaps | grep "^{pre_launch_info["keymap"]}$" &>/dev/null') == 0:
+            if execute(f'localectl list-keymaps | grep "^{pre_launch_info["keymap"]}$" &>/dev/null').returncode == 0:
                 keymap_ok = True
             else:
                 print_error(_("Keymap %s doesn't exist.") % pre_launch_info["keymap"])
