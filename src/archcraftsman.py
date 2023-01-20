@@ -29,10 +29,9 @@ import argparse
 import glob
 import json
 import re
+import readline
 import urllib.request
 from subprocess import CalledProcessError
-
-import readline
 
 from src.autopart import auto_partitioning
 from src.envsetup import setup_environment
