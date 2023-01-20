@@ -19,7 +19,7 @@ def auto_partitioning() -> {}:
     """
     partitioning_info_by_index = {"indexes": set(), "part_type": {}, "part_mount_point": {}, "part_format": {},
                                   "part_format_type": {}}
-    partitioning_info = {"partitions": set(), "part_type": {}, "part_mount_point": {}, "part_format": {},
+    partitioning_info = {"partitions": [], "part_type": {}, "part_mount_point": {}, "part_format": {},
                          "part_format_type": {}, "root_partition": None, "swapfile_size": None, "main_disk": None}
     user_answer = False
     while not user_answer:
@@ -211,6 +211,7 @@ def auto_partitioning() -> {}:
                 if partitioning_info_by_index["part_type"].get(index) == PartType.ROOT:
                     partitioning_info["root_partition"] = partition
 
-                partitioning_info["partitions"].add(partition)
+                if partition not in partitioning_info["partitions"]:
+                    partitioning_info["partitions"].append(partition)
 
     return partitioning_info

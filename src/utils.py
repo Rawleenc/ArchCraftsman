@@ -164,7 +164,7 @@ def log(message: str):
     :param message:
     :return:
     """
-    if GlobalArgs().args.test:
+    if GlobalArgs().test():
         print(f'{GRAY}> {message}{NOCOLOR}')
 
 
@@ -287,7 +287,7 @@ def putenv(name: str, value: str):
     :param value:
     :return:
     """
-    if GlobalArgs().args.test:
+    if GlobalArgs().test():
         log(f"Fake put of env variable: {name}={value}")
     os.putenv(name, value)
 
@@ -300,15 +300,14 @@ def execute(command: str, capture_output: bool = False, force: bool = False) -> 
     :param capture_output:
     :return:
     """
-    if force or not GlobalArgs().args.test:
+    if force or not GlobalArgs().test():
         log(f"Real execution of: {command}")
         return subprocess.run(command, shell=True, check=True, capture_output=capture_output)
-    else:
-        log(f"Fake execution of: {command}")
-        fake_result = subprocess.CompletedProcess(args=command, returncode=0)
-        if capture_output:
-            fake_result.stdout = b''
-        return fake_result
+    log(f"Fake execution of: {command}")
+    fake_result = subprocess.CompletedProcess(args=command, returncode=0)
+    if capture_output:
+        fake_result.stdout = b''
+    return fake_result
 
 
 def stdout(process_result: subprocess.CompletedProcess):

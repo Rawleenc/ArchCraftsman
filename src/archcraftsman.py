@@ -30,6 +30,7 @@ import glob
 import json
 import re
 import readline
+import sys
 import urllib.request
 from subprocess import CalledProcessError
 
@@ -269,7 +270,7 @@ if __name__ == '__main__':
     user = stdout(execute("whoami", capture_output=True, force=True))
     if not user or user.strip() != "root":
         print_error("This script must be run as root.")
-        exit(1)
+        sys.exit(1)
 
     try:
         PRE_LAUNCH_INFO = pre_launch_steps()
@@ -278,6 +279,6 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print_error(_("Script execution interrupted by the user !"), do_pause=False)
         umount_partitions()
-    except CalledProcessError as e:
-        print_error(_("A subprocess execution failed ! See the following error: %s") % e, do_pause=False)
+    except CalledProcessError as exception:
+        print_error(_("A subprocess execution failed ! See the following error: %s") % exception, do_pause=False)
         umount_partitions()

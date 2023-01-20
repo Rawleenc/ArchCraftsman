@@ -18,7 +18,7 @@ def manual_partitioning() -> {}:
     The method to proceed to the manual partitioning.=
     :return:
     """
-    partitioning_info = {"partitions": list(), "part_type": {}, "part_mount_point": {}, "part_format": {},
+    partitioning_info = {"partitions": [], "part_type": {}, "part_mount_point": {}, "part_format": {},
                          "part_format_type": {}, "root_partition": None, "swapfile_size": None, "main_disk": None}
     user_answer = False
     partitioned_disks = set()

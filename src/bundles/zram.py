@@ -27,5 +27,5 @@ class Zram(Bundle):
         try:
             with open("/mnt/etc/systemd/zram-generator.conf", "w", encoding="UTF-8") as zram_config_file:
                 zram_config_file.writelines(content)
-        except FileNotFoundError as e:
-            log(f"Exception: {e}")
+        except FileNotFoundError as exception:
+            log(f"Exception: {exception}")

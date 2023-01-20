@@ -33,3 +33,6 @@ class GlobalArgs(metaclass=GlobalArgsMeta):
 
     def __init__(self, args: Namespace = None) -> None:
         self.args = args
+
+    def test(self) -> bool:
+        return self.args.test

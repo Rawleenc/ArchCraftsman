@@ -52,5 +52,5 @@ def setup_chroot_keyboard(layout: str):
     try:
         with open("/mnt/etc/X11/xorg.conf.d/00-keyboard.conf", "w", encoding="UTF-8") as keyboard_config_file:
             keyboard_config_file.writelines(content)
-    except FileNotFoundError as e:
-        log(f"Exception: {e}")
+    except FileNotFoundError as exception:
+        log(f"Exception: {exception}")
