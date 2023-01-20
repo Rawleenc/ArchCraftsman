@@ -29,10 +29,11 @@ import argparse
 import glob
 import json
 import re
-import readline
 import sys
 import urllib.request
 from subprocess import CalledProcessError
+
+import readline
 
 from src.autopart import auto_partitioning
 from src.envsetup import setup_environment
@@ -65,11 +66,12 @@ def umount_partitions():
     A method to unmount all mounted partitions.
     """
     print_step(_("Unmounting partitions..."), clear=False)
-    swap = re.sub('\\s', '', stdout(execute('swapon --noheadings | awk \'{print $1}\'', capture_output=True)))
+    swap = re.sub('\\s', '',
+                  stdout(execute('swapon --noheadings | awk \'{print $1}\'', check=False, capture_output=True)))
     if swap != "":
-        execute(f'swapoff {swap} &>/dev/null')
+        execute(f'swapoff {swap} &>/dev/null', check=False)
 
-    execute('umount -R /mnt &>/dev/null')
+    execute('umount -R /mnt &>/dev/null', check=False)
 
 
 def main(pre_launch_info):

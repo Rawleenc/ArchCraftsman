@@ -292,17 +292,18 @@ def putenv(name: str, value: str):
     os.putenv(name, value)
 
 
-def execute(command: str, capture_output: bool = False, force: bool = False) -> subprocess.CompletedProcess:
+def execute(command: str, check: bool = True, capture_output: bool = False, force: bool = False) -> subprocess.CompletedProcess:
     """
     A method to exec a command.
-    :param force:
     :param command:
+    :param check:
     :param capture_output:
+    :param force:
     :return:
     """
     if force or not GlobalArgs().test():
         log(f"Real execution of: {command}")
-        return subprocess.run(command, shell=True, check=True, capture_output=capture_output)
+        return subprocess.run(command, shell=True, check=check, capture_output=capture_output)
     log(f"Fake execution of: {command}")
     fake_result = subprocess.CompletedProcess(args=command, returncode=0)
     if capture_output:
