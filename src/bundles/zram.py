@@ -3,7 +3,7 @@ The zram bundle module
 """
 from src.bundles.bundle import Bundle
 from src.i18n import I18n
-from src.utils import print_sub_step
+from src.utils import print_sub_step, log
 
 _ = I18n().gettext
 
@@ -24,5 +24,8 @@ class Zram(Bundle):
             "[zram0]\n",
             "zram-size = ram / 2\n"
         ]
-        with open("/mnt/etc/systemd/zram-generator.conf", "w", encoding="UTF-8") as zram_config_file:
-            zram_config_file.writelines(content)
+        try:
+            with open("/mnt/etc/systemd/zram-generator.conf", "w", encoding="UTF-8") as zram_config_file:
+                zram_config_file.writelines(content)
+        except FileNotFoundError as e:
+            log(f"Exception: {e}")

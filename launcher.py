@@ -24,7 +24,7 @@ def print_step(message: str, clear: bool = True):
     :param clear:
     """
     if clear:
-        execute('clear')
+        execute('clear', force=True)
     print(f'\n{GREEN}{message}{NOCOLOR}')
 
 

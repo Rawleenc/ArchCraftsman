@@ -6,7 +6,7 @@ import re
 from src.i18n import I18n
 from src.options import PartType
 from src.partition import Partition
-from src.utils import to_iec, prompt, print_error, execute
+from src.utils import to_iec, prompt, print_error, execute, stdout
 
 _ = I18n().gettext
 
@@ -25,22 +25,24 @@ class Disk:
         Disk initialisation.
         """
         self.path = path
-        detected_partitions = execute(f'lsblk -nl "{path}" -o PATH,TYPE | grep part', capture_output=True).stdout
+        detected_partitions = stdout(execute(f'lsblk -nl "{path}" -o PATH,TYPE | grep part', capture_output=True,
+                                             force=True))
         self.partitions = []
         index = 0
         for partition_info in detected_partitions.splitlines():
             self.partitions.append(Partition(index, partition_info))
             index += 1
-        self.total = int(execute(f'lsblk -b --output SIZE -n -d "{self.path}"', capture_output=True).stdout)
+        self.total = int(
+            stdout(execute(f'lsblk -b --output SIZE -n -d "{self.path}"', capture_output=True, force=True)))
         if len(self.partitions) > 0:
             sector_size = int(
                 re.sub('\\s', '',
-                       execute(f'lsblk {path} -o PATH,TYPE,PHY-SEC | grep disk | awk \'{{print $3}}\'',
-                               capture_output=True).stdout))
+                       stdout(execute(f'lsblk {path} -o PATH,TYPE,PHY-SEC | grep disk | awk \'{{print $3}}\'',
+                                      capture_output=True, force=True))))
             last_partition_path = [p.path for p in self.partitions][len(self.partitions) - 1]
             last_sector = int(
-                re.sub('\\s', '', execute(f'fdisk -l | grep {last_partition_path} | awk \'{{print $3}}\'',
-                                          capture_output=True).stdout))
+                re.sub('\\s', '', stdout(execute(f'fdisk -l | grep {last_partition_path} | awk \'{{print $3}}\'',
+                                                 capture_output=True, force=True))))
             self.free_space = self.total - (last_sector * sector_size)
         else:
             self.free_space = self.total

@@ -1,6 +1,7 @@
 """
 The general utility methods and tools module
 """
+import encodings
 import getpass
 import json
 import os
@@ -20,7 +21,6 @@ GRAY = "\033[0;37m"
 NOCOLOR = "\033[0m"
 
 _ = I18n().gettext
-args = GlobalArgs().args
 
 
 def is_bios() -> bool:
@@ -35,14 +35,15 @@ def to_iec(size: int) -> str:
     """
     The method to convert a size in iec format.
     """
-    return re.sub('\\s', '', execute(f'printf "{size}" | numfmt --to=iec', capture_output=True).stdout)
+    return re.sub('\\s', '', stdout(execute(f'printf "{size}" | numfmt --to=iec', capture_output=True, force=True)))
 
 
 def from_iec(size: str) -> int:
     """
     The method to convert an iec formatted size in bytes.
     """
-    return int(re.sub('\\s', '', execute(f'printf "{size}" | numfmt --from=iec', capture_output=True).stdout))
+    return int(
+        re.sub('\\s', '', stdout(execute(f'printf "{size}" | numfmt --from=iec', capture_output=True, force=True))))
 
 
 def build_partition_name(disk_name: str, index: int) -> str or None:
@@ -52,7 +53,9 @@ def build_partition_name(disk_name: str, index: int) -> str or None:
     :param index:
     :return:
     """
-    block_devices_str = execute('lsblk -J', capture_output=True).stdout
+    block_devices_str = stdout(execute('lsblk -J', capture_output=True, force=True))
+    if not block_devices_str:
+        return None
     block_devices_json = json.loads(block_devices_str)
     if block_devices_json is None or not isinstance(block_devices_json, dict) or "blockdevices" not in dict(
             block_devices_json):
@@ -79,20 +82,10 @@ def ask_format_type() -> str:
     The method to ask the user for the format type.
     :return:
     """
-    default_format_type = list(FSFormat)[0]
-    format_type_ok = False
-    format_type = None
-    print_step(_("Supported format types : "), clear=False)
-    print_sub_step(", ".join(list(FSFormat)))
-    while not format_type_ok:
-        format_type = prompt_ln(
-            _("Which format type do you want ? (%s) : ") % default_format_type, default=default_format_type).lower()
-        if format_type in FSFormat:
-            format_type_ok = True
-        else:
-            print_error(_("Format type '%s' is not supported.") % format_type, do_pause=False)
-            continue
-    return format_type
+    return prompt_option(_("Supported format types : "),
+                         _("Which format type do you want ? (%s) : "),
+                         _("Format type '%s' is not supported."),
+                         FSFormat, FSFormat.EXT4)
 
 
 def ask_password(username: str = "root") -> str:
@@ -153,7 +146,7 @@ def print_step(message: str, clear: bool = True):
     :param clear:
     """
     if clear:
-        execute('clear')
+        execute('clear', force=True)
     print(f'\n{GREEN}{message}{NOCOLOR}')
 
 
@@ -165,13 +158,14 @@ def print_sub_step(message: str):
     print(f'{CYAN}  * {message}{NOCOLOR}')
 
 
-def print_log(message: str):
+def log(message: str):
     """
     A method to print a log message.
     :param message:
     :return:
     """
-    print(f'{GRAY}> {message}{NOCOLOR}')
+    if GlobalArgs().args.test:
+        print(f'{GRAY}> {message}{NOCOLOR}')
 
 
 def print_help(message: str, do_pause: bool = False):
@@ -238,7 +232,7 @@ def prompt_option(supported_msg: str, message: str, error_msg: str, options: typ
     option = None
     while not option_ok:
         option_name = prompt_ln(
-            message % default,
+            message % default.value,
             default=default).lower()
         if option_name in supported_options:
             option_ok = True
@@ -281,7 +275,7 @@ def pause(start_newline: bool = False, end_newline: bool = False):
     if start_newline:
         print("")
     print(f'{ORANGE}{message}{NOCOLOR}')
-    execute('read -n 1 -sr')
+    execute('read -n 1 -sr', force=True)
     if end_newline:
         print("")
 
@@ -293,23 +287,34 @@ def putenv(name: str, value: str):
     :param value:
     :return:
     """
-    if args.test:
-        print_log(f"Fake put of env variable: {name}={value}")
+    if GlobalArgs().args.test:
+        log(f"Fake put of env variable: {name}={value}")
     os.putenv(name, value)
 
 
-def execute(command: str, capture_output: bool = False) -> subprocess.CompletedProcess:
+def execute(command: str, capture_output: bool = False, force: bool = False) -> subprocess.CompletedProcess:
     """
-    A method to exec a command
+    A method to exec a command.
+    :param force:
     :param command:
     :param capture_output:
     :return:
     """
-    if args.test:
-        print_log(f"Fake execution of: '{command}'")
+    if force or not GlobalArgs().args.test:
+        log(f"Real execution of: {command}")
+        return subprocess.run(command, shell=True, check=True, capture_output=capture_output)
+    else:
+        log(f"Fake execution of: {command}")
         fake_result = subprocess.CompletedProcess(args=command, returncode=0)
         if capture_output:
-            fake_result.stdout = ""
+            fake_result.stdout = b''
         return fake_result
-    else:
-        return subprocess.run(command, shell=True, check=True, capture_output=capture_output)
+
+
+def stdout(process_result: subprocess.CompletedProcess):
+    """
+    A method to get a decoded stdout.
+    :param process_result:
+    :return:
+    """
+    return process_result.stdout.decode(encodings.utf_8.getregentry().name)

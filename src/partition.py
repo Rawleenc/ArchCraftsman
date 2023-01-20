@@ -3,7 +3,7 @@ The partition class module
 """
 import re
 
-from src.utils import from_iec, execute
+from src.utils import from_iec, execute, stdout
 
 
 class Partition:
@@ -29,11 +29,13 @@ class Partition:
         else:
             self.path = part_str.split(" ")[0]
             self.size = from_iec(
-                re.sub('\\s', '', execute(f'lsblk -nl "{self.path}" -o SIZE', capture_output=True).stdout))
+                re.sub('\\s', '', stdout(execute(f'lsblk -nl "{self.path}" -o SIZE', capture_output=True, force=True))))
             self.part_type = str(
-                re.sub('[^a-zA-Z\\d ]', '', execute(f'lsblk -nl "{self.path}" -o PARTTYPENAME', capture_output=True).stdout))
+                re.sub('[^a-zA-Z\\d ]', '',
+                       stdout(execute(f'lsblk -nl "{self.path}" -o PARTTYPENAME', capture_output=True, force=True))))
             self.fs_type = str(
-                re.sub('[^a-zA-Z\\d ]', '', execute(f'lsblk -nl "{self.path}" -o FSTYPE', capture_output=True).stdout))
+                re.sub('[^a-zA-Z\\d ]', '',
+                       stdout(execute(f'lsblk -nl "{self.path}" -o FSTYPE', capture_output=True, force=True))))
 
     def __str__(self) -> str:
         """

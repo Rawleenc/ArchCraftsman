@@ -4,6 +4,8 @@ The I18n management singleton module
 import gettext
 from threading import Lock
 
+from src.globalargs import GlobalArgs
+
 
 class I18nMeta(type):
     """
@@ -40,7 +42,7 @@ class I18n(metaclass=I18nMeta):
         :param global_language:
         :return:
         """
-        if global_language != "EN":
+        if not GlobalArgs().args.test and global_language != "EN":
             translation = gettext.translation('ArchCraftsman', localedir='/usr/share/locale',
                                               languages=[global_language.lower()])
             translation.install()

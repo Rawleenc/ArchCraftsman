@@ -42,7 +42,7 @@ from src.localesetup import setup_locale
 from src.manualpart import manual_partitioning
 from src.options import PartType, FSFormat
 from src.systemsetup import setup_system
-from src.utils import is_bios, format_partition, print_error, print_step, print_sub_step, prompt_bool, execute
+from src.utils import is_bios, format_partition, print_error, print_step, print_sub_step, prompt_bool, execute, stdout
 
 
 def complete(text, state):
@@ -65,7 +65,7 @@ def umount_partitions():
     A method to unmount all mounted partitions.
     """
     print_step(_("Unmounting partitions..."), clear=False)
-    swap = re.sub('\\s', '', execute('swapon --noheadings | awk \'{print $1}\'', capture_output=True).stdout)
+    swap = re.sub('\\s', '', stdout(execute('swapon --noheadings | awk \'{print $1}\'', capture_output=True)))
     if swap != "":
         execute(f'swapoff {swap} &>/dev/null')
 
@@ -265,7 +265,13 @@ if __name__ == '__main__':
 
     i18n = I18n()
     _ = i18n.gettext
-    global_vars = GlobalArgs(args)
+    GlobalArgs(args)
+
+    user = stdout(execute("whoami", capture_output=True, force=True))
+    if not user or user.strip() != "root":
+        print_error("This script must be run as root.")
+        exit(1)
+
     try:
         PRE_LAUNCH_INFO = pre_launch_steps()
         _ = i18n.update_method(PRE_LAUNCH_INFO["global_language"])
@@ -273,6 +279,6 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print_error(_("Script execution interrupted by the user !"), do_pause=False)
         umount_partitions()
-    except CalledProcessError:
-        print_error(_("A subprocess execution failed !"), do_pause=False)
+    except CalledProcessError as e:
+        print_error(_("A subprocess execution failed ! See the following error: %s") % e, do_pause=False)
         umount_partitions()
