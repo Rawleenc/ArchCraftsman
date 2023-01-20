@@ -31,6 +31,7 @@ src/envsetup.py
 src/i18n.py
 src/localesetup.py
 src/manualpart.py
+src/options.py
 src/partition.py
 src/systemsetup.py
 src/utils.py
