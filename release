@@ -132,7 +132,7 @@ release() {
   fi
 
   print_sub_step "  * Prepare files"
-  sed -i "s|https://raw.githubusercontent.com/rawleenc/ArchCraftsman/dev|https://raw.githubusercontent.com/rawleenc/ArchCraftsman/main|g" launcher.py
+  sed -i 's|BRANCH = "dev"|BRANCH = "main"|g' launcher.py
   $git_path add --all . >/dev/null
 
   print_sub_step "  * Create release commit"
@@ -153,7 +153,7 @@ prepare_next_version() {
   $git_path checkout --quiet $dev_branch
   $git_path merge --quiet --no-edit $main_branch
 
-  sed -i "s|https://raw.githubusercontent.com/rawleenc/ArchCraftsman/main|https://raw.githubusercontent.com/rawleenc/ArchCraftsman/dev|g" launcher.py
+  sed -i 's|BRANCH = "main"|BRANCH = "dev"|g' launcher.py
   $git_path add --all . >/dev/null
 
   print_sub_step "  * Create preparation commit"

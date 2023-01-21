@@ -1,14 +1,17 @@
 """
 The ArchCraftsman entry point. A launcher to download all ArchCraftsman's modules and run it.
 """
+import json
 import multiprocessing
 import os
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from urllib.request import urlretrieve
+from urllib.request import urlretrieve, urlopen
 
-REPO_BASE_URL = "https://raw.githubusercontent.com/rawleenc/ArchCraftsman/dev"
+OWNER = "Rawleenc"
+REPO = "ArchCraftsman"
+BRANCH = "dev"
 CMD = 'python -m src.archcraftsman --install'
 GREEN = "\033[0;32m"
 CYAN = "\033[0;36m"
@@ -35,40 +38,59 @@ def print_sub_step(message: str):
     print(f'{CYAN}  * {message}{NOCOLOR}')
 
 
-def download(file_path: str, destination: str, replace: bool = False):
+def download(url: str, destination: str, replace: bool = False):
     """
     A method to download a file
-    :param file_path: the file to download
+    :param url: the url of the file to download
     :param destination: the download destination
     :param replace: if any existing file have to be replaced
     :return:
     """
-    print_sub_step(f"Downloading '{file_path}'...")
+    print_sub_step(f"Downloading '{destination}'...")
     if replace and os.path.exists(destination):
         subprocess.run(f"rm -rf {destination}", shell=True, check=True)
     if not os.path.exists(destination):
         parent = os.path.dirname(destination)
         if parent:
             subprocess.run(f"mkdir -p {parent}", shell=True, check=True)
-        urlretrieve(f"{REPO_BASE_URL}/{file_path}", destination)
+        urlretrieve(url, destination)
+
+
+def download_all_files(directory: str) -> []:
+    """
+    A method to download all files of a given directory.
+    :param directory:
+    :return:
+    """
+    with urlopen(f"https://api.github.com/repos/{OWNER}/{REPO}/contents/{directory}?ref={BRANCH}") as response:
+        components = json.loads(response.read())
+    files = []
+    if components:
+        for component in components:
+            if component["type"] == "dir":
+                for file in download_all_files(component["path"]):
+                    files.append(file)
+            elif component["type"] == "file":
+                files.append(component)
+    return files
 
 
 if __name__ == '__main__':
     print_step("Downloading all ArchCraftsman's modules and locales...", clear=False)
-    download("modules_list", "modules_list", replace=True)
-    with open('modules_list', 'r', encoding="UTF-8") as modules_list_file:
-        module_files = modules_list_file.readlines()
+
+    module_files = []
+    for module_file in download_all_files("src"):
+        module_files.append(module_file)
+    for module_file in download_all_files("locales"):
+        module_files.append(module_file)
 
     cpus = multiprocessing.cpu_count()
     with ThreadPoolExecutor(max_workers=cpus) as exe:
         futures = []
         for module_file in module_files:
-            line = module_file.strip()
-            exe.submit(download, line, line, True)
+            exe.submit(download, module_file["download_url"], module_file["path"], True)
         for future in as_completed(futures):
             future.result()
-
-    download("locales/fr.po", "locales/fr.po")
 
     try:
         subprocess.run(CMD, shell=True, check=True)
