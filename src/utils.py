@@ -12,7 +12,7 @@ import subprocess
 
 from src.globalargs import GlobalArgs
 from src.i18n import I18n
-from src.options import FSFormats, Commands
+from src.options import FSFormats
 from src.options import OptionEnum
 
 RED = "\033[0;31m"

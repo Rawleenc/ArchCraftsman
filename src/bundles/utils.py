@@ -27,7 +27,7 @@ from src.bundles.xfce import Xfce
 from src.bundles.zram import Zram
 from src.options import Kernels, BootLoaders, Desktops, Bundles
 from src.options import OptionEnum
-from src.utils import prompt_option, log
+from src.utils import prompt_option
 
 
 def process_bundle(name: OptionEnum) -> Bundle or None:

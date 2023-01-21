@@ -4,8 +4,6 @@ The I18n management singleton module
 import gettext
 from threading import Lock
 
-from src.globalargs import GlobalArgs
-
 
 class I18nMeta(type):
     """
