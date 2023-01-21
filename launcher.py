@@ -56,7 +56,7 @@ def download(url: str, destination: str, replace: bool = False):
         urlretrieve(url, destination)
 
 
-def download_all_files(directory: str) -> []:
+def get_all_files(directory: str) -> []:
     """
     A method to download all files of a given directory.
     :param directory:
@@ -68,7 +68,7 @@ def download_all_files(directory: str) -> []:
     if components:
         for component in components:
             if component["type"] == "dir":
-                for file in download_all_files(component["path"]):
+                for file in get_all_files(component["path"]):
                     files.append(file)
             elif component["type"] == "file":
                 files.append(component)
@@ -79,9 +79,9 @@ if __name__ == '__main__':
     print_step("Downloading all ArchCraftsman's modules and locales...", clear=False)
 
     module_files = []
-    for module_file in download_all_files("src"):
+    for module_file in get_all_files("src"):
         module_files.append(module_file)
-    for module_file in download_all_files("locales"):
+    for module_file in get_all_files("locales"):
         module_files.append(module_file)
 
     cpus = multiprocessing.cpu_count()
