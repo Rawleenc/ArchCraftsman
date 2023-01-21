@@ -21,6 +21,16 @@ python <(curl -L rotf.lol/acdev)
 
 Answer the questions and let the magic happen ;)
 
+# Test
+
+If you want to only test the script, you can clone it and then run it with this command :
+```bash
+sudo python -m src.archcraftsman --test
+```
+It will simulate the execution of the script without changing anything to your system.
+
+_Executing with root privilege is still required to gather disks information._
+
 # Translations
 
 To create new translations or update existing ones, first run the following command :
