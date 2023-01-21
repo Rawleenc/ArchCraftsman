@@ -4,7 +4,7 @@ The disk class module
 import re
 
 from src.i18n import I18n
-from src.options import PartType
+from src.options import PartTypes
 from src.partition import Partition
 from src.utils import to_iec, prompt, print_error, execute, stdout
 
@@ -52,7 +52,7 @@ class Disk:
         The Disk method to get the EFI partition if it exist. Else return an empty partition object.
         """
         try:
-            return [p for p in self.partitions if PartType.EFI in p.part_type].pop()
+            return [p for p in self.partitions if PartTypes.EFI in p.part_type].pop()
         except IndexError:
             return Partition(None)
 

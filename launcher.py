@@ -9,7 +9,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.request import urlretrieve
 
 REPO_BASE_URL = "https://raw.githubusercontent.com/rawleenc/ArchCraftsman/dev"
-CMD = 'python -m src.archcraftsman'
+CMD = 'python -m src.archcraftsman --install'
 GREEN = "\033[0;32m"
 CYAN = "\033[0;36m"
 NOCOLOR = "\033[0m"
@@ -68,9 +68,7 @@ if __name__ == '__main__':
         for future in as_completed(futures):
             future.result()
 
-    download("locales/fr.po", "fr.po")
-    subprocess.run('msgfmt -o /usr/share/locale/fr/LC_MESSAGES/ArchCraftsman.mo fr.po &>/dev/null', shell=True,
-                   check=True)
+    download("locales/fr.po", "locales/fr.po")
 
     try:
         subprocess.run(CMD, shell=True, check=True)

@@ -34,9 +34,23 @@ class GlobalArgs(metaclass=GlobalArgsMeta):
     def __init__(self, args: Namespace = None) -> None:
         self.args = args
 
+    def install(self) -> bool:
+        """
+        Check if the installer is in installation mode.
+        :return:
+        """
+        return self.args and self.args.install
+
     def test(self) -> bool:
         """
         Check if the installer is in fake test mode.
         :return:
         """
-        return self.args.test
+        return self.args and self.args.test
+
+    def shell(self) -> bool:
+        """
+        Check if the installer is in shell mode.
+        :return:
+        """
+        return self.args and self.args.shell

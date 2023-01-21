@@ -3,14 +3,16 @@ The general utility methods and tools module
 """
 import encodings
 import getpass
+import glob
 import json
 import os
 import re
+import readline
 import subprocess
 
 from src.globalargs import GlobalArgs
 from src.i18n import I18n
-from src.options import FSFormat
+from src.options import FSFormats, Commands
 from src.options import OptionEnum
 
 RED = "\033[0;31m"
@@ -82,10 +84,8 @@ def ask_format_type() -> str:
     The method to ask the user for the format type.
     :return:
     """
-    return prompt_option(_("Supported format types : "),
-                         _("Which format type do you want ? (%s) : "),
-                         _("Format type '%s' is not supported."),
-                         FSFormat, FSFormat.EXT4)
+    return prompt_option(_("Which format type do you want ? (%s) : "), _("Format type '%s' is not supported."),
+                         FSFormats, _("Supported format types : "), FSFormats.EXT4)
 
 
 def ask_password(username: str = "root") -> str:
@@ -213,8 +213,16 @@ def prompt_ln(message: str, default: str = None, help_msg: str = None) -> str:
     return prompt(f'{message}\n', default=default, help_msg=help_msg)
 
 
-def prompt_option(supported_msg: str, message: str, error_msg: str, options: type(OptionEnum),
-                  default: OptionEnum, *ignores: OptionEnum) -> OptionEnum or None:
+def print_supported(supported_msg: str, options: type(OptionEnum), *ignores: OptionEnum):
+    supported_options = [option for option in list(options) if option not in ignores]
+    print_step(supported_msg, clear=False)
+    print_sub_step(", ".join(supported_options))
+    print('')
+
+
+def prompt_option(message: str, error_msg: str, options: type(OptionEnum), supported_msg: str or None,
+                  default: OptionEnum or None, *ignores: OptionEnum,
+                  new_line_prompt: bool = True) -> OptionEnum or None:
     """
     A method to prompt for a bundle.
     :param supported_msg:
@@ -222,24 +230,36 @@ def prompt_option(supported_msg: str, message: str, error_msg: str, options: typ
     :param error_msg:
     :param options:
     :param default:
+    :param new_line_prompt:
     :return:
     """
+    readline.set_completer(
+        lambda text, state:
+        ([option for option in list(options) if not text or option.value.startswith(text)] + [None])[state])
     supported_options = [option for option in list(options) if option not in ignores]
-    print_step(supported_msg, clear=False)
-    print_sub_step(", ".join(supported_options))
-    print('')
+    if supported_msg:
+        print_supported(supported_msg, options, *ignores)
     option_ok = False
     option = None
     while not option_ok:
-        option_name = prompt_ln(
-            message % default.value,
-            default=default).lower()
+        prompt_message = message
+        if default:
+            prompt_message = message % default.value
+        if new_line_prompt:
+            option_name = prompt_ln(
+                prompt_message,
+                default=default).lower()
+        else:
+            option_name = prompt(
+                prompt_message,
+                default=default).lower()
         if option_name in supported_options:
             option_ok = True
             option = options(option_name)
         else:
             print_error(error_msg % option_name, do_pause=False)
             continue
+    readline.set_completer(lambda text, state: (glob.glob(text + '*') + [None])[state])
     return option
 
 
@@ -278,18 +298,6 @@ def pause(start_newline: bool = False, end_newline: bool = False):
     execute('read -n 1 -sr', force=True)
     if end_newline:
         print("")
-
-
-def putenv(name: str, value: str):
-    """
-    A method to put environment variable into the system.
-    :param name:
-    :param value:
-    :return:
-    """
-    if GlobalArgs().test():
-        log(f"Fake put of env variable: {name}={value}")
-    os.putenv(name, value)
 
 
 def execute(command: str, check: bool = True, capture_output: bool = False,

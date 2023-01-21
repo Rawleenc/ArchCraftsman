@@ -21,7 +21,26 @@ class OptionEnum(str, Enum):
         return _(self.name.lower().replace('_', ' ').capitalize())
 
 
-class Kernel(OptionEnum):
+class Commands(OptionEnum):
+    """
+    All available commands.
+    """
+    KERNEL = auto()
+    DESKTOP = auto()
+    BUNDLE = auto()
+    HELP = auto()
+    EXIT = auto()
+
+
+class SubCommands(OptionEnum):
+    """
+    All available sub-commands.
+    """
+    INSTALL = auto()
+    UNINSTALL = auto()
+
+
+class Kernels(OptionEnum):
     """
     All kernel options.
     """
@@ -31,7 +50,7 @@ class Kernel(OptionEnum):
     HARDENED = auto()
 
 
-class DesktopEnv(OptionEnum):
+class Desktops(OptionEnum):
     """
     All desktop environment options.
     """
@@ -50,14 +69,14 @@ class DesktopEnv(OptionEnum):
     NONE = auto()
 
 
-class BootLoader(OptionEnum):
+class BootLoaders(OptionEnum):
     """
     All bootloader options.
     """
     GRUB = auto()
 
 
-class Other(OptionEnum):
+class Bundles(OptionEnum):
     """
     All other options.
     """
@@ -72,7 +91,7 @@ class Other(OptionEnum):
     ZRAM = auto()
 
 
-class FSFormat(OptionEnum):
+class FSFormats(OptionEnum):
     """
     All file system format options.
     """
@@ -81,7 +100,7 @@ class FSFormat(OptionEnum):
     BTRFS = auto()
 
 
-class Swap(OptionEnum):
+class SwapTypes(OptionEnum):
     """
     All sway type options.
     """
@@ -90,7 +109,7 @@ class Swap(OptionEnum):
     NONE = auto()
 
 
-class PartType(OptionEnum):
+class PartTypes(OptionEnum):
     """
     All partition type options.
     """

@@ -1,9 +1,10 @@
 """
 The locale related setup module
 """
+import os
 
 from src.i18n import I18n
-from src.utils import print_step, execute, putenv, log, stdout
+from src.utils import print_step, execute, log, stdout
 
 _ = I18n().gettext
 
@@ -28,11 +29,11 @@ def setup_locale(keymap: str = "de-latin1", global_language: str = "EN") -> str:
     if global_language == "FR":
         execute('sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /etc/locale.gen')
         execute('locale-gen')
-        putenv('LANG', 'fr_FR.UTF-8')
-        putenv('LANGUAGE', 'fr_FR.UTF-8')
+        os.putenv('LANG', 'fr_FR.UTF-8')
+        os.putenv('LANGUAGE', 'fr_FR.UTF-8')
     else:
-        putenv('LANG', 'en_US.UTF-8')
-        putenv('LANGUAGE', 'en_US.UTF-8')
+        os.putenv('LANG', 'en_US.UTF-8')
+        os.putenv('LANGUAGE', 'en_US.UTF-8')
     return font
 
 

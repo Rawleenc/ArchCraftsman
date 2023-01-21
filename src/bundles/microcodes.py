@@ -5,7 +5,7 @@ import re
 
 from src.bundles.bundle import Bundle
 from src.i18n import I18n
-from src.options import Other
+from src.options import Bundles
 from src.utils import print_sub_step, execute, stdout
 
 _ = I18n().gettext
@@ -17,8 +17,8 @@ class Microcodes(Bundle):
     """
 
     def __init__(self):
-        super().__init__(Other.MICROCODES)
-        cpu_info_vendor = stdout(execute('grep </proc/cpuinfo "vendor" | uniq', capture_output=True))
+        super().__init__(Bundles.MICROCODES)
+        cpu_info_vendor = stdout(execute('grep </proc/cpuinfo "vendor" | uniq', capture_output=True, force=True))
         if cpu_info_vendor:
             self.microcode_name = re.sub('\\s+', '', cpu_info_vendor).split(":")[1]
         else:
