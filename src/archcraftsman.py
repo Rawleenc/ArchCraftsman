@@ -68,6 +68,10 @@ def pre_launch_steps() -> {}:
 
 
 def pre_launch() -> {}:
+    """
+    A pre-launch steps method.
+    :return:
+    """
     try:
         return pre_launch_steps()
     except KeyboardInterrupt:

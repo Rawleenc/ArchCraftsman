@@ -1,3 +1,6 @@
+"""
+The installer mode module
+"""
 import re
 import sys
 from subprocess import CalledProcessError
@@ -191,6 +194,11 @@ def installation_steps(pre_launch_info):
 
 
 def install(pre_launch_info):
+    """
+    The main installation method.
+    :param pre_launch_info:
+    :return:
+    """
     try:
         installation_steps(pre_launch_info)
     except KeyboardInterrupt:

@@ -214,6 +214,13 @@ def prompt_ln(message: str, default: str = None, help_msg: str = None) -> str:
 
 
 def print_supported(supported_msg: str, options: type(OptionEnum), *ignores: OptionEnum):
+    """
+    A method to print all supported options.
+    :param supported_msg:
+    :param options:
+    :param ignores:
+    :return:
+    """
     supported_options = [option for option in list(options) if option not in ignores]
     print_step(supported_msg, clear=False)
     print_sub_step(", ".join(supported_options))

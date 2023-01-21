@@ -1,3 +1,6 @@
+"""
+The shell mode module
+"""
 from subprocess import CalledProcessError
 
 from src.bundles.utils import prompt_bundle
@@ -9,18 +12,30 @@ _ = I18n().gettext
 
 
 def ask_for_kernel() -> str:
+    """
+    A method to ask for a kernel.
+    :return:
+    """
     kernel = prompt_bundle("> ", _("Kernel '%s' is not supported."), Kernels, _("Supported kernels : "), None,
                            new_line_prompt=False)
     return " ".join(kernel.packages({}))
 
 
 def ask_for_desktop() -> str:
+    """
+    A method to ask for a desktop environment.
+    :return:
+    """
     desktop = prompt_bundle("> ", _("Desktop environment '%s' is not supported."), Desktops,
                             _("Supported desktop environments : "), None, new_line_prompt=False)
     return " ".join(desktop.packages({}))
 
 
 def ask_for_bundle() -> str:
+    """
+    A method to ask for a bundle.
+    :return:
+    """
     bundle = prompt_bundle("> ", _("Bundle '%s' is not supported."), Bundles, _("Available bundles : "), None,
                            new_line_prompt=False)
     if bundle:
