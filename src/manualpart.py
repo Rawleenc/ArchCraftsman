@@ -50,8 +50,9 @@ def manual_partitioning() -> {}:
                 partitioning_info["partitions"].append(partition)
         print_step(_("Detected target drive partitions : %s") % " ".join(partitioning_info["partitions"]))
         for partition in partitioning_info["partitions"]:
-            print_sub_step(_("Partition : %s") % re.sub('\n', '', stdout(execute(
-                f'lsblk -nl "{partition}" -o PATH,SIZE,PARTTYPENAME', capture_output=True, force=True))))
+            print_step(_("Partition :"), clear=False)
+            print_sub_step(re.sub('\n', '', stdout(
+                execute(f'lsblk -nl "{partition}" -o PATH,SIZE,PARTTYPENAME', capture_output=True, force=True))))
             if is_bios():
                 partition_type = prompt_option(_("Supported Partition types : "),
                                                _("What is the role of this partition ? (%s) : "),

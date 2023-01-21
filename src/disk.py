@@ -26,7 +26,7 @@ class Disk:
         """
         self.path = path
         detected_partitions = stdout(execute(f'lsblk -nl "{path}" -o PATH,TYPE | grep part', capture_output=True,
-                                             force=True))
+                                             force=True, check=False))
         self.partitions = []
         index = 0
         for partition_info in detected_partitions.splitlines():
