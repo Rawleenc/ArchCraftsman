@@ -29,6 +29,8 @@ sudo python -m src.archcraftsman --test
 ```
 It will simulate the execution of the script without changing anything to your system.
 
+**Python 3.10 minimum is required.**
+
 _Executing with root privilege is still required to gather disks information._
 
 # Translations
