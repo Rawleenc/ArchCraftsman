@@ -6,7 +6,7 @@ from subprocess import CalledProcessError
 from src.bundles.bundle import Bundle
 from src.bundles.utils import prompt_bundle
 from src.i18n import I18n
-from src.options import Commands, Kernels, Desktops, Bundles, SubCommands, ShellBundles
+from src.options import Commands, Kernels, Desktops, Bundles, SubCommands
 from src.utils import prompt_option, print_error, print_supported, execute, print_step
 
 _ = I18n().gettext
@@ -39,25 +39,13 @@ def ask_for_bundle() -> Bundle:
                          Bundles.COPY_ACM, new_line_prompt=False)
 
 
-def ask_for_shell_bundle() -> Bundle:
-    """
-    A method to ask for a bundle.
-    :return:
-    """
-    return prompt_bundle("> ", _("Shell bundle '%s' is not supported."), ShellBundles,
-                         _("Available shell bundles : "), None, new_line_prompt=False)
-
-
-def install_bundle(bundle, pre_launch_info):
+def install_bundle(bundle):
     """
     The method to install the bundle.
     :param bundle:
-    :param pre_launch_info:
     :return:
     """
     match bundle.name:
-        case ShellBundles.YAY:
-            bundle.configure({}, pre_launch_info, {})
         case _:
             if len(bundle.packages({})) > 0:
                 execute(f'pacman -S {" ".join(bundle.packages({}))}', check=False)
@@ -75,7 +63,7 @@ def uninstall_bundle(bundle):
                 execute(f'pacman -Rsnc {" ".join(bundle.packages({}))}', check=False)
 
 
-def shell(pre_launch_info):
+def shell():
     """
     The shell mode method.
     :return:
@@ -95,8 +83,6 @@ def shell(pre_launch_info):
                     bundle = ask_for_desktop()
                 case Commands.BUNDLE:
                     bundle = ask_for_bundle()
-                case Commands.SHELL_BUNDLE:
-                    bundle = ask_for_shell_bundle()
                 case Commands.HELP:
                     print_supported(_("Available commands :"), Commands)
                     continue
@@ -110,7 +96,7 @@ def shell(pre_launch_info):
             match sub_command:
                 case SubCommands.INSTALL:
                     if bundle:
-                        install_bundle(bundle, pre_launch_info)
+                        install_bundle(bundle)
                 case SubCommands.UNINSTALL:
                     if bundle:
                         uninstall_bundle(bundle)

@@ -25,9 +25,8 @@ from src.bundles.plasma import Plasma
 from src.bundles.sway import Sway
 from src.bundles.terminus import TerminusFont
 from src.bundles.xfce import Xfce
-from src.bundles.yay import Yay
 from src.bundles.zram import Zram
-from src.options import Kernels, BootLoaders, Desktops, Bundles, ShellBundles
+from src.options import Kernels, BootLoaders, Desktops, Bundles
 from src.options import OptionEnum
 from src.utils import prompt_option
 
@@ -94,8 +93,6 @@ def process_bundle(name: OptionEnum) -> Bundle or None:
             bundle = Zram(name)
         case Bundles.COPY_ACM:
             bundle = CopyACM(name)
-        case ShellBundles.YAY:
-            bundle = Yay(name)
     return bundle
 
 

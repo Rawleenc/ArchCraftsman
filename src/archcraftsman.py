@@ -117,7 +117,7 @@ if __name__ == '__main__':
         sys.exit(0)
 
     if GlobalArgs().shell():
-        shell(PRE_LAUNCH_INFO)
+        shell()
         sys.exit(0)
 
     parser.print_help()

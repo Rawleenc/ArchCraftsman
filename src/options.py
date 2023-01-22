@@ -33,13 +33,6 @@ class Commands(OptionEnum):
     EXIT = auto()
 
 
-class ShellBundles(OptionEnum):
-    """
-    All shell bundles.
-    """
-    YAY = auto()
-
-
 class SubCommands(OptionEnum):
     """
     All available sub-commands.
