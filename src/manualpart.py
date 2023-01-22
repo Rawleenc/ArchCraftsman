@@ -56,12 +56,12 @@ def manual_partitioning() -> {}:
             if is_bios():
                 partition_type = prompt_option(_("What is the role of this partition ? (%s) : "),
                                                _("Partition type '%s' is not supported."), PartTypes,
-                                               _("Supported Partition types : "), PartTypes.OTHER,
+                                               _("Supported partition types : "), PartTypes.OTHER,
                                                PartTypes.EFI)
             else:
                 partition_type = prompt_option(_("What is the role of this partition ? (%s) : "),
                                                _("Partition type '%s' is not supported."), PartTypes,
-                                               _("Supported Partition types : "), PartTypes.OTHER)
+                                               _("Supported partition types : "), PartTypes.OTHER)
             if not is_bios() and partition_type == PartTypes.EFI:
                 partitioning_info["part_type"][partition] = PartTypes.EFI
                 partitioning_info["part_mount_point"][partition] = "/boot/efi"
