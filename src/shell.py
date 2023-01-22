@@ -43,6 +43,14 @@ def ask_for_bundle() -> str:
     return ""
 
 
+def install_yay():
+    execute("git clone https://aur.archlinux.org/yay")
+    execute("cd yay")
+    execute("makepkg -si")
+    execute("cd -")
+    execute("rm -rf yay")
+
+
 def shell():
     """
     The shell mode method.
@@ -55,6 +63,7 @@ def shell():
         try:
             command = prompt_option("> ", _("Command '%s' is not supported."), Commands, None, None,
                                     new_line_prompt=False)
+            want_yay = False
             packages = None
             match command:
                 case Commands.KERNEL:
@@ -63,6 +72,9 @@ def shell():
                     packages = ask_for_desktop()
                 case Commands.BUNDLE:
                     packages = ask_for_bundle()
+                case Commands.YAY:
+                    want_yay = True
+                    packages = "yay"
                 case Commands.HELP:
                     print_supported(_("Available commands :"), Commands)
                     continue
@@ -74,6 +86,8 @@ def shell():
                                         _("Available sub-commands : "), None, new_line_prompt=False)
             match sub_command:
                 case SubCommands.INSTALL:
+                    if want_yay:
+                        install_yay()
                     execute(f"pacman -S {packages}", check=False)
                 case SubCommands.UNINSTALL:
                     execute(f"pacman -Rsnc {packages}", check=False)

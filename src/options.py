@@ -28,6 +28,7 @@ class Commands(OptionEnum):
     KERNEL = auto()
     DESKTOP = auto()
     BUNDLE = auto()
+    YAY = auto()
     HELP = auto()
     EXIT = auto()
 
