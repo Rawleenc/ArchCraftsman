@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2023-01-22 01:33+0100\n"
-"PO-Revision-Date: 2023-01-22 01:33+0100\n"
+"POT-Creation-Date: 2023-01-22 01:40+0100\n"
+"PO-Revision-Date: 2023-01-22 01:41+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -29,11 +29,11 @@ msgstr "Synchronisation des dépôts et du trousseau de clés..."
 msgid "Querying IP geolocation informations..."
 msgstr "Interrogation des informations de géolocalisation IP..."
 
-#: src/archcraftsman.py:78 src/installer.py:205 src/shell.py:80
+#: src/archcraftsman.py:78 src/installer.py:205 src/shell.py:81
 msgid "Script execution interrupted by the user !"
 msgstr "Exécution du script interrompue par l'utilisateur !"
 
-#: src/archcraftsman.py:81 src/installer.py:209 src/shell.py:83
+#: src/archcraftsman.py:81 src/installer.py:209 src/shell.py:84
 msgid "A subprocess execution failed ! See the following error: %s"
 msgstr ""
 "L'exécution d'un sous-processus a échoué ! L'erreur suivante s'est "
@@ -452,19 +452,23 @@ msgstr "Bundles disponibles : "
 msgid "Bundle '%s' is not supported."
 msgstr "Le bundle '%s' n'est pas supporté."
 
-#: src/shell.py:51 src/shell.py:66
+#: src/shell.py:51
+msgid "ArchCraftsman interactive shell mode."
+msgstr "Mode shell interactif d'ArchCraftsman."
+
+#: src/shell.py:52 src/shell.py:67
 msgid "Available commands :"
 msgstr "Commandes disponibles :"
 
-#: src/shell.py:55
+#: src/shell.py:56
 msgid "Command '%s' is not supported."
 msgstr "La commande '%s' n'est pas supporté."
 
-#: src/shell.py:72
+#: src/shell.py:73
 msgid "Sub-command '%s' is not supported."
 msgstr "La sous-commande '%s' n'est pas supporté."
 
-#: src/shell.py:73
+#: src/shell.py:74
 msgid "Available sub-commands : "
 msgstr "Sous-commandes disponibles : "
 

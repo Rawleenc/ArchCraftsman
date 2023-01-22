@@ -6,7 +6,7 @@ from subprocess import CalledProcessError
 from src.bundles.utils import prompt_bundle
 from src.i18n import I18n
 from src.options import Commands, Kernels, Desktops, Bundles, SubCommands
-from src.utils import prompt_option, print_error, print_supported, execute
+from src.utils import prompt_option, print_error, print_supported, execute, print_step
 
 _ = I18n().gettext
 
@@ -48,6 +48,7 @@ def shell():
     The shell mode method.
     :return:
     """
+    print_step(_("ArchCraftsman interactive shell mode."))
     print_supported(_("Available commands :"), Commands)
     want_exit = False
     while not want_exit:
