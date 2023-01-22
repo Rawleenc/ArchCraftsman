@@ -85,7 +85,7 @@ def ask_format_type() -> str:
     :return:
     """
     return prompt_option(_("Which format type do you want ? (%s) : "), _("Format type '%s' is not supported."),
-                         FSFormats, _("Supported format types : "), FSFormats.EXT4)
+                         FSFormats, _("Supported format types : "), FSFormats.EXT4, FSFormats.VFAT)
 
 
 def ask_password(username: str = "root") -> str:
@@ -242,7 +242,8 @@ def prompt_option(message: str, error_msg: str, options: type(OptionEnum), suppo
     """
     readline.set_completer(
         lambda text, state:
-        ([option for option in list(options) if not text or option.value.startswith(text)] + [None])[state])
+        ([option for option in list(options) if
+          (not text or option.value.startswith(text)) and option not in ignores] + [None])[state])
     supported_options = [option for option in list(options) if option not in ignores]
     if supported_msg:
         print_supported(supported_msg, options, *ignores)

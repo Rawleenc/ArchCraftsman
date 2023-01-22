@@ -4,6 +4,7 @@ The system setup module
 import re
 
 from src.bundles.bundle import Bundle
+from src.bundles.copyacm import CopyACM
 from src.bundles.cups import Cups
 from src.bundles.grmlzsh import GrmlZsh
 from src.bundles.grub import Grub
@@ -82,6 +83,9 @@ def setup_system(detected_timezone) -> {}:
                        default=False, help_msg=_(
                     "If yes, the PipeWire multimedia framework will be installed to manage audio and video capture.")):
             system_info["bundles"].append(PipeWire(Bundles.PIPEWIRE))
+
+        if prompt_bool(_("Copy ArchCraftsman to the new system ? (y/N) : "), default=False):
+            system_info["bundles"].append(CopyACM(Bundles.COPY_ACM))
 
         default_timezone_file = f'/usr/share/zoneinfo/{detected_timezone}'
         system_info["timezone"] = prompt_ln(_("Your timezone (%s) : ") % default_timezone_file,

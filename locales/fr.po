@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2023-01-22 01:40+0100\n"
-"PO-Revision-Date: 2023-01-22 01:41+0100\n"
+"POT-Creation-Date: 2023-01-22 15:39+0100\n"
+"PO-Revision-Date: 2023-01-22 15:40+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -76,7 +76,7 @@ msgid "Do you want a separated Home ? (Y/n) : "
 msgstr "Voulez-vous un Home séparé ? (O/n) : "
 
 #: src/autopart.py:164 src/envsetup.py:66 src/manualpart.py:110
-#: src/systemsetup.py:127
+#: src/systemsetup.py:131
 msgid "Summary of choices :"
 msgstr "Résumé des choix :"
 
@@ -118,7 +118,7 @@ msgid "Swapfile size : %s"
 msgstr "Taille du fichier d'échange : %s"
 
 #: src/autopart.py:190 src/envsetup.py:69 src/manualpart.py:136
-#: src/systemsetup.py:142
+#: src/systemsetup.py:146
 msgid "Is the informations correct ? (y/N) : "
 msgstr "Les informations sont-elles correctes ? (o/N) : "
 
@@ -157,6 +157,10 @@ msgstr "Gestionnaire d'affichage : %s"
 #: src/bundles/sway.py:29 src/bundles/xfce.py:31
 msgid "none"
 msgstr "aucun"
+
+#: src/bundles/copyacm.py:17
+msgid "Copy ArchCraftsman to the new system."
+msgstr "Copier ArchCraftsman sur le nouveau système."
 
 #: src/bundles/cups.py:22
 msgid "Install Cups."
@@ -428,19 +432,19 @@ msgstr "La partition EFI est nécessaire pour l'installation du système."
 msgid "The Root partition is required for system installation."
 msgstr "La partition Root est nécessaire pour l'installation du système."
 
-#: src/shell.py:19 src/systemsetup.py:39
+#: src/shell.py:19 src/systemsetup.py:40
 msgid "Kernel '%s' is not supported."
 msgstr "Le kernel '%s' n'est pas supporté."
 
-#: src/shell.py:19 src/systemsetup.py:40
+#: src/shell.py:19 src/systemsetup.py:41
 msgid "Supported kernels : "
 msgstr "Kernels pris en charge : "
 
-#: src/shell.py:29 src/systemsetup.py:49
+#: src/shell.py:29 src/systemsetup.py:50
 msgid "Desktop environment '%s' is not supported."
 msgstr "L'environnement de bureau '%s' n'est pas pris en charge."
 
-#: src/shell.py:30 src/systemsetup.py:50
+#: src/shell.py:30 src/systemsetup.py:51
 msgid "Supported desktop environments : "
 msgstr "Environnements de bureau supportés : "
 
@@ -472,39 +476,39 @@ msgstr "La sous-commande '%s' n'est pas supporté."
 msgid "Available sub-commands : "
 msgstr "Sous-commandes disponibles : "
 
-#: src/systemsetup.py:35
+#: src/systemsetup.py:36
 msgid "System configuration : "
 msgstr "Configuration du système : "
 
-#: src/systemsetup.py:36
+#: src/systemsetup.py:37
 msgid "What will be your hostname (archlinux) : "
 msgstr "Quel sera votre nom d'hôte (archlinux) : "
 
-#: src/systemsetup.py:39
+#: src/systemsetup.py:40
 msgid "Choose your kernel (%s) : "
 msgstr "Choisissez votre kernel (%s) : "
 
-#: src/systemsetup.py:42
+#: src/systemsetup.py:43
 msgid "Install proprietary Nvidia driver ? (y/N) : "
 msgstr "Installer le pilote propriétaire Nvidia ? (o/N) : "
 
-#: src/systemsetup.py:45
+#: src/systemsetup.py:46
 msgid "Install terminus console font ? (y/N) : "
 msgstr "Installer la police de console terminus ? (o/N) : "
 
-#: src/systemsetup.py:48
+#: src/systemsetup.py:49
 msgid "Install a desktop environment ? (%s) : "
 msgstr "Installer un environnement de bureau ? (%s) : "
 
-#: src/systemsetup.py:54
+#: src/systemsetup.py:55
 msgid "Install Cups ? (y/N) : "
 msgstr "Installer Cups ? (o/N) : "
 
-#: src/systemsetup.py:57
+#: src/systemsetup.py:58
 msgid "Install ZSH with GRML configuration ? (y/N/?) : "
 msgstr "Installer ZSH avec la configuration GRML ? (o/N/?) : "
 
-#: src/systemsetup.py:58
+#: src/systemsetup.py:59
 msgid ""
 "If yes, the script will install the ZSH shell with GRML configuration. GRML "
 "is a ZSH pre-configuration used by Archlinux's live environment."
@@ -513,11 +517,11 @@ msgstr ""
 "est une pré-configuration de ZSH utilisée par l'environnement live "
 "d'Archlinux."
 
-#: src/systemsetup.py:64
+#: src/systemsetup.py:65
 msgid "Install a set of main fonts ? (y/N/?) : "
 msgstr "Installer un jeu de polices principales ? (o/N/?) : "
 
-#: src/systemsetup.py:65 src/systemsetup.py:70
+#: src/systemsetup.py:66 src/systemsetup.py:71
 msgid ""
 "If yes, the following packages will be installed :\n"
 "%s"
@@ -525,15 +529,15 @@ msgstr ""
 "Si oui, les paquets suivants seront installés :\n"
 "%s"
 
-#: src/systemsetup.py:69
+#: src/systemsetup.py:70
 msgid "Install main file systems support ? (y/N/?) : "
 msgstr "Installer le support des systèmes de fichiers principaux ? (o/N/?) : "
 
-#: src/systemsetup.py:74
+#: src/systemsetup.py:75
 msgid "Install and enable ZRAM ? (y/N/?) : "
 msgstr "Installer et activer ZRAM ? (o/N/?) : "
 
-#: src/systemsetup.py:74
+#: src/systemsetup.py:75
 msgid ""
 "ZRAM is a process to compress datas directly in the RAM instead of moving "
 "them in a swap. Enabled ZRAM will allow you to compress up to half of your "
@@ -548,11 +552,11 @@ msgstr ""
 "mais est plus gourmande en ressources CPU. ZRAM est entièrement compatible "
 "avec un swap, il a juste une priorité plus élevée."
 
-#: src/systemsetup.py:81
+#: src/systemsetup.py:82
 msgid "Install PipeWire ? (y/N/?) : "
 msgstr "Installer PipeWire ? (o/N/?) : "
 
-#: src/systemsetup.py:82
+#: src/systemsetup.py:83
 msgid ""
 "If yes, the PipeWire multimedia framework will be installed to manage audio "
 "and video capture."
@@ -561,20 +565,24 @@ msgstr ""
 "la capture vidéo."
 
 #: src/systemsetup.py:87
+msgid "Copy ArchCraftsman to the new system ? (y/N) : "
+msgstr "Copier ArchCraftsman sur le nouveau système ? (o/N) : "
+
+#: src/systemsetup.py:91
 msgid "Your timezone (%s) : "
 msgstr "Votre fuseau horaire (%s) : "
 
-#: src/systemsetup.py:92
+#: src/systemsetup.py:96
 msgid "Would you like to add a user? (type username, leave blank if none) : "
 msgstr ""
 "Voulez-vous ajouter un utilisateur ? (tapez le nom d'utilisateur, laissez "
 "vide si vous n'en avez pas) : "
 
-#: src/systemsetup.py:96
+#: src/systemsetup.py:100
 msgid "Invalid user name."
 msgstr "Nom d'utilisateur invalide."
 
-#: src/systemsetup.py:102
+#: src/systemsetup.py:106
 msgid ""
 "What is the %s's full name (type the entire full name, leave blank if "
 "none) : "
@@ -582,7 +590,7 @@ msgstr ""
 "Quel est le nom complet de %s (tapez le nom complet, laissez un blanc si "
 "vous n'en avez pas) : "
 
-#: src/systemsetup.py:109
+#: src/systemsetup.py:113
 msgid ""
 "Install more packages ? (type extra packages full names, example : 'htop "
 "neofetch', leave blank if none) : "
@@ -591,27 +599,27 @@ msgstr ""
 "supplémentaires, exemple : 'htop neofetch', laissez vide si vous n'en avez "
 "pas) : "
 
-#: src/systemsetup.py:116
+#: src/systemsetup.py:120
 msgid "Package %s doesn't exist."
 msgstr "Le paquet %s n'existe pas."
 
-#: src/systemsetup.py:128
+#: src/systemsetup.py:132
 msgid "Your hostname : %s"
 msgstr "Votre nom d'hôte : %s"
 
-#: src/systemsetup.py:135
+#: src/systemsetup.py:139
 msgid "Your timezone : %s"
 msgstr "Votre fuseau horaire : %s"
 
-#: src/systemsetup.py:137
+#: src/systemsetup.py:141
 msgid "Additional user name : %s"
 msgstr "Nom d'utilisateur supplémentaire : %s"
 
-#: src/systemsetup.py:139
+#: src/systemsetup.py:143
 msgid "User's full name : %s"
 msgstr "Nom complet de l'utilisateur : %s"
 
-#: src/systemsetup.py:141
+#: src/systemsetup.py:145
 msgid "More packages to install : %s"
 msgstr "Plus de paquets à installer : %s"
 

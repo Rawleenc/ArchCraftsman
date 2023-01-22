@@ -22,8 +22,8 @@ class Plasma(Bundle):
                     "xdg-desktop-portal", "xdg-desktop-portal-kde"]
         if self.plasma_wayland:
             packages.extend(["plasma-wayland-session", "qt5-wayland"])
-            if "bundles" in system_info and system_info["bundles"] and "nvidia" in [bundle.name for bundle in
-                                                                                    system_info["bundles"]]:
+            if "bundles" in system_info and system_info["bundles"] and \
+                    "nvidia" in [bundle.name for bundle in system_info["bundles"]]:
                 packages.append("egl-wayland")
         if self.minimal is not True:
             packages.append("kde-applications")

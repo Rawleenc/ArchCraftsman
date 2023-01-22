@@ -89,6 +89,7 @@ class Bundles(OptionEnum):
     PIPEWIRE = auto()
     TERMINUS = auto()
     ZRAM = auto()
+    COPY_ACM = auto()
 
 
 class FSFormats(OptionEnum):
