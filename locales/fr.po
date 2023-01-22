@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2023-01-22 15:39+0100\n"
-"PO-Revision-Date: 2023-01-22 15:40+0100\n"
+"POT-Creation-Date: 2023-01-22 17:25+0100\n"
+"PO-Revision-Date: 2023-01-22 17:25+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -21,19 +21,19 @@ msgstr ""
 msgid "Running pre-launch steps : "
 msgstr "Exécution des étapes de pré-lancement : "
 
-#: src/archcraftsman.py:55
+#: src/archcraftsman.py:57
 msgid "Synchronising repositories and keyring..."
 msgstr "Synchronisation des dépôts et du trousseau de clés..."
 
-#: src/archcraftsman.py:58
+#: src/archcraftsman.py:60
 msgid "Querying IP geolocation informations..."
 msgstr "Interrogation des informations de géolocalisation IP..."
 
-#: src/archcraftsman.py:78 src/installer.py:205 src/shell.py:81
+#: src/archcraftsman.py:80 src/installer.py:205 src/shell.py:104
 msgid "Script execution interrupted by the user !"
 msgstr "Exécution du script interrompue par l'utilisateur !"
 
-#: src/archcraftsman.py:81 src/installer.py:209 src/shell.py:84
+#: src/archcraftsman.py:83 src/installer.py:209 src/shell.py:107
 msgid "A subprocess execution failed ! See the following error: %s"
 msgstr ""
 "L'exécution d'un sous-processus a échoué ! L'erreur suivante s'est "
@@ -360,7 +360,7 @@ msgstr "Configuration de paquets supplémentaires si nécessaire..."
 msgid "Installation complete ! You can reboot your system."
 msgstr "L'installation est terminée ! Vous pouvez redémarrer votre système."
 
-#: src/localesetup.py:19
+#: src/localesetup.py:20
 msgid "Configuring live environment..."
 msgstr "Configuration de l'environnement live..."
 
@@ -432,11 +432,11 @@ msgstr "La partition EFI est nécessaire pour l'installation du système."
 msgid "The Root partition is required for system installation."
 msgstr "La partition Root est nécessaire pour l'installation du système."
 
-#: src/shell.py:19 src/systemsetup.py:40
+#: src/shell.py:20 src/systemsetup.py:40
 msgid "Kernel '%s' is not supported."
 msgstr "Le kernel '%s' n'est pas supporté."
 
-#: src/shell.py:19 src/systemsetup.py:41
+#: src/shell.py:20 src/systemsetup.py:41
 msgid "Supported kernels : "
 msgstr "Kernels pris en charge : "
 
@@ -448,31 +448,31 @@ msgstr "L'environnement de bureau '%s' n'est pas pris en charge."
 msgid "Supported desktop environments : "
 msgstr "Environnements de bureau supportés : "
 
-#: src/shell.py:39
+#: src/shell.py:38
 msgid "Available bundles : "
 msgstr "Bundles disponibles : "
 
-#: src/shell.py:39
+#: src/shell.py:38
 msgid "Bundle '%s' is not supported."
 msgstr "Le bundle '%s' n'est pas supporté."
 
-#: src/shell.py:51
+#: src/shell.py:71
 msgid "ArchCraftsman interactive shell mode."
 msgstr "Mode shell interactif d'ArchCraftsman."
 
-#: src/shell.py:52 src/shell.py:67
+#: src/shell.py:72 src/shell.py:87
 msgid "Available commands :"
 msgstr "Commandes disponibles :"
 
-#: src/shell.py:56
+#: src/shell.py:76
 msgid "Command '%s' is not supported."
 msgstr "La commande '%s' n'est pas supporté."
 
-#: src/shell.py:73
+#: src/shell.py:93
 msgid "Sub-command '%s' is not supported."
 msgstr "La sous-commande '%s' n'est pas supporté."
 
-#: src/shell.py:74
+#: src/shell.py:94
 msgid "Available sub-commands : "
 msgstr "Sous-commandes disponibles : "
 
@@ -655,9 +655,14 @@ msgstr "Les mots de passe saisis ne correspondent pas."
 msgid "Help :"
 msgstr "Aide :"
 
-#: src/utils.py:301
+#: src/utils.py:302
 msgid "Press any key to continue..."
 msgstr "Appuyez sur n'importe quelle touche pour continuer..."
+
+#, fuzzy
+#~| msgid "Install GDM."
+#~ msgid "Install YAY."
+#~ msgstr "Installer GDM."
 
 #~ msgid "%s"
 #~ msgstr "%s"
@@ -702,9 +707,6 @@ msgstr "Appuyez sur n'importe quelle touche pour continuer..."
 
 #~ msgid "Install LightDM ? (y/N) : "
 #~ msgstr "Installer LightDM ? (o/N) : "
-
-#~ msgid "Install GDM."
-#~ msgstr "Installer GDM."
 
 #~ msgid "Install LightDM."
 #~ msgstr "Installer LightDM."
