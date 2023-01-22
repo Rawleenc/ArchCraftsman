@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2023-01-22 01:26+0100\n"
-"PO-Revision-Date: 2023-01-22 01:32+0100\n"
+"POT-Creation-Date: 2023-01-22 01:33+0100\n"
+"PO-Revision-Date: 2023-01-22 01:33+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -428,10 +428,6 @@ msgstr "La partition EFI est nécessaire pour l'installation du système."
 msgid "The Root partition is required for system installation."
 msgstr "La partition Root est nécessaire pour l'installation du système."
 
-#: src/options.py:21
-msgid "%s"
-msgstr "%s"
-
 #: src/shell.py:19 src/systemsetup.py:39
 msgid "Kernel '%s' is not supported."
 msgstr "Le kernel '%s' n'est pas supporté."
@@ -650,6 +646,9 @@ msgstr "Aide :"
 #: src/utils.py:301
 msgid "Press any key to continue..."
 msgstr "Appuyez sur n'importe quelle touche pour continuer..."
+
+#~ msgid "%s"
+#~ msgstr "%s"
 
 #~ msgid ""
 #~ "What type of Swap do you want ? (1: Partition, 2: None, other: File) : "

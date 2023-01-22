@@ -18,7 +18,7 @@ class OptionEnum(str, Enum):
         return name.lower().replace("_", "")
 
     def __str__(self):
-        return _("%s") % self.name.lower().replace('_', ' ').capitalize()
+        return self.name.lower().replace('_', ' ').capitalize()
 
 
 class Commands(OptionEnum):
