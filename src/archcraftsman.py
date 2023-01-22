@@ -49,11 +49,13 @@ def pre_launch_steps() -> {}:
     """
     print_step(_("Running pre-launch steps : "), clear=False)
     execute('msgfmt -o /usr/share/locale/fr/LC_MESSAGES/ArchCraftsman.mo locales/fr.po &>/dev/null', force=True)
-    execute('sed -i "s|#Color|Color|g" /etc/pacman.conf')
-    execute('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /etc/pacman.conf')
+    if GlobalArgs().install():
+        execute('sed -i "s|#Color|Color|g" /etc/pacman.conf')
+        execute('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /etc/pacman.conf')
 
-    print_sub_step(_("Synchronising repositories and keyring..."))
-    execute("pacman --noconfirm -Sy --needed archlinux-keyring &>/dev/null")
+    if GlobalArgs().install():
+        print_sub_step(_("Synchronising repositories and keyring..."))
+        execute("pacman --noconfirm -Sy --needed archlinux-keyring &>/dev/null")
 
     print_sub_step(_("Querying IP geolocation informations..."))
     with urlopen("https://ipapi.co/json") as response:

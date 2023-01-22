@@ -3,6 +3,7 @@ The locale related setup module
 """
 import os
 
+from src.globalargs import GlobalArgs
 from src.i18n import I18n
 from src.utils import print_step, execute, log, stdout
 
@@ -17,18 +18,20 @@ def setup_locale(keymap: str = "de-latin1", global_language: str = "EN") -> str:
     :return: The configured live system console font (terminus 16 or 32)
     """
     print_step(_("Configuring live environment..."), clear=False)
-    execute(f'loadkeys "{keymap}"')
     font = 'ter-v16b'
-    execute('setfont ter-v16b')
-    dimensions = stdout(execute('stty size', capture_output=True))
-    if dimensions:
-        split_dimensions = dimensions.split(" ")
-        if split_dimensions and len(split_dimensions) > 0 and int(split_dimensions[0]) >= 80:
-            font = 'ter-v32b'
-            execute('setfont ter-v32b')
+    if GlobalArgs().install():
+        execute(f'loadkeys "{keymap}"')
+        execute('setfont ter-v16b')
+        dimensions = stdout(execute('stty size', capture_output=True))
+        if dimensions:
+            split_dimensions = dimensions.split(" ")
+            if split_dimensions and len(split_dimensions) > 0 and int(split_dimensions[0]) >= 80:
+                font = 'ter-v32b'
+                execute('setfont ter-v32b')
     if global_language == "FR":
-        execute('sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /etc/locale.gen')
-        execute('locale-gen')
+        if GlobalArgs().install():
+            execute('sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /etc/locale.gen')
+            execute('locale-gen')
         os.putenv('LANG', 'fr_FR.UTF-8')
         os.putenv('LANGUAGE', 'fr_FR.UTF-8')
     else:
