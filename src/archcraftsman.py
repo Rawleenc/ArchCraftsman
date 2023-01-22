@@ -56,7 +56,7 @@ def pre_launch_steps() -> {}:
     execute("pacman --noconfirm -Sy --needed archlinux-keyring &>/dev/null")
 
     print_sub_step(_("Querying IP geolocation informations..."))
-    with urlopen('https://ipapi.co/json') as response:
+    with urlopen("https://ipapi.co/json") as response:
         geoip_info = json.loads(response.read())
     detected_language = str(geoip_info["languages"]).split(",", maxsplit=1)[0]
     detected_timezone = geoip_info["timezone"]

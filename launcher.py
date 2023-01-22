@@ -25,7 +25,7 @@ def print_step(message: str, clear: bool = True):
     :param clear:
     """
     if clear:
-        subprocess.run('clear', shell=True, check=True)
+        subprocess.run("/bin/clear", shell=True, check=True)
     print(f'\n{GREEN}{message}{NOCOLOR}')
 
 

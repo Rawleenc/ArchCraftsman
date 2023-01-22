@@ -95,8 +95,8 @@ def ask_password(username: str = "root") -> str:
     :return:
     """
     password_confirm = None
-    password = ""
-    while password != password_confirm:
+    password = None
+    while password is None or password != password_confirm:
         print_sub_step(_("%s password configuration : ") % username)
         password = prompt_passwd(_("Enter the %s password : ") % username)
         password_confirm = prompt_passwd(_("Re-enter the %s password to confirm : ") % username)

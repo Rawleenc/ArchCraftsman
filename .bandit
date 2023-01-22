@@ -1,0 +1,3 @@
+[bandit]
+exclude=./venv
+skips=B602,B404,B310
