@@ -3,55 +3,79 @@ The shell mode module
 """
 from subprocess import CalledProcessError
 
+from src.bundles.bundle import Bundle
 from src.bundles.utils import prompt_bundle
 from src.i18n import I18n
-from src.options import Commands, Kernels, Desktops, Bundles, SubCommands
+from src.options import Commands, Kernels, Desktops, Bundles, SubCommands, ShellBundles
 from src.utils import prompt_option, print_error, print_supported, execute, print_step
 
 _ = I18n().gettext
 
 
-def ask_for_kernel() -> str:
+def ask_for_kernel() -> Bundle:
     """
     A method to ask for a kernel.
     :return:
     """
-    kernel = prompt_bundle("> ", _("Kernel '%s' is not supported."), Kernels, _("Supported kernels : "), None,
-                           new_line_prompt=False)
-    return " ".join(kernel.packages({}))
+    return prompt_bundle("> ", _("Kernel '%s' is not supported."), Kernels, _("Supported kernels : "), None,
+                         new_line_prompt=False)
 
 
-def ask_for_desktop() -> str:
+def ask_for_desktop() -> Bundle:
     """
     A method to ask for a desktop environment.
     :return:
     """
-    desktop = prompt_bundle("> ", _("Desktop environment '%s' is not supported."), Desktops,
-                            _("Supported desktop environments : "), None, new_line_prompt=False)
-    return " ".join(desktop.packages({}))
+    return prompt_bundle("> ", _("Desktop environment '%s' is not supported."), Desktops,
+                         _("Supported desktop environments : "), None, new_line_prompt=False)
 
 
-def ask_for_bundle() -> str:
+def ask_for_bundle() -> Bundle:
     """
     A method to ask for a bundle.
     :return:
     """
-    bundle = prompt_bundle("> ", _("Bundle '%s' is not supported."), Bundles, _("Available bundles : "), None,
-                           new_line_prompt=False)
-    if bundle:
-        return " ".join(bundle.packages({}))
-    return ""
+    return prompt_bundle("> ", _("Bundle '%s' is not supported."), Bundles, _("Available bundles : "), None,
+                         Bundles.COPY_ACM, new_line_prompt=False)
 
 
-def install_yay():
-    execute("git clone https://aur.archlinux.org/yay")
-    execute("cd yay")
-    execute("makepkg -si")
-    execute("cd -")
-    execute("rm -rf yay")
+def ask_for_shell_bundle() -> Bundle:
+    """
+    A method to ask for a bundle.
+    :return:
+    """
+    return prompt_bundle("> ", _("Shell bundle '%s' is not supported."), ShellBundles,
+                         _("Available shell bundles : "), None, new_line_prompt=False)
 
 
-def shell():
+def install_bundle(bundle, pre_launch_info):
+    """
+    The method to install the bundle.
+    :param bundle:
+    :param pre_launch_info:
+    :return:
+    """
+    match bundle.name:
+        case ShellBundles.YAY:
+            bundle.configure({}, pre_launch_info, {})
+        case _:
+            if len(bundle.packages({})) > 0:
+                execute(f'pacman -S {" ".join(bundle.packages({}))}', check=False)
+
+
+def uninstall_bundle(bundle):
+    """
+    The method to uninstall the bundle.
+    :param bundle:
+    :return:
+    """
+    match bundle.name:
+        case _:
+            if len(bundle.packages({})) > 0:
+                execute(f'pacman -Rsnc {" ".join(bundle.packages({}))}', check=False)
+
+
+def shell(pre_launch_info):
     """
     The shell mode method.
     :return:
@@ -63,18 +87,16 @@ def shell():
         try:
             command = prompt_option("> ", _("Command '%s' is not supported."), Commands, None, None,
                                     new_line_prompt=False)
-            want_yay = False
-            packages = None
+            bundle = None
             match command:
                 case Commands.KERNEL:
-                    packages = ask_for_kernel()
+                    bundle = ask_for_kernel()
                 case Commands.DESKTOP:
-                    packages = ask_for_desktop()
+                    bundle = ask_for_desktop()
                 case Commands.BUNDLE:
-                    packages = ask_for_bundle()
-                case Commands.YAY:
-                    want_yay = True
-                    packages = "yay"
+                    bundle = ask_for_bundle()
+                case Commands.SHELL_BUNDLE:
+                    bundle = ask_for_shell_bundle()
                 case Commands.HELP:
                     print_supported(_("Available commands :"), Commands)
                     continue
@@ -84,13 +106,14 @@ def shell():
 
             sub_command = prompt_option("> ", _("Sub-command '%s' is not supported."), SubCommands,
                                         _("Available sub-commands : "), None, new_line_prompt=False)
+
             match sub_command:
                 case SubCommands.INSTALL:
-                    if want_yay:
-                        install_yay()
-                    execute(f"pacman -S {packages}", check=False)
+                    if bundle:
+                        install_bundle(bundle, pre_launch_info)
                 case SubCommands.UNINSTALL:
-                    execute(f"pacman -Rsnc {packages}", check=False)
+                    if bundle:
+                        uninstall_bundle(bundle)
         except KeyboardInterrupt:
             print_error(_("Script execution interrupted by the user !"), do_pause=False)
             want_exit = True

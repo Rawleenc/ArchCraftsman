@@ -1,5 +1,5 @@
 """
-The zram bundle module
+The copy ArchCraftsman bundle module
 """
 from src.bundles.bundle import Bundle
 from src.i18n import I18n
@@ -10,7 +10,7 @@ _ = I18n().gettext
 
 class CopyACM(Bundle):
     """
-    The ZRAM class.
+    The CopyACM class.
     """
 
     def print_resume(self):

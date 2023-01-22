@@ -28,9 +28,16 @@ class Commands(OptionEnum):
     KERNEL = auto()
     DESKTOP = auto()
     BUNDLE = auto()
-    YAY = auto()
+    SHELL_BUNDLE = auto()
     HELP = auto()
     EXIT = auto()
+
+
+class ShellBundles(OptionEnum):
+    """
+    All shell bundles.
+    """
+    YAY = auto()
 
 
 class SubCommands(OptionEnum):
