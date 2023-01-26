@@ -88,18 +88,18 @@ def ask_format_type() -> str:
                          FSFormats, _("Supported format types : "), FSFormats.EXT4, FSFormats.VFAT)
 
 
-def ask_password(username: str = "root") -> str:
+def ask_password(prompt_message: str, required: bool = False) -> str:
     """
     A method to ask a password to the user.
-    :param username:
+    :param prompt_message:
+    :param required:
     :return:
     """
     password_confirm = None
     password = None
     while password is None or password != password_confirm:
-        print_sub_step(_("%s password configuration : ") % username)
-        password = prompt_passwd(_("Enter the %s password : ") % username)
-        password_confirm = prompt_passwd(_("Re-enter the %s password to confirm : ") % username)
+        password = prompt_passwd(prompt_message, required=required)
+        password_confirm = prompt_passwd(_("Enter it again to confirm : "), required=required)
         if password != password_confirm:
             print_error(_("Passwords entered don't match."))
     return password
@@ -181,36 +181,49 @@ def print_help(message: str, do_pause: bool = False):
         pause(end_newline=True)
 
 
-def prompt(message: str, default: str = None, help_msg: str = None) -> str:
+def input_str(message: str, password: bool = False) -> str:
+    if password:
+        return getpass.getpass(prompt=f'{ORANGE}{message}{NOCOLOR}')
+    return input(f'{ORANGE}{message}{NOCOLOR}')
+
+
+def prompt(message: str, default: str = None, help_msg: str = None, required: bool = False,
+           password: bool = False) -> str:
     """
     A method to prompt for a user input.
     :param message:
     :param default:
     :param help_msg:
+    :param required:
+    :param password:
     :return:
     """
     user_input_ok = False
     user_input = None
     while not user_input_ok:
-        user_input = input(f'{ORANGE}{message}{NOCOLOR}')
+        user_input = input_str(f'{ORANGE}{message}{NOCOLOR}', password=password)
         if user_input == "?" and help_msg and help_msg != "":
             print_help(help_msg)
             continue
         if user_input == "" and default:
             user_input = default
+        if required and (user_input is None or user_input == ""):
+            print_error(_("The input must not be empty."))
+            continue
         user_input_ok = True
     return user_input
 
 
-def prompt_ln(message: str, default: str = None, help_msg: str = None) -> str:
+def prompt_ln(message: str, default: str = None, help_msg: str = None, required: bool = False) -> str:
     """
     A method to prompt for a user input with a new line for the user input.
     :param message:
     :param default:
     :param help_msg:
+    :param required:
     :return:
     """
-    return prompt(f'{message}\n', default=default, help_msg=help_msg)
+    return prompt(f'{message}\n', default=default, help_msg=help_msg, required=required)
 
 
 def print_supported(supported_msg: str, options: type(OptionEnum), *ignores: OptionEnum):
@@ -284,13 +297,14 @@ def prompt_bool(message: str, default: bool = True, help_msg: str = None) -> boo
     return prompt(f'{message}', help_msg=help_msg).upper() != "N"
 
 
-def prompt_passwd(message: str):
+def prompt_passwd(message: str, required: bool = False):
     """
     A method to prompt for a password without displaying an echo.
     :param message:
+    :param required:
     :return:
     """
-    return getpass.getpass(prompt=f'{ORANGE}{message}{NOCOLOR}')
+    return prompt(f'{ORANGE}{message}{NOCOLOR}', required=required, password=True)
 
 
 def pause(start_newline: bool = False, end_newline: bool = False):

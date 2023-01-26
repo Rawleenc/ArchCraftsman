@@ -30,7 +30,7 @@ class Disk:
         self.partitions = []
         index = 0
         for partition_info in detected_partitions.splitlines():
-            self.partitions.append(Partition(index, partition_info))
+            self.partitions.append(Partition(index, partition_info.split(" ")[0]))
             index += 1
         self.total = int(
             stdout(execute(f'lsblk -b --output SIZE -n -d "{self.path}"', capture_output=True, force=True)))

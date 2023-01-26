@@ -121,9 +121,11 @@ def setup_system(detected_timezone) -> {}:
                         break
                     system_info["more_pkgs"].add(pkg)
 
-        system_info["root_password"] = ask_password()
+        print_sub_step(_("%s password configuration : ") % "root")
+        system_info["root_password"] = ask_password(_("Enter the %s password : ") % "root")
         if system_info["user_name"] != "":
-            system_info["user_password"] = ask_password(system_info["user_name"])
+            print_sub_step(_("%s password configuration : ") % system_info["user_name"])
+            system_info["user_password"] = ask_password(_("Enter the %s password : ") % system_info["user_name"])
 
         system_info["bootloader"] = Grub(BootLoaders.GRUB)
         system_info["microcodes"] = Microcodes()
