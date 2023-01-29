@@ -180,7 +180,7 @@ def auto_partitioning() -> {}:
                                % (index + 1, partitioning_info_by_index["part_mount_point"].get(index), formatting,
                                   partitioning_info_by_index["part_format_type"].get(index)))
             if partitioning_info_by_index["part_type"].get(index) == PartTypes.SWAP:
-                print_sub_step(_("Swap partition : %s") % index + 1)
+                print_sub_step(_("Swap partition : %s") % (index + 1))
             if partitioning_info_by_index["part_type"].get(index) == PartTypes.OTHER:
                 print_sub_step(_("Other partition : %s (mounting point : %s, format %s, format type %s)")
                                % (index + 1, partitioning_info_by_index["part_mount_point"].get(index), formatting,
