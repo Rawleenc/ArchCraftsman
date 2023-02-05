@@ -4,7 +4,6 @@ The general utility methods and tools module
 import encodings
 import getpass
 import glob
-import json
 import os
 import re
 import readline
@@ -48,38 +47,7 @@ def from_iec(size: str) -> int:
         re.sub('\\s', '', stdout(execute(f'printf "{size}" | numfmt --from=iec', capture_output=True, force=True))))
 
 
-def build_partition_name(disk_name: str, index: int) -> str or None:
-    """
-    A method to build a partition name with a disk and an index.
-    :param disk_name:
-    :param index:
-    :return:
-    """
-    block_devices_str = stdout(execute('lsblk -J', capture_output=True, force=True))
-    if not block_devices_str:
-        return None
-    block_devices_json = json.loads(block_devices_str)
-    if block_devices_json is None or not isinstance(block_devices_json, dict) or "blockdevices" not in dict(
-            block_devices_json):
-        return None
-    block_devices = dict(block_devices_json).get("blockdevices")
-    if block_devices is None or not isinstance(block_devices, list):
-        return None
-    disk = next((d for d in block_devices if
-                 d is not None and isinstance(d, dict) and "name" in d and dict(d).get("name") == os.path.basename(
-                     disk_name)), None)
-    if disk is None or not isinstance(disk, dict) or "children" not in dict(disk):
-        return None
-    partitions = dict(disk).get("children")
-    if partitions is None or not isinstance(partitions, list) or len(list(partitions)) <= index:
-        return None
-    partition = list(partitions)[index]
-    if partition is None or not isinstance(partition, dict) or "name" not in dict(partition):
-        return None
-    return f'/dev/{dict(partition).get("name")}'
-
-
-def ask_format_type() -> str:
+def ask_format_type() -> FSFormats:
     """
     The method to ask the user for the format type.
     :return:
@@ -103,28 +71,6 @@ def ask_password(prompt_message: str, required: bool = False) -> str:
         if password != password_confirm:
             print_error(_("Passwords entered don't match."))
     return password
-
-
-def format_partition(partition: str, format_type: str, mount_point: str, formatting: bool):
-    """
-    A method to compute and return an mkfs command.
-    """
-    match format_type:
-        case "vfat":
-            if formatting:
-                execute(f'mkfs.vfat "{partition}"')
-            execute(f'mkdir -p "/mnt{mount_point}"')
-            execute(f'mount "{partition}" "/mnt{mount_point}"')
-        case "btrfs":
-            if formatting:
-                execute(f'mkfs.btrfs -f "{partition}"')
-            execute(f'mkdir -p "/mnt{mount_point}"')
-            execute(f'mount -o compress=zstd "{partition}" "/mnt{mount_point}"')
-        case _:
-            if formatting:
-                execute(f'mkfs.ext4 "{partition}"')
-            execute(f'mkdir -p "/mnt{mount_point}"')
-            execute(f'mount "{partition}" "/mnt{mount_point}"')
 
 
 def print_error(message: str, do_pause: bool = True):
@@ -182,6 +128,12 @@ def print_help(message: str, do_pause: bool = False):
 
 
 def input_str(message: str, password: bool = False) -> str:
+    """
+    A method to ask to input something.
+    :param message:
+    :param password:
+    :return:
+    """
     if password:
         return getpass.getpass(prompt=f'{ORANGE}{message}{NOCOLOR}')
     return input(f'{ORANGE}{message}{NOCOLOR}')

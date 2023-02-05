@@ -9,8 +9,9 @@ from src.autopart import auto_partitioning
 from src.i18n import I18n
 from src.manualpart import manual_partitioning
 from src.options import FSFormats, PartTypes
+from src.partitioninginfo import PartitioningInfo
 from src.systemsetup import setup_system
-from src.utils import print_step, stdout, execute, prompt_bool, format_partition, is_bios, print_sub_step, print_error
+from src.utils import print_step, stdout, execute, prompt_bool, print_sub_step, print_error
 
 _ = I18n().gettext
 
@@ -37,41 +38,27 @@ def installation_steps(pre_launch_info):
     system_info = setup_system(pre_launch_info["detected_timezone"])
     btrfs_in_use = False
 
-    partitioning_info = None
-    while partitioning_info is None:
+    temp_partitioning_info = None
+    while temp_partitioning_info is None:
         print_step(_("Partitioning :"))
         want_auto_part = prompt_bool(_("Do you want an automatic partitioning ? (y/N) : "), default=False)
         if want_auto_part:
-            partitioning_info = auto_partitioning()
+            temp_partitioning_info = auto_partitioning()
         else:
-            partitioning_info = manual_partitioning()
+            temp_partitioning_info = manual_partitioning()
+    partitioning_info: PartitioningInfo = temp_partitioning_info
 
     print_step(_("Formatting and mounting partitions..."), clear=False)
 
-    format_partition(partitioning_info["root_partition"],
-                     partitioning_info["part_format_type"][partitioning_info["root_partition"]],
-                     partitioning_info["part_mount_point"][partitioning_info["root_partition"]], True)
-    if partitioning_info["part_format_type"][partitioning_info["root_partition"]] == FSFormats.BTRFS:
+    partitioning_info.root_partition.format_partition()
+    if partitioning_info.root_partition.part_format_type == FSFormats.BTRFS:
         btrfs_in_use = True
 
-    for partition in partitioning_info["partitions"]:
-        if partitioning_info["part_format_type"].get(partition) == FSFormats.BTRFS:
+    for partition in partitioning_info.partitions:
+        if partition.part_format_type == FSFormats.BTRFS:
             btrfs_in_use = True
-        if not is_bios() and partitioning_info["part_type"].get(partition) == PartTypes.EFI:
-            format_partition(partition, partitioning_info["part_format_type"].get(partition),
-                             partitioning_info["part_mount_point"].get(partition),
-                             partitioning_info["part_format"].get(partition))
-        elif partitioning_info["part_type"].get(partition) == PartTypes.HOME:
-            format_partition(partition, partitioning_info["part_format_type"].get(partition),
-                             partitioning_info["part_mount_point"].get(partition),
-                             partitioning_info["part_format"].get(partition))
-        elif partitioning_info["part_type"].get(partition) == PartTypes.SWAP:
-            execute(f'mkswap "{partition}"')
-            execute(f'swapon "{partition}"')
-        elif partitioning_info["part_type"].get(partition) == PartTypes.OTHER:
-            format_partition(partition, partitioning_info["part_format_type"].get(partition),
-                             partitioning_info["part_mount_point"].get(partition),
-                             partitioning_info["part_format"].get(partition))
+        elif partition.part_type != PartTypes.ROOT:
+            partition.format_partition()
 
     print_step(_("Updating mirrors..."), clear=False)
     execute('reflector --verbose -phttps -f10 -l10 --sort rate -a2 --save /etc/pacman.d/mirrorlist')
@@ -138,9 +125,10 @@ def installation_steps(pre_launch_info):
     execute('arch-chroot /mnt bash -c "pacman --noconfirm -Su"')
     execute(f'arch-chroot /mnt bash -c "pacman --noconfirm -S {" ".join(pkgs)}"')
 
-    if PartTypes.SWAP not in partitioning_info["part_type"].values() and partitioning_info["swapfile_size"]:
+    if PartTypes.SWAP not in [part.part_type for part in
+                              partitioning_info.partitions] and partitioning_info.swapfile_size:
         print_step(_("Creation and activation of the swapfile..."), clear=False)
-        if partitioning_info["part_format_type"][partitioning_info["root_partition"]] == FSFormats.BTRFS:
+        if partitioning_info.root_partition.part_format_type == FSFormats.BTRFS:
             execute(
                 "btrfs subvolume create /mnt/swap && "
                 "cd /mnt/swap && "
@@ -150,7 +138,7 @@ def installation_steps(pre_launch_info):
                 "cd -")
         else:
             execute("mkdir -p /mnt/swap")
-        execute(f'fallocate -l "{partitioning_info["swapfile_size"]}" /mnt/swap/swapfile')
+        execute(f'fallocate -l "{partitioning_info.swapfile_size}" /mnt/swap/swapfile')
         execute('chmod 600 /mnt/swap/swapfile')
         execute('mkswap /mnt/swap/swapfile')
         execute('swapon /mnt/swap/swapfile')

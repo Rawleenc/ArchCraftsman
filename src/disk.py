@@ -52,7 +52,7 @@ class Disk:
         The Disk method to get the EFI partition if it exist. Else return an empty partition object.
         """
         try:
-            return [p for p in self.partitions if PartTypes.EFI in p.part_type].pop()
+            return [p for p in self.partitions if PartTypes.EFI in p.part_type_name].pop()
         except IndexError:
             return Partition(None)
 
