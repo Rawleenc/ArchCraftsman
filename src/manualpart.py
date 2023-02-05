@@ -67,22 +67,29 @@ def manual_partitioning() -> PartitioningInfo or None:
             if not is_bios() and partition_type == PartTypes.EFI:
                 partition.part_type = PartTypes.EFI
                 partition.part_mount_point = "/boot/efi"
-                partition.part_format = prompt_bool(_("Format the EFI partition ? (Y/n) : "))
+                partition.part_format = prompt_bool(_("Format the partition ? (Y/n) : "))
                 if partition.part_format:
                     partition.part_format_type = FSFormats.VFAT
             elif partition_type == PartTypes.ROOT:
                 partition.part_type = PartTypes.ROOT
                 partition.part_mount_point = "/"
+                partition.part_format = True
                 partition.part_format_type = ask_format_type()
                 partitioning_info.root_partition = partition
                 main_disk_label = re.sub('\\s+', '',
                                          stdout(execute(f'lsblk -ndo PKNAME {partition.path}', capture_output=True,
                                                         force=True)))
                 partitioning_info.main_disk = f'/dev/{main_disk_label}'
+            elif partition_type == PartTypes.BOOT:
+                partition.part_type = PartTypes.BOOT
+                partition.part_mount_point = "/boot"
+                partition.part_format = prompt_bool(_("Format the partition ? (Y/n) : "))
+                if partition.part_format:
+                    partition.part_format_type = ask_format_type()
             elif partition_type == PartTypes.HOME:
                 partition.part_type = PartTypes.HOME
                 partition.part_mount_point = "/home"
-                partition.part_format = prompt_bool(_("Format the Home partition ? (Y/n) : "))
+                partition.part_format = prompt_bool(_("Format the partition ? (Y/n) : "))
                 if partition.part_format:
                     partition.part_format_type = ask_format_type()
             elif partition_type == PartTypes.SWAP:
@@ -104,6 +111,12 @@ def manual_partitioning() -> PartitioningInfo or None:
             continue
         if PartTypes.ROOT not in [part.part_type for part in partitioning_info.partitions]:
             print_error(_("The Root partition is required for system installation."))
+            partitioning_info.partitions.clear()
+            partitioned_disks.clear()
+            continue
+        if True in [part.encrypted for part in partitioning_info.partitions] and PartTypes.BOOT not in \
+                [part.part_type for part in partitioning_info.partitions]:
+            print_error(_("The Boot partition is required for system installation."))
             partitioning_info.partitions.clear()
             partitioned_disks.clear()
             continue
