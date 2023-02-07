@@ -16,7 +16,7 @@ class I3(Bundle):
     Bundle class.
     """
 
-    def packages(self, system_info) -> [str]:
+    def packages(self, system_info) -> list[str]:
         packages = ["i3", "rofi", "dmenu", "perl", "alacritty", "xorg-server", "xorg-xinit", "alsa-utils", "pulseaudio",
                     "pulseaudio-alsa", "pavucontrol", "system-config-printer", "network-manager-applet", "acpid",
                     "gnome-keyring", "dex"]

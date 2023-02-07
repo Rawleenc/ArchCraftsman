@@ -17,7 +17,7 @@ class Deepin(Bundle):
     """
     minimal = False
 
-    def packages(self, system_info) -> [str]:
+    def packages(self, system_info) -> list[str]:
         packages = ["deepin", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa"]
         if self.minimal is not True:
             packages.append("deepin-extra")

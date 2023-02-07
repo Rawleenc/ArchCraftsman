@@ -18,7 +18,7 @@ class Plasma(Bundle):
     minimal = False
     plasma_wayland = False
 
-    def packages(self, system_info) -> [str]:
+    def packages(self, system_info) -> list[str]:
         packages = ["plasma", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa",
                     "xdg-desktop-portal", "xdg-desktop-portal-kde"]
         if self.plasma_wayland:

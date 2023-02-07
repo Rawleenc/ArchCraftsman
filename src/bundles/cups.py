@@ -15,7 +15,7 @@ class Cups(Bundle):
     Cups class.
     """
 
-    def packages(self, system_info: {}) -> [str]:
+    def packages(self, system_info: dict[str, any]) -> list[str]:
         return ["cups", "cups-pdf", "avahi", "samba", "foomatic-db-engine", "foomatic-db", "foomatic-db-ppds",
                 "foomatic-db-nonfree-ppds", "foomatic-db-gutenprint-ppds", "gutenprint", "ghostscript"]
 

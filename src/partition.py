@@ -7,7 +7,8 @@ import re
 
 from src.i18n import I18n
 from src.options import PartTypes, FSFormats
-from src.utils import from_iec, execute, stdout, prompt_bool, prompt_ln, ask_password, print_error, to_iec
+from src.utils import from_iec, execute, stdout, prompt_bool, to_iec, \
+    ask_format_type, ask_encryption_credentials
 
 _ = I18n().gettext
 
@@ -20,6 +21,7 @@ class Partition:
     path: str
     size: int
     part_type_name: str
+    disk_name: str
     fs_type: str
     part_type: PartTypes
     part_mount_point: str
@@ -56,8 +58,6 @@ class Partition:
         Partition str formatting.
         """
         formatted_str = f"'{self.path}' - '{self.part_type_name}' - '{to_iec(int(self.size))}'"
-        if self.encrypted:
-            formatted_str += f" - encrypted ('/dev/mapper/{self.block_name}')"
         return formatted_str
 
     def compute(self):
@@ -69,30 +69,61 @@ class Partition:
             execute(f'lsblk -nl "{self.path}" -o SIZE', capture_output=True, force=True))))
         self.part_type_name = str(re.sub('[^a-zA-Z\\d ]', '', stdout(
             execute(f'lsblk -nl "{self.path}" -o PARTTYPENAME', capture_output=True, force=True))))
+        self.disk_name = str(re.sub('[^a-zA-Z\\d ]', '', stdout(
+            execute(f'lsblk -nl "{self.path}" -o PKNAME', capture_output=True, force=True))))
         self.fs_type = str(re.sub('[^a-zA-Z\\d ]', '', stdout(
             execute(f'lsblk -nl "{self.path}" -o FSTYPE', capture_output=True, force=True))))
+
+    def need_format(self):
+        """
+        Method to know if the partition need to be formatted
+        :return:
+        """
+        return self.part_type in {PartTypes.ROOT}
+
+    def no_format(self):
+        """
+        Method to know if the partition doesn't have to be formatted
+        :return:
+        """
+        return self.part_type in {PartTypes.SWAP, PartTypes.NOT_USED}
+
+    def ask_for_format(self):
+        """
+        Method to ask if the partition have to be formatted and in which format.
+        :return:
+        """
+        if self.no_format():
+            self.part_format = False
+            return
+        if self.need_format() or self.encrypted:
+            self.part_format = True
+            self.part_format_type = ask_format_type()
+            return
+        self.part_format = prompt_bool(_("Format the partition ? (Y/n) : "))
+        if self.part_format:
+            if self.part_type == PartTypes.EFI:
+                self.part_format_type = FSFormats.VFAT
+            else:
+                self.part_format_type = ask_format_type()
+
+    def is_encryptable(self):
+        """
+        Method to know if the partition is encryptable.
+        :return:
+        """
+        return self.part_type in {PartTypes.ROOT, PartTypes.HOME, PartTypes.OTHER}
 
     def ask_for_encryption(self):
         """
         A method to ask if the partition will be encrypted.
         :return:
         """
+        if not self.is_encryptable():
+            return
         self.encrypted = prompt_bool(_("Do you want to encrypt this partition ? (y/N) : "), default=False)
         if self.encrypted:
-
-            block_name_pattern = re.compile("^[a-z][a-z\\d_]*$")
-            block_name_ok = False
-            while not block_name_ok:
-                self.block_name = prompt_ln(_("What will be the encrypted block name ? : "), required=True)
-                if self.block_name and self.block_name != "" and not block_name_pattern.match(
-                        self.block_name):
-                    print_error(_("Invalid encrypted block name."))
-                    continue
-                block_name_ok = True
-
-            self.block_password = ask_password(
-                _("Enter the encrypted block password (it will be asked at boot to decrypt the partition) : "),
-                required=True)
+            self.block_name, self.block_password = ask_encryption_credentials()
 
     def summary(self):
         """
@@ -104,14 +135,17 @@ class Partition:
         else:
             formatting = _("no")
         name = "NO_NAME"
-        if self.index:
+        if self.index is not None:
             name = str(self.index + 1)
         if self.path:
             name = self.path
         if self.part_type == PartTypes.SWAP:
             return _("%s : %s") % (self.part_type, name)
-        return _("%s : %s (mounting point : %s, format %s, format type %s)") % (
+        summary = _("%s : %s (mounting point : %s, format %s, format type %s)") % (
             self.part_type, name, self.part_mount_point, formatting, self.part_format_type)
+        if self.encrypted:
+            summary += f" - encrypted ('/dev/mapper/{self.block_name}')"
+        return summary
 
     def format_partition(self):
         """

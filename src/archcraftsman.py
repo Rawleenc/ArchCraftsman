@@ -42,7 +42,7 @@ from src.shell import shell
 from src.utils import print_error, execute, stdout, print_step, print_sub_step
 
 
-def pre_launch_steps() -> {}:
+def pre_launch_steps() -> dict[str, any]:
     """
     The method to proceed to the pre-launch steps
     :return:
@@ -69,7 +69,7 @@ def pre_launch_steps() -> {}:
     return pre_launch_info
 
 
-def pre_launch() -> {}:
+def pre_launch() -> dict[str, any]:
     """
     A pre-launch steps method.
     :return:

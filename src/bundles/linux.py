@@ -14,7 +14,7 @@ class LinuxCurrent(bundle.Bundle):
     The Linux current kernel class.
     """
 
-    def packages(self, system_info: {}) -> [str]:
+    def packages(self, system_info: dict[str, any]) -> list[str]:
         return ["linux", "linux-headers"]
 
     def print_resume(self):
@@ -26,7 +26,7 @@ class LinuxHardened(Bundle):
     The Linux hardened kernel class.
     """
 
-    def packages(self, system_info: {}) -> [str]:
+    def packages(self, system_info: dict[str, any]) -> list[str]:
         return ["linux-hardened", "linux-hardened-headers"]
 
     def print_resume(self):
@@ -38,7 +38,7 @@ class LinuxLts(bundle.Bundle):
     The Linux LTS kernel class.
     """
 
-    def packages(self, system_info: {}) -> [str]:
+    def packages(self, system_info: dict[str, any]) -> list[str]:
         return ["linux-lts", "linux-lts-headers"]
 
     def print_resume(self):
@@ -50,7 +50,7 @@ class LinuxZen(bundle.Bundle):
     The Linux zen kernel class.
     """
 
-    def packages(self, system_info: {}) -> [str]:
+    def packages(self, system_info: dict[str, any]) -> list[str]:
         return ["linux-zen", "linux-zen-headers"]
 
     def print_resume(self):

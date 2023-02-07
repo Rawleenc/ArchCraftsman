@@ -15,7 +15,7 @@ class TerminusFont(Bundle):
     The Terminus console font class.
     """
 
-    def packages(self, system_info: {}) -> [str]:
+    def packages(self, system_info: dict[str, any]) -> list[str]:
         return ["terminus-font"]
 
     def print_resume(self):

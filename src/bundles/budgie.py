@@ -17,7 +17,7 @@ class Budgie(Bundle):
     """
     display_manager = True
 
-    def packages(self, system_info) -> [str]:
+    def packages(self, system_info) -> list[str]:
         packages = ["budgie-desktop", "budgie-desktop-view", "budgie-screensaver", "gnome-control-center",
                     "network-manager-applet", "gnome-terminal", "nautilus", "xorg-server", "alsa-utils", "pulseaudio",
                     "pulseaudio-alsa", "pavucontrol", "arc-gtk-theme", "arc-icon-theme"]

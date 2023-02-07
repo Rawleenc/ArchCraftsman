@@ -16,7 +16,7 @@ class Sway(Bundle):
     Bundle class.
     """
 
-    def packages(self, system_info) -> [str]:
+    def packages(self, system_info) -> list[str]:
         packages = ["sway", "dmenu", "bemenu-wayland", "j4-dmenu-desktop", "foot", "grim", "mako", "slurp", "swayidle",
                     "swaylock", "swayimg", "waybar", "swaybg", "wf-recorder", "wl-clipboard", "xorg-xwayland",
                     "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol", "system-config-printer",

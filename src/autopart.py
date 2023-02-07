@@ -9,7 +9,7 @@ from src.options import SwapTypes, PartTypes, FSFormats
 from src.partition import Partition
 from src.partitioninginfo import PartitioningInfo
 from src.utils import ask_format_type, is_bios, from_iec, to_iec, print_error, print_step, print_sub_step, prompt, \
-    prompt_bool, prompt_option, execute
+    prompt_bool, prompt_option, execute, ask_encryption_credentials
 
 _ = I18n().gettext
 
@@ -49,6 +49,16 @@ def auto_partitioning() -> PartitioningInfo or None:
 
         want_home = prompt_bool(_("Do you want a separated Home ? (Y/n) : "))
         part_format_type = ask_format_type()
+        root_block_name = None
+        root_block_password = None
+        if prompt_bool(_("Do you want to encrypt the %s partition ? (y/N) : ") % "Root", default=False):
+            root_block_name, root_block_password = ask_encryption_credentials()
+        home_block_name = None
+        home_block_password = None
+        if want_home:
+            if prompt_bool(_("Do you want to encrypt the %s partition ? (y/N) : ") % "Home", default=False):
+                home_block_name, home_block_password = ask_encryption_credentials()
+
         if want_dual_boot:
             root_size = to_iec(int(disk.free_space / 4))
             swap_size = to_iec(int(disk.free_space / 32))
@@ -151,7 +161,19 @@ def auto_partitioning() -> PartitioningInfo or None:
         # WRITE
         auto_part_str += "w\n"
 
-        print_step(_("Summary of choices :"), clear=False)
+        for partition in partitioning_info.partitions:
+            if partition.part_type == PartTypes.ROOT \
+                    and root_block_name is not None and root_block_password is not None:
+                partition.encrypted = True
+                partition.block_name = root_block_name
+                partition.block_password = root_block_password
+            if partition.part_type == PartTypes.HOME \
+                    and home_block_name is not None and home_block_password is not None:
+                partition.encrypted = True
+                partition.block_name = home_block_name
+                partition.block_password = home_block_password
+
+        print_step(_("Summary of choices :"))
         for partition in partitioning_info.partitions:
             print_sub_step(partition.summary())
         if "SWAP" not in [part.part_type for part in partitioning_info.partitions] and swap_size:

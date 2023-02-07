@@ -13,7 +13,7 @@ class PipeWire(Bundle):
     The PipeWire class.
     """
 
-    def packages(self, system_info: {}) -> [str]:
+    def packages(self, system_info: dict[str, any]) -> list[str]:
         return ["pipewire", "pipewire-alsa", "pipewire-audio", "pipewire-jack", "pipewire-media-session",
                 "pipewire-pulse", "pipewire-v4l2", "pipewire-x11-bell", "pipewire-zeroconf"]
 

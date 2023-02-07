@@ -17,7 +17,7 @@ class Gnome(Bundle):
     """
     minimal = False
 
-    def packages(self, system_info) -> [str]:
+    def packages(self, system_info) -> list[str]:
         packages = ["gnome", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "xdg-desktop-portal",
                     "xdg-desktop-portal-gnome", "qt5-wayland"]
         if self.minimal is not True:

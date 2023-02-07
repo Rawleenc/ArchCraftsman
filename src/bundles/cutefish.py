@@ -17,7 +17,7 @@ class Cutefish(Bundle):
     """
     display_manager = True
 
-    def packages(self, system_info) -> [str]:
+    def packages(self, system_info) -> list[str]:
         packages = ["cutefish", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol"]
         if self.display_manager:
             packages.extend(["sddm"])

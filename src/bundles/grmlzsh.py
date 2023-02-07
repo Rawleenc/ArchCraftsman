@@ -15,7 +15,7 @@ class GrmlZsh(Bundle):
     Grml ZSH config class.
     """
 
-    def packages(self, system_info: {}) -> [str]:
+    def packages(self, system_info: dict[str, any]) -> list[str]:
         return ["zsh", "zsh-completions", "grml-zsh-config"]
 
     def print_resume(self):

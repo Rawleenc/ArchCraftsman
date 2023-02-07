@@ -8,7 +8,7 @@ class PartitioningInfo:
     """
     The class to contain all partitioning information.
     """
-    partitions: [Partition]
+    partitions: list[Partition]
     root_partition: Partition
     swapfile_size: str
     main_disk: str

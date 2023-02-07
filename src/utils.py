@@ -56,6 +56,28 @@ def ask_format_type() -> FSFormats:
                          FSFormats, _("Supported format types : "), FSFormats.EXT4, FSFormats.VFAT)
 
 
+def ask_encryption_credentials() -> tuple[str, str]:
+    """
+    Method to ask for encryption credentials.
+    :return:
+    """
+    block_name_pattern = re.compile("^[a-z][a-z\\d_]*$")
+    block_name_ok = False
+    block_name = None
+    while not block_name_ok:
+        block_name = prompt_ln(_("What will be the encrypted block name ? : "), required=True)
+        if block_name and block_name != "" and not block_name_pattern.match(
+                block_name):
+            print_error(_("Invalid encrypted block name."))
+            continue
+        block_name_ok = True
+
+    block_password = ask_password(
+        _("Enter the encrypted block password (it will be asked at boot to decrypt the partition) : "),
+        required=True)
+    return block_name, block_password
+
+
 def ask_password(prompt_message: str, required: bool = False) -> str:
     """
     A method to ask a password to the user.

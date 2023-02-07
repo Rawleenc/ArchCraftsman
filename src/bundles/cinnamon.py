@@ -17,7 +17,7 @@ class Cinnamon(Bundle):
     """
     display_manager = True
 
-    def packages(self, system_info) -> [str]:
+    def packages(self, system_info) -> list[str]:
         packages = ["cinnamon", "metacity", "gnome-shell", "gnome-terminal", "blueberry", "cinnamon-translations",
                     "gnome-panel", "system-config-printer", "wget", "xorg-server", "alsa-utils", "pulseaudio",
                     "pulseaudio-alsa", "pavucontrol"]

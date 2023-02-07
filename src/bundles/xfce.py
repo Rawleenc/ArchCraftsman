@@ -18,7 +18,7 @@ class Xfce(Bundle):
     display_manager = True
     minimal = False
 
-    def packages(self, system_info) -> [str]:
+    def packages(self, system_info) -> list[str]:
         packages = ["xfce4", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol",
                     "network-manager-applet"]
         if self.display_manager:

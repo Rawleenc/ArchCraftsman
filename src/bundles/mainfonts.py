@@ -8,7 +8,7 @@ from src.utils import print_sub_step
 _ = I18n().gettext
 
 
-def get_main_fonts() -> [str]:
+def get_main_fonts() -> list[str]:
     """
     The method to get the package list of the main fonts group.
     :return:
@@ -25,7 +25,7 @@ class MainFonts(Bundle):
     The main fonts class.
     """
 
-    def packages(self, system_info: {}) -> [str]:
+    def packages(self, system_info: dict[str, any]) -> list[str]:
         return get_main_fonts()
 
     def print_resume(self):

@@ -16,7 +16,7 @@ class Enlightenment(Bundle):
     Bundle class.
     """
 
-    def packages(self, system_info) -> [str]:
+    def packages(self, system_info) -> list[str]:
         packages = ["enlightenment", "terminology", "xorg-server", "xorg-xinit", "alsa-utils", "pulseaudio",
                     "pulseaudio-alsa", "pavucontrol", "system-config-printer", "network-manager-applet", "acpid"]
         return packages

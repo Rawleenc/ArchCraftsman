@@ -14,7 +14,7 @@ class Bundle:
     def __init__(self, name: OptionEnum):
         self.name = name
 
-    def packages(self, system_info: {}) -> [str]:  # pylint: disable=unused-argument
+    def packages(self, system_info: dict[str, any]) -> list[str]:  # pylint: disable=unused-argument
         """
         Bundle's packages retrieving method.
         """

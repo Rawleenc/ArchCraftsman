@@ -24,7 +24,7 @@ from src.utils import print_error, print_step, print_sub_step, prompt_ln, prompt
 _ = I18n().gettext
 
 
-def setup_system(detected_timezone) -> {}:
+def setup_system(detected_timezone) -> dict[str, any]:
     """
     The method to get system configurations from the user.
     :param detected_timezone:

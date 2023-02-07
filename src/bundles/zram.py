@@ -14,7 +14,7 @@ class Zram(Bundle):
     The ZRAM class.
     """
 
-    def packages(self, system_info: {}) -> [str]:
+    def packages(self, system_info: dict[str, any]) -> list[str]:
         return ["zram-generator"]
 
     def print_resume(self):

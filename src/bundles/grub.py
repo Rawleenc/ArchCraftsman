@@ -13,7 +13,7 @@ class Grub(Bundle):
     The Grub Bootloader class.
     """
 
-    def packages(self, system_info) -> [str]:
+    def packages(self, system_info) -> list[str]:
         return ["grub"]
 
     def configure(self, system_info: dict, pre_launch_info: dict, partitioning_info: PartitioningInfo):
