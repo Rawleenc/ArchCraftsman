@@ -97,8 +97,9 @@ def manual_partitioning() -> PartitioningInfo or None:
             partitioning_info.partitions.clear()
             partitioned_disks.clear()
             continue
-        if True in [part.encrypted for part in partitioning_info.partitions] and PartTypes.BOOT not in \
-                [part.part_type for part in partitioning_info.partitions]:
+        if True in [part.encrypted and part.part_type == PartTypes.ROOT for part in
+                    partitioning_info.partitions] and PartTypes.BOOT not in [part.part_type for part in
+                                                                             partitioning_info.partitions]:
             print_error(_("The Boot partition is required for system installation."))
             partitioning_info.partitions.clear()
             partitioned_disks.clear()
