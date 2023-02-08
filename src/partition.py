@@ -8,7 +8,7 @@ import re
 from src.i18n import I18n
 from src.options import PartTypes, FSFormats
 from src.utils import from_iec, execute, stdout, prompt_bool, to_iec, \
-    ask_format_type, ask_encryption_credentials
+    ask_format_type, ask_encryption_block_name
 
 _ = I18n().gettext
 
@@ -30,7 +30,6 @@ class Partition:
 
     encrypted: bool = False
     block_name: str = None
-    block_password: str = None
 
     def __init__(self, index: int or None = None, path: str = None, part_type: PartTypes = None,
                  part_mount_point: str = None,
@@ -123,7 +122,7 @@ class Partition:
             return
         self.encrypted = prompt_bool(_("Do you want to encrypt this partition ? (y/N) : "), default=False)
         if self.encrypted:
-            self.block_name, self.block_password = ask_encryption_credentials()
+            self.block_name = ask_encryption_block_name()
 
     def summary(self):
         """
@@ -147,6 +146,13 @@ class Partition:
             summary += f" - encrypted ('/dev/mapper/{self.block_name}')"
         return summary
 
+    def get_path(self) -> str:
+        """
+        A method to get the partition path.
+        :return:
+        """
+        return f"/dev/mapper/{self.block_name}" if self.encrypted else self.path
+
     def format_partition(self):
         """
         A method to execute formatting commands for the partition.
@@ -155,22 +161,23 @@ class Partition:
             execute(f'mkswap "{self.path}"')
             execute(f'swapon "{self.path}"')
             return
+        if self.encrypted:
+            if self.part_format:
+                execute(f"cryptsetup -y -v luksFormat {self.path}")
+            execute(f"cryptsetup open {self.path} {self.block_name}")
         match self.part_format_type:
             case FSFormats.VFAT:
                 if self.part_format:
-                    execute(f'mkfs.vfat "{self.path}"')
-                execute(f'mkdir -p "/mnt{self.part_mount_point}"')
-                execute(f'mount "{self.path}" "/mnt{self.part_mount_point}"')
+                    execute(f'mkfs.vfat "{self.get_path()}"')
+                execute(f'mount --mkdir "{self.get_path()}" "/mnt{self.part_mount_point}"')
             case FSFormats.BTRFS:
                 if self.part_format:
-                    execute(f'mkfs.btrfs -f "{self.path}"')
-                execute(f'mkdir -p "/mnt{self.part_mount_point}"')
-                execute(f'mount -o compress=zstd "{self.path}" "/mnt{self.part_mount_point}"')
+                    execute(f'mkfs.btrfs -f "{self.get_path()}"')
+                execute(f'mount --mkdir -o compress=zstd "{self.get_path()}" "/mnt{self.part_mount_point}"')
             case _:
                 if self.part_format:
-                    execute(f'mkfs.ext4 "{self.path}"')
-                execute(f'mkdir -p "/mnt{self.part_mount_point}"')
-                execute(f'mount "{self.path}" "/mnt{self.part_mount_point}"')
+                    execute(f'mkfs.ext4 "{self.get_path()}"')
+                execute(f'mount --mkdir "{self.get_path()}" "/mnt{self.part_mount_point}"')
 
     def build_partition_name(self, disk_name: str):
         """
