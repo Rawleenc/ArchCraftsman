@@ -3,12 +3,11 @@ The partition class module
 """
 import json
 import os
-import re
 
 from src.i18n import I18n
 from src.options import PartTypes, FSFormats
-from src.utils import from_iec, execute, stdout, prompt_bool, to_iec, \
-    ask_format_type, ask_encryption_block_name
+from src.utils import execute, stdout, prompt_bool, to_iec, \
+    ask_format_type, ask_encryption_block_name, from_iec
 
 _ = I18n().gettext
 
@@ -23,6 +22,7 @@ class Partition:
     part_type_name: str
     disk_name: str
     fs_type: str
+    uuid: str
     part_type: PartTypes
     part_mount_point: str
     part_format_type: FSFormats
@@ -47,6 +47,7 @@ class Partition:
             self.size = 0
             self.part_type_name = ""
             self.fs_type = ""
+            self.uuid = ""
         else:
             self.path = path
             if compute:
@@ -64,14 +65,13 @@ class Partition:
         A method to compute partition information.
         :return:
         """
-        self.size = from_iec(re.sub('\\s', '', stdout(
-            execute(f'lsblk -nl "{self.path}" -o SIZE', capture_output=True, force=True))))
-        self.part_type_name = str(re.sub('[^a-zA-Z\\d ]', '', stdout(
-            execute(f'lsblk -nl "{self.path}" -o PARTTYPENAME', capture_output=True, force=True))))
-        self.disk_name = str(re.sub('[^a-zA-Z\\d ]', '', stdout(
-            execute(f'lsblk -nl "{self.path}" -o PKNAME', capture_output=True, force=True))))
-        self.fs_type = str(re.sub('[^a-zA-Z\\d ]', '', stdout(
-            execute(f'lsblk -nl "{self.path}" -o FSTYPE', capture_output=True, force=True))))
+        self.size = from_iec(
+            stdout(execute(f'lsblk -nl "{self.path}" -o SIZE', capture_output=True, force=True)).strip())
+        self.part_type_name = stdout(
+            execute(f'lsblk -nl "{self.path}" -o PARTTYPENAME', capture_output=True, force=True)).strip()
+        self.disk_name = stdout(execute(f'lsblk -nl "{self.path}" -o PKNAME', capture_output=True, force=True)).strip()
+        self.fs_type = stdout(execute(f'lsblk -nl "{self.path}" -o FSTYPE', capture_output=True, force=True)).strip()
+        self.uuid = stdout(execute(f'lsblk -nl "{self.path}" -o UUID', capture_output=True, force=True)).strip()
 
     def need_format(self):
         """
@@ -122,7 +122,12 @@ class Partition:
             return
         self.encrypted = prompt_bool(_("Do you want to encrypt this partition ? (y/N) : "), default=False)
         if self.encrypted:
-            self.block_name = ask_encryption_block_name()
+            if self.part_type == PartTypes.ROOT:
+                self.block_name = "root"
+            elif self.part_type == PartTypes.HOME:
+                self.block_name = "home"
+            else:
+                self.block_name = ask_encryption_block_name()
 
     def summary(self):
         """

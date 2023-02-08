@@ -9,7 +9,7 @@ from src.options import SwapTypes, PartTypes, FSFormats
 from src.partition import Partition
 from src.partitioninginfo import PartitioningInfo
 from src.utils import ask_format_type, is_bios, from_iec, to_iec, print_error, print_step, print_sub_step, prompt, \
-    prompt_bool, prompt_option, execute, ask_encryption_block_name
+    prompt_bool, prompt_option, execute
 
 _ = I18n().gettext
 
@@ -51,11 +51,11 @@ def auto_partitioning() -> PartitioningInfo or None:
         part_format_type = ask_format_type()
         root_block_name = None
         if prompt_bool(_("Do you want to encrypt the %s partition ? (y/N) : ") % "Root", default=False):
-            root_block_name = ask_encryption_block_name()
+            root_block_name = "root"
         home_block_name = None
         if want_home:
             if prompt_bool(_("Do you want to encrypt the %s partition ? (y/N) : ") % "Home", default=False):
-                home_block_name = ask_encryption_block_name()
+                home_block_name = "home"
 
         if want_dual_boot:
             root_size = to_iec(int(disk.free_space / 4))

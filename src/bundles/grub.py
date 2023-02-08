@@ -1,11 +1,12 @@
 """
 The grub bundle module
 """
+import re
 
 from src.bundles.bundle import Bundle
 from src.options import FSFormats
 from src.partitioninginfo import PartitioningInfo
-from src.utils import is_bios, execute
+from src.utils import is_bios, execute, stdout
 
 
 class Grub(Bundle):
@@ -24,6 +25,27 @@ class Grub(Bundle):
                 'arch-chroot /mnt bash -c "grub-install --target=x86_64-efi --efi-directory=/boot/efi '
                 '--bootloader-id=\'Arch Linux\'"')
         execute('sed -i "/^GRUB_CMDLINE_LINUX=.*/a GRUB_DISABLE_OS_PROBER=false" /mnt/etc/default/grub')
+
+        if True in [part.encrypted for part in partitioning_info.partitions]:
+            hooks = stdout(execute("grep -e '^HOOKS' /mnt/etc/mkinitcpio.conf", capture_output=True)).strip()
+            pattern = re.compile(r"^HOOKS=\((.+)\)")
+            extracted_hooks = pattern.search(hooks).group(1).split(" ")
+            extracted_hooks.insert(extracted_hooks.index("filesystems"), "encrypted")
+            processed_hooks = f"HOOKS=({' '.join(extracted_hooks)})"
+            execute(f'sed -i "s|{hooks}|{processed_hooks}|g" /mnt/etc/mkinitcpio.conf')
+            execute('arch-chroot /mnt bash -c "mkinitcpio -P"')
+
+        if partitioning_info.root_partition.encrypted:
+            partitioning_info.root_partition.compute()
+            grub_cmdline = stdout(
+                execute("grep -e '^GRUB_CMDLINE_LINUX_DEFAULT' /mnt/etc/default/grub", capture_output=True)).strip()
+            pattern = re.compile(r'^GRUB_CMDLINE_LINUX_DEFAULT="(.+)"')
+            extracted_grub_cmdline = pattern.search(grub_cmdline).group(1).split(" ")
+            extracted_grub_cmdline.append(
+                f"cryptdevice=UUID={partitioning_info.root_partition.uuid}:root root=/dev/mapper/root")
+            processed_grub_cmdline = f"GRUB_CMDLINE_LINUX_DEFAULT=\"{' '.join(extracted_grub_cmdline)}\""
+            execute(f'sed -i "s|{grub_cmdline}|{processed_grub_cmdline}|g" /mnt/etc/default/grub')
+
         if partitioning_info.root_partition.part_format_type == FSFormats.EXT4:
             execute('sed -i "s|GRUB_DEFAULT=.*|GRUB_DEFAULT=saved|g" /mnt/etc/default/grub')
             execute('sed -i "/^GRUB_DEFAULT=.*/a GRUB_SAVEDEFAULT=true" /mnt/etc/default/grub')

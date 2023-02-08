@@ -312,7 +312,7 @@ def execute(command: str, check: bool = True, capture_output: bool = False,
     return fake_result
 
 
-def stdout(process_result: subprocess.CompletedProcess):
+def stdout(process_result: subprocess.CompletedProcess) -> str:
     """
     A method to get a decoded stdout.
     :param process_result:
