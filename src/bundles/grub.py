@@ -34,9 +34,9 @@ class Grub(Bundle):
             hooks_match = pattern.search(hooks)
             if hooks_match:
                 extracted_hooks = hooks_match.group(1).split(" ")
-                extracted_hooks.insert(extracted_hooks.index("filesystems"), "encrypted")
+                extracted_hooks.insert(extracted_hooks.index("filesystems"), "encrypt")
             else:
-                extracted_hooks = ["encrypted"]
+                extracted_hooks = ["encrypt"]
             processed_hooks = f"HOOKS=({' '.join(extracted_hooks)})"
             execute(f'sed -i "s|{hooks}|{processed_hooks}|g" /mnt/etc/mkinitcpio.conf')
             execute('arch-chroot /mnt bash -c "mkinitcpio -P"')
