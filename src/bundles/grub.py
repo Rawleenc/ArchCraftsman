@@ -38,7 +38,7 @@ class Grub(Bundle):
             else:
                 extracted_hooks = ["encrypt"]
             processed_hooks = f"HOOKS=({' '.join(extracted_hooks)})"
-            execute(f'sed -i "s|{hooks}|{processed_hooks}|g" /mnt/etc/mkinitcpio.conf')
+            execute(f'sed -i \'s|{hooks}|{processed_hooks}|g\' /mnt/etc/mkinitcpio.conf')
             execute('arch-chroot /mnt bash -c "mkinitcpio -P"')
 
         if partitioning_info.root_partition.encrypted:
@@ -55,7 +55,7 @@ class Grub(Bundle):
             extracted_grub_cmdline.append(
                 f"cryptdevice=UUID={partitioning_info.root_partition.uuid}:root root=/dev/mapper/root")
             processed_grub_cmdline = f"GRUB_CMDLINE_LINUX_DEFAULT=\"{' '.join(extracted_grub_cmdline)}\""
-            execute(f'sed -i "s|{grub_cmdline}|{processed_grub_cmdline}|g" /mnt/etc/default/grub')
+            execute(f'sed -i \'s|{grub_cmdline}|{processed_grub_cmdline}|g\' /mnt/etc/default/grub')
 
         if partitioning_info.root_partition.part_format_type == FSFormats.EXT4:
             execute('sed -i "s|GRUB_DEFAULT=.*|GRUB_DEFAULT=saved|g" /mnt/etc/default/grub')

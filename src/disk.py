@@ -25,7 +25,7 @@ class Disk:
         Disk initialisation.
         """
         self.path = path
-        detected_partitions = stdout(execute(f'lsblk -nl "{path}" -o PATH,TYPE | grep part', capture_output=True,
+        detected_partitions = stdout(execute(f'lsblk -nld "{path}" -o PATH,TYPE | grep part', capture_output=True,
                                              force=True, check=False))
         self.partitions = []
         index = 0

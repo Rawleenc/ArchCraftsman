@@ -43,7 +43,7 @@ def manual_partitioning() -> PartitioningInfo or None:
         for disk in partitioned_disks:
             log(f"Detected disk: {disk}")
             detected_partitions = stdout(execute(
-                f'lsblk -nl "{disk}" -o PATH,PARTTYPENAME | grep -iE "linux|efi|swap" | awk \'{{print $1}}\'',
+                f'lsblk -nld "{disk}" -o PATH,PARTTYPENAME | grep -iE "linux|efi|swap" | awk \'{{print $1}}\'',
                 capture_output=True, force=True))
             log(f"Partitions: {detected_partitions.splitlines()}")
             for partition in detected_partitions.splitlines():

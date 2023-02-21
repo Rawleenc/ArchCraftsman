@@ -68,12 +68,12 @@ class Partition:
         :return:
         """
         self.size = from_iec(
-            stdout(execute(f'lsblk -nl "{self.path}" -o SIZE', capture_output=True, force=True)).strip())
+            stdout(execute(f'lsblk -nld "{self.path}" -o SIZE', capture_output=True, force=True)).strip())
         self.part_type_name = stdout(
-            execute(f'lsblk -nl "{self.path}" -o PARTTYPENAME', capture_output=True, force=True)).strip()
-        self.disk_name = stdout(execute(f'lsblk -nl "{self.path}" -o PKNAME', capture_output=True, force=True)).strip()
-        self.fs_type = stdout(execute(f'lsblk -nl "{self.path}" -o FSTYPE', capture_output=True, force=True)).strip()
-        self.uuid = stdout(execute(f'lsblk -nl "{self.path}" -o UUID', capture_output=True, force=True)).strip()
+            execute(f'lsblk -nld "{self.path}" -o PARTTYPENAME', capture_output=True, force=True)).strip()
+        self.disk_name = stdout(execute(f'lsblk -nld "{self.path}" -o PKNAME', capture_output=True, force=True)).strip()
+        self.fs_type = stdout(execute(f'lsblk -nld "{self.path}" -o FSTYPE', capture_output=True, force=True)).strip()
+        self.uuid = stdout(execute(f'lsblk -nld "{self.path}" -o UUID', capture_output=True, force=True)).strip()
 
     def need_format(self):
         """
