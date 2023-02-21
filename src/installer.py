@@ -184,7 +184,8 @@ def install(pre_launch_info):
                 f'--create-home {system_info["user_name"]}"')
             if system_info["user_full_name"] != "":
                 execute(
-                    f'arch-chroot /mnt bash -c "chfn -f \'{system_info["user_full_name"]}\' {system_info["user_name"]}"')
+                    f'arch-chroot /mnt bash -c '
+                    f'"chfn -f \'{system_info["user_full_name"]}\' {system_info["user_name"]}"')
             if system_info["user_password"] != "":
                 execute(
                     f'arch-chroot /mnt bash -c "echo \'{system_info["user_name"]}:'
