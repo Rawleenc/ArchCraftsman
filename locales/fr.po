@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2023-02-21 21:48+0100\n"
-"PO-Revision-Date: 2023-02-21 21:50+0100\n"
+"POT-Creation-Date: 2023-02-21 23:09+0100\n"
+"PO-Revision-Date: 2023-02-21 23:10+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -29,11 +29,11 @@ msgstr "Synchronisation des dépôts et du trousseau de clés..."
 msgid "Querying IP geolocation informations..."
 msgstr "Interrogation des informations de géolocalisation IP..."
 
-#: src/archcraftsman.py:80 src/installer.py:195 src/shell.py:104
+#: src/archcraftsman.py:80 src/installer.py:165 src/shell.py:104
 msgid "Script execution interrupted by the user !"
 msgstr "Exécution du script interrompue par l'utilisateur !"
 
-#: src/archcraftsman.py:83 src/installer.py:199 src/shell.py:107
+#: src/archcraftsman.py:83 src/installer.py:169 src/shell.py:107
 msgid "A subprocess execution failed ! See the following error: %s"
 msgstr ""
 "L'exécution d'un sous-processus a échoué ! L'erreur suivante s'est "
@@ -259,83 +259,67 @@ msgstr "La langue de votre installation : %s"
 msgid "Your installation's keymap : %s"
 msgstr "La keymap de votre installation : %s"
 
-#: src/installer.py:23
-msgid "Unmounting partitions..."
-msgstr "Démontage des partitions..."
-
-#: src/installer.py:47
+#: src/installer.py:31
 msgid "Partitioning :"
 msgstr "Partitionnement :"
 
-#: src/installer.py:48
+#: src/installer.py:32
 msgid "Do you want an automatic partitioning ? (y/N) : "
 msgstr "Voulez-vous un partitionnement automatique ? (o/N) : "
 
-#: src/installer.py:55
-msgid "Formatting and mounting partitions..."
-msgstr "Formatage et montage des partitions..."
-
-#: src/installer.py:57 src/installer.py:69
-msgid "Formatting %s..."
-msgstr "Formatage de %s..."
-
-#: src/installer.py:59 src/installer.py:71
-msgid "Mounting %s..."
-msgstr "Montage de %s..."
-
-#: src/installer.py:74
+#: src/installer.py:41
 msgid "Updating mirrors..."
 msgstr "Mise à jour des miroirs..."
 
-#: src/installer.py:105
+#: src/installer.py:73
 msgid "Installation of the base..."
 msgstr "Installation de la base..."
 
-#: src/installer.py:108
+#: src/installer.py:76
 msgid "System configuration..."
 msgstr "Configuration du système..."
 
-#: src/installer.py:128
+#: src/installer.py:96
 msgid "Locales configuration..."
 msgstr "Configuration des locales..."
 
-#: src/installer.py:132
+#: src/installer.py:100
 msgid "Installation of the remaining packages..."
 msgstr "Installation des paquets restants..."
 
-#: src/installer.py:141
+#: src/installer.py:110
 msgid "Creation and activation of the swapfile..."
 msgstr "Création et activation du fichier d'échange..."
 
-#: src/installer.py:157
+#: src/installer.py:126
 msgid "Generating fstab..."
 msgstr "Génération du fstab..."
 
-#: src/installer.py:160
+#: src/installer.py:129
 msgid "Network configuration..."
 msgstr "Configuration du réseau..."
 
-#: src/installer.py:165
+#: src/installer.py:134
 msgid "Installation and configuration of the grub..."
 msgstr "Installation et configuration du grub..."
 
-#: src/installer.py:168
+#: src/installer.py:137
 msgid "Users configuration..."
 msgstr "Configuration des utilisateurs..."
 
-#: src/installer.py:169
+#: src/installer.py:138
 msgid "Root account configuration..."
 msgstr "Configuration du compte Root..."
 
-#: src/installer.py:173
+#: src/installer.py:142
 msgid "%s account configuration..."
 msgstr "Configuration du compte %s..."
 
-#: src/installer.py:186
+#: src/installer.py:156
 msgid "Extra packages configuration if needed..."
 msgstr "Configuration de paquets supplémentaires si nécessaire..."
 
-#: src/installer.py:192
+#: src/installer.py:162
 msgid "Installation complete ! You can reboot your system."
 msgstr "L'installation est terminée ! Vous pouvez redémarrer votre système."
 
@@ -426,6 +410,34 @@ msgstr "%s : %s"
 #: src/partition.py:150
 msgid "%s : %s (mounting point : %s, format %s, format type %s)"
 msgstr "%s : %s (point de montage : %s, formater %s, type de formatage %s)"
+
+#: src/partition.py:167
+msgid "Formatting %s..."
+msgstr "Formatage de %s..."
+
+#: src/partition.py:175
+msgid "Opening %s..."
+msgstr "Ouverture de %s..."
+
+#: src/partition.py:193
+msgid "Mounting %s..."
+msgstr "Montage de %s..."
+
+#: src/partition.py:207
+msgid "Unmounting %s..."
+msgstr "Démontage de %s..."
+
+#: src/partition.py:210
+msgid "Closing %s..."
+msgstr "Fermeture de %s..."
+
+#: src/partitioninginfo.py:33
+msgid "Formatting and mounting partitions..."
+msgstr "Formatage et montage des partitions..."
+
+#: src/partitioninginfo.py:53
+msgid "Unmounting partitions..."
+msgstr "Démontage des partitions..."
 
 #: src/shell.py:20 src/systemsetup.py:40
 msgid "Kernel '%s' is not supported."

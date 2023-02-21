@@ -192,8 +192,6 @@ class Partition:
         """
         print_sub_step(_("Mounting %s...") % (self.real_path()))
         match self.part_format_type:
-            case FSFormats.VFAT:
-                execute(f'mount --mkdir "{self.real_path()}" "/mnt{self.part_mount_point}"')
             case FSFormats.BTRFS:
                 execute(f'mount --mkdir -o compress=zstd "{self.real_path()}" "/mnt{self.part_mount_point}"')
             case _:
@@ -206,8 +204,10 @@ class Partition:
         :return:
         """
         try:
+            print_sub_step(_("Unmounting %s...") % (self.real_path()))
             execute(f'umount "/mnt{self.part_mount_point}"')
             if self.encrypted:
+                print_sub_step(_("Closing %s...") % (self.real_path()))
                 execute(f'cryptsetup close {self.block_name}')
             self.part_mounted = False
         except CalledProcessError:

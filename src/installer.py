@@ -1,7 +1,6 @@
 """
 The installer mode module
 """
-import re
 import sys
 from subprocess import CalledProcessError
 
@@ -11,29 +10,9 @@ from src.manualpart import manual_partitioning
 from src.options import FSFormats, PartTypes
 from src.partitioninginfo import PartitioningInfo
 from src.systemsetup import setup_system
-from src.utils import print_step, stdout, execute, prompt_bool, print_sub_step, print_error
+from src.utils import print_step, execute, prompt_bool, print_sub_step, print_error
 
 _ = I18n().gettext
-
-
-def umount_partitions(partitioning_info: PartitioningInfo):
-    """
-    A method to unmount all mounted partitions.
-    """
-    print_step(_("Unmounting partitions..."), clear=False)
-    swap = re.sub('\\s', '',
-                  stdout(execute('swapon --noheadings | awk \'{print $1}\'', check=False, capture_output=True)))
-    if swap != "":
-        execute(f'swapoff {swap} &>/dev/null', check=False)
-
-    mounted_partitions = [partition for partition in partitioning_info.partitions if
-                          partition.part_mounted and partition.part_type != PartTypes.ROOT]
-    mounted_partitions.sort(key=lambda partition: len(partition.part_mount_point), reverse=True)
-
-    while True in [partition.part_mounted for partition in mounted_partitions]:
-        for partition in [partition for partition in mounted_partitions if partition.part_mounted]:
-            partition.umount()
-    partitioning_info.root_partition.umount()
 
 
 def install(pre_launch_info):
@@ -177,17 +156,17 @@ def install(pre_launch_info):
         for bundle in system_info["bundles"]:
             bundle.configure(system_info, pre_launch_info, partitioning_info)
 
-        umount_partitions(partitioning_info)
+        partitioning_info.umount_partitions()
 
         print_step(_("Installation complete ! You can reboot your system."), clear=False)
 
     except KeyboardInterrupt:
         print_error(_("Script execution interrupted by the user !"), do_pause=False)
-        umount_partitions(partitioning_info)
+        partitioning_info.umount_partitions()
         sys.exit(1)
     except CalledProcessError as exception:
         print_error(_("A subprocess execution failed ! See the following error: %s") % exception, do_pause=False)
-        umount_partitions(partitioning_info)
+        partitioning_info.umount_partitions()
         sys.exit(1)
     except EOFError:
         sys.exit(1)

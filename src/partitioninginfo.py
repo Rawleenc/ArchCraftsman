@@ -1,10 +1,12 @@
 """
 The module of PartitioningInfo class.
 """
+import re
+
 from src.i18n import I18n
 from src.options import FSFormats
 from src.partition import Partition
-from src.utils import print_step
+from src.utils import print_step, stdout, execute
 
 _ = I18n().gettext
 
@@ -35,11 +37,28 @@ class PartitioningInfo:
                 self.btrfs_in_use = True
             partition.format_partition()
 
-        if self.root_partition.part_format_type == FSFormats.BTRFS:
-            self.btrfs_in_use = True
-        self.root_partition.mount()
+        not_mounted_partitions = [partition for partition in self.partitions if not partition.part_mounted]
+        not_mounted_partitions.sort(key=lambda part: len(part.part_mount_point))
 
-        for partition in [partition for partition in self.partitions if not partition.part_mounted]:
-            if partition.part_format_type == FSFormats.BTRFS:
-                self.btrfs_in_use = True
-            partition.mount()
+        while False in [partition.part_mounted for partition in not_mounted_partitions]:
+            for partition in not_mounted_partitions:
+                if partition.part_format_type == FSFormats.BTRFS:
+                    self.btrfs_in_use = True
+                partition.mount()
+
+    def umount_partitions(self):
+        """
+        A method to unmount all mounted partitions.
+        """
+        print_step(_("Unmounting partitions..."), clear=False)
+        swap = re.sub('\\s', '',
+                      stdout(execute('swapon --noheadings | awk \'{print $1}\'', check=False, capture_output=True)))
+        if swap != "":
+            execute(f'swapoff {swap} &>/dev/null', check=False)
+
+        mounted_partitions = [partition for partition in self.partitions if partition.part_mounted]
+        mounted_partitions.sort(key=lambda partition: len(partition.part_mount_point), reverse=True)
+
+        while True in [partition.part_mounted for partition in mounted_partitions]:
+            for partition in [partition for partition in mounted_partitions if partition.part_mounted]:
+                partition.umount()
