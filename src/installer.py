@@ -45,7 +45,6 @@ def install(pre_launch_info):
     partitioning_info: PartitioningInfo = PartitioningInfo()
     try:
         system_info = setup_system(pre_launch_info["detected_timezone"])
-        btrfs_in_use = False
 
         temp_partitioning_info = None
         while temp_partitioning_info is None:
@@ -57,24 +56,7 @@ def install(pre_launch_info):
                 temp_partitioning_info = manual_partitioning()
         partitioning_info: PartitioningInfo = temp_partitioning_info
 
-        print_step(_("Formatting and mounting partitions..."), clear=False)
-
-        for partition in partitioning_info.partitions:
-            if partition.part_format_type == FSFormats.BTRFS:
-                btrfs_in_use = True
-            print_sub_step(_("Formatting %s...") % (partition.real_path()))
-            partition.format_partition()
-
-        if partitioning_info.root_partition.part_format_type == FSFormats.BTRFS:
-            btrfs_in_use = True
-        print_sub_step(_("Mounting %s...") % (partitioning_info.root_partition.real_path()))
-        partitioning_info.root_partition.mount()
-
-        for partition in [partition for partition in partitioning_info.partitions if not partition.part_mounted]:
-            if partition.part_format_type == FSFormats.BTRFS:
-                btrfs_in_use = True
-            print_sub_step(_("Mounting %s...") % (partition.real_path()))
-            partition.mount()
+        partitioning_info.format_and_mount_partitions()
 
         print_step(_("Updating mirrors..."), clear=False)
         execute('reflector --verbose -phttps -f10 -l10 --sort rate -a2 --save /etc/pacman.d/mirrorlist')
@@ -94,7 +76,7 @@ def install(pre_launch_info):
                 f"pacman -Si man-pages-{pre_launch_info['global_language'].lower()} &>/dev/null").returncode == 0:
             pkgs.add(f"man-pages-{pre_launch_info['global_language'].lower()}")
 
-        if btrfs_in_use:
+        if partitioning_info.btrfs_in_use:
             pkgs.add("btrfs-progs")
 
         pkgs.update(system_info["microcodes"].packages(system_info))

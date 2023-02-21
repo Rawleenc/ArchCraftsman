@@ -8,7 +8,7 @@ from subprocess import CalledProcessError
 from src.i18n import I18n
 from src.options import PartTypes, FSFormats
 from src.utils import execute, stdout, prompt_bool, to_iec, \
-    ask_format_type, ask_encryption_block_name, from_iec
+    ask_format_type, ask_encryption_block_name, from_iec, print_sub_step
 
 _ = I18n().gettext
 
@@ -164,6 +164,7 @@ class Partition:
         """
         A method to execute formatting commands for the partition.
         """
+        print_sub_step(_("Formatting %s...") % (self.real_path()))
         if self.part_type == PartTypes.SWAP:
             execute(f'mkswap "{self.path}"')
             execute(f'swapon "{self.path}"')
@@ -171,6 +172,8 @@ class Partition:
         if self.encrypted:
             if self.part_format:
                 execute(f"cryptsetup -y -v luksFormat {self.path}")
+            print_sub_step(_("Opening %s...") % (self.real_path()))
+            execute(f"cryptsetup open {self.path} {self.block_name}")
         match self.part_format_type:
             case FSFormats.VFAT:
                 if self.part_format:
@@ -187,8 +190,7 @@ class Partition:
         A method to mount the partition.
         :return:
         """
-        if self.encrypted:
-            execute(f"cryptsetup open {self.path} {self.block_name}")
+        print_sub_step(_("Mounting %s...") % (self.real_path()))
         match self.part_format_type:
             case FSFormats.VFAT:
                 execute(f'mount --mkdir "{self.real_path()}" "/mnt{self.part_mount_point}"')
