@@ -52,8 +52,10 @@ class Grub(Bundle):
                 extracted_grub_cmdline = grub_cmdline_match.group(1).split(" ")
             else:
                 extracted_grub_cmdline = []
-            extracted_grub_cmdline.append(
-                f"cryptdevice=UUID={partitioning_info.root_partition.uuid}:root root=/dev/mapper/root")
+            for partition in [part for part in partitioning_info.partitions if part.encrypted]:
+                extracted_grub_cmdline.append(
+                    f"cryptdevice=UUID={partition.uuid}:{partition.block_name} "
+                    f"{partition.block_name}={partition.real_path()}")
             processed_grub_cmdline = f"GRUB_CMDLINE_LINUX_DEFAULT=\"{' '.join(extracted_grub_cmdline)}\""
             execute(f'sed -i \'s|{grub_cmdline}|{processed_grub_cmdline}|g\' /mnt/etc/default/grub')
 
