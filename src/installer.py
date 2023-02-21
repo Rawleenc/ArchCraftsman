@@ -59,22 +59,22 @@ def install(pre_launch_info):
 
         print_step(_("Formatting and mounting partitions..."), clear=False)
 
-        print_sub_step(_("Formatting %s...") % (partitioning_info.root_partition.real_path()))
-        partitioning_info.root_partition.format_partition()
-        print_sub_step(_("Mounting %s...") % (partitioning_info.root_partition.real_path()))
-        partitioning_info.root_partition.mount()
-
-        if partitioning_info.root_partition.part_format_type == FSFormats.BTRFS:
-            btrfs_in_use = True
-
         for partition in partitioning_info.partitions:
             if partition.part_format_type == FSFormats.BTRFS:
                 btrfs_in_use = True
-            elif partition.part_type != PartTypes.ROOT:
-                print_sub_step(_("Formatting %s...") % (partition.real_path()))
-                partition.format_partition()
-                print_sub_step(_("Mounting %s...") % (partition.real_path()))
-                partition.mount()
+            print_sub_step(_("Formatting %s...") % (partition.real_path()))
+            partition.format_partition()
+
+        if partitioning_info.root_partition.part_format_type == FSFormats.BTRFS:
+            btrfs_in_use = True
+        print_sub_step(_("Mounting %s...") % (partitioning_info.root_partition.real_path()))
+        partitioning_info.root_partition.mount()
+
+        for partition in [partition for partition in partitioning_info.partitions if not partition.part_mounted]:
+            if partition.part_format_type == FSFormats.BTRFS:
+                btrfs_in_use = True
+            print_sub_step(_("Mounting %s...") % (partition.real_path()))
+            partition.mount()
 
         print_step(_("Updating mirrors..."), clear=False)
         execute('reflector --verbose -phttps -f10 -l10 --sort rate -a2 --save /etc/pacman.d/mirrorlist')

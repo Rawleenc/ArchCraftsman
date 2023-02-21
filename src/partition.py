@@ -204,9 +204,9 @@ class Partition:
         :return:
         """
         try:
-            execute(f'umount "/mnt{self.part_mount_point}')
+            execute(f'umount "/mnt{self.part_mount_point}"')
             if self.encrypted:
-                execute(f"cryptsetup close {self.block_name}")
+                execute(f'cryptsetup close {self.block_name}')
             self.part_mounted = False
         except CalledProcessError:
             return False
