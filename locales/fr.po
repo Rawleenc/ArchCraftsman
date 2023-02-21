@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2023-02-05 18:44+0100\n"
-"PO-Revision-Date: 2023-02-05 18:48+0100\n"
+"POT-Creation-Date: 2023-02-21 21:48+0100\n"
+"PO-Revision-Date: 2023-02-21 21:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -29,11 +29,11 @@ msgstr "Synchronisation des dépôts et du trousseau de clés..."
 msgid "Querying IP geolocation informations..."
 msgstr "Interrogation des informations de géolocalisation IP..."
 
-#: src/archcraftsman.py:80 src/installer.py:193 src/shell.py:104
+#: src/archcraftsman.py:80 src/installer.py:195 src/shell.py:104
 msgid "Script execution interrupted by the user !"
 msgstr "Exécution du script interrompue par l'utilisateur !"
 
-#: src/archcraftsman.py:83 src/installer.py:197 src/shell.py:107
+#: src/archcraftsman.py:83 src/installer.py:199 src/shell.py:107
 msgid "A subprocess execution failed ! See the following error: %s"
 msgstr ""
 "L'exécution d'un sous-processus a échoué ! L'erreur suivante s'est "
@@ -75,21 +75,25 @@ msgstr "Types de swap supportés : "
 msgid "Do you want a separated Home ? (Y/n) : "
 msgstr "Voulez-vous un Home séparé ? (O/n) : "
 
-#: src/autopart.py:154 src/envsetup.py:66 src/manualpart.py:125
+#: src/autopart.py:53 src/autopart.py:57
+msgid "Do you want to encrypt the %s partition ? (y/N) : "
+msgstr "Voulez-vous chiffrer la partition %s ? (o/N) : "
+
+#: src/autopart.py:182 src/envsetup.py:66 src/manualpart.py:110
 #: src/systemsetup.py:133
 msgid "Summary of choices :"
 msgstr "Résumé des choix :"
 
-#: src/autopart.py:158 src/manualpart.py:130
+#: src/autopart.py:186 src/manualpart.py:115
 msgid "Swapfile size : %s"
 msgstr "Taille du fichier d'échange : %s"
 
-#: src/autopart.py:159 src/envsetup.py:69 src/manualpart.py:131
+#: src/autopart.py:187 src/envsetup.py:69 src/manualpart.py:116
 #: src/systemsetup.py:148
 msgid "Is the informations correct ? (y/N) : "
 msgstr "Les informations sont-elles correctes ? (o/N) : "
 
-#: src/autopart.py:161 src/manualpart.py:133
+#: src/autopart.py:189 src/manualpart.py:118
 msgid "Do you want to change the partitioning mode ? (y/N) : "
 msgstr "Voulez-vous changer de mode de partitionnement ? (o/N) : "
 
@@ -259,71 +263,79 @@ msgstr "La keymap de votre installation : %s"
 msgid "Unmounting partitions..."
 msgstr "Démontage des partitions..."
 
-#: src/installer.py:43
+#: src/installer.py:47
 msgid "Partitioning :"
 msgstr "Partitionnement :"
 
-#: src/installer.py:44
+#: src/installer.py:48
 msgid "Do you want an automatic partitioning ? (y/N) : "
 msgstr "Voulez-vous un partitionnement automatique ? (o/N) : "
 
-#: src/installer.py:51
+#: src/installer.py:55
 msgid "Formatting and mounting partitions..."
 msgstr "Formatage et montage des partitions..."
 
-#: src/installer.py:63
+#: src/installer.py:57 src/installer.py:69
+msgid "Formatting %s..."
+msgstr "Formatage de %s..."
+
+#: src/installer.py:59 src/installer.py:71
+msgid "Mounting %s..."
+msgstr "Montage de %s..."
+
+#: src/installer.py:74
 msgid "Updating mirrors..."
 msgstr "Mise à jour des miroirs..."
 
-#: src/installer.py:94
+#: src/installer.py:105
 msgid "Installation of the base..."
 msgstr "Installation de la base..."
 
-#: src/installer.py:97
+#: src/installer.py:108
 msgid "System configuration..."
 msgstr "Configuration du système..."
 
-#: src/installer.py:117
+#: src/installer.py:128
 msgid "Locales configuration..."
 msgstr "Configuration des locales..."
 
-#: src/installer.py:121
+#: src/installer.py:132
 msgid "Installation of the remaining packages..."
 msgstr "Installation des paquets restants..."
 
-#: src/installer.py:130
+#: src/installer.py:141
 msgid "Creation and activation of the swapfile..."
 msgstr "Création et activation du fichier d'échange..."
 
-#: src/installer.py:146
+#: src/installer.py:157
 msgid "Generating fstab..."
 msgstr "Génération du fstab..."
 
-#: src/installer.py:149
+#: src/installer.py:160
 msgid "Network configuration..."
 msgstr "Configuration du réseau..."
 
-#: src/installer.py:154
+#: src/installer.py:165
 msgid "Installation and configuration of the grub..."
 msgstr "Installation et configuration du grub..."
 
-#: src/installer.py:157
+#: src/installer.py:168
 msgid "Users configuration..."
 msgstr "Configuration des utilisateurs..."
 
-#: src/installer.py:158
+#: src/installer.py:169
 msgid "Root account configuration..."
 msgstr "Configuration du compte Root..."
 
-#: src/installer.py:162
+#: src/installer.py:173
 msgid "%s account configuration..."
 msgstr "Configuration du compte %s..."
 
-#: src/installer.py:175
+#: src/installer.py:186
 msgid "Extra packages configuration if needed..."
 msgstr "Configuration de paquets supplémentaires si nécessaire..."
 
-#: src/installer.py:181
+#: src/installer.py:192
 msgid "Installation complete ! You can reboot your system."
 msgstr "L'installation est terminée ! Vous pouvez redémarrer votre système."
 
@@ -331,15 +343,15 @@ msgstr "L'installation est terminée ! Vous pouvez redémarrer votre système."
 msgid "Configuring live environment..."
 msgstr "Configuration de l'environnement live..."
 
-#: src/manualpart.py:27 src/manualpart.py:38
+#: src/manualpart.py:26 src/manualpart.py:37
 msgid "Manual partitioning :"
 msgstr "Partitionnement manuel :"
 
-#: src/manualpart.py:28 src/manualpart.py:39
+#: src/manualpart.py:27 src/manualpart.py:38
 msgid "Partitioned drives so far : %s"
 msgstr "Disques partitionnés jusqu'à présent : %s"
 
-#: src/manualpart.py:31
+#: src/manualpart.py:30
 msgid ""
 "Which drive do you want to partition ? (type the entire name, for example '/"
 "dev/sda') : "
@@ -347,91 +359,71 @@ msgstr ""
 "Quel disque souhaitez-vous partitionner ? (tapez le nom complet, par exemple "
 "'/dev/sda') : "
 
-#: src/manualpart.py:33
+#: src/manualpart.py:32
 msgid "The chosen target drive doesn't exist."
 msgstr "Le disque cible choisi n'existe pas."
 
-#: src/manualpart.py:41
+#: src/manualpart.py:40
 msgid "Do you want to partition an other drive ? (y/N) : "
 msgstr "Voulez-vous partitionner un autre disque ? (o/N) : "
 
-#: src/manualpart.py:54
+#: src/manualpart.py:53
 msgid "Detected target drive partitions : %s"
 msgstr "Partitions du disque cible détectées : %s"
 
-#: src/manualpart.py:56
+#: src/manualpart.py:55
 msgid "Partition :"
 msgstr "Partition :"
 
-#: src/manualpart.py:59 src/manualpart.py:64
+#: src/manualpart.py:58 src/manualpart.py:63
 msgid "What is the role of this partition ? (%s) : "
 msgstr "Quel est le rôle de cette partition ? (%s) : "
 
-#: src/manualpart.py:60 src/manualpart.py:65
+#: src/manualpart.py:59 src/manualpart.py:64
 msgid "Partition type '%s' is not supported."
 msgstr "Le type de partition '%s' n'est pas supporté."
 
-#: src/manualpart.py:61 src/manualpart.py:66
+#: src/manualpart.py:60 src/manualpart.py:65
 msgid "Supported partition types : "
 msgstr "Types de partition supportés : "
 
-#: src/manualpart.py:70 src/manualpart.py:86 src/manualpart.py:92
-msgid "Format the partition ? (Y/n) : "
-msgstr "Formater la partition ? (O/n) : "
-
-#: src/manualpart.py:102
+#: src/manualpart.py:86
 msgid "What is the mounting point of this partition ? : "
 msgstr "Quel est le point de montage de cette partition ? : "
 
-#: src/manualpart.py:104
-msgid "Format the %s partition ? (Y/n) : "
-msgstr "Formater la partition %s ? (O/n) : "
-
-#: src/manualpart.py:108
+#: src/manualpart.py:91
 msgid "The EFI partition is required for system installation."
 msgstr "La partition EFI est nécessaire pour l'installation du système."
 
-#: src/manualpart.py:113
+#: src/manualpart.py:96
 msgid "The Root partition is required for system installation."
 msgstr "La partition Root est nécessaire pour l'installation du système."
 
-#: src/manualpart.py:119
+#: src/manualpart.py:103
 msgid "The Boot partition is required for system installation."
 msgstr "La partition Boot est nécessaire pour l'installation du système."
 
-#: src/partition.py:80
+#: src/partition.py:104
+msgid "Format the partition ? (Y/n) : "
+msgstr "Formater la partition ? (O/n) : "
+
+#: src/partition.py:125
 msgid "Do you want to encrypt this partition ? (y/N) : "
 msgstr "Voulez-vous chiffrer cette partition ? (o/N) : "
 
-#: src/partition.py:86
-msgid "What will be the encrypted block name ? : "
-msgstr "Quel sera le nom de bloc chiffré ? : "
-
-#: src/partition.py:89
-msgid "Invalid encrypted block name."
-msgstr "Nom de bloc chiffré invalide."
-
-#: src/partition.py:94
-msgid ""
-"Enter the encrypted block password (it will be asked at boot to decrypt the "
-"partition) : "
-msgstr ""
-"Entrez le mot de passe du bloc chiffré (il sera demandé au démarrage pour "
-"déchiffrer la partition) : "
-
-#: src/partition.py:103
+#: src/partition.py:140
 msgid "yes"
 msgstr "oui"
 
-#: src/partition.py:105
+#: src/partition.py:142
 msgid "no"
 msgstr "non"
 
-#: src/partition.py:112
+#: src/partition.py:149
 msgid "%s : %s"
 msgstr "%s : %s"
 
-#: src/partition.py:113
+#: src/partition.py:150
 msgid "%s : %s (mounting point : %s, format %s, format type %s)"
 msgstr "%s : %s (point de montage : %s, formater %s, type de formatage %s)"
 
@@ -646,25 +638,43 @@ msgstr "Quel type de formatage voulez-vous ? (%s) : "
 msgid "Supported format types : "
 msgstr "Types de formatage supportés : "
 
-#: src/utils.py:70
+#: src/utils.py:68
+msgid "What will be the encrypted block name ? : "
+msgstr "Quel sera le nom de bloc chiffré ? : "
+
+#: src/utils.py:71
+msgid "Invalid encrypted block name."
+msgstr "Nom de bloc chiffré invalide."
+
+#: src/utils.py:88
 msgid "Enter it again to confirm : "
 msgstr "Saisissez le à nouveau pour confirmer : "
 
-#: src/utils.py:72
+#: src/utils.py:90
 msgid "Passwords entered don't match."
 msgstr "Les mots de passe saisis ne correspondent pas."
 
-#: src/utils.py:124
+#: src/utils.py:142
 msgid "Help :"
 msgstr "Aide :"
 
-#: src/utils.py:163
+#: src/utils.py:181
 msgid "The input must not be empty."
 msgstr "La saisie ne doit pas être vide."
 
-#: src/utils.py:268
+#: src/utils.py:286
 msgid "Press any key to continue..."
 msgstr "Appuyez sur n'importe quelle touche pour continuer..."
+
+#~ msgid "Format the %s partition ? (Y/n) : "
+#~ msgstr "Formater la partition %s ? (O/n) : "
+
+#~ msgid ""
+#~ "Enter the encrypted block password (it will be asked at boot to decrypt "
+#~ "the partition) : "
+#~ msgstr ""
+#~ "Entrez le mot de passe du bloc chiffré (il sera demandé au démarrage pour "
+#~ "déchiffrer la partition) : "
 
 #~ msgid "ROOT partition : %s (mounting point : %s, format type %s)"
 #~ msgstr "Partition ROOT : %s (point de montage : %s, type de formatage %s)"

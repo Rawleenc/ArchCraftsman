@@ -27,10 +27,16 @@ class Grub(Bundle):
         execute('sed -i "/^GRUB_CMDLINE_LINUX=.*/a GRUB_DISABLE_OS_PROBER=false" /mnt/etc/default/grub')
 
         if True in [part.encrypted for part in partitioning_info.partitions]:
-            hooks = stdout(execute("grep -e '^HOOKS' /mnt/etc/mkinitcpio.conf", capture_output=True)).strip()
+            hooks = stdout(
+                execute("grep -e '^HOOKS' /mnt/etc/mkinitcpio.conf", check=False, force=True,
+                        capture_output=True)).strip()
             pattern = re.compile(r"^HOOKS=\((.+)\)")
-            extracted_hooks = pattern.search(hooks).group(1).split(" ")
-            extracted_hooks.insert(extracted_hooks.index("filesystems"), "encrypted")
+            hooks_match = pattern.search(hooks)
+            if hooks_match:
+                extracted_hooks = hooks_match.group(1).split(" ")
+                extracted_hooks.insert(extracted_hooks.index("filesystems"), "encrypted")
+            else:
+                extracted_hooks = ["encrypted"]
             processed_hooks = f"HOOKS=({' '.join(extracted_hooks)})"
             execute(f'sed -i "s|{hooks}|{processed_hooks}|g" /mnt/etc/mkinitcpio.conf')
             execute('arch-chroot /mnt bash -c "mkinitcpio -P"')
@@ -38,9 +44,14 @@ class Grub(Bundle):
         if partitioning_info.root_partition.encrypted:
             partitioning_info.root_partition.compute()
             grub_cmdline = stdout(
-                execute("grep -e '^GRUB_CMDLINE_LINUX_DEFAULT' /mnt/etc/default/grub", capture_output=True)).strip()
+                execute("grep -e '^GRUB_CMDLINE_LINUX_DEFAULT' /mnt/etc/default/grub", check=False, force=True,
+                        capture_output=True)).strip()
             pattern = re.compile(r'^GRUB_CMDLINE_LINUX_DEFAULT="(.+)"')
-            extracted_grub_cmdline = pattern.search(grub_cmdline).group(1).split(" ")
+            grub_cmdline_match = pattern.search(grub_cmdline)
+            if grub_cmdline_match:
+                extracted_grub_cmdline = grub_cmdline_match.group(1).split(" ")
+            else:
+                extracted_grub_cmdline = []
             extracted_grub_cmdline.append(
                 f"cryptdevice=UUID={partitioning_info.root_partition.uuid}:root root=/dev/mapper/root")
             processed_grub_cmdline = f"GRUB_CMDLINE_LINUX_DEFAULT=\"{' '.join(extracted_grub_cmdline)}\""

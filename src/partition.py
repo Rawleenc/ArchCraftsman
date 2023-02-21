@@ -3,6 +3,7 @@ The partition class module
 """
 import json
 import os
+from subprocess import CalledProcessError
 
 from src.i18n import I18n
 from src.options import PartTypes, FSFormats
@@ -28,6 +29,7 @@ class Partition:
     part_format_type: FSFormats
     part_format: bool
 
+    part_mounted: bool = False
     encrypted: bool = False
     block_name: str = None
 
@@ -151,7 +153,7 @@ class Partition:
             summary += f" - encrypted ('/dev/mapper/{self.block_name}')"
         return summary
 
-    def get_path(self) -> str:
+    def real_path(self) -> str:
         """
         A method to get the partition path.
         :return:
@@ -169,20 +171,46 @@ class Partition:
         if self.encrypted:
             if self.part_format:
                 execute(f"cryptsetup -y -v luksFormat {self.path}")
-            execute(f"cryptsetup open {self.path} {self.block_name}")
         match self.part_format_type:
             case FSFormats.VFAT:
                 if self.part_format:
-                    execute(f'mkfs.vfat "{self.get_path()}"')
-                execute(f'mount --mkdir "{self.get_path()}" "/mnt{self.part_mount_point}"')
+                    execute(f'mkfs.vfat "{self.real_path()}"')
             case FSFormats.BTRFS:
                 if self.part_format:
-                    execute(f'mkfs.btrfs -f "{self.get_path()}"')
-                execute(f'mount --mkdir -o compress=zstd "{self.get_path()}" "/mnt{self.part_mount_point}"')
+                    execute(f'mkfs.btrfs -f "{self.real_path()}"')
             case _:
                 if self.part_format:
-                    execute(f'mkfs.ext4 "{self.get_path()}"')
-                execute(f'mount --mkdir "{self.get_path()}" "/mnt{self.part_mount_point}"')
+                    execute(f'mkfs.ext4 "{self.real_path()}"')
+
+    def mount(self):
+        """
+        A method to mount the partition.
+        :return:
+        """
+        if self.encrypted:
+            execute(f"cryptsetup open {self.path} {self.block_name}")
+        match self.part_format_type:
+            case FSFormats.VFAT:
+                execute(f'mount --mkdir "{self.real_path()}" "/mnt{self.part_mount_point}"')
+            case FSFormats.BTRFS:
+                execute(f'mount --mkdir -o compress=zstd "{self.real_path()}" "/mnt{self.part_mount_point}"')
+            case _:
+                execute(f'mount --mkdir "{self.real_path()}" "/mnt{self.part_mount_point}"')
+        self.part_mounted = True
+
+    def umount(self) -> bool:
+        """
+        A method to unmount the partition.
+        :return:
+        """
+        try:
+            execute(f'umount "/mnt{self.part_mount_point}')
+            if self.encrypted:
+                execute(f"cryptsetup close {self.block_name}")
+            self.part_mounted = False
+        except CalledProcessError:
+            return False
+        return True
 
     def build_partition_name(self, disk_name: str):
         """
