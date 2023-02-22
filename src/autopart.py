@@ -195,7 +195,6 @@ def auto_partitioning() -> PartitioningInfo or None:
 
             for partition in partitioning_info.partitions:
                 partition.build_partition_name(target_disk)
-                partition.compute()
 
                 if partition.part_type == PartTypes.ROOT:
                     partitioning_info.root_partition = partition

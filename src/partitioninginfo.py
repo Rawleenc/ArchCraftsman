@@ -46,6 +46,9 @@ class PartitioningInfo:
                     self.btrfs_in_use = True
                 partition.mount()
 
+        for partition in self.partitions:
+            partition.compute()
+
     def umount_partitions(self):
         """
         A method to unmount all mounted partitions.
