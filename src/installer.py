@@ -65,10 +65,10 @@ def install(pre_launch_info):
             pkgs.update(system_info["bootloader"].packages(system_info))
 
         if system_info["desktop"]:
-            base_pkgs.update(system_info["desktop"].packages(system_info))
+            pkgs.update(system_info["desktop"].packages(system_info))
 
         if system_info["network"]:
-            base_pkgs.update(system_info["network"].packages(system_info))
+            pkgs.update(system_info["network"].packages(system_info))
 
         for bundle in system_info["bundles"]:
             pkgs.update(bundle.packages(system_info))
