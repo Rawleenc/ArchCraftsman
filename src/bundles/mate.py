@@ -19,7 +19,7 @@ class Mate(Bundle):
     minimal = False
 
     def packages(self, system_info) -> list[str]:
-        packages = ["mate", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "network-manager-applet"]
+        packages = ["mate", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa"]
         if self.display_manager:
             packages.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
         if self.minimal is not True:

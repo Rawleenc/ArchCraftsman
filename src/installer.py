@@ -126,8 +126,14 @@ def install(pre_launch_info):
         print_step(_("Generating fstab..."), clear=False)
         execute('genfstab -U /mnt >>/mnt/etc/fstab')
 
-        print_step(_("Network configuration..."), clear=False)
-        execute('arch-chroot /mnt bash -c "systemctl enable NetworkManager"')
+        if system_info["desktop"] and system_info["desktop"] is not None:
+            print_step(_("Desktop configuration..."), clear=False)
+            system_info["desktop"].configure(system_info, pre_launch_info, partitioning_info)
+
+        if system_info["network"] and system_info["network"] is not None:
+            print_step(_("Network configuration..."), clear=False)
+            system_info["network"].configure(system_info, pre_launch_info, partitioning_info)
+
         execute('arch-chroot /mnt bash -c "systemctl enable systemd-timesyncd"')
 
         if system_info["bootloader"]:

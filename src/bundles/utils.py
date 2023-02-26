@@ -13,20 +13,23 @@ from src.bundles.gnome import Gnome
 from src.bundles.grmlzsh import GrmlZsh
 from src.bundles.grub import Grub
 from src.bundles.i3 import I3
+from src.bundles.iwd import Iwd
 from src.bundles.linux import LinuxCurrent, LinuxLts, LinuxZen, LinuxHardened
 from src.bundles.lxqt import Lxqt
 from src.bundles.mainfilesystems import MainFileSystems
 from src.bundles.mainfonts import MainFonts
 from src.bundles.mate import Mate
 from src.bundles.microcodes import Microcodes
+from src.bundles.networkmanager import NetworkManager
 from src.bundles.nvidia import NvidiaDriver
 from src.bundles.pipewire import PipeWire
 from src.bundles.plasma import Plasma
 from src.bundles.sway import Sway
+from src.bundles.systemdnet import SystemdNet
 from src.bundles.terminus import TerminusFont
 from src.bundles.xfce import Xfce
 from src.bundles.zram import Zram
-from src.options import Kernels, BootLoaders, Desktops, Bundles
+from src.options import Kernels, BootLoaders, Desktops, Bundles, Network
 from src.options import OptionEnum
 from src.utils import prompt_option
 
@@ -73,6 +76,12 @@ def process_bundle(name: OptionEnum) -> Bundle or None:
             bundle = I3(name)
         case Desktops.SWAY:
             bundle = Sway(name)
+        case Network.NETWORK_MANAGER:
+            bundle = NetworkManager(name)
+        case Network.IWD:
+            bundle = Iwd(name)
+        case Network.SYSTEMD:
+            bundle = SystemdNet(name)
         case Bundles.CUPS:
             bundle = Cups(name)
         case Bundles.GRML:

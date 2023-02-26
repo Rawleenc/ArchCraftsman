@@ -70,6 +70,16 @@ class Desktops(OptionEnum):
     NONE = auto()
 
 
+class Network(OptionEnum):
+    """
+    All network options.
+    """
+    NETWORK_MANAGER = auto()
+    IWD = auto()
+    SYSTEMD = auto()
+    NONE = auto()
+
+
 class BootLoaders(OptionEnum):
     """
     All bootloader options.

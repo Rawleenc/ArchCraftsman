@@ -18,7 +18,7 @@ class Enlightenment(Bundle):
 
     def packages(self, system_info) -> list[str]:
         packages = ["enlightenment", "terminology", "xorg-server", "xorg-xinit", "alsa-utils", "pulseaudio",
-                    "pulseaudio-alsa", "pavucontrol", "system-config-printer", "network-manager-applet", "acpid"]
+                    "pulseaudio-alsa", "pavucontrol", "system-config-printer", "acpid"]
         return packages
 
     def print_resume(self):

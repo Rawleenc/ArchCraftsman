@@ -19,7 +19,7 @@ class Budgie(Bundle):
 
     def packages(self, system_info) -> list[str]:
         packages = ["budgie-desktop", "budgie-desktop-view", "budgie-screensaver", "gnome-control-center",
-                    "network-manager-applet", "gnome-terminal", "nautilus", "xorg-server", "alsa-utils", "pulseaudio",
+                    "gnome-terminal", "nautilus", "xorg-server", "alsa-utils", "pulseaudio",
                     "pulseaudio-alsa", "pavucontrol", "arc-gtk-theme", "arc-icon-theme"]
         if self.display_manager:
             packages.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])

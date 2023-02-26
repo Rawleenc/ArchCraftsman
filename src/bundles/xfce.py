@@ -19,8 +19,7 @@ class Xfce(Bundle):
     minimal = False
 
     def packages(self, system_info) -> list[str]:
-        packages = ["xfce4", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol",
-                    "network-manager-applet"]
+        packages = ["xfce4", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol"]
         if self.display_manager:
             packages.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
         if self.minimal is not True:

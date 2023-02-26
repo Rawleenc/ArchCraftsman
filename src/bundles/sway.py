@@ -19,10 +19,9 @@ class Sway(Bundle):
     def packages(self, system_info) -> list[str]:
         packages = ["sway", "dmenu", "bemenu-wayland", "j4-dmenu-desktop", "foot", "grim", "mako", "slurp", "swayidle",
                     "swaylock", "swayimg", "waybar", "swaybg", "wf-recorder", "wl-clipboard", "xorg-xwayland",
-                    "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol", "system-config-printer",
-                    "network-manager-applet", "acpid", "brightnessctl", "playerctl", "gammastep", "dex",
-                    "libindicator-gtk2", "libindicator-gtk3", "gnome-keyring", "xdg-desktop-portal",
-                    "xdg-desktop-portal-wlr"]
+                    "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol", "system-config-printer", "acpid",
+                    "brightnessctl", "playerctl", "gammastep", "dex", "libindicator-gtk2", "libindicator-gtk3",
+                    "gnome-keyring", "xdg-desktop-portal", "xdg-desktop-portal-wlr"]
         return packages
 
     def print_resume(self):

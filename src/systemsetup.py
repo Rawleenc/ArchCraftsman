@@ -17,7 +17,7 @@ from src.bundles.terminus import TerminusFont
 from src.bundles.utils import prompt_bundle
 from src.bundles.zram import Zram
 from src.i18n import I18n
-from src.options import Kernels, Desktops, Bundles, BootLoaders
+from src.options import Kernels, Desktops, Bundles, BootLoaders, Network
 from src.utils import print_error, print_step, print_sub_step, prompt_ln, prompt_bool, \
     ask_password, execute
 
@@ -40,17 +40,23 @@ def setup_system(detected_timezone) -> dict[str, any]:
         system_info["kernel"] = prompt_bundle(_("Choose your kernel (%s) : "), _("Kernel '%s' is not supported."),
                                               Kernels, _("Supported kernels : "), Kernels.CURRENT)
 
+        desktop = prompt_bundle(_("Install a desktop environment ? (%s) : "),
+                                _("Desktop environment '%s' is not supported."), Desktops,
+                                _("Supported desktop environments : "), Desktops.NONE)
+        if desktop is not None:
+            system_info["desktop"] = desktop
+
+        network = prompt_bundle(_("Choose your network stack (%s) : "), _("Network stack '%s' is not supported."),
+                                Network, _("Supported network stacks : "), Network.NETWORK_MANAGER)
+
+        if network is not None:
+            system_info["network"] = network
+
         if prompt_bool(_("Install proprietary Nvidia driver ? (y/N) : "), default=False):
             system_info["bundles"].append(NvidiaDriver(Bundles.NVIDIA))
 
         if prompt_bool(_("Install terminus console font ? (y/N) : "), default=False):
             system_info["bundles"].append(TerminusFont(Bundles.TERMINUS))
-
-        desktop = prompt_bundle(_("Install a desktop environment ? (%s) : "),
-                                _("Desktop environment '%s' is not supported."), Desktops,
-                                _("Supported desktop environments : "), Desktops.NONE)
-        if desktop is not None:
-            system_info["bundles"].append(desktop)
 
         if prompt_bool(_("Install Cups ? (y/N) : "), default=False):
             system_info["bundles"].append(Cups(Bundles.CUPS))
@@ -135,6 +141,10 @@ def setup_system(detected_timezone) -> dict[str, any]:
         system_info["microcodes"].print_resume()
         if system_info["kernel"]:
             system_info["kernel"].print_resume()
+        if system_info["desktop"]:
+            system_info["desktop"].print_resume()
+        if system_info["network"]:
+            system_info["network"].print_resume()
         for bundle in system_info["bundles"]:
             if bundle is not None and isinstance(bundle, Bundle):
                 bundle.print_resume()
