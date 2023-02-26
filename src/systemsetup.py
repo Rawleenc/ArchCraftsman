@@ -40,17 +40,13 @@ def setup_system(detected_timezone) -> dict[str, any]:
         system_info["kernel"] = prompt_bundle(_("Choose your kernel (%s) : "), _("Kernel '%s' is not supported."),
                                               Kernels, _("Supported kernels : "), Kernels.CURRENT)
 
-        desktop = prompt_bundle(_("Install a desktop environment ? (%s) : "),
-                                _("Desktop environment '%s' is not supported."), Desktops,
-                                _("Supported desktop environments : "), Desktops.NONE)
-        if desktop is not None:
-            system_info["desktop"] = desktop
+        system_info["desktop"] = prompt_bundle(_("Install a desktop environment ? (%s) : "),
+                                               _("Desktop environment '%s' is not supported."), Desktops,
+                                               _("Supported desktop environments : "), Desktops.NONE)
 
-        network = prompt_bundle(_("Choose your network stack (%s) : "), _("Network stack '%s' is not supported."),
-                                Network, _("Supported network stacks : "), Network.NETWORK_MANAGER)
-
-        if network is not None:
-            system_info["network"] = network
+        system_info["network"] = prompt_bundle(_("Choose your network stack (%s) : "),
+                                               _("Network stack '%s' is not supported."),
+                                               Network, _("Supported network stacks : "), Network.NETWORK_MANAGER)
 
         if prompt_bool(_("Install proprietary Nvidia driver ?"), default=False):
             system_info["bundles"].append(NvidiaDriver(Bundles.NVIDIA))
@@ -141,9 +137,9 @@ def setup_system(detected_timezone) -> dict[str, any]:
         system_info["microcodes"].print_resume()
         if system_info["kernel"]:
             system_info["kernel"].print_resume()
-        if "desktop" in system_info and system_info["desktop"] and system_info["desktop"] is not None:
+        if system_info["desktop"]:
             system_info["desktop"].print_resume()
-        if "network" in system_info and system_info["network"] and system_info["network"] is not None:
+        if system_info["network"]:
             system_info["network"].print_resume()
         for bundle in system_info["bundles"]:
             if bundle is not None and isinstance(bundle, Bundle):
