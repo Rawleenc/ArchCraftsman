@@ -4,6 +4,7 @@ The network manager bundle module
 
 from src.bundles.bundle import Bundle
 from src.i18n import I18n
+from src.options import Desktops
 from src.partitioninginfo import PartitioningInfo
 from src.utils import print_sub_step, execute
 
@@ -17,7 +18,8 @@ class NetworkManager(Bundle):
 
     def packages(self, system_info: dict[str, any]) -> list[str]:
         packages = ["networkmanager"]
-        if system_info["desktop"] in ["budgie", "i3", "lxqt", "mate", "sway", "enlightenment", "xfce"]:
+        if system_info["desktop"].name in [Desktops.BUDGIE, Desktops.I3, Desktops.LXQT, Desktops.MATE, Desktops.SWAY,
+                                           Desktops.ENLIGHTENMENT, Desktops.XFCE]:
             packages.append("network-manager-applet")
         return packages
 

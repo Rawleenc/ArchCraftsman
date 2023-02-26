@@ -19,5 +19,5 @@ class SystemdNet(Bundle):
         print_sub_step(_("Enable systemd network stack."))
 
     def configure(self, system_info, pre_launch_info, partitioning_info: PartitioningInfo):
-        execute('arch-chroot /mnt bash -c "systemd-networkd.service"')
-        execute('arch-chroot /mnt bash -c "systemd-resolved.service"')
+        execute('arch-chroot /mnt bash -c "systemctl enable systemd-networkd"')
+        execute('arch-chroot /mnt bash -c "systemctl enable systemd-resolved"')
