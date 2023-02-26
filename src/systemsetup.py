@@ -115,7 +115,7 @@ def setup_system(detected_timezone) -> dict[str, any]:
             pkgs_select_ok = True
             if more_pkgs_str != "":
                 for pkg in more_pkgs_str.split():
-                    if execute(f'pacman -Si {pkg} &>/dev/null').returncode != 0:
+                    if execute(f'pacman -Si {pkg} &>/dev/null', check=False).returncode != 0:
                         pkgs_select_ok = False
                         print_error(_("Package %s doesn't exist.") % pkg)
                         break
