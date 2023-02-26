@@ -9,7 +9,7 @@ from src.options import PartTypes
 from src.partition import Partition
 from src.partitioninginfo import PartitioningInfo
 from src.utils import is_bios, print_error, print_step, print_sub_step, prompt, prompt_bool, prompt_option, execute, \
-    stdout, log
+    log
 
 _ = I18n().gettext
 
@@ -40,13 +40,12 @@ def manual_partitioning() -> PartitioningInfo or None:
         other_drive = prompt_bool(_("Do you want to partition an other drive ? (y/N) : "), default=False)
         if other_drive:
             continue
-        for disk in partitioned_disks:
-            log(f"Detected disk: {disk}")
-            detected_partitions = stdout(execute(
-                f'lsblk -nld "{disk}" -o PATH,PARTTYPENAME | grep -iE "linux|efi|swap" | awk \'{{print $1}}\'',
-                capture_output=True, force=True))
-            log(f"Partitions: {detected_partitions.splitlines()}")
-            for partition in detected_partitions.splitlines():
+        for disk_path in partitioned_disks:
+            log(f"Detected disk: {disk_path}")
+            disk = Disk(disk_path)
+            partitions = [partition.path for partition in disk.partitions]
+            log(f"Partitions: {partitions}")
+            for partition in partitions:
                 log(f"Partition : {partition}")
                 partitioning_info.partitions.append(Partition(path=partition))
         print_step(

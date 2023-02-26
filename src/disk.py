@@ -25,8 +25,9 @@ class Disk:
         Disk initialisation.
         """
         self.path = path
-        detected_partitions = stdout(execute(f'lsblk -nld "{path}" -o PATH,TYPE | grep part', capture_output=True,
-                                             force=True, check=False))
+        detected_partitions = stdout(
+            execute(f'lsblk -nl "{path}" -o PATH,TYPE,PARTTYPENAME | grep part | grep -iE "linux|efi|swap"',
+                    capture_output=True, force=True, check=False))
         self.partitions = []
         index = 0
         for partition_info in detected_partitions.splitlines():
