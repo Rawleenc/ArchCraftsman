@@ -141,9 +141,9 @@ def setup_system(detected_timezone) -> dict[str, any]:
         system_info["microcodes"].print_resume()
         if system_info["kernel"]:
             system_info["kernel"].print_resume()
-        if "desktop" in system_info.keys() and system_info["desktop"] and system_info["desktop"] is not None:
+        if "desktop" in system_info and system_info["desktop"] and system_info["desktop"] is not None:
             system_info["desktop"].print_resume()
-        if "network" in system_info.keys() and system_info["network"] and system_info["network"] is not None:
+        if "network" in system_info and system_info["network"] and system_info["network"] is not None:
             system_info["network"].print_resume()
         for bundle in system_info["bundles"]:
             if bundle is not None and isinstance(bundle, Bundle):
