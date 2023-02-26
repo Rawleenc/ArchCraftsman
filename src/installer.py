@@ -47,9 +47,9 @@ def install(pre_launch_info):
             base_pkgs.update(system_info["kernel"].packages(system_info))
 
         pkgs = set()
-        pkgs.update(["man-db", "man-pages", "texinfo", "nano", "vim", "git", "curl", "os-prober", "efibootmgr",
-                     "networkmanager", "xdg-user-dirs", "reflector", "numlockx", "net-tools", "polkit",
-                     "pacman-contrib"])
+        pkgs.update(
+            ["man-db", "man-pages", "texinfo", "nano", "vim", "git", "curl", "os-prober", "efibootmgr", "xdg-user-dirs",
+             "reflector", "numlockx", "net-tools", "polkit", "pacman-contrib"])
 
         if pre_launch_info["global_language"].lower() != "en" and execute(
                 f"pacman -Si man-pages-{pre_launch_info['global_language'].lower()} &>/dev/null",
@@ -63,6 +63,12 @@ def install(pre_launch_info):
 
         if system_info["bootloader"]:
             pkgs.update(system_info["bootloader"].packages(system_info))
+
+        if system_info["desktop"]:
+            base_pkgs.update(system_info["desktop"].packages(system_info))
+
+        if system_info["network"]:
+            base_pkgs.update(system_info["network"].packages(system_info))
 
         for bundle in system_info["bundles"]:
             pkgs.update(bundle.packages(system_info))
