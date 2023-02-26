@@ -24,7 +24,7 @@ from src.utils import print_error, print_step, print_sub_step, prompt_ln, prompt
 _ = I18n().gettext
 
 
-def setup_system(detected_timezone) -> {}:
+def setup_system(detected_timezone) -> dict[str, any]:
     """
     The method to get system configurations from the user.
     :param detected_timezone:
@@ -115,15 +115,17 @@ def setup_system(detected_timezone) -> {}:
             pkgs_select_ok = True
             if more_pkgs_str != "":
                 for pkg in more_pkgs_str.split():
-                    if execute(f'pacman -Si {pkg} &>/dev/null').returncode != 0:
+                    if execute(f'pacman -Si {pkg} &>/dev/null', check=False).returncode != 0:
                         pkgs_select_ok = False
                         print_error(_("Package %s doesn't exist.") % pkg)
                         break
                     system_info["more_pkgs"].add(pkg)
 
-        system_info["root_password"] = ask_password()
+        print_sub_step(_("%s password configuration : ") % "root")
+        system_info["root_password"] = ask_password(_("Enter the %s password : ") % "root")
         if system_info["user_name"] != "":
-            system_info["user_password"] = ask_password(system_info["user_name"])
+            print_sub_step(_("%s password configuration : ") % system_info["user_name"])
+            system_info["user_password"] = ask_password(_("Enter the %s password : ") % system_info["user_name"])
 
         system_info["bootloader"] = Grub(BootLoaders.GRUB)
         system_info["microcodes"] = Microcodes()

@@ -8,7 +8,7 @@ from src.utils import print_step, is_bios, print_error, print_sub_step, prompt_l
 _ = I18n().gettext
 
 
-def setup_environment(detected_language: str) -> {}:
+def setup_environment(detected_language: str) -> dict[str, any]:
     """
     The method to get environment configurations from the user.
     :param detected_language:

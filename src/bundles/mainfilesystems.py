@@ -8,7 +8,7 @@ from src.utils import print_sub_step
 _ = I18n().gettext
 
 
-def get_main_file_systems() -> [str]:
+def get_main_file_systems() -> list[str]:
     """
     The method to get the package list of the main file systems group.
     :return:
@@ -22,7 +22,7 @@ class MainFileSystems(Bundle):
     The main file systems class.
     """
 
-    def packages(self, system_info: {}) -> [str]:
+    def packages(self, system_info: dict[str, any]) -> list[str]:
         return get_main_file_systems()
 
     def print_resume(self):

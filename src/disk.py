@@ -25,12 +25,13 @@ class Disk:
         Disk initialisation.
         """
         self.path = path
-        detected_partitions = stdout(execute(f'lsblk -nl "{path}" -o PATH,TYPE | grep part', capture_output=True,
-                                             force=True, check=False))
+        detected_partitions = stdout(
+            execute(f'lsblk -nl "{path}" -o PATH,TYPE,PARTTYPENAME | grep part | grep -iE "linux|efi|swap"',
+                    capture_output=True, force=True, check=False))
         self.partitions = []
         index = 0
         for partition_info in detected_partitions.splitlines():
-            self.partitions.append(Partition(index, partition_info))
+            self.partitions.append(Partition(index, partition_info.split(" ")[0]))
             index += 1
         self.total = int(
             stdout(execute(f'lsblk -b --output SIZE -n -d "{self.path}"', capture_output=True, force=True)))
@@ -52,7 +53,7 @@ class Disk:
         The Disk method to get the EFI partition if it exist. Else return an empty partition object.
         """
         try:
-            return [p for p in self.partitions if PartTypes.EFI in p.part_type].pop()
+            return [p for p in self.partitions if PartTypes.EFI in p.part_type_name].pop()
         except IndexError:
             return Partition(None)
 

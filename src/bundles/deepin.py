@@ -5,6 +5,7 @@ The deepin bundle module
 from src.bundles.bundle import Bundle
 from src.i18n import I18n
 from src.localesetup import setup_chroot_keyboard
+from src.partitioninginfo import PartitioningInfo
 from src.utils import print_sub_step, prompt_bool, execute
 
 _ = I18n().gettext
@@ -16,7 +17,7 @@ class Deepin(Bundle):
     """
     minimal = False
 
-    def packages(self, system_info) -> [str]:
+    def packages(self, system_info) -> list[str]:
         packages = ["deepin", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa"]
         if self.minimal is not True:
             packages.append("deepin-extra")
@@ -34,7 +35,7 @@ class Deepin(Bundle):
             default=False,
             help_msg=_("If yes, the script will not install any extra packages, only base packages."))
 
-    def configure(self, system_info, pre_launch_info, partitioning_info):
+    def configure(self, system_info, pre_launch_info, partitioning_info: PartitioningInfo):
         execute('arch-chroot /mnt bash -c "systemctl enable lightdm"')
         execute(
             'sed -i "s|#logind-check-graphical=false|logind-check-graphical=true|g" /mnt/etc/lightdm/lightdm.conf')

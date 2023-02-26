@@ -4,7 +4,6 @@ The general utility methods and tools module
 import encodings
 import getpass
 import glob
-import json
 import os
 import re
 import readline
@@ -48,38 +47,7 @@ def from_iec(size: str) -> int:
         re.sub('\\s', '', stdout(execute(f'printf "{size}" | numfmt --from=iec', capture_output=True, force=True))))
 
 
-def build_partition_name(disk_name: str, index: int) -> str or None:
-    """
-    A method to build a partition name with a disk and an index.
-    :param disk_name:
-    :param index:
-    :return:
-    """
-    block_devices_str = stdout(execute('lsblk -J', capture_output=True, force=True))
-    if not block_devices_str:
-        return None
-    block_devices_json = json.loads(block_devices_str)
-    if block_devices_json is None or not isinstance(block_devices_json, dict) or "blockdevices" not in dict(
-            block_devices_json):
-        return None
-    block_devices = dict(block_devices_json).get("blockdevices")
-    if block_devices is None or not isinstance(block_devices, list):
-        return None
-    disk = next((d for d in block_devices if
-                 d is not None and isinstance(d, dict) and "name" in d and dict(d).get("name") == os.path.basename(
-                     disk_name)), None)
-    if disk is None or not isinstance(disk, dict) or "children" not in dict(disk):
-        return None
-    partitions = dict(disk).get("children")
-    if partitions is None or not isinstance(partitions, list) or len(list(partitions)) <= index:
-        return None
-    partition = list(partitions)[index]
-    if partition is None or not isinstance(partition, dict) or "name" not in dict(partition):
-        return None
-    return f'/dev/{dict(partition).get("name")}'
-
-
-def ask_format_type() -> str:
+def ask_format_type() -> FSFormats:
     """
     The method to ask the user for the format type.
     :return:
@@ -88,43 +56,39 @@ def ask_format_type() -> str:
                          FSFormats, _("Supported format types : "), FSFormats.EXT4, FSFormats.VFAT)
 
 
-def ask_password(username: str = "root") -> str:
+def ask_encryption_block_name() -> str:
+    """
+    Method to ask for encryption block name.
+    :return:
+    """
+    block_name_pattern = re.compile("^[a-z][a-z\\d_]*$")
+    block_name_ok = False
+    block_name = None
+    while not block_name_ok:
+        block_name = prompt_ln(_("What will be the encrypted block name ? : "), required=True)
+        if block_name and block_name != "" and not block_name_pattern.match(
+                block_name):
+            print_error(_("Invalid encrypted block name."))
+            continue
+        block_name_ok = True
+    return block_name
+
+
+def ask_password(prompt_message: str, required: bool = False) -> str:
     """
     A method to ask a password to the user.
-    :param username:
+    :param prompt_message:
+    :param required:
     :return:
     """
     password_confirm = None
     password = None
     while password is None or password != password_confirm:
-        print_sub_step(_("%s password configuration : ") % username)
-        password = prompt_passwd(_("Enter the %s password : ") % username)
-        password_confirm = prompt_passwd(_("Re-enter the %s password to confirm : ") % username)
+        password = prompt_passwd(prompt_message, required=required)
+        password_confirm = prompt_passwd(_("Enter it again to confirm : "), required=required)
         if password != password_confirm:
             print_error(_("Passwords entered don't match."))
     return password
-
-
-def format_partition(partition: str, format_type: str, mount_point: str, formatting: bool):
-    """
-    A method to compute and return an mkfs command.
-    """
-    match format_type:
-        case "vfat":
-            if formatting:
-                execute(f'mkfs.vfat "{partition}"')
-            execute(f'mkdir -p "/mnt{mount_point}"')
-            execute(f'mount "{partition}" "/mnt{mount_point}"')
-        case "btrfs":
-            if formatting:
-                execute(f'mkfs.btrfs -f "{partition}"')
-            execute(f'mkdir -p "/mnt{mount_point}"')
-            execute(f'mount -o compress=zstd "{partition}" "/mnt{mount_point}"')
-        case _:
-            if formatting:
-                execute(f'mkfs.ext4 "{partition}"')
-            execute(f'mkdir -p "/mnt{mount_point}"')
-            execute(f'mount "{partition}" "/mnt{mount_point}"')
 
 
 def print_error(message: str, do_pause: bool = True):
@@ -181,36 +145,55 @@ def print_help(message: str, do_pause: bool = False):
         pause(end_newline=True)
 
 
-def prompt(message: str, default: str = None, help_msg: str = None) -> str:
+def input_str(message: str, password: bool = False) -> str:
+    """
+    A method to ask to input something.
+    :param message:
+    :param password:
+    :return:
+    """
+    if password:
+        return getpass.getpass(prompt=f'{ORANGE}{message}{NOCOLOR}')
+    return input(f'{ORANGE}{message}{NOCOLOR}')
+
+
+def prompt(message: str, default: str = None, help_msg: str = None, required: bool = False,
+           password: bool = False) -> str:
     """
     A method to prompt for a user input.
     :param message:
     :param default:
     :param help_msg:
+    :param required:
+    :param password:
     :return:
     """
     user_input_ok = False
     user_input = None
     while not user_input_ok:
-        user_input = input(f'{ORANGE}{message}{NOCOLOR}')
+        user_input = input_str(f'{ORANGE}{message}{NOCOLOR}', password=password)
         if user_input == "?" and help_msg and help_msg != "":
             print_help(help_msg)
             continue
         if user_input == "" and default:
             user_input = default
+        if required and (user_input is None or user_input == ""):
+            print_error(_("The input must not be empty."))
+            continue
         user_input_ok = True
     return user_input
 
 
-def prompt_ln(message: str, default: str = None, help_msg: str = None) -> str:
+def prompt_ln(message: str, default: str = None, help_msg: str = None, required: bool = False) -> str:
     """
     A method to prompt for a user input with a new line for the user input.
     :param message:
     :param default:
     :param help_msg:
+    :param required:
     :return:
     """
-    return prompt(f'{message}\n', default=default, help_msg=help_msg)
+    return prompt(f'{message}\n', default=default, help_msg=help_msg, required=required)
 
 
 def print_supported(supported_msg: str, options: type(OptionEnum), *ignores: OptionEnum):
@@ -284,13 +267,14 @@ def prompt_bool(message: str, default: bool = True, help_msg: str = None) -> boo
     return prompt(f'{message}', help_msg=help_msg).upper() != "N"
 
 
-def prompt_passwd(message: str):
+def prompt_passwd(message: str, required: bool = False):
     """
     A method to prompt for a password without displaying an echo.
     :param message:
+    :param required:
     :return:
     """
-    return getpass.getpass(prompt=f'{ORANGE}{message}{NOCOLOR}')
+    return prompt(f'{ORANGE}{message}{NOCOLOR}', required=required, password=True)
 
 
 def pause(start_newline: bool = False, end_newline: bool = False):
@@ -328,7 +312,7 @@ def execute(command: str, check: bool = True, capture_output: bool = False,
     return fake_result
 
 
-def stdout(process_result: subprocess.CompletedProcess):
+def stdout(process_result: subprocess.CompletedProcess) -> str:
     """
     A method to get a decoded stdout.
     :param process_result:

@@ -3,6 +3,7 @@ The copy ArchCraftsman bundle module
 """
 from src.bundles.bundle import Bundle
 from src.i18n import I18n
+from src.partitioninginfo import PartitioningInfo
 from src.utils import print_sub_step, execute
 
 _ = I18n().gettext
@@ -16,7 +17,7 @@ class CopyACM(Bundle):
     def print_resume(self):
         print_sub_step(_("Copy ArchCraftsman to the new system."))
 
-    def configure(self, system_info, pre_launch_info, partitioning_info):
+    def configure(self, system_info, pre_launch_info, partitioning_info: PartitioningInfo):
         username = system_info["user_name"]
         if username != "":
             path = f'/home/{username}/ArchCraftsman'

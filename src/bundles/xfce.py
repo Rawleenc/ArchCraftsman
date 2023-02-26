@@ -5,6 +5,7 @@ The xfce bundle module
 from src.bundles.bundle import Bundle
 from src.i18n import I18n
 from src.localesetup import setup_chroot_keyboard
+from src.partitioninginfo import PartitioningInfo
 from src.utils import print_sub_step, prompt_bool, execute
 
 _ = I18n().gettext
@@ -17,7 +18,7 @@ class Xfce(Bundle):
     display_manager = True
     minimal = False
 
-    def packages(self, system_info) -> [str]:
+    def packages(self, system_info) -> list[str]:
         packages = ["xfce4", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol",
                     "network-manager-applet"]
         if self.display_manager:
@@ -41,7 +42,7 @@ class Xfce(Bundle):
             default=False,
             help_msg=_("If yes, the script will not install any extra packages, only base packages."))
 
-    def configure(self, system_info, pre_launch_info, partitioning_info):
+    def configure(self, system_info, pre_launch_info, partitioning_info: PartitioningInfo):
         if self.display_manager:
             execute('arch-chroot /mnt bash -c "systemctl enable lightdm"')
         execute(

@@ -24,7 +24,7 @@ class Microcodes(Bundle):
         else:
             self.microcode_name = None
 
-    def packages(self, system_info: {}) -> [str]:
+    def packages(self, system_info: dict[str, any]) -> list[str]:
         if self.microcode_name == "GenuineIntel":
             return ["intel-ucode"]
         if self.microcode_name == "AuthenticAMD":

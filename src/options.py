@@ -117,6 +117,7 @@ class PartTypes(OptionEnum):
     """
     EFI = auto()
     ROOT = auto()
+    BOOT = auto()
     HOME = auto()
     SWAP = auto()
     NOT_USED = auto()
