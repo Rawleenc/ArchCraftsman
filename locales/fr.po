@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2023-02-26 18:43+0100\n"
-"PO-Revision-Date: 2023-02-26 18:46+0100\n"
+"POT-Creation-Date: 2023-02-26 18:50+0100\n"
+"PO-Revision-Date: 2023-02-26 18:51+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -424,6 +424,10 @@ msgstr "%s : %s"
 #: src/partition.py:150
 msgid "%s : %s (mounting point : %s, format %s, format type %s)"
 msgstr "%s : %s (point de montage : %s, formater %s, type de formatage %s)"
+
+#: src/partition.py:153
+msgid "encrypted"
+msgstr "chiffrée"
 
 #: src/partition.py:167
 msgid "Formatting %s..."

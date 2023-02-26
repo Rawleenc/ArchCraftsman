@@ -150,7 +150,7 @@ class Partition:
         summary = _("%s : %s (mounting point : %s, format %s, format type %s)") % (
             self.part_type, name, self.part_mount_point, formatting, self.part_format_type)
         if self.encrypted:
-            summary += f" - encrypted ('/dev/mapper/{self.block_name}')"
+            summary += f" - {_('encrypted')} ('/dev/mapper/{self.block_name}')"
         return summary
 
     def real_path(self) -> str:
