@@ -54,8 +54,8 @@ def pre_launch_steps() -> dict[str, any]:
         execute('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /etc/pacman.conf')
 
     if GlobalArgs().install():
-        print_sub_step(_("Synchronising repositories and keyring..."))
-        execute("pacman --noconfirm -Sy --needed archlinux-keyring &>/dev/null")
+        print_sub_step(_("Synchronising repositories..."))
+        execute("pacman -Sy &>/dev/null")
 
     print_sub_step(_("Querying IP geolocation informations..."))
     with urlopen("https://ipapi.co/json") as response:
