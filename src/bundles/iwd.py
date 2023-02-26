@@ -3,6 +3,7 @@ The network manager bundle module
 """
 
 from src.bundles.bundle import Bundle
+from src.bundles.systemdnet import SystemdNet
 from src.i18n import I18n
 from src.partitioninginfo import PartitioningInfo
 from src.utils import print_sub_step, execute
@@ -20,9 +21,9 @@ class Iwd(Bundle):
         return packages
 
     def print_resume(self):
-        print_sub_step(_("Install Iwd with systemd network stack."))
+        print_sub_step(_("Install Iwd."))
+        SystemdNet(self.name).print_resume()
 
     def configure(self, system_info, pre_launch_info, partitioning_info: PartitioningInfo):
         execute('arch-chroot /mnt bash -c "systemctl enable iwd.service"')
-        execute('arch-chroot /mnt bash -c "systemctl enable systemd-networkd"')
-        execute('arch-chroot /mnt bash -c "systemctl enable systemd-resolved"')
+        SystemdNet(self.name).configure(system_info, pre_launch_info, partitioning_info)

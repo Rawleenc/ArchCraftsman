@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2023-02-26 17:48+0100\n"
-"PO-Revision-Date: 2023-02-26 17:49+0100\n"
+"POT-Creation-Date: 2023-02-26 18:20+0100\n"
+"PO-Revision-Date: 2023-02-26 18:20+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -159,9 +159,9 @@ msgstr ""
 msgid "Install ZSH with GRML configuration."
 msgstr "Installer ZSH avec la configuration GRML."
 
-#: src/bundles/iwd.py:23
-msgid "Install Iwd with systemd network stack."
-msgstr "Installer Iwd avec la pile réseau de systemd."
+#: src/bundles/iwd.py:24
+msgid "Install Iwd."
+msgstr "Installer Iwd."
 
 #: src/bundles/linux.py:21
 msgid "Install Linux current kernel."
@@ -191,7 +191,7 @@ msgstr "Installer un ensemble de polices principales."
 msgid "Microcodes to install : %s"
 msgstr "Microcodes à installer : %s"
 
-#: src/bundles/networkmanager.py:25
+#: src/bundles/networkmanager.py:27
 msgid "Install NetworkManager."
 msgstr "Installer NetworkManager."
 
@@ -706,6 +706,9 @@ msgstr "La saisie ne doit pas être vide."
 msgid "Press any key to continue..."
 msgstr "Appuyez sur n'importe quelle touche pour continuer..."
 
+#~ msgid "Install Iwd with systemd network stack."
+#~ msgstr "Installer Iwd avec la pile réseau de systemd."
+
 #~ msgid "Format the %s partition ? (Y/n) : "
 #~ msgstr "Formater la partition %s ? (O/n) : "
 
@@ -738,11 +741,6 @@ msgstr "Appuyez sur n'importe quelle touche pour continuer..."
 
 #~ msgid "Format the Home partition ? (Y/n) : "
 #~ msgstr "Formater la partition Home ? (O/n) : "
-
-#, fuzzy
-#~| msgid "Install GDM."
-#~ msgid "Install YAY."
-#~ msgstr "Installer GDM."
 
 #~ msgid "%s"
 #~ msgstr "%s"
