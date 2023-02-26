@@ -53,7 +53,7 @@ def install(pre_launch_info):
 
         if pre_launch_info["global_language"].lower() != "en" and execute(
                 f"pacman -Si man-pages-{pre_launch_info['global_language'].lower()} &>/dev/null",
-            check=False).returncode == 0:
+                check=False).returncode == 0:
             pkgs.add(f"man-pages-{pre_launch_info['global_language'].lower()}")
 
         if partitioning_info.btrfs_in_use:
