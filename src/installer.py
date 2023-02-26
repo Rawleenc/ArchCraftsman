@@ -112,7 +112,7 @@ def install(pre_launch_info):
         execute(f'arch-chroot /mnt bash -c "pacman --noconfirm -S {" ".join(pkgs)}"')
 
         if PartTypes.SWAP not in [part.part_type for part in
-                                  partitioning_info.partitions] and partitioning_info.swapfile_size:
+                                  partitioning_info.partitions] and partitioning_info.swapfile_size is not None:
             print_step(_("Creation and activation of the swapfile..."), clear=False)
             if partitioning_info.root_partition.part_format_type == FSFormats.BTRFS:
                 execute(

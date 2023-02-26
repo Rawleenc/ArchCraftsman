@@ -65,8 +65,7 @@ def auto_partitioning() -> PartitioningInfo or None:
             swap_size = to_iec(int(disk.total / 32))
         if swap_type == SwapTypes.NONE:
             swap_size = None
-        elif swap_type == SwapTypes.FILE:
-            partitioning_info.swapfile_size = swap_size
+        partitioning_info.swapfile_size = swap_size
         auto_part_str = ""
         index = 0
         if is_bios():
@@ -182,7 +181,7 @@ def auto_partitioning() -> PartitioningInfo or None:
         print_step(_("Summary of choices :"))
         for partition in partitioning_info.partitions:
             print_sub_step(partition.summary())
-        if "SWAP" not in [part.part_type for part in partitioning_info.partitions] and swap_size:
+        if swap_type == SwapTypes.FILE and swap_size is not None:
             print_sub_step(_("Swapfile size : %s") % swap_size)
         user_answer = prompt_bool(_("Is the informations correct ?"), default=False)
         if not user_answer:
