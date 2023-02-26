@@ -40,21 +40,21 @@ def auto_partitioning() -> PartitioningInfo or None:
                 and efi_partition.path != "" \
                 and efi_partition.fs_type == "vfat" \
                 and disk.free_space > from_iec("32G"):
-            want_dual_boot = prompt_bool(_("Do you want to install Arch Linux next to other systems ? (Y/n) : "))
+            want_dual_boot = prompt_bool(_("Do you want to install Arch Linux next to other systems ?"))
         else:
             want_dual_boot = False
 
         swap_type = prompt_option(_("What type of Swap do you want ? (%s) : "), _("Swap type '%s' is not supported."),
                                   SwapTypes, supported_msg=_("Supported Swap types : "), default=SwapTypes.FILE)
 
-        want_home = prompt_bool(_("Do you want a separated Home ? (Y/n) : "))
+        want_home = prompt_bool(_("Do you want a separated Home ?"))
         part_format_type = ask_format_type()
         root_block_name = None
-        if prompt_bool(_("Do you want to encrypt the %s partition ? (y/N) : ") % "Root", default=False):
+        if prompt_bool(_("Do you want to encrypt the %s partition ?") % "Root", default=False):
             root_block_name = "root"
         home_block_name = None
         if want_home:
-            if prompt_bool(_("Do you want to encrypt the %s partition ? (y/N) : ") % "Home", default=False):
+            if prompt_bool(_("Do you want to encrypt the %s partition ?") % "Home", default=False):
                 home_block_name = "home"
 
         if want_dual_boot:
@@ -184,9 +184,9 @@ def auto_partitioning() -> PartitioningInfo or None:
             print_sub_step(partition.summary())
         if "SWAP" not in [part.part_type for part in partitioning_info.partitions] and swap_size:
             print_sub_step(_("Swapfile size : %s") % swap_size)
-        user_answer = prompt_bool(_("Is the informations correct ? (y/N) : "), default=False)
+        user_answer = prompt_bool(_("Is the informations correct ?"), default=False)
         if not user_answer:
-            want_to_change = prompt_bool(_("Do you want to change the partitioning mode ? (y/N) : "), default=False)
+            want_to_change = prompt_bool(_("Do you want to change the partitioning mode ?"), default=False)
             if want_to_change:
                 return None
             partitioning_info.partitions.clear()

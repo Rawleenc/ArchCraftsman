@@ -37,7 +37,7 @@ def manual_partitioning() -> PartitioningInfo or None:
         print_step(_("Manual partitioning :"))
         print_sub_step(_("Partitioned drives so far : %s") % " ".join(partitioned_disks))
         execute('fdisk -l', force=True)
-        other_drive = prompt_bool(_("Do you want to partition an other drive ? (y/N) : "), default=False)
+        other_drive = prompt_bool(_("Do you want to partition an other drive ?"), default=False)
         if other_drive:
             continue
         for disk_path in partitioned_disks:
@@ -112,9 +112,9 @@ def manual_partitioning() -> PartitioningInfo or None:
         if PartTypes.SWAP not in [part.part_type for part in
                                   partitioning_info.partitions] and partitioning_info.swapfile_size:
             print_sub_step(_("Swapfile size : %s") % partitioning_info.swapfile_size)
-        user_answer = prompt_bool(_("Is the informations correct ? (y/N) : "), default=False)
+        user_answer = prompt_bool(_("Is the informations correct ?"), default=False)
         if not user_answer:
-            want_to_change = prompt_bool(_("Do you want to change the partitioning mode ? (y/N) : "), default=False)
+            want_to_change = prompt_bool(_("Do you want to change the partitioning mode ?"), default=False)
             if want_to_change:
                 return None
             partitioning_info.partitions.clear()

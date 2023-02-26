@@ -34,10 +34,10 @@ class Xfce(Bundle):
 
     def prompt_extra(self):
         self.display_manager = prompt_bool(
-            _("The display manager to install is '%s'. Do you want to install it ? (Y/n) : ") % "LightDM",
+            _("The display manager to install is '%s'. Do you want to install it ?") % "LightDM",
             default=True)
         self.minimal = prompt_bool(
-            _("Install a minimal environment ? (y/N/?) : "),
+            _("Install a minimal environment ?"),
             default=False,
             help_msg=_("If yes, the script will not install any extra packages, only base packages."))
 

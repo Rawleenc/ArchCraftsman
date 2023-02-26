@@ -52,45 +52,45 @@ def setup_system(detected_timezone) -> dict[str, any]:
         if network is not None:
             system_info["network"] = network
 
-        if prompt_bool(_("Install proprietary Nvidia driver ? (y/N) : "), default=False):
+        if prompt_bool(_("Install proprietary Nvidia driver ?"), default=False):
             system_info["bundles"].append(NvidiaDriver(Bundles.NVIDIA))
 
-        if prompt_bool(_("Install terminus console font ? (y/N) : "), default=False):
+        if prompt_bool(_("Install terminus console font ?"), default=False):
             system_info["bundles"].append(TerminusFont(Bundles.TERMINUS))
 
-        if prompt_bool(_("Install Cups ? (y/N) : "), default=False):
+        if prompt_bool(_("Install Cups ?"), default=False):
             system_info["bundles"].append(Cups(Bundles.CUPS))
 
-        if prompt_bool(_("Install ZSH with GRML configuration ? (y/N/?) : "), default=False,
+        if prompt_bool(_("Install ZSH with GRML configuration ?"), default=False,
                        help_msg=_(
                            "If yes, the script will install the ZSH shell with GRML "
                            "configuration. GRML is a ZSH pre-configuration used by Archlinux's "
                            "live environment.")):
             system_info["bundles"].append(GrmlZsh(Bundles.GRML))
 
-        if prompt_bool(_("Install a set of main fonts ? (y/N/?) : "), default=False,
+        if prompt_bool(_("Install a set of main fonts ?"), default=False,
                        help_msg=_("If yes, the following packages will be installed :\n%s") % " ".join(
                            get_main_fonts())):
             system_info["bundles"].append(MainFonts(Bundles.MAIN_FONTS))
 
-        if prompt_bool(_("Install main file systems support ? (y/N/?) : "),
+        if prompt_bool(_("Install main file systems support ?"),
                        default=False, help_msg=_(
                     "If yes, the following packages will be installed :\n%s") % " ".join(get_main_file_systems())):
             system_info["bundles"].append(MainFileSystems(Bundles.MAIN_FILE_SYSTEMS))
 
-        if prompt_bool(_("Install and enable ZRAM ? (y/N/?) : "), default=False, help_msg=_(
+        if prompt_bool(_("Install and enable ZRAM ?"), default=False, help_msg=_(
                 "ZRAM is a process to compress datas directly in the RAM instead of moving them in a swap. "
                 "Enabled ZRAM will allow you to compress up to half of your RAM before having to swap. "
                 "This method is more efficient than the swap and do not use your disk but is more CPU demanding. "
                 "ZRAM is fully compatible with a swap, it just has a higher priority.")):
             system_info["bundles"].append(Zram(Bundles.ZRAM))
 
-        if prompt_bool(_("Install PipeWire ? (y/N/?) : "),
+        if prompt_bool(_("Install PipeWire ?"),
                        default=False, help_msg=_(
                     "If yes, the PipeWire multimedia framework will be installed to manage audio and video capture.")):
             system_info["bundles"].append(PipeWire(Bundles.PIPEWIRE))
 
-        if prompt_bool(_("Copy ArchCraftsman to the new system ? (y/N) : "), default=False):
+        if prompt_bool(_("Copy ArchCraftsman to the new system ?"), default=False):
             system_info["bundles"].append(CopyACM(Bundles.COPY_ACM))
 
         default_timezone_file = f'/usr/share/zoneinfo/{detected_timezone}'
@@ -155,5 +155,5 @@ def setup_system(detected_timezone) -> dict[str, any]:
                 print_sub_step(_("User's full name : %s") % system_info["user_full_name"])
         if system_info["more_pkgs"]:
             print_sub_step(_("More packages to install : %s") % " ".join(system_info["more_pkgs"]))
-        user_answer = prompt_bool(_("Is the informations correct ? (y/N) : "), default=False)
+        user_answer = prompt_bool(_("Is the informations correct ?"), default=False)
     return system_info

@@ -101,7 +101,7 @@ class Partition:
             self.part_format = True
             self.part_format_type = ask_format_type()
             return
-        self.part_format = prompt_bool(_("Format the partition ? (Y/n) : "))
+        self.part_format = prompt_bool(_("Format the partition ?"))
         if self.part_format:
             if self.part_type == PartTypes.EFI:
                 self.part_format_type = FSFormats.VFAT
@@ -122,7 +122,7 @@ class Partition:
         """
         if not self.is_encryptable():
             return
-        self.encrypted = prompt_bool(_("Do you want to encrypt this partition ? (y/N) : "), default=False)
+        self.encrypted = prompt_bool(_("Do you want to encrypt this partition ?"), default=False)
         if self.encrypted:
             if self.part_type == PartTypes.ROOT:
                 self.block_name = "root"

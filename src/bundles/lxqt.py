@@ -27,7 +27,7 @@ class Lxqt(Bundle):
 
     def prompt_extra(self):
         self.display_manager = prompt_bool(
-            _("The display manager to install is '%s'. Do you want to install it ? (Y/n) : ") % "SDDM",
+            _("The display manager to install is '%s'. Do you want to install it ?") % "SDDM",
             default=True)
 
     def print_resume(self):

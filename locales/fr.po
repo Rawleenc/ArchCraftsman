@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2023-02-26 18:20+0100\n"
-"PO-Revision-Date: 2023-02-26 18:20+0100\n"
+"POT-Creation-Date: 2023-02-26 18:43+0100\n"
+"PO-Revision-Date: 2023-02-26 18:46+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -56,8 +56,8 @@ msgid "You need to choose a target drive."
 msgstr "Vous devez choisir un disque cible."
 
 #: src/autopart.py:43
-msgid "Do you want to install Arch Linux next to other systems ? (Y/n) : "
-msgstr "Voulez-vous installer Arch Linux à côté des autres systèmes ? (O/n) : "
+msgid "Do you want to install Arch Linux next to other systems ?"
+msgstr "Voulez-vous installer Arch Linux à côté des autres systèmes ? "
 
 #: src/autopart.py:47
 msgid "Swap type '%s' is not supported."
@@ -72,12 +72,12 @@ msgid "Supported Swap types : "
 msgstr "Types de swap supportés : "
 
 #: src/autopart.py:50
-msgid "Do you want a separated Home ? (Y/n) : "
-msgstr "Voulez-vous un Home séparé ? (O/n) : "
+msgid "Do you want a separated Home ?"
+msgstr "Voulez-vous un Home séparé ?"
 
 #: src/autopart.py:53 src/autopart.py:57
-msgid "Do you want to encrypt the %s partition ? (y/N) : "
-msgstr "Voulez-vous chiffrer la partition %s ? (o/N) : "
+msgid "Do you want to encrypt the %s partition ?"
+msgstr "Voulez-vous chiffrer la partition %s ?"
 
 #: src/autopart.py:182 src/envsetup.py:66 src/manualpart.py:109
 #: src/systemsetup.py:139
@@ -90,21 +90,19 @@ msgstr "Taille du fichier d'échange : %s"
 
 #: src/autopart.py:187 src/envsetup.py:69 src/manualpart.py:115
 #: src/systemsetup.py:158
-msgid "Is the informations correct ? (y/N) : "
-msgstr "Les informations sont-elles correctes ? (o/N) : "
+msgid "Is the informations correct ?"
+msgstr "Les informations sont-elles correctes ?"
 
 #: src/autopart.py:189 src/manualpart.py:117
-msgid "Do you want to change the partitioning mode ? (y/N) : "
-msgstr "Voulez-vous changer de mode de partitionnement ? (o/N) : "
+msgid "Do you want to change the partitioning mode ?"
+msgstr "Voulez-vous changer de mode de partitionnement ?"
 
 #: src/bundles/budgie.py:30 src/bundles/cinnamon.py:30
 #: src/bundles/cutefish.py:28 src/bundles/lxqt.py:30 src/bundles/mate.py:37
 #: src/bundles/xfce.py:37
-msgid ""
-"The display manager to install is '%s'. Do you want to install it ? (Y/n) : "
+msgid "The display manager to install is '%s'. Do you want to install it ?"
 msgstr ""
-"Le gestionnaire d'affichage à installer est '%s'. Voulez-vous l'installer ? "
-"(O/n) : "
+"Le gestionnaire d'affichage à installer est '%s'. Voulez-vous l'installer ?"
 
 #: src/bundles/budgie.py:34 src/bundles/cinnamon.py:34
 #: src/bundles/cutefish.py:32 src/bundles/deepin.py:27
@@ -144,8 +142,8 @@ msgstr "Installer un environnement minimal."
 
 #: src/bundles/deepin.py:34 src/bundles/gnome.py:33 src/bundles/mate.py:40
 #: src/bundles/plasma.py:43 src/bundles/xfce.py:40
-msgid "Install a minimal environment ? (y/N/?) : "
-msgstr "Installer un environnement minimal ? (o/N/?) : "
+msgid "Install a minimal environment ?"
+msgstr "Installer un environnement minimal ?"
 
 #: src/bundles/deepin.py:36 src/bundles/gnome.py:35 src/bundles/mate.py:42
 #: src/bundles/plasma.py:45 src/bundles/xfce.py:42
@@ -208,8 +206,8 @@ msgid "Install Wayland support for the plasma session."
 msgstr "Installer le support Wayland pour la session plasma."
 
 #: src/bundles/plasma.py:46
-msgid "Install Wayland support for the plasma session ? (y/N) : "
-msgstr "Installer le support Wayland pour la session plasma ? (o/N) : "
+msgid "Install Wayland support for the plasma session ?"
+msgstr "Installer le support Wayland pour la session plasma ?"
 
 #: src/bundles/systemdnet.py:19
 msgid "Enable systemd network stack."
@@ -276,8 +274,8 @@ msgid "Partitioning :"
 msgstr "Partitionnement :"
 
 #: src/installer.py:31
-msgid "Do you want an automatic partitioning ? (y/N) : "
-msgstr "Voulez-vous un partitionnement automatique ? (o/N) : "
+msgid "Do you want an automatic partitioning ?"
+msgstr "Voulez-vous un partitionnement automatique ?"
 
 #: src/installer.py:40
 msgid "Updating mirrors..."
@@ -364,8 +362,8 @@ msgid "The chosen target drive doesn't exist."
 msgstr "Le disque cible choisi n'existe pas."
 
 #: src/manualpart.py:40
-msgid "Do you want to partition an other drive ? (y/N) : "
-msgstr "Voulez-vous partitionner un autre disque ? (o/N) : "
+msgid "Do you want to partition an other drive ?"
+msgstr "Voulez-vous partitionner un autre disque ?"
 
 #: src/manualpart.py:52
 msgid "Detected target drive partitions : %s"
@@ -404,18 +402,18 @@ msgid "The Boot partition is required for system installation."
 msgstr "La partition Boot est nécessaire pour l'installation du système."
 
 #: src/partition.py:104
-msgid "Format the partition ? (Y/n) : "
-msgstr "Formater la partition ? (O/n) : "
+msgid "Format the partition ?"
+msgstr "Formater la partition ?"
 
 #: src/partition.py:125
-msgid "Do you want to encrypt this partition ? (y/N) : "
-msgstr "Voulez-vous chiffrer cette partition ? (o/N) : "
+msgid "Do you want to encrypt this partition ?"
+msgstr "Voulez-vous chiffrer cette partition ?"
 
-#: src/partition.py:140
+#: src/partition.py:140 src/utils.py:267 src/utils.py:269 src/utils.py:274
 msgid "yes"
 msgstr "oui"
 
-#: src/partition.py:142
+#: src/partition.py:142 src/utils.py:267 src/utils.py:269 src/utils.py:275
 msgid "no"
 msgstr "non"
 
@@ -528,20 +526,20 @@ msgid "Supported network stacks : "
 msgstr "Pile réseau supportés : "
 
 #: src/systemsetup.py:55
-msgid "Install proprietary Nvidia driver ? (y/N) : "
-msgstr "Installer le pilote propriétaire Nvidia ? (o/N) : "
+msgid "Install proprietary Nvidia driver ?"
+msgstr "Installer le pilote propriétaire Nvidia ?"
 
 #: src/systemsetup.py:58
-msgid "Install terminus console font ? (y/N) : "
-msgstr "Installer la police de console terminus ? (o/N) : "
+msgid "Install terminus console font ?"
+msgstr "Installer la police de console Terminus ?"
 
 #: src/systemsetup.py:61
-msgid "Install Cups ? (y/N) : "
-msgstr "Installer Cups ? (o/N) : "
+msgid "Install Cups ?"
+msgstr "Installer Cups ?"
 
 #: src/systemsetup.py:64
-msgid "Install ZSH with GRML configuration ? (y/N/?) : "
-msgstr "Installer ZSH avec la configuration GRML ? (o/N/?) : "
+msgid "Install ZSH with GRML configuration ?"
+msgstr "Installer ZSH avec la configuration GRML ?"
 
 #: src/systemsetup.py:65
 msgid ""
@@ -553,8 +551,8 @@ msgstr ""
 "d'Archlinux."
 
 #: src/systemsetup.py:71
-msgid "Install a set of main fonts ? (y/N/?) : "
-msgstr "Installer un jeu de polices principales ? (o/N/?) : "
+msgid "Install a set of main fonts ?"
+msgstr "Installer un ensemble de polices principales ?"
 
 #: src/systemsetup.py:72 src/systemsetup.py:77
 msgid ""
@@ -565,12 +563,12 @@ msgstr ""
 "%s"
 
 #: src/systemsetup.py:76
-msgid "Install main file systems support ? (y/N/?) : "
-msgstr "Installer le support des systèmes de fichiers principaux ? (o/N/?) : "
+msgid "Install main file systems support ?"
+msgstr "Installer le support des systèmes de fichiers principaux ?"
 
 #: src/systemsetup.py:81
-msgid "Install and enable ZRAM ? (y/N/?) : "
-msgstr "Installer et activer ZRAM ? (o/N/?) : "
+msgid "Install and enable ZRAM ?"
+msgstr "Installer et activer ZRAM ?"
 
 #: src/systemsetup.py:81
 msgid ""
@@ -588,8 +586,8 @@ msgstr ""
 "avec un swap, il a juste une priorité plus élevée."
 
 #: src/systemsetup.py:88
-msgid "Install PipeWire ? (y/N/?) : "
-msgstr "Installer PipeWire ? (o/N/?) : "
+msgid "Install PipeWire ?"
+msgstr "Installer PipeWire ?"
 
 #: src/systemsetup.py:89
 msgid ""
@@ -600,8 +598,8 @@ msgstr ""
 "la capture vidéo."
 
 #: src/systemsetup.py:93
-msgid "Copy ArchCraftsman to the new system ? (y/N) : "
-msgstr "Copier ArchCraftsman sur le nouveau système ? (o/N) : "
+msgid "Copy ArchCraftsman to the new system ?"
+msgstr "Copier ArchCraftsman sur le nouveau système ?"
 
 #: src/systemsetup.py:97
 msgid "Your timezone (%s) : "
@@ -702,9 +700,43 @@ msgstr "Aide :"
 msgid "The input must not be empty."
 msgstr "La saisie ne doit pas être vide."
 
-#: src/utils.py:286
+#: src/utils.py:294
 msgid "Press any key to continue..."
 msgstr "Appuyez sur n'importe quelle touche pour continuer..."
+
+#~ msgid "Install a minimal environment ? (y/N/?) : "
+#~ msgstr "Installer un environnement minimal ? (o/N/?) : "
+
+#~ msgid "Install Wayland support for the plasma session ? (y/N) : "
+#~ msgstr "Installer le support Wayland pour la session plasma ? (o/N) : "
+
+#~ msgid "Install proprietary Nvidia driver ? (y/N) : "
+#~ msgstr "Installer le pilote propriétaire Nvidia ? (o/N) : "
+
+#~ msgid "Install terminus console font ? (y/N) : "
+#~ msgstr "Installer la police de console terminus ? (o/N) : "
+
+#~ msgid "Install Cups ? (y/N) : "
+#~ msgstr "Installer Cups ? (o/N) : "
+
+#~ msgid "Install ZSH with GRML configuration ? (y/N/?) : "
+#~ msgstr "Installer ZSH avec la configuration GRML ? (o/N/?) : "
+
+#~ msgid "Install a set of main fonts ? (y/N/?) : "
+#~ msgstr "Installer un jeu de polices principales ? (o/N/?) : "
+
+#~ msgid "Install main file systems support ? (y/N/?) : "
+#~ msgstr ""
+#~ "Installer le support des systèmes de fichiers principaux ? (o/N/?) : "
+
+#~ msgid "Install and enable ZRAM ? (y/N/?) : "
+#~ msgstr "Installer et activer ZRAM ? (o/N/?) : "
+
+#~ msgid "Install PipeWire ? (y/N/?) : "
+#~ msgstr "Installer PipeWire ? (o/N/?) : "
+
+#~ msgid "Copy ArchCraftsman to the new system ? (y/N) : "
+#~ msgstr "Copier ArchCraftsman sur le nouveau système ? (o/N) : "
 
 #~ msgid "Install Iwd with systemd network stack."
 #~ msgstr "Installer Iwd avec la pile réseau de systemd."

@@ -66,5 +66,5 @@ def setup_environment(detected_language: str) -> dict[str, any]:
         print_step(_("Summary of choices :"), clear=False)
         print_sub_step(_("Your installation's language : %s") % pre_launch_info["global_language"])
         print_sub_step(_("Your installation's keymap : %s") % pre_launch_info["keymap"])
-        user_answer = prompt_bool(_("Is the informations correct ? (y/N) : "), default=False)
+        user_answer = prompt_bool(_("Is the informations correct ?"), default=False)
     return pre_launch_info

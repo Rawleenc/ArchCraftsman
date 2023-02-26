@@ -28,7 +28,7 @@ def install(pre_launch_info):
         temp_partitioning_info = None
         while temp_partitioning_info is None:
             print_step(_("Partitioning :"))
-            want_auto_part = prompt_bool(_("Do you want an automatic partitioning ? (y/N) : "), default=False)
+            want_auto_part = prompt_bool(_("Do you want an automatic partitioning ?"), default=False)
             if want_auto_part:
                 temp_partitioning_info = auto_partitioning()
             else:

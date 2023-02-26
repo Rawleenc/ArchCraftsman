@@ -27,7 +27,7 @@ class Cinnamon(Bundle):
 
     def prompt_extra(self):
         self.display_manager = prompt_bool(
-            _("The display manager to install is '%s'. Do you want to install it ? (Y/n) : ") % "LightDM",
+            _("The display manager to install is '%s'. Do you want to install it ?") % "LightDM",
             default=True)
 
     def print_resume(self):

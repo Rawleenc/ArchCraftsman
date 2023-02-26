@@ -40,10 +40,10 @@ class Plasma(Bundle):
 
     def prompt_extra(self):
         self.minimal = prompt_bool(
-            _("Install a minimal environment ? (y/N/?) : "),
+            _("Install a minimal environment ?"),
             default=False,
             help_msg=_("If yes, the script will not install any extra packages, only base packages."))
-        self.plasma_wayland = prompt_bool(_("Install Wayland support for the plasma session ? (y/N) : "),
+        self.plasma_wayland = prompt_bool(_("Install Wayland support for the plasma session ?"),
                                           default=False)
 
     def configure(self, system_info, pre_launch_info, partitioning_info: PartitioningInfo):

@@ -31,7 +31,7 @@ class Deepin(Bundle):
 
     def prompt_extra(self):
         self.minimal = prompt_bool(
-            _("Install a minimal environment ? (y/N/?) : "),
+            _("Install a minimal environment ?"),
             default=False,
             help_msg=_("If yes, the script will not install any extra packages, only base packages."))
 

@@ -262,9 +262,17 @@ def prompt_bool(message: str, default: bool = True, help_msg: str = None) -> boo
     :param help_msg:
     :return:
     """
+    message += " ("
+    if default:
+        message += f"{_('yes').upper()[0]}/{_('no')[0]}"
+    else:
+        message += f"{_('yes')[0]}/{_('no').upper()[0]}"
+    if help_msg is not None:
+        message += "/?"
+    message += ") : "
     if not default:
-        return prompt(f'{message}', help_msg=help_msg).upper() in {"Y", "O"}
-    return prompt(f'{message}', help_msg=help_msg).upper() != "N"
+        return prompt(f'{message}', help_msg=help_msg).upper() == _("yes").upper()[0]
+    return prompt(f'{message}', help_msg=help_msg).upper() != _("no").upper()[0]
 
 
 def prompt_passwd(message: str, required: bool = False):
