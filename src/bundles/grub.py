@@ -26,7 +26,7 @@ class Grub(Bundle):
                 '--bootloader-id=\'Arch Linux\'"')
         execute('sed -i "/^GRUB_CMDLINE_LINUX=.*/a GRUB_DISABLE_OS_PROBER=false" /mnt/etc/default/grub')
 
-        if True in [part.encrypted for part in partitioning_info.partitions]:
+        if partitioning_info.root_partition.encrypted:
             hooks = stdout(
                 execute("grep -e '^HOOKS' /mnt/etc/mkinitcpio.conf", check=False, force=True,
                         capture_output=True)).strip()
@@ -41,7 +41,6 @@ class Grub(Bundle):
             execute(f'sed -i \'s|{hooks}|{processed_hooks}|g\' /mnt/etc/mkinitcpio.conf')
             execute('arch-chroot /mnt bash -c "mkinitcpio -P"')
 
-        if partitioning_info.root_partition.encrypted:
             grub_cmdline = stdout(
                 execute("grep -e '^GRUB_CMDLINE_LINUX_DEFAULT' /mnt/etc/default/grub", check=False, force=True,
                         capture_output=True)).strip()
