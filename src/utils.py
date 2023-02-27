@@ -193,7 +193,7 @@ def prompt_ln(message: str, default: str = None, help_msg: str = None, required:
     :param required:
     :return:
     """
-    return prompt(f'{message}\n', default=default, help_msg=help_msg, required=required)
+    return prompt(f'{message}\n> ', default=default, help_msg=help_msg, required=required)
 
 
 def print_supported(supported_msg: str, options: type(OptionEnum), *ignores: OptionEnum):
