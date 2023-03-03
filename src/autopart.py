@@ -26,7 +26,7 @@ def auto_partitioning() -> PartitioningInfo or None:
         execute("fdisk -l", force=True)
         target_disk = prompt(
             _("On which drive should Archlinux be installed ? (type the entire name, for example '/dev/sda') : "))
-        if target_disk == "":
+        if not target_disk:
             print_error(_("You need to choose a target drive."))
             continue
         if not os.path.exists(target_disk):
@@ -37,7 +37,7 @@ def auto_partitioning() -> PartitioningInfo or None:
         efi_partition = disk.get_efi_partition()
         if not is_bios() \
                 and len(disk.partitions) > 0 \
-                and efi_partition.path != "" \
+                and efi_partition.path \
                 and efi_partition.fs_type == "vfat" \
                 and disk.free_space > from_iec("32G"):
             want_dual_boot = prompt_bool(_("Do you want to install Arch Linux next to other systems ?"))

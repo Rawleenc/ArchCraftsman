@@ -149,19 +149,19 @@ def install(pre_launch_info: PreLaunchInfo):
 
         print_step(_("Users configuration..."), clear=False)
         print_sub_step(_("Root account configuration..."))
-        if system_info.root_password != "":
+        if system_info.root_password:
             execute(f'arch-chroot /mnt bash -c "echo \'root:{system_info.root_password}\' | chpasswd"')
-        if system_info.user_name != "":
+        if system_info.user_name:
             print_sub_step(_("%s account configuration...") % system_info.user_name)
             execute('sed -i "s|# %wheel ALL=(ALL:ALL) ALL|%wheel ALL=(ALL:ALL) ALL|g" /mnt/etc/sudoers')
             execute(
                 f'arch-chroot /mnt bash -c "useradd --shell=/bin/bash --groups=wheel '
                 f'--create-home {system_info.user_name}"')
-            if system_info.user_full_name != "":
+            if system_info.user_full_name:
                 execute(
                     f'arch-chroot /mnt bash -c '
                     f'"chfn -f \'{system_info.user_full_name}\' {system_info.user_name}"')
-            if system_info.user_password != "":
+            if system_info.user_password:
                 execute(
                     f'arch-chroot /mnt bash -c "echo \'{system_info.user_name}:'
                     f'{system_info.user_password}\' | chpasswd"')

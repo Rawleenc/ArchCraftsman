@@ -165,13 +165,13 @@ def setup_system(detected_timezone) -> SystemInfo:
         while not user_name_ok:
             system_setup.user_name = prompt_ln(_("Would you like to add a user? (type username, leave blank if "
                                                  "none) : "))
-            if system_setup.user_name and system_setup.user_name != "" and not user_name_pattern.match(
+            if system_setup.user_name and not user_name_pattern.match(
                     system_setup.user_name):
                 print_error(_("Invalid user name."))
                 continue
             user_name_ok = True
         system_setup.user_full_name = ""
-        if system_setup.user_name != "":
+        if system_setup.user_name:
             system_setup.user_full_name = prompt_ln(
                 _("What is the %s's full name (type the entire full name, leave blank if none) : ") %
                 system_setup.user_name)
@@ -183,7 +183,7 @@ def setup_system(detected_timezone) -> SystemInfo:
                 _("Install more packages ? (type extra packages full names, example : 'htop neofetch', "
                   "leave blank if none) : "))
             pkgs_select_ok = True
-            if more_pkgs_str != "":
+            if more_pkgs_str:
                 for pkg in more_pkgs_str.split():
                     if execute(f'pacman -Si {pkg} &>/dev/null', check=False).returncode != 0:
                         pkgs_select_ok = False
@@ -193,7 +193,7 @@ def setup_system(detected_timezone) -> SystemInfo:
 
         print_sub_step(_("%s password configuration : ") % "root")
         system_setup.root_password = ask_password(_("Enter the %s password : ") % "root")
-        if system_setup.user_name != "":
+        if system_setup.user_name:
             print_sub_step(_("%s password configuration : ") % system_setup.user_name)
             system_setup.user_password = ask_password(_("Enter the %s password : ") % system_setup.user_name)
 
@@ -213,9 +213,9 @@ def setup_system(detected_timezone) -> SystemInfo:
             if bundle is not None and isinstance(bundle, Bundle):
                 bundle.print_resume()
         print_sub_step(_("Your timezone : %s") % system_setup.timezone)
-        if system_setup.user_name != "":
+        if system_setup.user_name:
             print_sub_step(_("Additional user name : %s") % system_setup.user_name)
-            if system_setup.user_full_name != "":
+            if system_setup.user_full_name:
                 print_sub_step(_("User's full name : %s") % system_setup.user_full_name)
         if system_setup.more_pkgs:
             print_sub_step(_("More packages to install : %s") % " ".join(system_setup.more_pkgs))

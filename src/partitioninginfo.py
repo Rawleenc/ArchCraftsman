@@ -56,7 +56,7 @@ class PartitioningInfo:
         print_step(_("Unmounting partitions..."), clear=False)
         swap = re.sub('\\s', '',
                       stdout(execute('swapon --noheadings | awk \'{print $1}\'', check=False, capture_output=True)))
-        if swap != "":
+        if swap:
             execute(f'swapoff {swap} &>/dev/null', check=False)
 
         mounted_partitions = [partition for partition in self.partitions if partition.part_mounted]

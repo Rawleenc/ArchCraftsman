@@ -66,7 +66,7 @@ def ask_encryption_block_name() -> str:
     block_name = None
     while not block_name_ok:
         block_name = prompt_ln(_("What will be the encrypted block name ? : "), required=True)
-        if block_name and block_name != "" and not block_name_pattern.match(
+        if block_name and not block_name_pattern.match(
                 block_name):
             print_error(_("Invalid encrypted block name."))
             continue
@@ -172,12 +172,12 @@ def prompt(message: str, default: str = None, help_msg: str = None, required: bo
     user_input = None
     while not user_input_ok:
         user_input = input_str(f'{ORANGE}{message}{NOCOLOR}', password=password)
-        if user_input == "?" and help_msg and help_msg != "":
+        if user_input == "?" and help_msg:
             print_help(help_msg)
             continue
-        if user_input == "" and default:
+        if not user_input and default:
             user_input = default
-        if required and (user_input is None or user_input == ""):
+        if required and (user_input is None or not user_input):
             print_error(_("The input must not be empty."))
             continue
         user_input_ok = True

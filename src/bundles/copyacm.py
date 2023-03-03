@@ -20,7 +20,7 @@ class CopyACM(Bundle):
         print_sub_step(_("Copy ArchCraftsman to the new system."))
 
     def configure(self, system_info: SystemInfo, pre_launch_info: PreLaunchInfo, partitioning_info: PartitioningInfo):
-        if system_info.user_name != "":
+        if system_info.user_name:
             path = f'/home/{system_info.user_name}/ArchCraftsman'
             execute(f'mkdir -p /mnt{path}')
             execute(f'cp -r ~/src /mnt{path}')
