@@ -3,6 +3,7 @@ The generic bundle blueprint module
 """
 from src.options import OptionEnum
 from src.partitioninginfo import PartitioningInfo
+from src.prelaunchinfo import PreLaunchInfo
 
 
 class Bundle:
@@ -30,7 +31,7 @@ class Bundle:
         Bundle's print resume method.
         """
 
-    def configure(self, system_info, pre_launch_info, partitioning_info: PartitioningInfo):
+    def configure(self, system_info, pre_launch_info: PreLaunchInfo, partitioning_info: PartitioningInfo):
         """
         Bundle configuration method.
         :param system_info:

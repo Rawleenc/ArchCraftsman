@@ -4,8 +4,8 @@ The plasma bundle module
 
 from src.bundles.bundle import Bundle
 from src.i18n import I18n
-from src.localesetup import setup_chroot_keyboard
 from src.partitioninginfo import PartitioningInfo
+from src.prelaunchinfo import PreLaunchInfo
 from src.utils import print_sub_step, prompt_bool, execute
 
 _ = I18n().gettext
@@ -46,7 +46,6 @@ class Plasma(Bundle):
         self.plasma_wayland = prompt_bool(_("Install Wayland support for the plasma session ?"),
                                           default=False)
 
-    def configure(self, system_info, pre_launch_info, partitioning_info: PartitioningInfo):
+    def configure(self, system_info, pre_launch_info: PreLaunchInfo, partitioning_info: PartitioningInfo):
         execute('arch-chroot /mnt bash -c "systemctl enable sddm"')
-        if "fr" in pre_launch_info["keymap"]:
-            setup_chroot_keyboard("fr")
+        pre_launch_info.setup_chroot_keyboard()

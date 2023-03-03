@@ -9,13 +9,14 @@ from src.i18n import I18n
 from src.manualpart import manual_partitioning
 from src.options import FSFormats, PartTypes
 from src.partitioninginfo import PartitioningInfo
+from src.prelaunchinfo import PreLaunchInfo
 from src.systemsetup import setup_system
 from src.utils import print_step, execute, prompt_bool, print_sub_step, print_error
 
 _ = I18n().gettext
 
 
-def install(pre_launch_info):
+def install(pre_launch_info: PreLaunchInfo):
     """
     The main installation method.
     :param pre_launch_info:
@@ -23,7 +24,7 @@ def install(pre_launch_info):
     """
     partitioning_info: PartitioningInfo = PartitioningInfo()
     try:
-        system_info = setup_system(pre_launch_info["detected_timezone"])
+        system_info = setup_system(pre_launch_info.detected_timezone)
 
         temp_partitioning_info = None
         while temp_partitioning_info is None:
@@ -51,10 +52,10 @@ def install(pre_launch_info):
             ["man-db", "man-pages", "texinfo", "nano", "vim", "git", "curl", "os-prober", "efibootmgr", "xdg-user-dirs",
              "reflector", "numlockx", "net-tools", "polkit", "pacman-contrib"])
 
-        if pre_launch_info["global_language"].lower() != "en" and execute(
-                f"pacman -Si man-pages-{pre_launch_info['global_language'].lower()} &>/dev/null",
+        if pre_launch_info.global_language.lower() != "en" and execute(
+                f"pacman -Si man-pages-{pre_launch_info.global_language.lower()} &>/dev/null",
                 check=False).returncode == 0:
-            pkgs.add(f"man-pages-{pre_launch_info['global_language'].lower()}")
+            pkgs.add(f"man-pages-{pre_launch_info.global_language.lower()}")
 
         if partitioning_info.btrfs_in_use:
             pkgs.add("btrfs-progs")
@@ -82,13 +83,13 @@ def install(pre_launch_info):
         print_step(_("System configuration..."), clear=False)
         execute('sed -i "s|#en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|g" /mnt/etc/locale.gen')
         execute('sed -i "s|#en_US ISO-8859-1|en_US ISO-8859-1|g" /mnt/etc/locale.gen')
-        if pre_launch_info["global_language"] == "FR":
+        if pre_launch_info.global_language == "FR":
             execute('sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /mnt/etc/locale.gen')
             execute('sed -i "s|#fr_FR ISO-8859-1|fr_FR ISO-8859-1|g" /mnt/etc/locale.gen')
             execute('echo "LANG=fr_FR.UTF-8" >/mnt/etc/locale.conf')
         else:
             execute('echo "LANG=en_US.UTF-8" >/mnt/etc/locale.conf')
-        execute(f'echo "KEYMAP={pre_launch_info["keymap"]}" >/mnt/etc/vconsole.conf')
+        execute(f'echo "KEYMAP={pre_launch_info.keymap}" >/mnt/etc/vconsole.conf')
         execute(f'echo "{system_info["hostname"]}" >/mnt/etc/hostname')
         execute(f'''
             {{

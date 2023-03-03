@@ -33,16 +33,15 @@ import sys
 from subprocess import CalledProcessError
 from urllib.request import urlopen
 
-from src.envsetup import setup_environment
 from src.globalargs import GlobalArgs
 from src.i18n import I18n
 from src.installer import install
-from src.localesetup import setup_locale
+from src.prelaunchinfo import PreLaunchInfo
 from src.shell import shell
 from src.utils import print_error, execute, stdout, print_step, print_sub_step
 
 
-def pre_launch_steps() -> dict[str, any]:
+def pre_launch_steps() -> PreLaunchInfo:
     """
     The method to proceed to the pre-launch steps
     :return:
@@ -62,14 +61,12 @@ def pre_launch_steps() -> dict[str, any]:
         geoip_info = json.loads(response.read())
     detected_language = str(geoip_info["languages"]).split(",", maxsplit=1)[0]
     detected_timezone = geoip_info["timezone"]
-    pre_launch_info = setup_environment(detected_language)
-    pre_launch_info["detected_timezone"] = detected_timezone
-    pre_launch_info["live_console_font"] = setup_locale(keymap=pre_launch_info["keymap"],
-                                                        global_language=pre_launch_info["global_language"])
+    pre_launch_info = PreLaunchInfo()
+    pre_launch_info.prompt(detected_language, detected_timezone)
     return pre_launch_info
 
 
-def pre_launch() -> dict[str, any]:
+def pre_launch() -> PreLaunchInfo:
     """
     A pre-launch steps method.
     :return:
@@ -110,7 +107,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     PRE_LAUNCH_INFO = pre_launch()
-    _ = i18n.update_method(PRE_LAUNCH_INFO["global_language"])
+    _ = i18n.update_method(PRE_LAUNCH_INFO.global_language)
 
     if GlobalArgs().install():
         install(PRE_LAUNCH_INFO)
