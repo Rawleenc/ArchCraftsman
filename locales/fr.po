@@ -26,7 +26,7 @@ msgid "Synchronising repositories..."
 msgstr "Synchronisation des dépôts..."
 
 #: src/archcraftsman.py:60
-msgid "Querying IP geolocation informations..."
+msgid "Querying IP geolocation information..."
 msgstr "Interrogation des informations de géolocalisation IP..."
 
 #: src/archcraftsman.py:80 src/installer.py:177 src/shell.py:104
@@ -90,7 +90,7 @@ msgstr "Taille du fichier d'échange : %s"
 
 #: src/autopart.py:187 src/envsetup.py:69 src/manualpart.py:115
 #: src/systemsetup.py:158
-msgid "Is the informations correct ?"
+msgid "Is the information correct ?"
 msgstr "Les informations sont-elles correctes ?"
 
 #: src/autopart.py:189 src/manualpart.py:117

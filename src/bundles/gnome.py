@@ -6,6 +6,7 @@ from src.bundles.bundle import Bundle
 from src.i18n import I18n
 from src.partitioninginfo import PartitioningInfo
 from src.prelaunchinfo import PreLaunchInfo
+from src.systeminfo import SystemInfo
 from src.utils import print_sub_step, prompt_bool, execute
 
 _ = I18n().gettext
@@ -17,7 +18,7 @@ class Gnome(Bundle):
     """
     minimal = False
 
-    def packages(self, system_info) -> list[str]:
+    def packages(self, system_info: SystemInfo) -> list[str]:
         packages = ["gnome", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "xdg-desktop-portal",
                     "xdg-desktop-portal-gnome", "qt5-wayland"]
         if self.minimal is not True:
@@ -34,6 +35,6 @@ class Gnome(Bundle):
             default=False,
             help_msg=_("If yes, the script will not install any extra packages, only base packages."))
 
-    def configure(self, system_info, pre_launch_info: PreLaunchInfo, partitioning_info: PartitioningInfo):
+    def configure(self, system_info: SystemInfo, pre_launch_info: PreLaunchInfo, partitioning_info: PartitioningInfo):
         execute('arch-chroot /mnt bash -c "systemctl enable gdm"')
         pre_launch_info.setup_chroot_keyboard()

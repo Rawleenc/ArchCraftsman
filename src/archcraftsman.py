@@ -33,6 +33,7 @@ import sys
 from subprocess import CalledProcessError
 from urllib.request import urlopen
 
+from src.basesetup import initial_setup
 from src.globalargs import GlobalArgs
 from src.i18n import I18n
 from src.installer import install
@@ -56,14 +57,12 @@ def pre_launch_steps() -> PreLaunchInfo:
         print_sub_step(_("Synchronising repositories..."))
         execute("pacman -Sy &>/dev/null")
 
-    print_sub_step(_("Querying IP geolocation informations..."))
+    print_sub_step(_("Querying IP geolocation information..."))
     with urlopen("https://ipapi.co/json") as response:
         geoip_info = json.loads(response.read())
     detected_language = str(geoip_info["languages"]).split(",", maxsplit=1)[0]
     detected_timezone = geoip_info["timezone"]
-    pre_launch_info = PreLaunchInfo()
-    pre_launch_info.prompt(detected_language, detected_timezone)
-    return pre_launch_info
+    return initial_setup(detected_language, detected_timezone)
 
 
 def pre_launch() -> PreLaunchInfo:

@@ -6,6 +6,7 @@ import re
 from src.bundles.bundle import Bundle
 from src.i18n import I18n
 from src.options import Bundles
+from src.systeminfo import SystemInfo
 from src.utils import print_sub_step, execute, stdout
 
 _ = I18n().gettext
@@ -24,7 +25,7 @@ class Microcodes(Bundle):
         else:
             self.microcode_name = None
 
-    def packages(self, system_info: dict[str, any]) -> list[str]:
+    def packages(self, system_info: SystemInfo) -> list[str]:
         if self.microcode_name == "GenuineIntel":
             return ["intel-ucode"]
         if self.microcode_name == "AuthenticAMD":

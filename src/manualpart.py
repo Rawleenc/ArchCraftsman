@@ -112,7 +112,7 @@ def manual_partitioning() -> PartitioningInfo or None:
         if PartTypes.SWAP not in [part.part_type for part in
                                   partitioning_info.partitions] and partitioning_info.swapfile_size:
             print_sub_step(_("Swapfile size : %s") % partitioning_info.swapfile_size)
-        user_answer = prompt_bool(_("Is the informations correct ?"), default=False)
+        user_answer = prompt_bool(_("Is the information correct ?"), default=False)
         if not user_answer:
             want_to_change = prompt_bool(_("Do you want to change the partitioning mode ?"), default=False)
             if want_to_change:

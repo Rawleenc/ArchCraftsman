@@ -3,6 +3,7 @@ The main fonts bundle module
 """
 from src.bundles.bundle import Bundle
 from src.i18n import I18n
+from src.systeminfo import SystemInfo
 from src.utils import print_sub_step
 
 _ = I18n().gettext
@@ -25,7 +26,7 @@ class MainFonts(Bundle):
     The main fonts class.
     """
 
-    def packages(self, system_info: dict[str, any]) -> list[str]:
+    def packages(self, system_info: SystemInfo) -> list[str]:
         return get_main_fonts()
 
     def print_resume(self):

@@ -6,6 +6,7 @@ import re
 from src.bundles.bundle import Bundle
 from src.options import FSFormats, PartTypes
 from src.partitioninginfo import PartitioningInfo
+from src.systeminfo import SystemInfo
 from src.utils import is_bios, execute, stdout
 
 
@@ -14,7 +15,7 @@ class Grub(Bundle):
     The Grub Bootloader class.
     """
 
-    def packages(self, system_info) -> list[str]:
+    def packages(self, system_info: SystemInfo) -> list[str]:
         return ["grub"]
 
     def configure(self, system_info: dict, pre_launch_info: dict, partitioning_info: PartitioningInfo):

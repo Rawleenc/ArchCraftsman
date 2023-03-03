@@ -2,8 +2,6 @@
 The generic bundle blueprint module
 """
 from src.options import OptionEnum
-from src.partitioninginfo import PartitioningInfo
-from src.prelaunchinfo import PreLaunchInfo
 
 
 class Bundle:
@@ -15,7 +13,7 @@ class Bundle:
     def __init__(self, name: OptionEnum):
         self.name = name
 
-    def packages(self, system_info: dict[str, any]) -> list[str]:  # pylint: disable=unused-argument
+    def packages(self, system_info) -> list[str]:  # pylint: disable=unused-argument
         """
         Bundle's packages retrieving method.
         """
@@ -31,7 +29,7 @@ class Bundle:
         Bundle's print resume method.
         """
 
-    def configure(self, system_info, pre_launch_info: PreLaunchInfo, partitioning_info: PartitioningInfo):
+    def configure(self, system_info, pre_launch_info, partitioning_info):
         """
         Bundle configuration method.
         :param system_info:

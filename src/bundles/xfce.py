@@ -6,6 +6,7 @@ from src.bundles.bundle import Bundle
 from src.i18n import I18n
 from src.partitioninginfo import PartitioningInfo
 from src.prelaunchinfo import PreLaunchInfo
+from src.systeminfo import SystemInfo
 from src.utils import print_sub_step, prompt_bool, execute
 
 _ = I18n().gettext
@@ -18,7 +19,7 @@ class Xfce(Bundle):
     display_manager = True
     minimal = False
 
-    def packages(self, system_info) -> list[str]:
+    def packages(self, system_info: SystemInfo) -> list[str]:
         packages = ["xfce4", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa", "pavucontrol"]
         if self.display_manager:
             packages.extend(["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"])
@@ -41,7 +42,7 @@ class Xfce(Bundle):
             default=False,
             help_msg=_("If yes, the script will not install any extra packages, only base packages."))
 
-    def configure(self, system_info, pre_launch_info: PreLaunchInfo, partitioning_info: PartitioningInfo):
+    def configure(self, system_info: SystemInfo, pre_launch_info: PreLaunchInfo, partitioning_info: PartitioningInfo):
         if self.display_manager:
             execute('arch-chroot /mnt bash -c "systemctl enable lightdm"')
         execute(

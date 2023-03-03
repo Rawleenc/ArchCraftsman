@@ -10,7 +10,7 @@ from src.manualpart import manual_partitioning
 from src.options import FSFormats, PartTypes
 from src.partitioninginfo import PartitioningInfo
 from src.prelaunchinfo import PreLaunchInfo
-from src.systemsetup import setup_system
+from src.basesetup import setup_system
 from src.utils import print_step, execute, prompt_bool, print_sub_step, print_error
 
 _ = I18n().gettext
@@ -44,8 +44,8 @@ def install(pre_launch_info: PreLaunchInfo):
         base_pkgs = set()
         base_pkgs.update(["base", "base-devel", "linux-firmware"])
 
-        if system_info["kernel"]:
-            base_pkgs.update(system_info["kernel"].packages(system_info))
+        if system_info.kernel:
+            base_pkgs.update(system_info.kernel.packages(system_info))
 
         pkgs = set()
         pkgs.update(
@@ -60,22 +60,22 @@ def install(pre_launch_info: PreLaunchInfo):
         if partitioning_info.btrfs_in_use:
             pkgs.add("btrfs-progs")
 
-        pkgs.update(system_info["microcodes"].packages(system_info))
+        pkgs.update(system_info.micro_codes.packages(system_info))
 
-        if system_info["bootloader"]:
-            pkgs.update(system_info["bootloader"].packages(system_info))
+        if system_info.bootloader:
+            pkgs.update(system_info.bootloader.packages(system_info))
 
-        if system_info["desktop"]:
-            pkgs.update(system_info["desktop"].packages(system_info))
+        if system_info.desktop:
+            pkgs.update(system_info.desktop.packages(system_info))
 
-        if system_info["network"]:
-            pkgs.update(system_info["network"].packages(system_info))
+        if system_info.network:
+            pkgs.update(system_info.network.packages(system_info))
 
-        for bundle in system_info["bundles"]:
+        for bundle in system_info.bundles:
             pkgs.update(bundle.packages(system_info))
 
-        if len(system_info["more_pkgs"]) > 0:
-            pkgs.update(system_info["more_pkgs"])
+        if len(system_info.more_pkgs) > 0:
+            pkgs.update(system_info.more_pkgs)
 
         print_step(_("Installation of the base..."), clear=False)
         execute(f'pacstrap -K /mnt {" ".join(base_pkgs)}')
@@ -90,18 +90,18 @@ def install(pre_launch_info: PreLaunchInfo):
         else:
             execute('echo "LANG=en_US.UTF-8" >/mnt/etc/locale.conf')
         execute(f'echo "KEYMAP={pre_launch_info.keymap}" >/mnt/etc/vconsole.conf')
-        execute(f'echo "{system_info["hostname"]}" >/mnt/etc/hostname')
+        execute(f'echo "{system_info.hostname}" >/mnt/etc/hostname')
         execute(f'''
             {{
                 echo "127.0.0.1 localhost"
                 echo "::1 localhost"
-                echo "127.0.1.1 {system_info["hostname"]}.localdomain {system_info["hostname"]}"
+                echo "127.0.1.1 {system_info.hostname}.localdomain {system_info.hostname}"
             }} >>/mnt/etc/hosts
         ''')
         execute('cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist')
 
         print_step(_("Locales configuration..."), clear=False)
-        execute(f'arch-chroot /mnt bash -c "ln -sf {system_info["timezone"]} /etc/localtime"')
+        execute(f'arch-chroot /mnt bash -c "ln -sf {system_info.timezone} /etc/localtime"')
         execute('arch-chroot /mnt bash -c "locale-gen"')
 
         print_step(_("Installation of the remaining packages..."), clear=False)
@@ -133,41 +133,41 @@ def install(pre_launch_info: PreLaunchInfo):
         print_step(_("Generating fstab..."), clear=False)
         execute('genfstab -U /mnt >>/mnt/etc/fstab')
 
-        if system_info["desktop"]:
+        if system_info.desktop:
             print_step(_("Desktop configuration..."), clear=False)
-            system_info["desktop"].configure(system_info, pre_launch_info, partitioning_info)
+            system_info.desktop.configure(system_info, pre_launch_info, partitioning_info)
 
-        if system_info["network"]:
+        if system_info.network:
             print_step(_("Network configuration..."), clear=False)
-            system_info["network"].configure(system_info, pre_launch_info, partitioning_info)
+            system_info.network.configure(system_info, pre_launch_info, partitioning_info)
 
         execute('arch-chroot /mnt bash -c "systemctl enable systemd-timesyncd"')
 
-        if system_info["bootloader"]:
+        if system_info.bootloader:
             print_step(_("Installation and configuration of the grub..."), clear=False)
-            system_info["bootloader"].configure(system_info, pre_launch_info, partitioning_info)
+            system_info.bootloader.configure(system_info, pre_launch_info, partitioning_info)
 
         print_step(_("Users configuration..."), clear=False)
         print_sub_step(_("Root account configuration..."))
-        if system_info["root_password"] != "":
-            execute(f'arch-chroot /mnt bash -c "echo \'root:{system_info["root_password"]}\' | chpasswd"')
-        if system_info["user_name"] != "":
-            print_sub_step(_("%s account configuration...") % system_info["user_name"])
+        if system_info.root_password != "":
+            execute(f'arch-chroot /mnt bash -c "echo \'root:{system_info.root_password}\' | chpasswd"')
+        if system_info.user_name != "":
+            print_sub_step(_("%s account configuration...") % system_info.user_name)
             execute('sed -i "s|# %wheel ALL=(ALL:ALL) ALL|%wheel ALL=(ALL:ALL) ALL|g" /mnt/etc/sudoers')
             execute(
                 f'arch-chroot /mnt bash -c "useradd --shell=/bin/bash --groups=wheel '
-                f'--create-home {system_info["user_name"]}"')
-            if system_info["user_full_name"] != "":
+                f'--create-home {system_info.user_name}"')
+            if system_info.user_full_name != "":
                 execute(
                     f'arch-chroot /mnt bash -c '
-                    f'"chfn -f \'{system_info["user_full_name"]}\' {system_info["user_name"]}"')
-            if system_info["user_password"] != "":
+                    f'"chfn -f \'{system_info.user_full_name}\' {system_info.user_name}"')
+            if system_info.user_password != "":
                 execute(
-                    f'arch-chroot /mnt bash -c "echo \'{system_info["user_name"]}:'
-                    f'{system_info["user_password"]}\' | chpasswd"')
+                    f'arch-chroot /mnt bash -c "echo \'{system_info.user_name}:'
+                    f'{system_info.user_password}\' | chpasswd"')
 
         print_step(_("Extra packages configuration if needed..."), clear=False)
-        for bundle in system_info["bundles"]:
+        for bundle in system_info.bundles:
             bundle.configure(system_info, pre_launch_info, partitioning_info)
 
         partitioning_info.umount_partitions()

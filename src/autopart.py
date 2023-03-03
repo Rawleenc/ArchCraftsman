@@ -183,7 +183,7 @@ def auto_partitioning() -> PartitioningInfo or None:
             print_sub_step(partition.summary())
         if swap_type == SwapTypes.FILE and swap_size is not None:
             print_sub_step(_("Swapfile size : %s") % swap_size)
-        user_answer = prompt_bool(_("Is the informations correct ?"), default=False)
+        user_answer = prompt_bool(_("Is the information correct ?"), default=False)
         if not user_answer:
             want_to_change = prompt_bool(_("Do you want to change the partitioning mode ?"), default=False)
             if want_to_change:
