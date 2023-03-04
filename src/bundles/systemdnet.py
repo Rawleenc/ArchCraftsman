@@ -17,10 +17,14 @@ class SystemdNet(Bundle):
     Grml ZSH config class.
     """
 
+    def packages(self, system_info: SystemInfo) -> list[str]:
+        return ["systemd-resolvconf"]
+
     def print_resume(self):
         print_sub_step(_("Enable systemd network stack."))
 
     def configure(self, system_info: SystemInfo, pre_launch_info: PreLaunchInfo, partitioning_info: PartitioningInfo):
+        execute('ln -sf /run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf')
         execute('cp -r /etc/systemd/network /mnt/etc/systemd/')
         execute('arch-chroot /mnt bash -c "systemctl enable systemd-networkd"')
         execute('arch-chroot /mnt bash -c "systemctl enable systemd-resolved"')
