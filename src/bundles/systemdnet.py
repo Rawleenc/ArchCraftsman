@@ -21,16 +21,6 @@ class SystemdNet(Bundle):
         print_sub_step(_("Enable systemd network stack."))
 
     def configure(self, system_info: SystemInfo, pre_launch_info: PreLaunchInfo, partitioning_info: PartitioningInfo):
-        content = [
-            "[Match]\n",
-            "Name=*\n\n",
-            "[Network]\n",
-            "DHCP=yes\n"
-        ]
-        try:
-            with open("/mnt/etc/systemd/network/20-wired.network", "w", encoding="UTF-8") as systemd_net_config_file:
-                systemd_net_config_file.writelines(content)
-        except FileNotFoundError as exception:
-            log(f"Exception: {exception}")
+        execute('cp -r /etc/systemd/network /mnt/etc/systemd/')
         execute('arch-chroot /mnt bash -c "systemctl enable systemd-networkd"')
         execute('arch-chroot /mnt bash -c "systemctl enable systemd-resolved"')
