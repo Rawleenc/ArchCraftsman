@@ -7,7 +7,7 @@ from src.i18n import I18n
 from src.partitioninginfo import PartitioningInfo
 from src.prelaunchinfo import PreLaunchInfo
 from src.systeminfo import SystemInfo
-from src.utils import print_sub_step, execute, log
+from src.utils import print_sub_step, execute
 
 _ = I18n().gettext
 
