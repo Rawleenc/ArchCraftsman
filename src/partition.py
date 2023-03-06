@@ -115,13 +115,24 @@ class Partition:
         """
         return execute(f"cryptsetup isLuks {self.path}", check=False, force=True).returncode == 0
 
+    def is_encryptable(self):
+        """
+        Method to know if the partition is encryptable.
+        :return:
+        """
+        return self.part_type in {PartTypes.ROOT, PartTypes.HOME, PartTypes.OTHER}
+
     def ask_for_encryption(self):
         """
         A method to ask if the partition will be encrypted.
         :return:
         """
-        self.encrypted = self.is_encrypted() if not self.part_format else prompt_bool(
-            _("Do you want to encrypt this partition ?"), default=False)
+        if not self.part_format:
+            self.encrypted = self.is_encrypted()
+        elif not self.is_encryptable():
+            return
+        else:
+            self.encrypted = prompt_bool(_("Do you want to encrypt this partition ?"), default=False)
         if self.encrypted:
             if self.part_type == PartTypes.ROOT:
                 self.block_name = "root"
