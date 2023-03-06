@@ -109,6 +109,10 @@ class Partition:
                 self.part_format_type = ask_format_type()
 
     def is_encrypted(self) -> bool:
+        """
+        A method to detect if the partition is an existing-encrypted partition.
+        :return:
+        """
         return execute(f"cryptsetup isLuks {self.path}", check=False, force=True).returncode == 0
 
     def ask_for_encryption(self):
