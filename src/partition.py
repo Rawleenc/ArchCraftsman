@@ -174,7 +174,8 @@ class Partition:
         """
         A method to execute formatting commands for the partition.
         """
-        print_sub_step(_("Formatting %s...") % (self.real_path()))
+        if self.part_format:
+            print_sub_step(_("Formatting %s...") % (self.real_path()))
         if self.part_type == PartTypes.SWAP:
             execute(f'mkswap "{self.path}"')
             execute(f'swapon "{self.path}"')
