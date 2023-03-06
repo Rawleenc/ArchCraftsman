@@ -83,8 +83,8 @@ def manual_partitioning() -> PartitioningInfo or None:
             elif partition_type == PartTypes.OTHER:
                 partition.part_type = PartTypes.OTHER
                 partition.part_mount_point = prompt(_("What is the mounting point of this partition ? : "))
-            partition.ask_for_encryption()
             partition.ask_for_format()
+            partition.ask_for_encryption()
 
         if not is_bios() and PartTypes.EFI not in [part.part_type for part in partitioning_info.partitions]:
             print_error(_("The EFI partition is required for system installation."))
