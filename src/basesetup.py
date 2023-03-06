@@ -84,7 +84,7 @@ def initial_setup(detected_language: str, detected_timezone: str) -> PreLaunchIn
 
         print_step(_("Summary of choices :"), clear=False)
         print_sub_step(_("Your installation's language : %s") % pre_launch_info.global_language)
-        print_sub_step(_("Your installation's keymap : %s") % pre_launch_info.global_language)
+        print_sub_step(_("Your installation's keymap : %s") % pre_launch_info.keymap)
         user_answer = prompt_bool(_("Is the information correct ?"), default=False)
     pre_launch_info.detected_timezone = detected_timezone
     pre_launch_info.setup_locale()
