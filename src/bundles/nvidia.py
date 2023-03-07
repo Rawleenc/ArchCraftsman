@@ -16,7 +16,7 @@ class NvidiaDriver(Bundle):
     """
 
     def packages(self, system_info: SystemInfo) -> list[str]:
-        if system_info.kernel.name == Kernels.LTS:
+        if system_info.kernel and system_info.kernel.name == Kernels.LTS:
             return ["nvidia-lts"]
         return ["nvidia"]
 

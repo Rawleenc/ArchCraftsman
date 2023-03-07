@@ -4,6 +4,7 @@ The plasma bundle module
 
 from src.bundles.bundle import Bundle
 from src.i18n import I18n
+from src.options import Bundles
 from src.partitioninginfo import PartitioningInfo
 from src.prelaunchinfo import PreLaunchInfo
 from src.systeminfo import SystemInfo
@@ -24,7 +25,7 @@ class Plasma(Bundle):
                     "xdg-desktop-portal", "xdg-desktop-portal-kde"]
         if self.plasma_wayland:
             packages.extend(["plasma-wayland-session", "qt5-wayland"])
-            if system_info.bundles and "nvidia" in [bundle.name for bundle in system_info.bundles]:
+            if system_info.bundles and Bundles.NVIDIA in [bundle.name for bundle in system_info.bundles]:
                 packages.append("egl-wayland")
             if self.minimal is not True:
                 packages.append("kde-applications")
