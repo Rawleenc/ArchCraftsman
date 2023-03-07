@@ -26,7 +26,6 @@ This is free software, and you are welcome to redistribute it
 under certain conditions; See the GNU General Public License for more details.
 """
 import argparse
-import glob
 import json
 import readline
 import sys
@@ -37,9 +36,10 @@ from src.basesetup import initial_setup
 from src.globalargs import GlobalArgs
 from src.i18n import I18n
 from src.installer import install
+from src.packages import Packages
 from src.prelaunchinfo import PreLaunchInfo
 from src.shell import shell
-from src.utils import print_error, execute, stdout, print_step, print_sub_step
+from src.utils import print_error, execute, stdout, print_step, print_sub_step, glob_completer
 
 
 def pre_launch_steps() -> PreLaunchInfo:
@@ -56,6 +56,7 @@ def pre_launch_steps() -> PreLaunchInfo:
     if GlobalArgs().install():
         print_sub_step(_("Synchronising repositories..."))
         execute("pacman -Sy &>/dev/null")
+        Packages()
 
     print_sub_step(_("Querying IP geolocation information..."))
     with urlopen("https://ipapi.co/json") as response:
@@ -94,7 +95,7 @@ if __name__ == '__main__':
 
     readline.set_completer_delims(' \t\n;')
     readline.parse_and_bind("tab: complete")
-    readline.set_completer(lambda text, state: (glob.glob(text + '*') + [None])[state])
+    readline.set_completer(glob_completer)
 
     i18n = I18n()
     _ = i18n.gettext

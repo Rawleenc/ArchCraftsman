@@ -37,7 +37,8 @@ class PartitioningInfo:
                 self.btrfs_in_use = True
             partition.format_partition()
 
-        not_mounted_partitions = [partition for partition in self.partitions if not partition.part_mounted]
+        not_mounted_partitions = [partition for partition in self.partitions if
+                                  not partition.part_mounted and partition.part_mount_point]
         not_mounted_partitions.sort(key=lambda part: len(part.part_mount_point))
 
         while False in [partition.part_mounted for partition in not_mounted_partitions]:

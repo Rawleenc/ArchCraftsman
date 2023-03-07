@@ -24,6 +24,16 @@ NOCOLOR = "\033[0m"
 _ = I18n().gettext
 
 
+def glob_completer(text, state) -> str:
+    """
+    The glob completer for readline completions.
+    :param text:
+    :param state:
+    :return:
+    """
+    return [path + "/" if os.path.isdir(path) else path for path in glob.glob(text + '*')][state]
+
+
 def is_bios() -> bool:
     """
     Check if live system run on a bios.
@@ -250,7 +260,7 @@ def prompt_option(message: str, error_msg: str, options: type(OptionEnum), suppo
         else:
             print_error(error_msg % option_name, do_pause=False)
             continue
-    readline.set_completer(lambda text, state: (glob.glob(text + '*') + [None])[state])
+    readline.set_completer(glob_completer)
     return option
 
 

@@ -18,10 +18,10 @@ from src.bundles.utils import prompt_bundle
 from src.bundles.zram import Zram
 from src.i18n import I18n
 from src.options import Kernels, Desktops, Bundles, BootLoaders, Network
+from src.packages import Packages
 from src.prelaunchinfo import PreLaunchInfo
 from src.systeminfo import SystemInfo
-from src.utils import print_error, print_step, print_sub_step, prompt_ln, prompt_bool, \
-    ask_password, execute, is_bios
+from src.utils import print_error, print_step, print_sub_step, prompt_ln, prompt_bool, ask_password, execute, is_bios
 
 _ = I18n().gettext
 
@@ -176,20 +176,7 @@ def setup_system(detected_timezone) -> SystemInfo:
                 _("What is the %s's full name (type the entire full name, leave blank if none) : ") %
                 system_setup.user_name)
 
-        pkgs_select_ok = False
-        while not pkgs_select_ok:
-            system_setup.more_pkgs = set()
-            more_pkgs_str = prompt_ln(
-                _("Install more packages ? (type extra packages full names, example : 'htop neofetch', "
-                  "leave blank if none) : "))
-            pkgs_select_ok = True
-            if more_pkgs_str:
-                for pkg in more_pkgs_str.split():
-                    if execute(f'pacman -Si {pkg} &>/dev/null', check=False).returncode != 0:
-                        pkgs_select_ok = False
-                        print_error(_("Package %s doesn't exist.") % pkg)
-                        break
-                    system_setup.more_pkgs.add(pkg)
+        system_setup.more_pkgs = Packages().ask_packages()
 
         print_sub_step(_("%s password configuration : ") % "root")
         system_setup.root_password = ask_password(_("Enter the %s password : ") % "root")
