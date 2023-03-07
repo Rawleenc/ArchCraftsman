@@ -11,7 +11,7 @@ from urllib.request import urlretrieve, urlopen
 
 OWNER = "Rawleenc"
 REPO = "ArchCraftsman"
-BRANCH = "main"
+BRANCH = "dev"
 CMD = 'python -m src.archcraftsman --install'
 GREEN = "\033[0;32m"
 CYAN = "\033[0;36m"
