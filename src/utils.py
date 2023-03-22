@@ -206,7 +206,7 @@ def prompt_ln(message: str, default: str = None, help_msg: str = None, required:
     return prompt(f'{message}\n> ', default=default, help_msg=help_msg, required=required)
 
 
-def print_supported(supported_msg: str, options: type(OptionEnum), *ignores: OptionEnum):
+def print_supported(supported_msg: str, options: type[OptionEnum], *ignores: OptionEnum):
     """
     A method to print all supported options.
     :param supported_msg:
@@ -220,7 +220,7 @@ def print_supported(supported_msg: str, options: type(OptionEnum), *ignores: Opt
     print('')
 
 
-def prompt_option(message: str, error_msg: str, options: type(OptionEnum), supported_msg: str or None,
+def prompt_option(message: str, error_msg: str, options: type[OptionEnum], supported_msg: str or None,
                   default: OptionEnum or None, *ignores: OptionEnum,
                   new_line_prompt: bool = True) -> OptionEnum or None:
     """
