@@ -1,0 +1,46 @@
+{
+    // Utilisez IntelliSense pour en savoir plus sur les attributs possibles.
+    // Pointez pour afficher la description des attributs existants.
+    // Pour plus d'informations, visitez : https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Test installation",
+            "type": "python",
+            "request": "launch",
+            "module": "src.archcraftsman",
+            "args": [
+                "--install",
+                "--test"
+            ],
+            "justMyCode": true,
+            "sudo": true
+        },
+        {
+            "name": "Test shell",
+            "type": "python",
+            "request": "launch",
+            "module": "src.archcraftsman",
+            "args": [
+                "--shell",
+                "--test"
+            ],
+            "justMyCode": true,
+            "sudo": true
+        },
+        {
+            "name": "Generate translations",
+            "type": "python",
+            "request": "launch",
+            "program": "/usr/lib/python3.10/Tools/i18n/pygettext.py",
+            "args": [
+                "-d",
+                "base",
+                "-o",
+                "base.pot",
+                "src"
+            ],
+            "justMyCode": true
+        }
+    ]
+}
