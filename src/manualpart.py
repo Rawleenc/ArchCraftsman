@@ -9,15 +9,16 @@ from src.options import PartTypes
 from src.partition import Partition
 from src.partitioninginfo import PartitioningInfo
 from src.utils import (
+    execute,
     is_bios,
+    log,
     print_error,
     print_step,
     print_sub_step,
     prompt,
     prompt_bool,
+    prompt_ln,
     prompt_option,
-    execute,
-    log,
 )
 
 _ = I18n().gettext
@@ -37,7 +38,7 @@ def manual_partitioning() -> tuple[bool, PartitioningInfo]:
             _("Partitioned drives so far : %s") % " ".join(partitioned_disks)
         )
         execute("fdisk -l", force=True)
-        target_disk = prompt(
+        target_disk = prompt_ln(
             _(
                 "Which drive do you want to partition ? (type the entire name, for example '/dev/sda') : "
             )
