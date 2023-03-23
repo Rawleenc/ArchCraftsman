@@ -2,7 +2,6 @@
 The manual partitioning system module
 """
 import os
-from typing import Optional
 
 from src.disk import Disk
 from src.i18n import I18n
@@ -24,7 +23,7 @@ from src.utils import (
 _ = I18n().gettext
 
 
-def manual_partitioning() -> Optional[PartitioningInfo]:
+def manual_partitioning() -> tuple[bool, PartitioningInfo]:
     """
     The method to proceed to the manual partitioning.
     :return:
@@ -165,7 +164,7 @@ def manual_partitioning() -> Optional[PartitioningInfo]:
                 _("Do you want to change the partitioning mode ?"), default=False
             )
             if want_to_change:
-                return None
+                return False, partitioning_info
             partitioning_info.partitions.clear()
             partitioned_disks.clear()
-    return partitioning_info
+    return True, partitioning_info

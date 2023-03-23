@@ -26,17 +26,16 @@ def install(pre_launch_info: PreLaunchInfo):
     try:
         system_info = setup_system(pre_launch_info.detected_timezone)
 
-        temp_partitioning_info = None
-        while temp_partitioning_info is None:
+        partitioning_info_ok = None
+        while not partitioning_info_ok:
             print_step(_("Partitioning :"))
             want_auto_part = prompt_bool(
                 _("Do you want an automatic partitioning ?"), default=False
             )
             if want_auto_part:
-                temp_partitioning_info = auto_partitioning()
+                partitioning_info_ok, partitioning_info = auto_partitioning()
             else:
-                temp_partitioning_info = manual_partitioning()
-        partitioning_info: PartitioningInfo = temp_partitioning_info
+                partitioning_info_ok, partitioning_info = manual_partitioning()
 
         partitioning_info.format_and_mount_partitions()
 

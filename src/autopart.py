@@ -2,7 +2,6 @@
 The automatic partitioning system module
 """
 import os
-from typing import Optional
 
 from src.disk import Disk
 from src.i18n import I18n
@@ -26,7 +25,7 @@ from src.utils import (
 _ = I18n().gettext
 
 
-def auto_partitioning() -> Optional[PartitioningInfo]:
+def auto_partitioning() -> tuple[bool, PartitioningInfo]:
     """
     The method to proceed to the automatic partitioning.
     :return:
@@ -266,7 +265,7 @@ def auto_partitioning() -> Optional[PartitioningInfo]:
                 _("Do you want to change the partitioning mode ?"), default=False
             )
             if want_to_change:
-                return None
+                return False, partitioning_info
             partitioning_info.partitions.clear()
         else:
             execute(f'echo -e "{auto_part_str}" | fdisk "{target_disk}" &>/dev/null')
@@ -280,4 +279,4 @@ def auto_partitioning() -> Optional[PartitioningInfo]:
                 if partition not in partitioning_info.partitions:
                     partitioning_info.partitions.append(partition)
 
-    return partitioning_info
+    return True, partitioning_info
