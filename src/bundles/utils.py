@@ -38,8 +38,6 @@ from src.utils import prompt_option
 def process_bundle(name: OptionEnum) -> Optional[Bundle]:
     """
     Process a bundle name into a Bundle object.
-    :param name:
-    :return:
     """
     bundle = None
     match name:
@@ -117,13 +115,6 @@ def prompt_bundle(
 ) -> Optional[Bundle]:
     """
     A method to prompt for a bundle.
-    :param new_line_prompt:
-    :param supported_msg:
-    :param message:
-    :param error_msg:
-    :param options:
-    :param default:
-    :return:
     """
     option = prompt_option(
         message,

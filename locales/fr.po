@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2023-03-22 22:41+0100\n"
-"PO-Revision-Date: 2023-03-22 22:43+0100\n"
+"POT-Creation-Date: 2023-03-23 23:51+0100\n"
+"PO-Revision-Date: 2023-03-23 23:52+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -17,33 +17,33 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: src/archcraftsman.py:50
+#: src/archcraftsman.py:58
 msgid "Running pre-launch steps : "
 msgstr "Exécution des étapes de pré-lancement : "
 
-#: src/archcraftsman.py:57
+#: src/archcraftsman.py:70
 msgid "Synchronising repositories..."
 msgstr "Synchronisation des dépôts..."
 
-#: src/archcraftsman.py:61
+#: src/archcraftsman.py:74
 msgid "Querying IP geolocation information..."
 msgstr "Interrogation des informations de géolocalisation IP..."
 
-#: src/archcraftsman.py:77 src/installer.py:178 src/shell.py:104
+#: src/archcraftsman.py:89 src/installer.py:230 src/shell.py:128
 msgid "Script execution interrupted by the user !"
 msgstr "Exécution du script interrompue par l'utilisateur !"
 
-#: src/archcraftsman.py:80 src/installer.py:182 src/shell.py:107
+#: src/archcraftsman.py:93 src/installer.py:235 src/shell.py:132
 msgid "A subprocess execution failed ! See the following error: %s"
 msgstr ""
 "L'exécution d'un sous-processus a échoué ! L'erreur suivante s'est "
 "produite : %s"
 
-#: src/autopart.py:25
+#: src/autopart.py:32
 msgid "Automatic partitioning :"
 msgstr "Partitionnement automatique :"
 
-#: src/autopart.py:28
+#: src/autopart.py:35 src/manualpart.py:39
 msgid ""
 "On which drive should Archlinux be installed ? (type the entire name, for "
 "example '/dev/sda') : "
@@ -51,57 +51,61 @@ msgstr ""
 "Sur quel disque Archlinux doit-il être installé ? (tapez le nom complet, par "
 "exemple '/dev/sda') : "
 
-#: src/autopart.py:30 src/autopart.py:33
-msgid "You need to choose a target drive."
-msgstr "Vous devez choisir un disque cible."
+#: src/autopart.py:38 src/manualpart.py:42
+msgid "The target drive '%s' doesn't exist."
+msgstr "Le disque cible '%s' n'existe pas."
 
-#: src/autopart.py:43
+#: src/autopart.py:39 src/manualpart.py:43
+msgid "Detected drives :"
+msgstr "Disques détectés :"
+
+#: src/autopart.py:52
 msgid "Do you want to install Arch Linux next to other systems ?"
 msgstr "Voulez-vous installer Arch Linux à côté des autres systèmes ?"
 
-#: src/autopart.py:47
-msgid "Swap type '%s' is not supported."
-msgstr "Le type de swap '%s' n'est pas supporté."
-
-#: src/autopart.py:47
+#: src/autopart.py:58
 msgid "What type of Swap do you want ? (%s) : "
 msgstr "Quel type de swap voulez-vous ? (%s) : "
 
-#: src/autopart.py:48
+#: src/autopart.py:59
+msgid "Swap type '%s' is not supported."
+msgstr "Le type de swap '%s' n'est pas supporté."
+
+#: src/autopart.py:61
 msgid "Supported Swap types : "
 msgstr "Types de swap supportés : "
 
-#: src/autopart.py:50
+#: src/autopart.py:65
 msgid "Do you want a separated Home ?"
 msgstr "Voulez-vous un Home séparé ?"
 
-#: src/autopart.py:53 src/autopart.py:57
+#: src/autopart.py:69 src/autopart.py:75
 msgid "Do you want to encrypt the %s partition ?"
 msgstr "Voulez-vous chiffrer la partition %s ?"
 
-#: src/autopart.py:181 src/basesetup.py:85 src/basesetup.py:190
-#: src/manualpart.py:109
+#: src/autopart.py:249 src/basesetup.py:105 src/basesetup.py:258
+#: src/manualpart.py:149
 msgid "Summary of choices :"
 msgstr "Résumé des choix :"
 
-#: src/autopart.py:185 src/manualpart.py:114
+#: src/autopart.py:253 src/manualpart.py:157
 msgid "Swapfile size : %s"
 msgstr "Taille du fichier d'échange : %s"
 
-#: src/autopart.py:186 src/basesetup.py:88 src/basesetup.py:209
-#: src/manualpart.py:115
+#: src/autopart.py:254 src/basesetup.py:110 src/basesetup.py:279
+#: src/manualpart.py:158
 msgid "Is the information correct ?"
 msgstr "Les informations sont-elles correctes ?"
 
-#: src/autopart.py:188 src/manualpart.py:117
+#: src/autopart.py:257 src/manualpart.py:161
 msgid "Do you want to change the partitioning mode ?"
 msgstr "Voulez-vous changer de mode de partitionnement ?"
 
-#: src/basesetup.py:39
+#: src/basesetup.py:45
 msgid "Welcome to ArchCraftsman !"
 msgstr "Bienvenue sur ArchCraftsman !"
 
-#: src/basesetup.py:42
+#: src/basesetup.py:48
 msgid ""
 "BIOS detected ! The script will act accordingly. Don't forget to select a "
 "DOS label type before partitioning."
@@ -109,99 +113,99 @@ msgstr ""
 "BIOS détecté ! Le script agira en conséquence. N'oubliez pas de sélectionner "
 "un label type DOS avant de partitionner."
 
-#: src/basesetup.py:45
+#: src/basesetup.py:54
 msgid "Environment configuration : "
 msgstr "Configuration de l'environnement : "
 
-#: src/basesetup.py:53
+#: src/basesetup.py:62
 msgid "Supported languages : "
 msgstr "Langues prises en charge : "
 
-#: src/basesetup.py:61
+#: src/basesetup.py:70
 msgid "Choose your installation's language (%s) : "
 msgstr "Choisissez la langue de votre installation (%s) : "
 
-#: src/basesetup.py:66
+#: src/basesetup.py:77
 msgid "Global language '%s' is not supported."
 msgstr "La langue globale '%s' n'est pas prise en charge."
 
-#: src/basesetup.py:77
+#: src/basesetup.py:91
 msgid "Type your installation's keymap (%s) : "
 msgstr "Entrez la keymap de votre installation (%s) : "
 
-#: src/basesetup.py:82
+#: src/basesetup.py:102
 msgid "Keymap %s doesn't exist."
 msgstr "La keymap %s n'existe pas."
 
-#: src/basesetup.py:86
+#: src/basesetup.py:107
 msgid "Your installation's language : %s"
 msgstr "La langue de votre installation : %s"
 
-#: src/basesetup.py:87
+#: src/basesetup.py:109
 msgid "Your installation's keymap : %s"
 msgstr "La keymap de votre installation : %s"
 
-#: src/basesetup.py:103
+#: src/basesetup.py:123
 msgid "System configuration : "
 msgstr "Configuration du système : "
 
-#: src/basesetup.py:104
+#: src/basesetup.py:125
 msgid "What will be your hostname (archlinux) : "
 msgstr "Quel sera votre nom d'hôte (archlinux) : "
 
-#: src/basesetup.py:107
+#: src/basesetup.py:130
 msgid "Choose your kernel (%s) : "
 msgstr "Choisissez votre kernel (%s) : "
 
-#: src/basesetup.py:107 src/shell.py:20
+#: src/basesetup.py:131 src/shell.py:22
 msgid "Kernel '%s' is not supported."
 msgstr "Le kernel '%s' n'est pas supporté."
 
-#: src/basesetup.py:108 src/shell.py:20
+#: src/basesetup.py:133 src/shell.py:24
 msgid "Supported kernels : "
 msgstr "Kernels pris en charge : "
 
-#: src/basesetup.py:110
+#: src/basesetup.py:138
 msgid "Install a desktop environment ? (%s) : "
 msgstr "Installer un environnement de bureau ? (%s) : "
 
-#: src/basesetup.py:111 src/shell.py:29
+#: src/basesetup.py:139 src/shell.py:36
 msgid "Desktop environment '%s' is not supported."
 msgstr "L'environnement de bureau '%s' n'est pas pris en charge."
 
-#: src/basesetup.py:112 src/shell.py:30
+#: src/basesetup.py:141 src/shell.py:38
 msgid "Supported desktop environments : "
 msgstr "Environnements de bureau supportés : "
 
-#: src/basesetup.py:114
+#: src/basesetup.py:146
 msgid "Choose your network stack (%s) : "
 msgstr "Choisissez votre pile réseau (%s) : "
 
-#: src/basesetup.py:115
+#: src/basesetup.py:147
 msgid "Network stack '%s' is not supported."
 msgstr "La pile réseau '%s' n'est pas supporté."
 
-#: src/basesetup.py:116
+#: src/basesetup.py:149
 msgid "Supported network stacks : "
 msgstr "Pile réseau supportés : "
 
-#: src/basesetup.py:118
+#: src/basesetup.py:153
 msgid "Install proprietary Nvidia driver ?"
 msgstr "Installer le pilote propriétaire Nvidia ?"
 
-#: src/basesetup.py:121
+#: src/basesetup.py:156
 msgid "Install terminus console font ?"
 msgstr "Installer la police de console Terminus ?"
 
-#: src/basesetup.py:124
+#: src/basesetup.py:159
 msgid "Install Cups ?"
 msgstr "Installer Cups ?"
 
-#: src/basesetup.py:127
+#: src/basesetup.py:163
 msgid "Install ZSH with GRML configuration ?"
 msgstr "Installer ZSH avec la configuration GRML ?"
 
-#: src/basesetup.py:128
+#: src/basesetup.py:165
 msgid ""
 "If yes, the script will install the ZSH shell with GRML configuration. GRML "
 "is a ZSH pre-configuration used by Archlinux's live environment."
@@ -210,11 +214,11 @@ msgstr ""
 "est une pré-configuration de ZSH utilisée par l'environnement live "
 "d'Archlinux."
 
-#: src/basesetup.py:134
+#: src/basesetup.py:174
 msgid "Install a set of main fonts ?"
 msgstr "Installer un ensemble de polices principales ?"
 
-#: src/basesetup.py:135 src/basesetup.py:140
+#: src/basesetup.py:176 src/basesetup.py:184
 msgid ""
 "If yes, the following packages will be installed :\n"
 "%s"
@@ -222,15 +226,15 @@ msgstr ""
 "Si oui, les paquets suivants seront installés :\n"
 "%s"
 
-#: src/basesetup.py:139
+#: src/basesetup.py:182
 msgid "Install main file systems support ?"
 msgstr "Installer le support des systèmes de fichiers principaux ?"
 
-#: src/basesetup.py:144
+#: src/basesetup.py:190
 msgid "Install and enable ZRAM ?"
 msgstr "Installer et activer ZRAM ?"
 
-#: src/basesetup.py:144
+#: src/basesetup.py:192
 msgid ""
 "ZRAM is a process to compress datas directly in the RAM instead of moving "
 "them in a swap. Enabled ZRAM will allow you to compress up to half of your "
@@ -245,11 +249,11 @@ msgstr ""
 "mais est plus gourmande en ressources CPU. ZRAM est entièrement compatible "
 "avec un swap, il a juste une priorité plus élevée."
 
-#: src/basesetup.py:151
+#: src/basesetup.py:202
 msgid "Install PipeWire ?"
 msgstr "Installer PipeWire ?"
 
-#: src/basesetup.py:152
+#: src/basesetup.py:204
 msgid ""
 "If yes, the PipeWire multimedia framework will be installed to manage audio "
 "and video capture."
@@ -257,25 +261,25 @@ msgstr ""
 "Si oui, le framework multimédia PipeWire sera installé pour gérer l'audio et "
 "la capture vidéo."
 
-#: src/basesetup.py:157
+#: src/basesetup.py:211
 msgid "Copy ArchCraftsman to the new system ?"
 msgstr "Copier ArchCraftsman sur le nouveau système ?"
 
-#: src/basesetup.py:161
+#: src/basesetup.py:216
 msgid "Your timezone (%s) : "
 msgstr "Votre fuseau horaire (%s) : "
 
-#: src/basesetup.py:166
+#: src/basesetup.py:223
 msgid "Would you like to add a user? (type username, leave blank if none) : "
 msgstr ""
 "Voulez-vous ajouter un utilisateur ? (tapez le nom d'utilisateur, laissez "
 "vide si vous n'en avez pas) : "
 
-#: src/basesetup.py:170
+#: src/basesetup.py:231
 msgid "Invalid user name."
 msgstr "Nom d'utilisateur invalide."
 
-#: src/basesetup.py:176
+#: src/basesetup.py:237
 msgid ""
 "What is the %s's full name (type the entire full name, leave blank if "
 "none) : "
@@ -283,61 +287,61 @@ msgstr ""
 "Quel est le nom complet de %s (tapez le nom complet, laissez un blanc si "
 "vous n'en avez pas) : "
 
-#: src/basesetup.py:181 src/basesetup.py:184
+#: src/basesetup.py:245 src/basesetup.py:250
 msgid "%s password configuration : "
 msgstr "Configuration du mot de passe de %s : "
 
-#: src/basesetup.py:182 src/basesetup.py:185
+#: src/basesetup.py:247 src/basesetup.py:252
 msgid "Enter the %s password : "
 msgstr "Entrez le mot de passe de %s : "
 
-#: src/basesetup.py:191
+#: src/basesetup.py:259
 msgid "Your hostname : %s"
 msgstr "Votre nom d'hôte : %s"
 
-#: src/basesetup.py:202
+#: src/basesetup.py:270
 msgid "Your timezone : %s"
 msgstr "Votre fuseau horaire : %s"
 
-#: src/basesetup.py:204
+#: src/basesetup.py:272
 msgid "Additional user name : %s"
 msgstr "Nom d'utilisateur supplémentaire : %s"
 
-#: src/basesetup.py:206
+#: src/basesetup.py:274
 msgid "User's full name : %s"
 msgstr "Nom complet de l'utilisateur : %s"
 
-#: src/basesetup.py:208
+#: src/basesetup.py:277
 msgid "More packages to install : %s"
 msgstr "Plus de paquets à installer : %s"
 
-#: src/bundles/budgie.py:31 src/bundles/cinnamon.py:31
-#: src/bundles/cutefish.py:29 src/bundles/lxqt.py:31 src/bundles/mate.py:38
-#: src/bundles/xfce.py:38
+#: src/bundles/budgie.py:46 src/bundles/cinnamon.py:47
+#: src/bundles/cutefish.py:37 src/bundles/lxqt.py:47 src/bundles/mate.py:50
+#: src/bundles/xfce.py:51
 msgid "The display manager to install is '%s'. Do you want to install it ?"
 msgstr ""
 "Le gestionnaire d'affichage à installer est '%s'. Voulez-vous l'installer ?"
 
-#: src/bundles/budgie.py:35 src/bundles/cinnamon.py:35
-#: src/bundles/cutefish.py:33 src/bundles/deepin.py:28
-#: src/bundles/enlightenment.py:26 src/bundles/gnome.py:29 src/bundles/i3.py:27
-#: src/bundles/lxqt.py:35 src/bundles/mate.py:31 src/bundles/plasma.py:35
-#: src/bundles/sway.py:29 src/bundles/xfce.py:31
+#: src/bundles/budgie.py:52 src/bundles/cinnamon.py:53
+#: src/bundles/cutefish.py:43 src/bundles/deepin.py:35
+#: src/bundles/enlightenment.py:36 src/bundles/gnome.py:37 src/bundles/i3.py:41
+#: src/bundles/lxqt.py:53 src/bundles/mate.py:40 src/bundles/plasma.py:45
+#: src/bundles/sway.py:57 src/bundles/xfce.py:41
 msgid "Desktop environment : %s"
 msgstr "Environnement de bureau : %s"
 
-#: src/bundles/budgie.py:36 src/bundles/cinnamon.py:36
-#: src/bundles/cutefish.py:34 src/bundles/deepin.py:29
-#: src/bundles/enlightenment.py:27 src/bundles/gnome.py:30 src/bundles/i3.py:28
-#: src/bundles/lxqt.py:36 src/bundles/mate.py:32 src/bundles/plasma.py:36
-#: src/bundles/sway.py:30 src/bundles/xfce.py:32
+#: src/bundles/budgie.py:54 src/bundles/cinnamon.py:55
+#: src/bundles/cutefish.py:45 src/bundles/deepin.py:36
+#: src/bundles/enlightenment.py:37 src/bundles/gnome.py:38 src/bundles/i3.py:42
+#: src/bundles/lxqt.py:55 src/bundles/mate.py:42 src/bundles/plasma.py:46
+#: src/bundles/sway.py:58 src/bundles/xfce.py:43
 msgid "Display manager : %s"
 msgstr "Gestionnaire d'affichage : %s"
 
-#: src/bundles/budgie.py:36 src/bundles/cinnamon.py:36
-#: src/bundles/cutefish.py:34 src/bundles/enlightenment.py:27
-#: src/bundles/i3.py:28 src/bundles/lxqt.py:36 src/bundles/mate.py:32
-#: src/bundles/sway.py:30 src/bundles/xfce.py:32
+#: src/bundles/budgie.py:55 src/bundles/cinnamon.py:56
+#: src/bundles/cutefish.py:45 src/bundles/enlightenment.py:37
+#: src/bundles/i3.py:42 src/bundles/lxqt.py:55 src/bundles/mate.py:43
+#: src/bundles/sway.py:58 src/bundles/xfce.py:44
 msgid "none"
 msgstr "aucun"
 
@@ -345,22 +349,22 @@ msgstr "aucun"
 msgid "Copy ArchCraftsman to the new system."
 msgstr "Copier ArchCraftsman sur le nouveau système."
 
-#: src/bundles/cups.py:25
+#: src/bundles/cups.py:36
 msgid "Install Cups."
 msgstr "Installer Cups."
 
-#: src/bundles/deepin.py:31 src/bundles/mate.py:34 src/bundles/plasma.py:38
-#: src/bundles/xfce.py:34
+#: src/bundles/deepin.py:38 src/bundles/mate.py:46 src/bundles/plasma.py:48
+#: src/bundles/xfce.py:47
 msgid "Install a minimal environment."
 msgstr "Installer un environnement minimal."
 
-#: src/bundles/deepin.py:35 src/bundles/gnome.py:34 src/bundles/mate.py:41
-#: src/bundles/plasma.py:44 src/bundles/xfce.py:41
+#: src/bundles/deepin.py:42 src/bundles/gnome.py:42 src/bundles/mate.py:55
+#: src/bundles/plasma.py:54 src/bundles/xfce.py:56
 msgid "Install a minimal environment ?"
 msgstr "Installer un environnement minimal ?"
 
-#: src/bundles/deepin.py:37 src/bundles/gnome.py:36 src/bundles/mate.py:43
-#: src/bundles/plasma.py:46 src/bundles/xfce.py:43
+#: src/bundles/deepin.py:44 src/bundles/gnome.py:44 src/bundles/mate.py:57
+#: src/bundles/plasma.py:56 src/bundles/xfce.py:58
 msgid ""
 "If yes, the script will not install any extra packages, only base packages."
 msgstr ""
@@ -391,19 +395,19 @@ msgstr "Installer le noyau Linux LTS."
 msgid "Install Linux zen kernel."
 msgstr "Installer le noyau Linux zen."
 
-#: src/bundles/mainfilesystems.py:30
+#: src/bundles/mainfilesystems.py:40
 msgid "Install main file systems support."
 msgstr "Installer le support des systèmes de fichiers principaux."
 
-#: src/bundles/mainfonts.py:33
+#: src/bundles/mainfonts.py:51
 msgid "Install a set of main fonts."
 msgstr "Installer un ensemble de polices principales."
 
-#: src/bundles/microcodes.py:47
+#: src/bundles/microcodes.py:52
 msgid "Microcodes to install : %s"
 msgstr "Microcodes à installer : %s"
 
-#: src/bundles/networkmanager.py:30
+#: src/bundles/networkmanager.py:36
 msgid "Install NetworkManager."
 msgstr "Installer NetworkManager."
 
@@ -411,15 +415,15 @@ msgstr "Installer NetworkManager."
 msgid "Install proprietary Nvidia driver."
 msgstr "Installer le pilote propriétaire Nvidia."
 
-#: src/bundles/pipewire.py:22
+#: src/bundles/pipewire.py:31
 msgid "Install PipeWire."
 msgstr "Installer PipeWire."
 
-#: src/bundles/plasma.py:40
+#: src/bundles/plasma.py:50
 msgid "Install Wayland support for the plasma session."
 msgstr "Installer le support Wayland pour la session plasma."
 
-#: src/bundles/plasma.py:47
+#: src/bundles/plasma.py:61
 msgid "Install Wayland support for the plasma session ?"
 msgstr "Installer le support Wayland pour la session plasma ?"
 
@@ -435,139 +439,127 @@ msgstr "Installer la police de console Terminus."
 msgid "Install and enable ZRAM."
 msgstr "Installer et activer ZRAM."
 
-#: src/disk.py:70
+#: src/disk.py:107
 msgid "Swapfile size ? (%s, type '0' for none) : "
 msgstr "Taille du fichier d'échange ? (%s, tapez '0' pour aucun) : "
 
-#: src/installer.py:31
+#: src/installer.py:29
 msgid "Partitioning :"
 msgstr "Partitionnement :"
 
-#: src/installer.py:32
+#: src/installer.py:31
 msgid "Do you want an automatic partitioning ?"
 msgstr "Voulez-vous un partitionnement automatique ?"
 
-#: src/installer.py:41
+#: src/installer.py:40
 msgid "Updating mirrors..."
 msgstr "Mise à jour des miroirs..."
 
-#: src/installer.py:80
+#: src/installer.py:102
 msgid "Installation of the base..."
 msgstr "Installation de la base..."
 
-#: src/installer.py:83
+#: src/installer.py:105
 msgid "System configuration..."
 msgstr "Configuration du système..."
 
-#: src/installer.py:103
+#: src/installer.py:131
 msgid "Locales configuration..."
 msgstr "Configuration des locales..."
 
-#: src/installer.py:107
+#: src/installer.py:137
 msgid "Installation of the remaining packages..."
 msgstr "Installation des paquets restants..."
 
-#: src/installer.py:117
+#: src/installer.py:151
 msgid "Creation and activation of the swapfile..."
 msgstr "Création et activation du fichier d'échange..."
 
-#: src/installer.py:133
+#: src/installer.py:170
 msgid "Generating fstab..."
 msgstr "Génération du fstab..."
 
-#: src/installer.py:137
+#: src/installer.py:174
 msgid "Desktop configuration..."
 msgstr "Configuration du bureau..."
 
-#: src/installer.py:141
+#: src/installer.py:180
 msgid "Network configuration..."
 msgstr "Configuration du réseau..."
 
-#: src/installer.py:147
+#: src/installer.py:188
 msgid "Installation and configuration of the grub..."
 msgstr "Installation et configuration du grub..."
 
-#: src/installer.py:150
+#: src/installer.py:193
 msgid "Users configuration..."
 msgstr "Configuration des utilisateurs..."
 
-#: src/installer.py:151
+#: src/installer.py:194
 msgid "Root account configuration..."
 msgstr "Configuration du compte Root..."
 
-#: src/installer.py:155
+#: src/installer.py:200
 msgid "%s account configuration..."
 msgstr "Configuration du compte %s..."
 
-#: src/installer.py:169
+#: src/installer.py:219
 msgid "Extra packages configuration if needed..."
 msgstr "Configuration de paquets supplémentaires si nécessaire..."
 
-#: src/installer.py:175
+#: src/installer.py:226
 msgid "Installation complete ! You can reboot your system."
 msgstr "L'installation est terminée ! Vous pouvez redémarrer votre système."
 
-#: src/manualpart.py:26 src/manualpart.py:37
+#: src/manualpart.py:33 src/manualpart.py:48
 msgid "Manual partitioning :"
 msgstr "Partitionnement manuel :"
 
-#: src/manualpart.py:27 src/manualpart.py:38
+#: src/manualpart.py:35 src/manualpart.py:50
 msgid "Partitioned drives so far : %s"
 msgstr "Disques partitionnés jusqu'à présent : %s"
 
-#: src/manualpart.py:30
-msgid ""
-"Which drive do you want to partition ? (type the entire name, for example '/"
-"dev/sda') : "
-msgstr ""
-"Quel disque souhaitez-vous partitionner ? (tapez le nom complet, par exemple "
-"'/dev/sda') : "
-
-#: src/manualpart.py:32
-msgid "The chosen target drive doesn't exist."
-msgstr "Le disque cible choisi n'existe pas."
-
-#: src/manualpart.py:40
+#: src/manualpart.py:54
 msgid "Do you want to partition an other drive ?"
 msgstr "Voulez-vous partitionner un autre disque ?"
 
-#: src/manualpart.py:52
+#: src/manualpart.py:67
 msgid "Detected target drive partitions : %s"
 msgstr "Partitions du disque cible détectées : %s"
 
-#: src/manualpart.py:54
+#: src/manualpart.py:73
 msgid "Partition :"
 msgstr "Partition :"
 
-#: src/manualpart.py:57 src/manualpart.py:62
+#: src/manualpart.py:77 src/manualpart.py:86
 msgid "What is the role of this partition ? (%s) : "
 msgstr "Quel est le rôle de cette partition ? (%s) : "
 
-#: src/manualpart.py:58 src/manualpart.py:63
+#: src/manualpart.py:78 src/manualpart.py:87
 msgid "Partition type '%s' is not supported."
 msgstr "Le type de partition '%s' n'est pas supporté."
 
-#: src/manualpart.py:59 src/manualpart.py:64
+#: src/manualpart.py:80 src/manualpart.py:89
 msgid "Supported partition types : "
 msgstr "Types de partition supportés : "
 
-#: src/manualpart.py:85
+#: src/manualpart.py:113
 msgid "What is the mounting point of this partition ? : "
 msgstr "Quel est le point de montage de cette partition ? : "
 
-#: src/manualpart.py:90
+#: src/manualpart.py:121
 msgid "The EFI partition is required for system installation."
 msgstr "La partition EFI est nécessaire pour l'installation du système."
 
-#: src/manualpart.py:95
+#: src/manualpart.py:128
 msgid "The Root partition is required for system installation."
 msgstr "La partition Root est nécessaire pour l'installation du système."
 
-#: src/manualpart.py:102
+#: src/manualpart.py:138
 msgid "The Boot partition is required for system installation."
 msgstr "La partition Boot est nécessaire pour l'installation du système."
 
-#: src/packages.py:64
+#: src/packages.py:79
 msgid ""
 "Install more packages ? (type extra packages full names, example : 'htop "
 "neofetch', leave blank if none) : "
@@ -576,137 +568,147 @@ msgstr ""
 "supplémentaires, exemple : 'htop neofetch', laissez vide si vous n'en avez "
 "pas) : "
 
-#: src/packages.py:71
+#: src/packages.py:89
 msgid "Package %s doesn't exist."
 msgstr "Le paquet %s n'existe pas."
 
-#: src/partition.py:104
+#: src/partition.py:141
 msgid "Format the partition ?"
 msgstr "Formater la partition ?"
 
-#: src/partition.py:135
+#: src/partition.py:175
 msgid "Do you want to encrypt this partition ?"
 msgstr "Voulez-vous chiffrer cette partition ?"
 
-#: src/partition.py:150 src/utils.py:277 src/utils.py:279 src/utils.py:284
+#: src/partition.py:190 src/utils.py:328 src/utils.py:330 src/utils.py:335
 msgid "yes"
 msgstr "oui"
 
-#: src/partition.py:152 src/utils.py:277 src/utils.py:279 src/utils.py:285
+#: src/partition.py:192 src/utils.py:328 src/utils.py:330 src/utils.py:336
 msgid "no"
 msgstr "non"
 
-#: src/partition.py:159
+#: src/partition.py:199
 msgid "%s : %s"
 msgstr "%s : %s"
 
-#: src/partition.py:160
+#: src/partition.py:200
 msgid "%s : %s (mounting point : %s, format %s, format type %s)"
 msgstr "%s : %s (point de montage : %s, formater %s, type de formatage %s)"
 
-#: src/partition.py:163
+#: src/partition.py:208
 msgid "encrypted"
 msgstr "chiffrée"
 
-#: src/partition.py:178
+#: src/partition.py:222
 msgid "Formatting %s..."
 msgstr "Formatage de %s..."
 
-#: src/partition.py:186
+#: src/partition.py:230
 msgid "Opening %s..."
 msgstr "Ouverture de %s..."
 
-#: src/partition.py:204
+#: src/partition.py:247
 msgid "Mounting %s..."
 msgstr "Montage de %s..."
 
-#: src/partition.py:218
+#: src/partition.py:264
 msgid "Unmounting %s..."
 msgstr "Démontage de %s..."
 
-#: src/partition.py:221
+#: src/partition.py:267
 msgid "Closing %s..."
 msgstr "Fermeture de %s..."
 
-#: src/partitioninginfo.py:33
+#: src/partitioninginfo.py:34
 msgid "Formatting and mounting partitions..."
 msgstr "Formatage et montage des partitions..."
 
-#: src/partitioninginfo.py:57
+#: src/partitioninginfo.py:65
 msgid "Unmounting partitions..."
 msgstr "Démontage des partitions..."
 
-#: src/prelaunchinfo.py:26
+#: src/prelaunchinfo.py:27
 msgid "Configuring live environment..."
 msgstr "Configuration de l'environnement live..."
 
-#: src/shell.py:38
-msgid "Available bundles : "
-msgstr "Bundles disponibles : "
-
-#: src/shell.py:38
+#: src/shell.py:50
 msgid "Bundle '%s' is not supported."
 msgstr "Le bundle '%s' n'est pas supporté."
 
-#: src/shell.py:71
+#: src/shell.py:52
+msgid "Available bundles : "
+msgstr "Bundles disponibles : "
+
+#: src/shell.py:83
 msgid "ArchCraftsman interactive shell mode."
 msgstr "Mode shell interactif d'ArchCraftsman."
 
-#: src/shell.py:72 src/shell.py:87
+#: src/shell.py:84 src/shell.py:105
 msgid "Available commands :"
 msgstr "Commandes disponibles :"
 
-#: src/shell.py:76
+#: src/shell.py:90
 msgid "Command '%s' is not supported."
 msgstr "La commande '%s' n'est pas supporté."
 
-#: src/shell.py:93
+#: src/shell.py:113
 msgid "Sub-command '%s' is not supported."
 msgstr "La sous-commande '%s' n'est pas supporté."
 
-#: src/shell.py:94
+#: src/shell.py:115
 msgid "Available sub-commands : "
 msgstr "Sous-commandes disponibles : "
 
-#: src/utils.py:65
-msgid "Format type '%s' is not supported."
-msgstr "Le type de formatage '%s' n'est pas supporté."
-
-#: src/utils.py:65
+#: src/utils.py:84
 msgid "Which format type do you want ? (%s) : "
 msgstr "Quel type de formatage voulez-vous ? (%s) : "
 
-#: src/utils.py:66
+#: src/utils.py:85
+msgid "Format type '%s' is not supported."
+msgstr "Le type de formatage '%s' n'est pas supporté."
+
+#: src/utils.py:87
 msgid "Supported format types : "
 msgstr "Types de formatage supportés : "
 
-#: src/utils.py:78
+#: src/utils.py:103
 msgid "What will be the encrypted block name ? : "
 msgstr "Quel sera le nom de bloc chiffré ? : "
 
-#: src/utils.py:81
+#: src/utils.py:106
 msgid "Invalid encrypted block name."
 msgstr "Nom de bloc chiffré invalide."
 
-#: src/utils.py:98
+#: src/utils.py:121
 msgid "Enter it again to confirm : "
 msgstr "Saisissez le à nouveau pour confirmer : "
 
-#: src/utils.py:100
+#: src/utils.py:124
 msgid "Passwords entered don't match."
 msgstr "Les mots de passe saisis ne correspondent pas."
 
-#: src/utils.py:152
+#: src/utils.py:210
 msgid "Help :"
 msgstr "Aide :"
 
-#: src/utils.py:191
+#: src/utils.py:245
 msgid "The input must not be empty."
 msgstr "La saisie ne doit pas être vide."
 
-#: src/utils.py:304
+#: src/utils.py:350
 msgid "Press any key to continue..."
 msgstr "Appuyez sur n'importe quelle touche pour continuer..."
+
+#~ msgid "You need to choose a target drive."
+#~ msgstr "Vous devez choisir un disque cible."
+
+#~ msgid ""
+#~ "Which drive do you want to partition ? (type the entire name, for example "
+#~ "'/dev/sda') : "
+#~ msgstr ""
+#~ "Quel disque souhaitez-vous partitionner ? (tapez le nom complet, par "
+#~ "exemple '/dev/sda') : "
 
 #~ msgid "Install a minimal environment ? (y/N/?) : "
 #~ msgstr "Installer un environnement minimal ? (o/N/?) : "

@@ -1,23 +1,20 @@
 """
 The automatic partitioning system module
 """
-import os
-
 from src.disk import Disk
 from src.i18n import I18n
 from src.options import FSFormats, PartTypes, SwapTypes
 from src.partition import Partition
 from src.partitioninginfo import PartitioningInfo
 from src.utils import (
+    ask_drive,
     ask_format_type,
     execute,
     from_iec,
     is_bios,
-    print_error,
     print_step,
     print_sub_step,
     prompt_bool,
-    prompt_ln,
     prompt_option,
     to_iec,
 )
@@ -28,24 +25,19 @@ _ = I18n().gettext
 def auto_partitioning() -> tuple[bool, PartitioningInfo]:
     """
     The method to proceed to the automatic partitioning.
-    :return:
     """
     partitioning_info = PartitioningInfo()
     user_answer = False
     while not user_answer:
         print_step(_("Automatic partitioning :"))
         execute("fdisk -l", force=True)
-        target_disk = prompt_ln(
+        target_disk = ask_drive(
             _(
                 "On which drive should Archlinux be installed ? (type the entire name, for example '/dev/sda') : "
-            )
+            ),
+            _("The target drive '%s' doesn't exist."),
+            _("Detected drives :"),
         )
-        if not target_disk:
-            print_error(_("You need to choose a target drive."))
-            continue
-        if not os.path.exists(target_disk):
-            print_error(_("You need to choose a target drive."))
-            continue
         partitioning_info.main_disk = target_disk
         disk = Disk(target_disk)
         efi_partition = disk.get_efi_partition()

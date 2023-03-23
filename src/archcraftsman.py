@@ -54,7 +54,6 @@ _ = I18n().gettext
 def pre_launch_steps() -> PreLaunchInfo:
     """
     The method to proceed to the pre-launch steps
-    :return:
     """
     print_step(_("Running pre-launch steps : "), clear=False)
     execute(
@@ -83,7 +82,6 @@ def pre_launch_steps() -> PreLaunchInfo:
 def pre_launch() -> PreLaunchInfo:
     """
     A pre-launch steps method.
-    :return:
     """
     try:
         return pre_launch_steps()

@@ -36,8 +36,6 @@ class I18n(metaclass=I18nMeta):
     def update_method(self, global_language: str):
         """
         Update the translation method to use according to the global language.
-        :param global_language:
-        :return:
         """
         if global_language != "EN":
             translation = gettext.translation(
@@ -52,7 +50,5 @@ class I18n(metaclass=I18nMeta):
     def gettext(self, message):
         """
         Translate the given text with the translation method.
-        :param message:
-        :return:
         """
         return self.gettext_method(message)

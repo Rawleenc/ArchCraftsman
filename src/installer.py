@@ -19,8 +19,6 @@ _ = I18n().gettext
 def install(pre_launch_info: PreLaunchInfo):
     """
     The main installation method.
-    :param pre_launch_info:
-    :return:
     """
     partitioning_info: PartitioningInfo = PartitioningInfo()
     try:

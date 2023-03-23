@@ -1,14 +1,13 @@
 """
 The manual partitioning system module
 """
-import os
-
 from src.disk import Disk
 from src.i18n import I18n
 from src.options import PartTypes
 from src.partition import Partition
 from src.partitioninginfo import PartitioningInfo
 from src.utils import (
+    ask_drive,
     execute,
     is_bios,
     log,
@@ -17,7 +16,6 @@ from src.utils import (
     print_sub_step,
     prompt,
     prompt_bool,
-    prompt_ln,
     prompt_option,
 )
 
@@ -27,7 +25,6 @@ _ = I18n().gettext
 def manual_partitioning() -> tuple[bool, PartitioningInfo]:
     """
     The method to proceed to the manual partitioning.
-    :return:
     """
     partitioning_info = PartitioningInfo()
     user_answer = False
@@ -38,14 +35,13 @@ def manual_partitioning() -> tuple[bool, PartitioningInfo]:
             _("Partitioned drives so far : %s") % " ".join(partitioned_disks)
         )
         execute("fdisk -l", force=True)
-        target_disk = prompt_ln(
+        target_disk = ask_drive(
             _(
-                "Which drive do you want to partition ? (type the entire name, for example '/dev/sda') : "
-            )
+                "On which drive should Archlinux be installed ? (type the entire name, for example '/dev/sda') : "
+            ),
+            _("The target drive '%s' doesn't exist."),
+            _("Detected drives :"),
         )
-        if not os.path.exists(target_disk):
-            print_error(_("The chosen target drive doesn't exist."))
-            continue
         if target_disk not in partitioned_disks:
             partitioned_disks.append(target_disk)
         execute(f'cfdisk "{target_disk}"')

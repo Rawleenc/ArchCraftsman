@@ -30,7 +30,6 @@ class PartitioningInfo:
     def format_and_mount_partitions(self):
         """
         A method to format and mount all partitions.
-        :return:
         """
         print_step(_("Formatting and mounting partitions..."), clear=False)
 

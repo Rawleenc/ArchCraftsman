@@ -21,8 +21,6 @@ NOCOLOR = "\033[0m"
 def print_step(message: str, clear: bool = True):
     """
     A method to print a step message.
-    :param message:
-    :param clear:
     """
     if clear:
         subprocess.run("/bin/clear", shell=True, check=True)
@@ -32,8 +30,6 @@ def print_step(message: str, clear: bool = True):
 def print_sub_step(message: str):
     """
     A method to print a sub step message.
-    :param message:
-    :return:
     """
     print(f"{CYAN}  * {message}{NOCOLOR}")
 
@@ -41,10 +37,6 @@ def print_sub_step(message: str):
 def download(url: str, destination: str, replace: bool = False):
     """
     A method to download a file
-    :param url: the url of the file to download
-    :param destination: the download destination
-    :param replace: if any existing file have to be replaced
-    :return:
     """
     print_sub_step(f"Downloading '{destination}'...")
     if replace and os.path.exists(destination):
@@ -59,8 +51,6 @@ def download(url: str, destination: str, replace: bool = False):
 def get_all_files(directory: str) -> list:
     """
     A method to download all files of a given directory.
-    :param directory:
-    :return:
     """
     with urlopen(
         f"https://api.github.com/repos/{OWNER}/{REPO}/contents/{directory}?ref={BRANCH}"

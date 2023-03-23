@@ -54,15 +54,12 @@ class Packages(metaclass=PackagesMeta):
     def exist(self, package: str) -> bool:
         """
         A method to check if a package exist.
-        :param package:
-        :return:
         """
         return package in self.packages
 
     def ask_packages(self) -> set[str]:
         """
         A method to ask the user for more packages to install.
-        :return:
         """
         readline.set_completer(
             lambda text, state: (

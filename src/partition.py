@@ -84,7 +84,6 @@ class Partition:
     def compute(self):
         """
         A method to compute partition information.
-        :return:
         """
         self.size = from_iec(
             stdout(
@@ -119,21 +118,18 @@ class Partition:
     def need_format(self):
         """
         Method to know if the partition need to be formatted
-        :return:
         """
         return self.part_type in {PartTypes.ROOT}
 
     def no_format(self):
         """
         Method to know if the partition doesn't have to be formatted
-        :return:
         """
         return self.part_type in {PartTypes.SWAP, PartTypes.NOT_USED}
 
     def ask_for_format(self):
         """
         Method to ask if the partition have to be formatted and in which format.
-        :return:
         """
         if self.no_format():
             self.part_format = False
@@ -152,7 +148,6 @@ class Partition:
     def is_encrypted(self) -> bool:
         """
         A method to detect if the partition is an existing-encrypted partition.
-        :return:
         """
         return (
             execute(
@@ -164,14 +159,12 @@ class Partition:
     def is_encryptable(self):
         """
         Method to know if the partition is encryptable.
-        :return:
         """
         return self.part_type in {PartTypes.ROOT, PartTypes.HOME, PartTypes.OTHER}
 
     def ask_for_encryption(self):
         """
         A method to ask if the partition will be encrypted.
-        :return:
         """
         if not self.part_format:
             self.encrypted = self.is_encrypted()
@@ -192,7 +185,6 @@ class Partition:
     def summary(self):
         """
         A method to get the partition summary.
-        :return:
         """
         if self.part_format:
             formatting = _("yes")
@@ -219,7 +211,6 @@ class Partition:
     def real_path(self) -> Optional[str]:
         """
         A method to get the partition path.
-        :return:
         """
         return f"/dev/mapper/{self.block_name}" if self.encrypted else self.path
 
@@ -252,7 +243,6 @@ class Partition:
     def mount(self):
         """
         A method to mount the partition.
-        :return:
         """
         print_sub_step(_("Mounting %s...") % (self.real_path()))
         match self.part_format_type:
@@ -269,7 +259,6 @@ class Partition:
     def umount(self) -> bool:
         """
         A method to unmount the partition.
-        :return:
         """
         try:
             print_sub_step(_("Unmounting %s...") % (self.real_path()))
@@ -285,8 +274,6 @@ class Partition:
     def build_partition_name(self, disk_name: str):
         """
         A method to build a partition name with a disk and an index.
-        :param disk_name:
-        :return:
         """
         block_devices_str = stdout(execute("lsblk -J", capture_output=True, force=True))
         if not block_devices_str:

@@ -28,9 +28,6 @@ _ = I18n().gettext
 def glob_completer(text, state) -> str:
     """
     The glob completer for readline completions.
-    :param text:
-    :param state:
-    :return:
     """
     return [
         path + "/" if os.path.isdir(path) else path for path in glob.glob(text + "*")
@@ -40,7 +37,6 @@ def glob_completer(text, state) -> str:
 def is_bios() -> bool:
     """
     Check if live system run on a bios.
-    :return:
     """
     return not os.path.exists("/sys/firmware/efi")
 
@@ -82,7 +78,6 @@ def from_iec(size: str) -> int:
 def ask_format_type() -> Optional[FSFormats]:
     """
     The method to ask the user for the format type.
-    :return:
     """
     return FSFormats(
         prompt_option(
@@ -99,7 +94,6 @@ def ask_format_type() -> Optional[FSFormats]:
 def ask_encryption_block_name() -> Optional[str]:
     """
     Method to ask for encryption block name.
-    :return:
     """
     block_name_pattern = re.compile("^[a-z][a-z\\d_]*$")
     block_name_ok = False
@@ -118,9 +112,6 @@ def ask_encryption_block_name() -> Optional[str]:
 def ask_password(prompt_message: str, required: bool = False) -> str:
     """
     A method to ask a password to the user.
-    :param prompt_message:
-    :param required:
-    :return:
     """
     password_confirm = None
     password = None
@@ -134,12 +125,54 @@ def ask_password(prompt_message: str, required: bool = False) -> str:
     return password
 
 
+def ask_drive(
+    message: str,
+    error_msg: str,
+    supported_msg: Optional[str],
+    new_line_prompt: bool = True,
+) -> str:
+    """
+    A method to prompt for a drive to partition.
+    """
+    drives = (
+        stdout(
+            execute(
+                "lsblk -lpdno NAME",
+                capture_output=True,
+                force=True,
+            )
+        )
+        .strip()
+        .split("\n")
+    )
+    readline.set_completer(
+        lambda text, state: (
+            [option for option in drives if (not text or option.startswith(text))]
+            + [None]
+        )[state]
+    )
+    if supported_msg:
+        print_supported(supported_msg, drives)
+    drive_ok = False
+    drive = ""
+    while not drive_ok:
+        prompt_message = message
+        if new_line_prompt:
+            drive = prompt_ln(prompt_message).lower()
+        else:
+            drive = prompt(prompt_message).lower()
+        if drive in drives:
+            drive_ok = True
+        else:
+            print_error(error_msg % drive, do_pause=False)
+            continue
+    readline.set_completer(glob_completer)
+    return drive
+
+
 def print_error(message: str, do_pause: bool = True):
     """
     A method to print an error.
-    :param message:
-    :param do_pause:
-    :return:
     """
     print(f"\n{RED}  /!\\ {message}{NOCOLOR}\n")
     if do_pause:
@@ -149,8 +182,6 @@ def print_error(message: str, do_pause: bool = True):
 def print_step(message: str, clear: bool = True):
     """
     A method to print a step message.
-    :param message:
-    :param clear:
     """
     if clear:
         execute("clear", force=True)
@@ -160,7 +191,6 @@ def print_step(message: str, clear: bool = True):
 def print_sub_step(message: str):
     """
     A method to print a sub step message.
-    :param message:
     """
     print(f"{CYAN}  * {message}{NOCOLOR}")
 
@@ -168,8 +198,6 @@ def print_sub_step(message: str):
 def log(message: str):
     """
     A method to print a log message.
-    :param message:
-    :return:
     """
     if GlobalArgs().test():
         print(f"{GRAY}> {message}{NOCOLOR}")
@@ -178,9 +206,6 @@ def log(message: str):
 def print_help(message: str, do_pause: bool = False):
     """
     A method to print an help message.
-    :param message:
-    :param do_pause:
-    :return:
     """
     print_step(_("Help :"), clear=False)
     print_sub_step(message)
@@ -191,9 +216,6 @@ def print_help(message: str, do_pause: bool = False):
 def input_str(message: str, password: bool = False) -> str:
     """
     A method to ask to input something.
-    :param message:
-    :param password:
-    :return:
     """
     if password:
         return getpass.getpass(prompt=f"{ORANGE}{message}{NOCOLOR}")
@@ -209,12 +231,6 @@ def prompt(
 ) -> str:
     """
     A method to prompt for a user input.
-    :param message:
-    :param default:
-    :param help_msg:
-    :param required:
-    :param password:
-    :return:
     """
     user_input_ok = False
     user_input = ""
@@ -240,28 +256,17 @@ def prompt_ln(
 ) -> str:
     """
     A method to prompt for a user input with a new line for the user input.
-    :param message:
-    :param default:
-    :param help_msg:
-    :param required:
-    :return:
     """
     return prompt(
         f"{message}\n> ", default=default, help_msg=help_msg, required=required
     )
 
 
-def print_supported(
-    supported_msg: str, options: type[OptionEnum], *ignores: OptionEnum
-):
+def print_supported(supported_msg: str, options: list[str], *ignores: str):
     """
     A method to print all supported options.
-    :param supported_msg:
-    :param options:
-    :param ignores:
-    :return:
     """
-    supported_options = [option for option in list(options) if option not in ignores]
+    supported_options = [option for option in options if option not in ignores]
     print_step(supported_msg, clear=False)
     print_sub_step(", ".join(supported_options))
     print("")
@@ -278,13 +283,6 @@ def prompt_option(
 ) -> Optional[OptionEnum]:
     """
     A method to prompt for a bundle.
-    :param supported_msg:
-    :param message:
-    :param error_msg:
-    :param options:
-    :param default:
-    :param new_line_prompt:
-    :return:
     """
     readline.set_completer(
         lambda text, state: (
@@ -298,7 +296,7 @@ def prompt_option(
     )
     supported_options = [option for option in list(options) if option not in ignores]
     if supported_msg:
-        print_supported(supported_msg, options, *ignores)
+        print_supported(supported_msg, list(options), *ignores)
     option_ok = False
     option = None
     while not option_ok:
@@ -324,10 +322,6 @@ def prompt_bool(
 ) -> bool:
     """
     A method to prompt for a boolean choice.
-    :param message:
-    :param default:
-    :param help_msg:
-    :return:
     """
     message += " ("
     if default:
@@ -345,9 +339,6 @@ def prompt_bool(
 def prompt_passwd(message: str, required: bool = False):
     """
     A method to prompt for a password without displaying an echo.
-    :param message:
-    :param required:
-    :return:
     """
     return prompt(f"{ORANGE}{message}{NOCOLOR}", required=required, password=True)
 
@@ -355,8 +346,6 @@ def prompt_passwd(message: str, required: bool = False):
 def pause(start_newline: bool = False, end_newline: bool = False):
     """
     A method to insert a one key press pause.
-    :param start_newline:
-    :param end_newline:
     """
     message = _("Press any key to continue...")
     if start_newline:
@@ -372,11 +361,6 @@ def execute(
 ) -> subprocess.CompletedProcess:
     """
     A method to exec a command.
-    :param command:
-    :param check:
-    :param capture_output:
-    :param force:
-    :return:
     """
     if force or not GlobalArgs().test():
         log(f"Real execution of: {command}")
@@ -393,7 +377,5 @@ def execute(
 def stdout(process_result: subprocess.CompletedProcess) -> str:
     """
     A method to get a decoded stdout.
-    :param process_result:
-    :return:
     """
     return process_result.stdout.decode(encodings.utf_8.getregentry().name)

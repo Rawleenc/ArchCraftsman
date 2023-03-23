@@ -16,7 +16,6 @@ _ = I18n().gettext
 def ask_for_kernel() -> Optional[Bundle]:
     """
     A method to ask for a kernel.
-    :return:
     """
     return prompt_bundle(
         "> ",
@@ -31,7 +30,6 @@ def ask_for_kernel() -> Optional[Bundle]:
 def ask_for_desktop() -> Optional[Bundle]:
     """
     A method to ask for a desktop environment.
-    :return:
     """
     return prompt_bundle(
         "> ",
@@ -46,7 +44,6 @@ def ask_for_desktop() -> Optional[Bundle]:
 def ask_for_bundle() -> Optional[Bundle]:
     """
     A method to ask for a bundle.
-    :return:
     """
     return prompt_bundle(
         "> ",
@@ -62,8 +59,6 @@ def ask_for_bundle() -> Optional[Bundle]:
 def install_bundle(bundle):
     """
     The method to install the bundle.
-    :param bundle:
-    :return:
     """
     match bundle.name:
         case _:
@@ -74,8 +69,6 @@ def install_bundle(bundle):
 def uninstall_bundle(bundle):
     """
     The method to uninstall the bundle.
-    :param bundle:
-    :return:
     """
     match bundle.name:
         case _:
@@ -86,7 +79,6 @@ def uninstall_bundle(bundle):
 def shell():
     """
     The shell mode method.
-    :return:
     """
     print_step(_("ArchCraftsman interactive shell mode."))
     print_supported(_("Available commands :"), Commands)

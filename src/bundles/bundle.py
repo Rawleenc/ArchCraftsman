@@ -33,7 +33,4 @@ class Bundle:
     def configure(self, system_info, pre_launch_info, partitioning_info):
         """
         Bundle configuration method.
-        :param system_info:
-        :param pre_launch_info:
-        :param partitioning_info:
         """

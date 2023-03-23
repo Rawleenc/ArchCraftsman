@@ -97,7 +97,6 @@ class Disk:
     def ask_swapfile_size(self) -> Optional[str]:
         """
         The method to ask the user for the swapfile size.
-        :return:
         """
         swapfile_ok = False
         swapfile_size = ""

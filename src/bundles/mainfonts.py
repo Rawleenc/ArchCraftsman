@@ -12,7 +12,6 @@ _ = I18n().gettext
 def get_main_fonts() -> list[str]:
     """
     The method to get the package list of the main fonts group.
-    :return:
     """
     return [
         "gnu-free-fonts",

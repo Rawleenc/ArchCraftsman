@@ -12,7 +12,6 @@ _ = I18n().gettext
 def get_main_file_systems() -> list[str]:
     """
     The method to get the package list of the main file systems group.
-    :return:
     """
     return [
         "btrfs-progs",

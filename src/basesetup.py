@@ -38,9 +38,6 @@ _ = I18n().gettext
 def initial_setup(detected_language: str, detected_timezone: str) -> PreLaunchInfo:
     """
     The method to get environment configurations from the user.
-    :param detected_language:
-    :param detected_timezone:
-    :return:
     """
     pre_launch_info = PreLaunchInfo()
     user_answer = False
@@ -119,8 +116,6 @@ def initial_setup(detected_language: str, detected_timezone: str) -> PreLaunchIn
 def setup_system(detected_timezone) -> SystemInfo:
     """
     The method to get system configurations from the user.
-    :param detected_timezone:
-    :return:
     """
     system_setup = SystemInfo()
     user_answer = False
