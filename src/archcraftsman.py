@@ -39,7 +39,14 @@ from src.installer import install
 from src.packages import Packages
 from src.prelaunchinfo import PreLaunchInfo
 from src.shell import shell
-from src.utils import print_error, execute, stdout, print_step, print_sub_step, glob_completer
+from src.utils import (
+    print_error,
+    execute,
+    stdout,
+    print_step,
+    print_sub_step,
+    glob_completer,
+)
 
 
 def pre_launch_steps() -> PreLaunchInfo:
@@ -48,10 +55,15 @@ def pre_launch_steps() -> PreLaunchInfo:
     :return:
     """
     print_step(_("Running pre-launch steps : "), clear=False)
-    execute('msgfmt -o /usr/share/locale/fr/LC_MESSAGES/ArchCraftsman.mo locales/fr.po &>/dev/null', force=True)
+    execute(
+        "msgfmt -o /usr/share/locale/fr/LC_MESSAGES/ArchCraftsman.mo locales/fr.po &>/dev/null",
+        force=True,
+    )
     if GlobalArgs().install():
         execute('sed -i "s|#Color|Color|g" /etc/pacman.conf')
-        execute('sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /etc/pacman.conf')
+        execute(
+            'sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /etc/pacman.conf'
+        )
 
     if GlobalArgs().install():
         print_sub_step(_("Synchronising repositories..."))
@@ -77,23 +89,45 @@ def pre_launch() -> PreLaunchInfo:
         print_error(_("Script execution interrupted by the user !"), do_pause=False)
         sys.exit(1)
     except CalledProcessError as exception:
-        print_error(_("A subprocess execution failed ! See the following error: %s") % exception, do_pause=False)
+        print_error(
+            _("A subprocess execution failed ! See the following error: %s")
+            % exception,
+            do_pause=False,
+        )
         sys.exit(1)
     except EOFError:
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="The ArchCraftsman installer.")
-    parser.add_argument("-i", "--install", action="store_const", const=True, default=False,
-                        help="Process to ArchLinux installation. Must be used in a live environment.")
-    parser.add_argument("-s", "--shell", action="store_const", const=True, default=False,
-                        help="Start ArchCraftsman in interactive shell mode. Useless if used with --install.")
-    parser.add_argument("-t", "--test", action="store_const", const=True, default=False,
-                        help="Used to test the installer. No command will be executed.")
+    parser.add_argument(
+        "-i",
+        "--install",
+        action="store_const",
+        const=True,
+        default=False,
+        help="Process to ArchLinux installation. Must be used in a live environment.",
+    )
+    parser.add_argument(
+        "-s",
+        "--shell",
+        action="store_const",
+        const=True,
+        default=False,
+        help="Start ArchCraftsman in interactive shell mode. Useless if used with --install.",
+    )
+    parser.add_argument(
+        "-t",
+        "--test",
+        action="store_const",
+        const=True,
+        default=False,
+        help="Used to test the installer. No command will be executed.",
+    )
     args = parser.parse_args()
 
-    readline.set_completer_delims(' \t\n;')
+    readline.set_completer_delims(" \t\n;")
     readline.parse_and_bind("tab: complete")
     readline.set_completer(glob_completer)
 

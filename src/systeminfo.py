@@ -12,6 +12,7 @@ class SystemInfo:
     """
     The class to contain all system information.
     """
+
     hostname: str
     bundles: list[Bundle]
     kernel: Bundle

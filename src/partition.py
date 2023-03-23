@@ -7,8 +7,16 @@ from subprocess import CalledProcessError
 
 from src.i18n import I18n
 from src.options import PartTypes, FSFormats
-from src.utils import execute, stdout, prompt_bool, to_iec, \
-    ask_format_type, ask_encryption_block_name, from_iec, print_sub_step
+from src.utils import (
+    execute,
+    stdout,
+    prompt_bool,
+    to_iec,
+    ask_format_type,
+    ask_encryption_block_name,
+    from_iec,
+    print_sub_step,
+)
 
 _ = I18n().gettext
 
@@ -17,6 +25,7 @@ class Partition:
     """
     A class to represent a partition.
     """
+
     index: int
     path: str
     size: int
@@ -33,9 +42,16 @@ class Partition:
     encrypted: bool = False
     block_name: str = None
 
-    def __init__(self, index: int or None = None, path: str = None, part_type: PartTypes = None,
-                 part_mount_point: str = None,
-                 part_format_type: FSFormats = None, part_format: bool = True, compute: bool = True):
+    def __init__(
+        self,
+        index: int or None = None,
+        path: str = None,
+        part_type: PartTypes = None,
+        part_mount_point: str = None,
+        part_format_type: FSFormats = None,
+        part_format: bool = True,
+        compute: bool = True,
+    ):
         """
         Partition initialisation.
         """
@@ -59,7 +75,9 @@ class Partition:
         """
         Partition str formatting.
         """
-        formatted_str = f"'{self.path}' - '{self.part_type_name}' - '{to_iec(int(self.size))}'"
+        formatted_str = (
+            f"'{self.path}' - '{self.part_type_name}' - '{to_iec(int(self.size))}'"
+        )
         return formatted_str
 
     def compute(self):
@@ -68,12 +86,34 @@ class Partition:
         :return:
         """
         self.size = from_iec(
-            stdout(execute(f'lsblk -nld "{self.path}" -o SIZE', capture_output=True, force=True)).strip())
+            stdout(
+                execute(
+                    f'lsblk -nld "{self.path}" -o SIZE', capture_output=True, force=True
+                )
+            ).strip()
+        )
         self.part_type_name = stdout(
-            execute(f'lsblk -nld "{self.path}" -o PARTTYPENAME', capture_output=True, force=True)).strip()
-        self.disk_name = stdout(execute(f'lsblk -nld "{self.path}" -o PKNAME', capture_output=True, force=True)).strip()
-        self.fs_type = stdout(execute(f'lsblk -nld "{self.path}" -o FSTYPE', capture_output=True, force=True)).strip()
-        self.uuid = stdout(execute(f'lsblk -nld "{self.path}" -o UUID', capture_output=True, force=True)).strip()
+            execute(
+                f'lsblk -nld "{self.path}" -o PARTTYPENAME',
+                capture_output=True,
+                force=True,
+            )
+        ).strip()
+        self.disk_name = stdout(
+            execute(
+                f'lsblk -nld "{self.path}" -o PKNAME', capture_output=True, force=True
+            )
+        ).strip()
+        self.fs_type = stdout(
+            execute(
+                f'lsblk -nld "{self.path}" -o FSTYPE', capture_output=True, force=True
+            )
+        ).strip()
+        self.uuid = stdout(
+            execute(
+                f'lsblk -nld "{self.path}" -o UUID', capture_output=True, force=True
+            )
+        ).strip()
 
     def need_format(self):
         """
@@ -113,7 +153,12 @@ class Partition:
         A method to detect if the partition is an existing-encrypted partition.
         :return:
         """
-        return execute(f"cryptsetup isLuks {self.path}", check=False, force=True).returncode == 0
+        return (
+            execute(
+                f"cryptsetup isLuks {self.path}", check=False, force=True
+            ).returncode
+            == 0
+        )
 
     def is_encryptable(self):
         """
@@ -132,7 +177,9 @@ class Partition:
         elif not self.is_encryptable():
             return
         else:
-            self.encrypted = prompt_bool(_("Do you want to encrypt this partition ?"), default=False)
+            self.encrypted = prompt_bool(
+                _("Do you want to encrypt this partition ?"), default=False
+            )
         if self.encrypted:
             if self.part_type == PartTypes.ROOT:
                 self.block_name = "root"
@@ -158,7 +205,12 @@ class Partition:
         if self.part_type == PartTypes.SWAP:
             return _("%s : %s") % (self.part_type, name)
         summary = _("%s : %s (mounting point : %s, format %s, format type %s)") % (
-            self.part_type, name, self.part_mount_point, formatting, self.part_format_type)
+            self.part_type,
+            name,
+            self.part_mount_point,
+            formatting,
+            self.part_format_type,
+        )
         if self.encrypted:
             summary += f" - {_('encrypted')} ('/dev/mapper/{self.block_name}')"
         return summary
@@ -204,9 +256,13 @@ class Partition:
         print_sub_step(_("Mounting %s...") % (self.real_path()))
         match self.part_format_type:
             case FSFormats.BTRFS:
-                execute(f'mount --mkdir -o compress=zstd "{self.real_path()}" "/mnt{self.part_mount_point}"')
+                execute(
+                    f'mount --mkdir -o compress=zstd "{self.real_path()}" "/mnt{self.part_mount_point}"'
+                )
             case _:
-                execute(f'mount --mkdir "{self.real_path()}" "/mnt{self.part_mount_point}"')
+                execute(
+                    f'mount --mkdir "{self.real_path()}" "/mnt{self.part_mount_point}"'
+                )
         self.part_mounted = True
 
     def umount(self) -> bool:
@@ -219,7 +275,7 @@ class Partition:
             execute(f'umount "/mnt{self.part_mount_point}"')
             if self.encrypted:
                 print_sub_step(_("Closing %s...") % (self.real_path()))
-                execute(f'cryptsetup close {self.block_name}')
+                execute(f"cryptsetup close {self.block_name}")
             self.part_mounted = False
         except CalledProcessError:
             return False
@@ -231,25 +287,44 @@ class Partition:
         :param disk_name:
         :return:
         """
-        block_devices_str = stdout(execute('lsblk -J', capture_output=True, force=True))
+        block_devices_str = stdout(execute("lsblk -J", capture_output=True, force=True))
         if not block_devices_str:
             return
         block_devices_json = json.loads(block_devices_str)
-        if block_devices_json is None or not isinstance(block_devices_json, dict) or "blockdevices" not in dict(
-                block_devices_json):
+        if (
+            block_devices_json is None
+            or not isinstance(block_devices_json, dict)
+            or "blockdevices" not in dict(block_devices_json)
+        ):
             return
         block_devices = dict(block_devices_json).get("blockdevices")
         if block_devices is None or not isinstance(block_devices, list):
             return
-        disk = next((d for d in block_devices if
-                     d is not None and isinstance(d, dict) and "name" in d and dict(d).get("name") == os.path.basename(
-                         disk_name)), None)
+        disk = next(
+            (
+                d
+                for d in block_devices
+                if d is not None
+                and isinstance(d, dict)
+                and "name" in d
+                and dict(d).get("name") == os.path.basename(disk_name)
+            ),
+            None,
+        )
         if disk is None or not isinstance(disk, dict) or "children" not in dict(disk):
             return
         partitions = dict(disk).get("children")
-        if partitions is None or not isinstance(partitions, list) or len(list(partitions)) <= self.index:
+        if (
+            partitions is None
+            or not isinstance(partitions, list)
+            or len(list(partitions)) <= self.index
+        ):
             return
         partition = list(partitions)[self.index]
-        if partition is None or not isinstance(partition, dict) or "name" not in dict(partition):
+        if (
+            partition is None
+            or not isinstance(partition, dict)
+            or "name" not in dict(partition)
+        ):
             return
         self.path = f'/dev/{dict(partition).get("name")}'

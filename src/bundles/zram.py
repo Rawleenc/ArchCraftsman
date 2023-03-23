@@ -22,13 +22,17 @@ class Zram(Bundle):
     def print_resume(self):
         print_sub_step(_("Install and enable ZRAM."))
 
-    def configure(self, system_info: SystemInfo, pre_launch_info: PreLaunchInfo, partitioning_info: PartitioningInfo):
-        content = [
-            "[zram0]\n",
-            "zram-size = ram / 2\n"
-        ]
+    def configure(
+        self,
+        system_info: SystemInfo,
+        pre_launch_info: PreLaunchInfo,
+        partitioning_info: PartitioningInfo,
+    ):
+        content = ["[zram0]\n", "zram-size = ram / 2\n"]
         try:
-            with open("/mnt/etc/systemd/zram-generator.conf", "w", encoding="UTF-8") as zram_config_file:
+            with open(
+                "/mnt/etc/systemd/zram-generator.conf", "w", encoding="UTF-8"
+            ) as zram_config_file:
                 zram_config_file.writelines(content)
         except FileNotFoundError as exception:
             log(f"Exception: {exception}")

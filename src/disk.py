@@ -15,6 +15,7 @@ class Disk:
     """
     A class to represent a disk.
     """
+
     path: str
     partitions: list
     total: int
@@ -26,24 +27,57 @@ class Disk:
         """
         self.path = path
         detected_partitions = stdout(
-            execute(f'lsblk -nl "{path}" -o PATH,TYPE,PARTTYPENAME | grep part | grep -iE "linux|efi|swap"',
-                    capture_output=True, force=True, check=False))
+            execute(
+                f'lsblk -nl "{path}" -o PATH,TYPE,PARTTYPENAME | grep part | grep -iE "linux|efi|swap"',
+                capture_output=True,
+                force=True,
+                check=False,
+            )
+        )
         self.partitions = []
         index = 0
         for partition_info in detected_partitions.splitlines():
             self.partitions.append(Partition(index, partition_info.split(" ")[0]))
             index += 1
         self.total = int(
-            stdout(execute(f'lsblk -b --output SIZE -n -d "{self.path}"', capture_output=True, force=True)))
+            stdout(
+                execute(
+                    f'lsblk -b --output SIZE -n -d "{self.path}"',
+                    capture_output=True,
+                    force=True,
+                )
+            )
+        )
         if len(self.partitions) > 0:
             sector_size = int(
-                re.sub('\\s', '',
-                       stdout(execute(f'lsblk {path} -o PATH,TYPE,PHY-SEC | grep disk | awk \'{{print $3}}\'',
-                                      capture_output=True, force=True))))
-            last_partition_path = [p.path for p in self.partitions][len(self.partitions) - 1]
+                re.sub(
+                    "\\s",
+                    "",
+                    stdout(
+                        execute(
+                            f"lsblk {path} -o PATH,TYPE,PHY-SEC | grep disk | awk '{{print $3}}'",
+                            capture_output=True,
+                            force=True,
+                        )
+                    ),
+                )
+            )
+            last_partition_path = [p.path for p in self.partitions][
+                len(self.partitions) - 1
+            ]
             last_sector = int(
-                re.sub('\\s', '', stdout(execute(f'fdisk -l | grep {last_partition_path} | awk \'{{print $3}}\'',
-                                                 capture_output=True, force=True))))
+                re.sub(
+                    "\\s",
+                    "",
+                    stdout(
+                        execute(
+                            f"fdisk -l | grep {last_partition_path} | awk '{{print $3}}'",
+                            capture_output=True,
+                            force=True,
+                        )
+                    ),
+                )
+            )
             self.free_space = self.total - (last_sector * sector_size)
         else:
             self.free_space = self.total
@@ -53,7 +87,9 @@ class Disk:
         The Disk method to get the EFI partition if it exist. Else return an empty partition object.
         """
         try:
-            return [p for p in self.partitions if PartTypes.EFI in p.part_type_name].pop()
+            return [
+                p for p in self.partitions if PartTypes.EFI in p.part_type_name
+            ].pop()
         except IndexError:
             return Partition(None)
 
@@ -67,8 +103,10 @@ class Disk:
         swapfile_size_pattern = re.compile("^(\\d*[.,]\\d+|\\d+)([GMk])$")
         default_swapfile_size = to_iec(int(self.total / 32))
         while not swapfile_ok:
-            swapfile_size = prompt(_("Swapfile size ? (%s, type '0' for none) : ") % default_swapfile_size,
-                                   default=default_swapfile_size)
+            swapfile_size = prompt(
+                _("Swapfile size ? (%s, type '0' for none) : ") % default_swapfile_size,
+                default=default_swapfile_size,
+            )
             if swapfile_size == "0":
                 swapfile_size = None
                 swapfile_ok = True

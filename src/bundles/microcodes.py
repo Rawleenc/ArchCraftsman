@@ -19,9 +19,13 @@ class Microcodes(Bundle):
 
     def __init__(self):
         super().__init__(Bundles.MICROCODES)
-        cpu_info_vendor = stdout(execute('grep </proc/cpuinfo "vendor" | uniq', capture_output=True, force=True))
+        cpu_info_vendor = stdout(
+            execute(
+                'grep </proc/cpuinfo "vendor" | uniq', capture_output=True, force=True
+            )
+        )
         if cpu_info_vendor:
-            self.microcode_name = re.sub('\\s+', '', cpu_info_vendor).split(":")[1]
+            self.microcode_name = re.sub("\\s+", "", cpu_info_vendor).split(":")[1]
         else:
             self.microcode_name = None
 

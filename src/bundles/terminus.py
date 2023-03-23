@@ -23,5 +23,12 @@ class TerminusFont(Bundle):
     def print_resume(self):
         print_sub_step(_("Install terminus console font."))
 
-    def configure(self, system_info: SystemInfo, pre_launch_info: PreLaunchInfo, partitioning_info: PartitioningInfo):
-        execute(f'echo "FONT={pre_launch_info.live_console_font}" >>/mnt/etc/vconsole.conf')
+    def configure(
+        self,
+        system_info: SystemInfo,
+        pre_launch_info: PreLaunchInfo,
+        partitioning_info: PartitioningInfo,
+    ):
+        execute(
+            f'echo "FONT={pre_launch_info.live_console_font}" >>/mnt/etc/vconsole.conf'
+        )

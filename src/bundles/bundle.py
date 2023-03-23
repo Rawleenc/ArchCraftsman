@@ -8,6 +8,7 @@ class Bundle:
     """
     A class to represent a bootloader.
     """
+
     name: OptionEnum
 
     def __init__(self, name: OptionEnum):

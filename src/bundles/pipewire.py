@@ -15,8 +15,17 @@ class PipeWire(Bundle):
     """
 
     def packages(self, system_info: SystemInfo) -> list[str]:
-        return ["pipewire", "pipewire-alsa", "pipewire-audio", "pipewire-jack", "pipewire-media-session",
-                "pipewire-pulse", "pipewire-v4l2", "pipewire-x11-bell", "pipewire-zeroconf"]
+        return [
+            "pipewire",
+            "pipewire-alsa",
+            "pipewire-audio",
+            "pipewire-jack",
+            "pipewire-media-session",
+            "pipewire-pulse",
+            "pipewire-v4l2",
+            "pipewire-x11-bell",
+            "pipewire-zeroconf",
+        ]
 
     def print_resume(self):
         print_sub_step(_("Install PipeWire."))

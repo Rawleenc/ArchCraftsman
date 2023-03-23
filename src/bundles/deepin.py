@@ -16,10 +16,17 @@ class Deepin(Bundle):
     """
     Bundle class.
     """
+
     minimal = False
 
     def packages(self, system_info: SystemInfo) -> list[str]:
-        packages = ["deepin", "xorg-server", "alsa-utils", "pulseaudio", "pulseaudio-alsa"]
+        packages = [
+            "deepin",
+            "xorg-server",
+            "alsa-utils",
+            "pulseaudio",
+            "pulseaudio-alsa",
+        ]
         if self.minimal is not True:
             packages.append("deepin-extra")
         return packages
@@ -34,10 +41,19 @@ class Deepin(Bundle):
         self.minimal = prompt_bool(
             _("Install a minimal environment ?"),
             default=False,
-            help_msg=_("If yes, the script will not install any extra packages, only base packages."))
+            help_msg=_(
+                "If yes, the script will not install any extra packages, only base packages."
+            ),
+        )
 
-    def configure(self, system_info: SystemInfo, pre_launch_info: PreLaunchInfo, partitioning_info: PartitioningInfo):
+    def configure(
+        self,
+        system_info: SystemInfo,
+        pre_launch_info: PreLaunchInfo,
+        partitioning_info: PartitioningInfo,
+    ):
         execute('arch-chroot /mnt bash -c "systemctl enable lightdm"')
         execute(
-            'sed -i "s|#logind-check-graphical=false|logind-check-graphical=true|g" /mnt/etc/lightdm/lightdm.conf')
+            'sed -i "s|#logind-check-graphical=false|logind-check-graphical=true|g" /mnt/etc/lightdm/lightdm.conf'
+        )
         pre_launch_info.setup_chroot_keyboard()

@@ -19,15 +19,22 @@ class CopyACM(Bundle):
     def print_resume(self):
         print_sub_step(_("Copy ArchCraftsman to the new system."))
 
-    def configure(self, system_info: SystemInfo, pre_launch_info: PreLaunchInfo, partitioning_info: PartitioningInfo):
+    def configure(
+        self,
+        system_info: SystemInfo,
+        pre_launch_info: PreLaunchInfo,
+        partitioning_info: PartitioningInfo,
+    ):
         if system_info.user_name:
-            path = f'/home/{system_info.user_name}/ArchCraftsman'
-            execute(f'mkdir -p /mnt{path}')
-            execute(f'cp -r ~/src /mnt{path}')
-            execute(f'cp -r ~/locales /mnt{path}')
-            execute(f'arch-chroot /mnt bash -c "chown -R {system_info.user_name}:{system_info.user_name} {path}"')
+            path = f"/home/{system_info.user_name}/ArchCraftsman"
+            execute(f"mkdir -p /mnt{path}")
+            execute(f"cp -r ~/src /mnt{path}")
+            execute(f"cp -r ~/locales /mnt{path}")
+            execute(
+                f'arch-chroot /mnt bash -c "chown -R {system_info.user_name}:{system_info.user_name} {path}"'
+            )
         else:
             path = "/root/ArchCraftsman"
-            execute(f'mkdir -p /mnt{path}')
-            execute(f'cp -r ~/src /mnt{path}')
-            execute(f'cp -r ~/locales /mnt{path}')
+            execute(f"mkdir -p /mnt{path}")
+            execute(f"cp -r ~/src /mnt{path}")
+            execute(f"cp -r ~/locales /mnt{path}")

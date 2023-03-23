@@ -34,11 +34,22 @@ class Packages(metaclass=PackagesMeta):
     """
     The singleton implementation containing all archlinux packages and autocompleted prompt method.
     """
+
     packages: set[str]
 
     def __init__(self) -> None:
-        self.packages = set(stdout(
-            execute("pacman -Sl | awk '{print $2}'", check=False, force=True, capture_output=True)).strip().split("\n"))
+        self.packages = set(
+            stdout(
+                execute(
+                    "pacman -Sl | awk '{print $2}'",
+                    check=False,
+                    force=True,
+                    capture_output=True,
+                )
+            )
+            .strip()
+            .split("\n")
+        )
 
     def exist(self, package: str) -> bool:
         """
@@ -53,16 +64,26 @@ class Packages(metaclass=PackagesMeta):
         A method to ask the user for more packages to install.
         :return:
         """
-        readline.set_completer(lambda text, state: ([package for package in self.packages
-                                                     if (text and package.startswith(text))])[state])
+        readline.set_completer(
+            lambda text, state: (
+                [
+                    package
+                    for package in self.packages
+                    if (text and package.startswith(text))
+                ]
+            )[state]
+        )
 
         pkgs_select_ok = False
         more_pkgs = set()
         while not pkgs_select_ok:
             more_pkgs = set()
             more_pkgs_str = prompt_ln(
-                _("Install more packages ? (type extra packages full names, example : 'htop neofetch', "
-                  "leave blank if none) : "))
+                _(
+                    "Install more packages ? (type extra packages full names, example : 'htop neofetch', "
+                    "leave blank if none) : "
+                )
+            )
             pkgs_select_ok = True
             if more_pkgs_str:
                 for pkg in more_pkgs_str.split():

@@ -18,14 +18,29 @@ class Enlightenment(Bundle):
     """
 
     def packages(self, system_info: SystemInfo) -> list[str]:
-        packages = ["enlightenment", "terminology", "xorg-server", "xorg-xinit", "alsa-utils", "pulseaudio",
-                    "pulseaudio-alsa", "pavucontrol", "system-config-printer", "acpid"]
+        packages = [
+            "enlightenment",
+            "terminology",
+            "xorg-server",
+            "xorg-xinit",
+            "alsa-utils",
+            "pulseaudio",
+            "pulseaudio-alsa",
+            "pavucontrol",
+            "system-config-printer",
+            "acpid",
+        ]
         return packages
 
     def print_resume(self):
         print_sub_step(_("Desktop environment : %s") % self.name)
         print_sub_step(_("Display manager : %s") % _("none"))
 
-    def configure(self, system_info: SystemInfo, pre_launch_info: PreLaunchInfo, partitioning_info: PartitioningInfo):
+    def configure(
+        self,
+        system_info: SystemInfo,
+        pre_launch_info: PreLaunchInfo,
+        partitioning_info: PartitioningInfo,
+    ):
         execute('arch-chroot /mnt bash -c "systemctl enable acpid"')
         pre_launch_info.setup_chroot_keyboard()

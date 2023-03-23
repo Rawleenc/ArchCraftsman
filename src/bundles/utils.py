@@ -105,8 +105,15 @@ def process_bundle(name: OptionEnum) -> Bundle or None:
     return bundle
 
 
-def prompt_bundle(message: str, error_msg: str, options: type[OptionEnum], supported_msg: str or None,
-                  default: OptionEnum or None, *ignores: OptionEnum, new_line_prompt: bool = True) -> Bundle or None:
+def prompt_bundle(
+    message: str,
+    error_msg: str,
+    options: type[OptionEnum],
+    supported_msg: str or None,
+    default: OptionEnum or None,
+    *ignores: OptionEnum,
+    new_line_prompt: bool = True,
+) -> Bundle or None:
     """
     A method to prompt for a bundle.
     :param new_line_prompt:
@@ -117,8 +124,15 @@ def prompt_bundle(message: str, error_msg: str, options: type[OptionEnum], suppo
     :param default:
     :return:
     """
-    option = prompt_option(message, error_msg, options, supported_msg, default, *ignores,
-                           new_line_prompt=new_line_prompt)
+    option = prompt_option(
+        message,
+        error_msg,
+        options,
+        supported_msg,
+        default,
+        *ignores,
+        new_line_prompt=new_line_prompt,
+    )
     if not option:
         return None
     bundle = process_bundle(option)

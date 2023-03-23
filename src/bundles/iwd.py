@@ -26,6 +26,11 @@ class Iwd(Bundle):
         print_sub_step(_("Install Iwd."))
         SystemdNet(self.name).print_resume()
 
-    def configure(self, system_info: SystemInfo, pre_launch_info: PreLaunchInfo, partitioning_info: PartitioningInfo):
+    def configure(
+        self,
+        system_info: SystemInfo,
+        pre_launch_info: PreLaunchInfo,
+        partitioning_info: PartitioningInfo,
+    ):
         execute('arch-chroot /mnt bash -c "systemctl enable iwd.service"')
         SystemdNet(self.name).configure(system_info, pre_launch_info, partitioning_info)

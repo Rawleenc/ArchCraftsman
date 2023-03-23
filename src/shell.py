@@ -17,8 +17,14 @@ def ask_for_kernel() -> Bundle:
     A method to ask for a kernel.
     :return:
     """
-    return prompt_bundle("> ", _("Kernel '%s' is not supported."), Kernels, _("Supported kernels : "), None,
-                         new_line_prompt=False)
+    return prompt_bundle(
+        "> ",
+        _("Kernel '%s' is not supported."),
+        Kernels,
+        _("Supported kernels : "),
+        None,
+        new_line_prompt=False,
+    )
 
 
 def ask_for_desktop() -> Bundle:
@@ -26,8 +32,14 @@ def ask_for_desktop() -> Bundle:
     A method to ask for a desktop environment.
     :return:
     """
-    return prompt_bundle("> ", _("Desktop environment '%s' is not supported."), Desktops,
-                         _("Supported desktop environments : "), None, new_line_prompt=False)
+    return prompt_bundle(
+        "> ",
+        _("Desktop environment '%s' is not supported."),
+        Desktops,
+        _("Supported desktop environments : "),
+        None,
+        new_line_prompt=False,
+    )
 
 
 def ask_for_bundle() -> Bundle:
@@ -35,8 +47,15 @@ def ask_for_bundle() -> Bundle:
     A method to ask for a bundle.
     :return:
     """
-    return prompt_bundle("> ", _("Bundle '%s' is not supported."), Bundles, _("Available bundles : "), None,
-                         Bundles.COPY_ACM, new_line_prompt=False)
+    return prompt_bundle(
+        "> ",
+        _("Bundle '%s' is not supported."),
+        Bundles,
+        _("Available bundles : "),
+        None,
+        Bundles.COPY_ACM,
+        new_line_prompt=False,
+    )
 
 
 def install_bundle(bundle):
@@ -73,8 +92,14 @@ def shell():
     want_exit = False
     while not want_exit:
         try:
-            command = prompt_option("> ", _("Command '%s' is not supported."), Commands, None, None,
-                                    new_line_prompt=False)
+            command = prompt_option(
+                "> ",
+                _("Command '%s' is not supported."),
+                Commands,
+                None,
+                None,
+                new_line_prompt=False,
+            )
             bundle = None
             match command:
                 case Commands.KERNEL:
@@ -90,8 +115,14 @@ def shell():
                     want_exit = True
                     continue
 
-            sub_command = prompt_option("> ", _("Sub-command '%s' is not supported."), SubCommands,
-                                        _("Available sub-commands : "), None, new_line_prompt=False)
+            sub_command = prompt_option(
+                "> ",
+                _("Sub-command '%s' is not supported."),
+                SubCommands,
+                _("Available sub-commands : "),
+                None,
+                new_line_prompt=False,
+            )
 
             match sub_command:
                 case SubCommands.INSTALL:
@@ -104,8 +135,11 @@ def shell():
             print_error(_("Script execution interrupted by the user !"), do_pause=False)
             want_exit = True
         except CalledProcessError as sub_process_exception:
-            print_error(_("A subprocess execution failed ! See the following error: %s") % sub_process_exception,
-                        do_pause=False)
+            print_error(
+                _("A subprocess execution failed ! See the following error: %s")
+                % sub_process_exception,
+                do_pause=False,
+            )
             want_exit = True
         except EOFError:
             want_exit = True

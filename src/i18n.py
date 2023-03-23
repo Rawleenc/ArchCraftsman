@@ -29,6 +29,7 @@ class I18n(metaclass=I18nMeta):
     """
     The singleton implementation containing the translation method to use.
     """
+
     gettext_method = None
 
     def __init__(self) -> None:
@@ -41,8 +42,11 @@ class I18n(metaclass=I18nMeta):
         :return:
         """
         if global_language != "EN":
-            translation = gettext.translation('ArchCraftsman', localedir='/usr/share/locale',
-                                              languages=[global_language.lower()])
+            translation = gettext.translation(
+                "ArchCraftsman",
+                localedir="/usr/share/locale",
+                languages=[global_language.lower()],
+            )
             translation.install()
             self.gettext_method = translation.gettext
         return self.gettext_method

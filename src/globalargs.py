@@ -29,6 +29,7 @@ class GlobalArgs(metaclass=GlobalArgsMeta):
     """
     The singleton implementation containing the translation method to use.
     """
+
     args: Namespace = None
 
     def __init__(self, args: Namespace = None) -> None:

@@ -14,17 +14,20 @@ class OptionEnum(str, Enum):
     """
 
     @staticmethod
-    def _generate_next_value_(name: str, start: int, count: int, last_values: list) -> str:
+    def _generate_next_value_(
+        name: str, start: int, count: int, last_values: list
+    ) -> str:
         return name.lower().replace("_", "")
 
     def __str__(self):
-        return self.name.lower().replace('_', ' ').capitalize()
+        return self.name.lower().replace("_", " ").capitalize()
 
 
 class Commands(OptionEnum):
     """
     All available commands.
     """
+
     KERNEL = auto()
     DESKTOP = auto()
     BUNDLE = auto()
@@ -37,6 +40,7 @@ class SubCommands(OptionEnum):
     """
     All available sub-commands.
     """
+
     INSTALL = auto()
     UNINSTALL = auto()
 
@@ -45,6 +49,7 @@ class Kernels(OptionEnum):
     """
     All kernel options.
     """
+
     CURRENT = auto()
     LTS = auto()
     ZEN = auto()
@@ -55,6 +60,7 @@ class Desktops(OptionEnum):
     """
     All desktop environment options.
     """
+
     GNOME = auto()
     PLASMA = auto()
     XFCE = auto()
@@ -74,6 +80,7 @@ class Network(OptionEnum):
     """
     All network options.
     """
+
     NETWORK_MANAGER = auto()
     IWD = auto()
     SYSTEMD = auto()
@@ -84,6 +91,7 @@ class BootLoaders(OptionEnum):
     """
     All bootloader options.
     """
+
     GRUB = auto()
 
 
@@ -91,6 +99,7 @@ class Bundles(OptionEnum):
     """
     All other options.
     """
+
     CUPS = auto()
     GRML = auto()
     MAIN_FILE_SYSTEMS = auto()
@@ -107,6 +116,7 @@ class FSFormats(OptionEnum):
     """
     All file system format options.
     """
+
     VFAT = auto()
     EXT4 = auto()
     BTRFS = auto()
@@ -116,6 +126,7 @@ class SwapTypes(OptionEnum):
     """
     All sway type options.
     """
+
     PARTITION = auto()
     FILE = auto()
     NONE = auto()
@@ -125,6 +136,7 @@ class PartTypes(OptionEnum):
     """
     All partition type options.
     """
+
     EFI = auto()
     ROOT = auto()
     BOOT = auto()
