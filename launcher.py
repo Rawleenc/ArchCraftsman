@@ -7,7 +7,6 @@ import os
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import List
 from urllib.request import urlretrieve, urlopen
 
 OWNER = "Rawleenc"
@@ -57,7 +56,7 @@ def download(url: str, destination: str, replace: bool = False):
         urlretrieve(url, destination)
 
 
-def get_all_files(directory: str) -> List:
+def get_all_files(directory: str) -> list:
     """
     A method to download all files of a given directory.
     :param directory:
