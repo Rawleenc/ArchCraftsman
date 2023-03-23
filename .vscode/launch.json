@@ -13,6 +13,11 @@
                 "--install",
                 "--test"
             ],
+            "console": "externalTerminal",
+            "autoReload": {
+                "enable": true,
+                "filter": "src"
+            },
             "justMyCode": true,
             "sudo": true
         },
@@ -25,6 +30,11 @@
                 "--shell",
                 "--test"
             ],
+            "console": "externalTerminal",
+            "autoReload": {
+                "enable": true,
+                "filter": "src"
+            },
             "justMyCode": true,
             "sudo": true
         },
