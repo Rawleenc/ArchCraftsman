@@ -7,12 +7,13 @@ import os
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import List
 from urllib.request import urlretrieve, urlopen
 
 OWNER = "Rawleenc"
 REPO = "ArchCraftsman"
 BRANCH = "dev"
-CMD = 'python -m src.archcraftsman --install'
+CMD = "python -m src.archcraftsman --install"
 GREEN = "\033[0;32m"
 CYAN = "\033[0;36m"
 NOCOLOR = "\033[0m"
@@ -26,7 +27,7 @@ def print_step(message: str, clear: bool = True):
     """
     if clear:
         subprocess.run("/bin/clear", shell=True, check=True)
-    print(f'\n{GREEN}{message}{NOCOLOR}')
+    print(f"\n{GREEN}{message}{NOCOLOR}")
 
 
 def print_sub_step(message: str):
@@ -35,7 +36,7 @@ def print_sub_step(message: str):
     :param message:
     :return:
     """
-    print(f'{CYAN}  * {message}{NOCOLOR}')
+    print(f"{CYAN}  * {message}{NOCOLOR}")
 
 
 def download(url: str, destination: str, replace: bool = False):
@@ -56,13 +57,15 @@ def download(url: str, destination: str, replace: bool = False):
         urlretrieve(url, destination)
 
 
-def get_all_files(directory: str) -> []:
+def get_all_files(directory: str) -> List:
     """
     A method to download all files of a given directory.
     :param directory:
     :return:
     """
-    with urlopen(f"https://api.github.com/repos/{OWNER}/{REPO}/contents/{directory}?ref={BRANCH}") as response:
+    with urlopen(
+        f"https://api.github.com/repos/{OWNER}/{REPO}/contents/{directory}?ref={BRANCH}"
+    ) as response:
         components = json.loads(response.read())
     files = []
     if components:
@@ -75,7 +78,7 @@ def get_all_files(directory: str) -> []:
     return files
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print_step("Downloading all ArchCraftsman's modules and locales...", clear=False)
 
     module_files = []

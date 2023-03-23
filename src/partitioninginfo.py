@@ -2,6 +2,7 @@
 The module of PartitioningInfo class.
 """
 import re
+from typing import Optional
 
 from src.i18n import I18n
 from src.options import FSFormats
@@ -18,7 +19,7 @@ class PartitioningInfo:
 
     partitions: list[Partition]
     root_partition: Partition
-    swapfile_size: str
+    swapfile_size: Optional[str]
     main_disk: str
 
     btrfs_in_use: bool = False
@@ -43,7 +44,11 @@ class PartitioningInfo:
             for partition in self.partitions
             if not partition.part_mounted and partition.part_mount_point
         ]
-        not_mounted_partitions.sort(key=lambda part: len(part.part_mount_point))
+        not_mounted_partitions.sort(
+            key=lambda part: 0
+            if not part.part_mount_point
+            else len(part.part_mount_point)
+        )
 
         while False in [partition.part_mounted for partition in not_mounted_partitions]:
             for partition in not_mounted_partitions:
@@ -77,7 +82,10 @@ class PartitioningInfo:
             partition for partition in self.partitions if partition.part_mounted
         ]
         mounted_partitions.sort(
-            key=lambda partition: len(partition.part_mount_point), reverse=True
+            key=lambda part: 0
+            if not part.part_mount_point
+            else len(part.part_mount_point),
+            reverse=True,
         )
 
         while True in [partition.part_mounted for partition in mounted_partitions]:

@@ -3,6 +3,7 @@ The I18n management singleton module
 """
 from argparse import Namespace
 from threading import Lock
+from typing import Optional
 
 
 class GlobalArgsMeta(type):
@@ -30,10 +31,9 @@ class GlobalArgs(metaclass=GlobalArgsMeta):
     The singleton implementation containing the translation method to use.
     """
 
-    args: Namespace = None
-
-    def __init__(self, args: Namespace = None) -> None:
-        self.args = args
+    def __init__(self, args: Optional[Namespace] = None) -> None:
+        if args:
+            self.args = args
 
     def install(self) -> bool:
         """

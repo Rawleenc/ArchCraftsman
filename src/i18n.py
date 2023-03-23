@@ -30,8 +30,6 @@ class I18n(metaclass=I18nMeta):
     The singleton implementation containing the translation method to use.
     """
 
-    gettext_method = None
-
     def __init__(self) -> None:
         self.gettext_method = gettext.gettext
 

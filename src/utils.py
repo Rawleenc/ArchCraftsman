@@ -8,6 +8,7 @@ import os
 import re
 import readline
 import subprocess
+from typing import Optional
 
 from src.globalargs import GlobalArgs
 from src.i18n import I18n
@@ -78,22 +79,24 @@ def from_iec(size: str) -> int:
     )
 
 
-def ask_format_type() -> FSFormats:
+def ask_format_type() -> Optional[FSFormats]:
     """
     The method to ask the user for the format type.
     :return:
     """
-    return prompt_option(
-        _("Which format type do you want ? (%s) : "),
-        _("Format type '%s' is not supported."),
-        FSFormats,
-        _("Supported format types : "),
-        FSFormats.EXT4,
-        FSFormats.VFAT,
+    return FSFormats(
+        prompt_option(
+            _("Which format type do you want ? (%s) : "),
+            _("Format type '%s' is not supported."),
+            FSFormats,
+            _("Supported format types : "),
+            FSFormats.EXT4,
+            FSFormats.VFAT,
+        )
     )
 
 
-def ask_encryption_block_name() -> str:
+def ask_encryption_block_name() -> Optional[str]:
     """
     Method to ask for encryption block name.
     :return:
@@ -199,8 +202,8 @@ def input_str(message: str, password: bool = False) -> str:
 
 def prompt(
     message: str,
-    default: str = None,
-    help_msg: str = None,
+    default: Optional[str] = None,
+    help_msg: Optional[str] = None,
     required: bool = False,
     password: bool = False,
 ) -> str:
@@ -214,7 +217,7 @@ def prompt(
     :return:
     """
     user_input_ok = False
-    user_input = None
+    user_input = ""
     while not user_input_ok:
         user_input = input_str(f"{ORANGE}{message}{NOCOLOR}", password=password)
         if user_input == "?" and help_msg:
@@ -230,7 +233,10 @@ def prompt(
 
 
 def prompt_ln(
-    message: str, default: str = None, help_msg: str = None, required: bool = False
+    message: str,
+    default: Optional[str] = None,
+    help_msg: Optional[str] = None,
+    required: bool = False,
 ) -> str:
     """
     A method to prompt for a user input with a new line for the user input.
@@ -265,11 +271,11 @@ def prompt_option(
     message: str,
     error_msg: str,
     options: type[OptionEnum],
-    supported_msg: str or None,
-    default: OptionEnum or None,
+    supported_msg: Optional[str],
+    default: Optional[OptionEnum],
     *ignores: OptionEnum,
     new_line_prompt: bool = True,
-) -> OptionEnum or None:
+) -> Optional[OptionEnum]:
     """
     A method to prompt for a bundle.
     :param supported_msg:
@@ -313,7 +319,9 @@ def prompt_option(
     return option
 
 
-def prompt_bool(message: str, default: bool = True, help_msg: str = None) -> bool:
+def prompt_bool(
+    message: str, default: bool = True, help_msg: Optional[str] = None
+) -> bool:
     """
     A method to prompt for a boolean choice.
     :param message:

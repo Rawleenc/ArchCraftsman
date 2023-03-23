@@ -2,6 +2,7 @@
 The shell mode module
 """
 from subprocess import CalledProcessError
+from typing import Optional
 
 from src.bundles.bundle import Bundle
 from src.bundles.utils import prompt_bundle
@@ -12,7 +13,7 @@ from src.utils import prompt_option, print_error, print_supported, execute, prin
 _ = I18n().gettext
 
 
-def ask_for_kernel() -> Bundle:
+def ask_for_kernel() -> Optional[Bundle]:
     """
     A method to ask for a kernel.
     :return:
@@ -27,7 +28,7 @@ def ask_for_kernel() -> Bundle:
     )
 
 
-def ask_for_desktop() -> Bundle:
+def ask_for_desktop() -> Optional[Bundle]:
     """
     A method to ask for a desktop environment.
     :return:
@@ -42,7 +43,7 @@ def ask_for_desktop() -> Bundle:
     )
 
 
-def ask_for_bundle() -> Bundle:
+def ask_for_bundle() -> Optional[Bundle]:
     """
     A method to ask for a bundle.
     :return:

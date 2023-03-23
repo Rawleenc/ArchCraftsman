@@ -1,6 +1,7 @@
 """
 The bundles related utility methods and tools module
 """
+from typing import Optional
 from src.bundles.budgie import Budgie
 from src.bundles.bundle import Bundle
 from src.bundles.cinnamon import Cinnamon
@@ -34,7 +35,7 @@ from src.options import OptionEnum
 from src.utils import prompt_option
 
 
-def process_bundle(name: OptionEnum) -> Bundle or None:
+def process_bundle(name: OptionEnum) -> Optional[Bundle]:
     """
     Process a bundle name into a Bundle object.
     :param name:
@@ -109,11 +110,11 @@ def prompt_bundle(
     message: str,
     error_msg: str,
     options: type[OptionEnum],
-    supported_msg: str or None,
-    default: OptionEnum or None,
+    supported_msg: Optional[str],
+    default: Optional[OptionEnum],
     *ignores: OptionEnum,
     new_line_prompt: bool = True,
-) -> Bundle or None:
+) -> Optional[Bundle]:
     """
     A method to prompt for a bundle.
     :param new_line_prompt:

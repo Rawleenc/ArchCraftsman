@@ -4,6 +4,7 @@ The partition class module
 import json
 import os
 from subprocess import CalledProcessError
+from typing import Optional
 
 from src.i18n import I18n
 from src.options import PartTypes, FSFormats
@@ -26,29 +27,29 @@ class Partition:
     A class to represent a partition.
     """
 
-    index: int
-    path: str
+    index: Optional[int]
+    path: Optional[str]
     size: int
     part_type_name: str
     disk_name: str
     fs_type: str
     uuid: str
-    part_type: PartTypes
-    part_mount_point: str
-    part_format_type: FSFormats
+    part_type: Optional[PartTypes]
+    part_mount_point: Optional[str]
+    part_format_type: Optional[FSFormats]
     part_format: bool
 
     part_mounted: bool = False
     encrypted: bool = False
-    block_name: str = None
+    block_name: Optional[str] = None
 
     def __init__(
         self,
-        index: int or None = None,
-        path: str = None,
-        part_type: PartTypes = None,
-        part_mount_point: str = None,
-        part_format_type: FSFormats = None,
+        index: Optional[int] = None,
+        path: Optional[str] = None,
+        part_type: Optional[PartTypes] = None,
+        part_mount_point: Optional[str] = None,
+        part_format_type: Optional[FSFormats] = None,
         part_format: bool = True,
         compute: bool = True,
     ):
@@ -215,7 +216,7 @@ class Partition:
             summary += f" - {_('encrypted')} ('/dev/mapper/{self.block_name}')"
         return summary
 
-    def real_path(self) -> str:
+    def real_path(self) -> Optional[str]:
         """
         A method to get the partition path.
         :return:
@@ -317,10 +318,13 @@ class Partition:
         if (
             partitions is None
             or not isinstance(partitions, list)
-            or len(list(partitions)) <= self.index
+            or self.index
+            and len(list(partitions)) <= self.index
         ):
             return
-        partition = list(partitions)[self.index]
+        partition = None
+        if self.index is not None:
+            partition = list(partitions)[self.index]
         if (
             partition is None
             or not isinstance(partition, dict)

@@ -2,6 +2,7 @@
 The automatic partitioning system module
 """
 import os
+from typing import Optional
 
 from src.disk import Disk
 from src.i18n import I18n
@@ -25,7 +26,7 @@ from src.utils import (
 _ = I18n().gettext
 
 
-def auto_partitioning() -> PartitioningInfo or None:
+def auto_partitioning() -> Optional[PartitioningInfo]:
     """
     The method to proceed to the automatic partitioning.
     :return:

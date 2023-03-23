@@ -48,6 +48,8 @@ from src.utils import (
     glob_completer,
 )
 
+_ = I18n().gettext
+
 
 def pre_launch_steps() -> PreLaunchInfo:
     """
@@ -131,8 +133,6 @@ if __name__ == "__main__":
     readline.parse_and_bind("tab: complete")
     readline.set_completer(glob_completer)
 
-    i18n = I18n()
-    _ = i18n.gettext
     GlobalArgs(args)
 
     user = stdout(execute("whoami", capture_output=True, force=True))
@@ -141,7 +141,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     PRE_LAUNCH_INFO = pre_launch()
-    _ = i18n.update_method(PRE_LAUNCH_INFO.global_language)
+    I18n().update_method(PRE_LAUNCH_INFO.global_language)
 
     if GlobalArgs().install():
         install(PRE_LAUNCH_INFO)

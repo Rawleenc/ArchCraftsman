@@ -2,6 +2,7 @@
 The manual partitioning system module
 """
 import os
+from typing import Optional
 
 from src.disk import Disk
 from src.i18n import I18n
@@ -23,7 +24,7 @@ from src.utils import (
 _ = I18n().gettext
 
 
-def manual_partitioning() -> PartitioningInfo or None:
+def manual_partitioning() -> Optional[PartitioningInfo]:
     """
     The method to proceed to the manual partitioning.
     :return:
@@ -68,7 +69,9 @@ def manual_partitioning() -> PartitioningInfo or None:
                 partitioning_info.partitions.append(Partition(path=partition))
         print_step(
             _("Detected target drive partitions : %s")
-            % " ".join([part.path for part in partitioning_info.partitions])
+            % " ".join(
+                [part.path for part in partitioning_info.partitions if part.path]
+            )
         )
         for partition in partitioning_info.partitions:
             print_step(_("Partition :"), clear=False)

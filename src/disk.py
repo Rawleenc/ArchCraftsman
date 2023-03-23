@@ -2,6 +2,7 @@
 The disk class module
 """
 import re
+from typing import Optional
 
 from src.i18n import I18n
 from src.options import PartTypes
@@ -93,7 +94,7 @@ class Disk:
         except IndexError:
             return Partition(None)
 
-    def ask_swapfile_size(self) -> str:
+    def ask_swapfile_size(self) -> Optional[str]:
         """
         The method to ask the user for the swapfile size.
         :return:

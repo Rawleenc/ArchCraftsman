@@ -2,6 +2,7 @@
 The microcodes auto-installation bundle module
 """
 import re
+from typing import Optional
 
 from src.bundles.bundle import Bundle
 from src.i18n import I18n
@@ -36,7 +37,7 @@ class Microcodes(Bundle):
             return ["amd-ucode"]
         return []
 
-    def microcode_img(self) -> str or None:
+    def microcode_img(self) -> Optional[str]:
         """
         The microcode img file name retrieving method.
         """
