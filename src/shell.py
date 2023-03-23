@@ -81,7 +81,7 @@ def shell():
     The shell mode method.
     """
     print_step(_("ArchCraftsman interactive shell mode."))
-    print_supported(_("Available commands :"), Commands)
+    print_supported(_("Available commands :"), list(Commands))
     want_exit = False
     while not want_exit:
         try:
@@ -102,7 +102,7 @@ def shell():
                 case Commands.BUNDLE:
                     bundle = ask_for_bundle()
                 case Commands.HELP:
-                    print_supported(_("Available commands :"), Commands)
+                    print_supported(_("Available commands :"), list(Commands))
                     continue
                 case Commands.EXIT:
                     want_exit = True
