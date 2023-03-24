@@ -132,6 +132,10 @@ if __name__ == "__main__":
 
     GlobalArgs(args)
 
+    if not GlobalArgs().is_call_ok():
+        parser.print_help()
+        sys.exit(1)
+
     user = execute("whoami", force=True, capture_output=True).output
     if not user or user.strip() != "root":
         print_error("This script must be run as root.")
@@ -147,5 +151,3 @@ if __name__ == "__main__":
     if GlobalArgs().shell():
         shell()
         sys.exit(0)
-
-    parser.print_help()

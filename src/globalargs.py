@@ -35,6 +35,12 @@ class GlobalArgs(metaclass=GlobalArgsMeta):
         if args:
             self.args = args
 
+    def is_call_ok(self) -> bool:
+        """
+        Check if the installer is called correctly.
+        """
+        return self.args and (self.install() or self.shell())
+
     def install(self) -> bool:
         """
         Check if the installer is in installation mode.
