@@ -137,7 +137,7 @@ def ask_drive(
     drives = (
         stdout(
             execute(
-                "lsblk -lpdno NAME",
+                "lsblk -lpdno NAME,TYPE | grep disk | awk '{print $1}'",
                 capture_output=True,
                 force=True,
             )
