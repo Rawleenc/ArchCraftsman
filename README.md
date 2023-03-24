@@ -25,7 +25,7 @@ Answer the questions and let the magic happen ;)
 
 If you want to only test the script, you can clone it and then run it with this command :
 ```bash
-sudo python -m src.archcraftsman --install --test
+sudo python -m archcraftsman.installer --install --test
 ```
 It will simulate the execution of the script without changing anything to your system.
 
@@ -38,7 +38,7 @@ _Executing with root privilege is still required to gather disks information._
 ArchCraftsman can run in an interactive shell mode to manage bundles.  
 The shell mode can be executed with this command :
 ```bash
-sudo python -m src.archcraftsman --shell
+sudo python -m archcraftsman.installer --shell
 ```
 The shell mode is compatible with the test mode.
 
@@ -46,7 +46,7 @@ The shell mode is compatible with the test mode.
 
 To create new translations or update existing ones, first run the following command :
 ```bash
-python /usr/lib/pythonX.Y/Tools/i18n/pygettext.py -d base -o base.pot src
+python /usr/lib/pythonX.Y/Tools/i18n/pygettext.py -d base -o base.pot archcraftsman
 ```
 Then use [Poedit](https://archlinux.org/packages/community/x86_64/poedit/) to create or update translations based on the newly generated `base.pot`
 

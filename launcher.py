@@ -28,7 +28,7 @@ from urllib.request import urlretrieve, urlopen
 OWNER = "Rawleenc"
 REPO = "ArchCraftsman"
 BRANCH = "dev"
-CMD = "python -m src.archcraftsman --install"
+CMD = "python -m archcraftsman.installer --install"
 GREEN = "\033[0;32m"
 CYAN = "\033[0;36m"
 NOCOLOR = "\033[0m"
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     print_step("Downloading all ArchCraftsman's modules and locales...", clear=False)
 
     module_files = []
-    for module_file in get_all_files("src"):
+    for module_file in get_all_files("archcraftsman"):
         module_files.append(module_file)
     for module_file in get_all_files("locales"):
         module_files.append(module_file)

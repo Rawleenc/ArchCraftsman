@@ -26,7 +26,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install pylint
       - name: Run
-        run: pylint src launcher.py
+        run: pylint archcraftsman launcher.py
 
   flake8:
     runs-on: ubuntu-latest
@@ -40,7 +40,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install flake8
       - name: Run
-        run: flake8 src launcher.py
+        run: flake8 archcraftsman launcher.py
 
   pyright:
     runs-on: ubuntu-latest
@@ -54,7 +54,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install pyright
       - name: Run
-        run: pyright src launcher.py
+        run: pyright archcraftsman launcher.py
 
   black-check:
     runs-on: ubuntu-latest
@@ -68,7 +68,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install black
       - name: Run
-        run: black --check src launcher.py
+        run: black --check archcraftsman launcher.py
 
   license-check:
     runs-on: ubuntu-latest

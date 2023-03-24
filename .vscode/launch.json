@@ -8,7 +8,7 @@
             "name": "Test installation",
             "type": "python",
             "request": "launch",
-            "module": "src.archcraftsman",
+            "module": "archcraftsman.installer",
             "args": [
                 "--install",
                 "--test"
@@ -16,7 +16,7 @@
             "console": "externalTerminal",
             "autoReload": {
                 "enable": true,
-                "filter": "src"
+                "filter": "archcraftsman"
             },
             "justMyCode": true,
             "sudo": true
@@ -25,7 +25,7 @@
             "name": "Test shell",
             "type": "python",
             "request": "launch",
-            "module": "src.archcraftsman",
+            "module": "archcraftsman.installer",
             "args": [
                 "--shell",
                 "--test"
@@ -33,7 +33,7 @@
             "console": "externalTerminal",
             "autoReload": {
                 "enable": true,
-                "filter": "src"
+                "filter": "archcraftsman"
             },
             "justMyCode": true,
             "sudo": true
@@ -48,7 +48,7 @@
                 "base",
                 "-o",
                 "base.pot",
-                "src"
+                "archcraftsman"
             ],
             "justMyCode": true
         }
