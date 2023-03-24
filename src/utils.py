@@ -8,7 +8,7 @@ import os
 import re
 import readline
 import subprocess
-from typing import Optional
+from typing import Optional, TypeVar
 
 from src.globalargs import GlobalArgs
 from src.i18n import I18n
@@ -79,15 +79,13 @@ def ask_format_type() -> Optional[FSFormats]:
     """
     The method to ask the user for the format type.
     """
-    return FSFormats(
-        prompt_option(
-            _("Which format type do you want ? (%s) : "),
-            _("Format type '%s' is not supported."),
-            FSFormats,
-            _("Supported format types : "),
-            FSFormats.EXT4,
-            FSFormats.VFAT,
-        )
+    return prompt_option(
+        _("Which format type do you want ? (%s) : "),
+        _("Format type '%s' is not supported."),
+        FSFormats,
+        _("Supported format types : "),
+        FSFormats.EXT4,
+        FSFormats.VFAT,
     )
 
 
@@ -272,15 +270,18 @@ def print_supported(supported_msg: str, options: list[str], *ignores: str):
     print("")
 
 
+T = TypeVar("T", bound=OptionEnum)
+
+
 def prompt_option(
     message: str,
     error_msg: str,
-    options: type[OptionEnum],
+    options: type[T],
     supported_msg: Optional[str],
-    default: Optional[OptionEnum],
-    *ignores: OptionEnum,
+    default: Optional[T],
+    *ignores: T,
     new_line_prompt: bool = True,
-) -> Optional[OptionEnum]:
+) -> Optional[T]:
     """
     A method to prompt for a bundle.
     """

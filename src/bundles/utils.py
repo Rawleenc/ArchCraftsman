@@ -1,7 +1,7 @@
 """
 The bundles related utility methods and tools module
 """
-from typing import Optional
+from typing import Optional, TypeVar
 from src.bundles.budgie import Budgie
 from src.bundles.bundle import Bundle
 from src.bundles.cinnamon import Cinnamon
@@ -104,13 +104,16 @@ def process_bundle(name: OptionEnum) -> Optional[Bundle]:
     return bundle
 
 
+T = TypeVar("T", bound=OptionEnum)
+
+
 def prompt_bundle(
     message: str,
     error_msg: str,
-    options: type[OptionEnum],
+    options: type[T],
     supported_msg: Optional[str],
-    default: Optional[OptionEnum],
-    *ignores: OptionEnum,
+    default: Optional[T],
+    *ignores: T,
     new_line_prompt: bool = True,
 ) -> Optional[Bundle]:
     """
