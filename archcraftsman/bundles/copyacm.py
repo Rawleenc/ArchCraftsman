@@ -22,7 +22,7 @@ from archcraftsman.i18n import I18n
 from archcraftsman.partitioninginfo import PartitioningInfo
 from archcraftsman.prelaunchinfo import PreLaunchInfo
 from archcraftsman.systeminfo import SystemInfo
-from archcraftsman.utils import print_sub_step, execute
+from archcraftsman.utils import execute, print_sub_step
 
 _ = I18n().gettext
 
@@ -42,7 +42,7 @@ class CopyACM(Bundle):
         partitioning_info: PartitioningInfo,
     ):
         if system_info.user_name:
-            path = f"/home/{system_info.user_name}/ArchCraftsman"
+            path = f"/home/{system_info.user_name}"
             execute(f"mkdir -p /mnt{path}")
             execute(f"cp -r ~/archcraftsman /mnt{path}")
             execute(f"cp -r ~/locales /mnt{path}")
@@ -50,7 +50,7 @@ class CopyACM(Bundle):
                 f'arch-chroot /mnt bash -c "chown -R {system_info.user_name}:{system_info.user_name} {path}"'
             )
         else:
-            path = "/root/ArchCraftsman"
+            path = "/root"
             execute(f"mkdir -p /mnt{path}")
             execute(f"cp -r ~/archcraftsman /mnt{path}")
             execute(f"cp -r ~/locales /mnt{path}")

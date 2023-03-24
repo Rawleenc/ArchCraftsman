@@ -23,7 +23,7 @@ import os
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from urllib.request import urlretrieve, urlopen
+from urllib.request import urlopen, urlretrieve
 
 OWNER = "Rawleenc"
 REPO = "ArchCraftsman"
@@ -84,12 +84,10 @@ def get_all_files(directory: str) -> list:
 
 
 if __name__ == "__main__":
-    print_step("Downloading all ArchCraftsman's modules and locales...", clear=False)
+    print_step("Downloading all ArchCraftsman's modules...", clear=False)
 
     module_files = []
     for module_file in get_all_files("archcraftsman"):
-        module_files.append(module_file)
-    for module_file in get_all_files("locales"):
         module_files.append(module_file)
 
     cpus = multiprocessing.cpu_count()

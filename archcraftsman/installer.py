@@ -21,10 +21,12 @@ import argparse
 import json
 import readline
 import sys
+from importlib.resources import files
 from subprocess import CalledProcessError
 from urllib.request import urlopen
 
 from archcraftsman.autopart import auto_partitioning
+from archcraftsman.basesetup import initial_setup, setup_system
 from archcraftsman.globalargs import GlobalArgs
 from archcraftsman.i18n import I18n
 from archcraftsman.manualpart import manual_partitioning
@@ -32,15 +34,14 @@ from archcraftsman.options import FSFormats, PartTypes
 from archcraftsman.packages import Packages
 from archcraftsman.partitioninginfo import PartitioningInfo
 from archcraftsman.prelaunchinfo import PreLaunchInfo
-from archcraftsman.basesetup import initial_setup, setup_system
 from archcraftsman.shell import shell
 from archcraftsman.utils import (
-    glob_completer,
-    print_step,
     execute,
-    prompt_bool,
-    print_sub_step,
+    glob_completer,
     print_error,
+    print_step,
+    print_sub_step,
+    prompt_bool,
 )
 
 _ = I18n().gettext
@@ -273,8 +274,9 @@ def pre_launch_steps() -> PreLaunchInfo:
     The method to proceed to the pre-launch steps
     """
     print_step(_("Running pre-launch steps : "), clear=False)
+    locale_file_path = files("archcraftsman.locales").joinpath("fr.po")
     execute(
-        "msgfmt -o /usr/share/locale/fr/LC_MESSAGES/ArchCraftsman.mo locales/fr.po &>/dev/null",
+        f"msgfmt -o /usr/share/locale/fr/LC_MESSAGES/ArchCraftsman.mo {locale_file_path} &>/dev/null",
         force=True,
     )
     if GlobalArgs().install():
