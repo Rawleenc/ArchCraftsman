@@ -70,6 +70,16 @@ jobs:
       - name: Run
         run: black --check src launcher.py
 
+  license-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+      - name: Setup environment
+        run: go install github.com/google/addlicense@latest
+      - name: Run
+        run: addlicense -c 'Rawleenc' -f NOTICES -check **/*.py
+
   bandit:
     runs-on: ubuntu-latest
     steps:
