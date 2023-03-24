@@ -7,7 +7,7 @@ from typing import Optional
 from src.i18n import I18n
 from src.options import FSFormats
 from src.partition import Partition
-from src.utils import print_step, stdout, execute
+from src.utils import print_step, execute
 
 _ = I18n().gettext
 
@@ -66,13 +66,11 @@ class PartitioningInfo:
         swap = re.sub(
             "\\s",
             "",
-            stdout(
-                execute(
-                    "swapon --noheadings | awk '{print $1}'",
-                    check=False,
-                    capture_output=True,
-                )
-            ),
+            execute(
+                "swapon --noheadings | awk '{print $1}'",
+                check=False,
+                capture_output=True,
+            ).output,
         )
         if swap:
             execute(f"swapoff {swap} &>/dev/null", check=False)

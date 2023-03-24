@@ -91,11 +91,8 @@ def initial_setup(detected_language: str, detected_timezone: str) -> PreLaunchIn
                 _("Type your installation's keymap (%s) : ") % default_keymap,
                 default=default_keymap,
             )
-            if (
-                execute(
-                    f'localectl list-keymaps | grep "^{pre_launch_info.keymap}$" &>/dev/null'
-                ).returncode
-                == 0
+            if execute(
+                f'localectl list-keymaps | grep "^{pre_launch_info.keymap}$" &>/dev/null'
             ):
                 keymap_ok = True
             else:

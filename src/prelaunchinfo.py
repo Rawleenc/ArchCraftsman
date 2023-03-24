@@ -5,7 +5,7 @@ import os
 
 from src.globalargs import GlobalArgs
 from src.i18n import I18n
-from src.utils import print_step, execute, stdout, log
+from src.utils import print_step, execute, log
 
 _ = I18n().gettext
 
@@ -29,7 +29,7 @@ class PreLaunchInfo:
         if GlobalArgs().install():
             execute(f'loadkeys "{self.keymap}"')
             execute("setfont ter-v16b")
-            dimensions = stdout(execute("stty size", capture_output=True))
+            dimensions = execute("stty size", capture_output=True).output
             if dimensions:
                 split_dimensions = dimensions.split(" ")
                 if (

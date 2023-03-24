@@ -10,7 +10,6 @@ from src.i18n import I18n
 from src.options import PartTypes, FSFormats
 from src.utils import (
     execute,
-    stdout,
     prompt_bool,
     to_iec,
     ask_format_type,
@@ -86,34 +85,24 @@ class Partition:
         A method to compute partition information.
         """
         self.size = from_iec(
-            stdout(
-                execute(
-                    f'lsblk -nld "{self.path}" -o SIZE', capture_output=True, force=True
-                )
-            ).strip()
+            execute(
+                f'lsblk -nld "{self.path}" -o SIZE', force=True, capture_output=True
+            ).output.strip()
         )
-        self.part_type_name = stdout(
-            execute(
-                f'lsblk -nld "{self.path}" -o PARTTYPENAME',
-                capture_output=True,
-                force=True,
-            )
-        ).strip()
-        self.disk_name = stdout(
-            execute(
-                f'lsblk -nld "{self.path}" -o PKNAME', capture_output=True, force=True
-            )
-        ).strip()
-        self.fs_type = stdout(
-            execute(
-                f'lsblk -nld "{self.path}" -o FSTYPE', capture_output=True, force=True
-            )
-        ).strip()
-        self.uuid = stdout(
-            execute(
-                f'lsblk -nld "{self.path}" -o UUID', capture_output=True, force=True
-            )
-        ).strip()
+        self.part_type_name = execute(
+            f'lsblk -nld "{self.path}" -o PARTTYPENAME',
+            force=True,
+            capture_output=True,
+        ).output.strip()
+        self.disk_name = execute(
+            f'lsblk -nld "{self.path}" -o PKNAME', force=True, capture_output=True
+        ).output.strip()
+        self.fs_type = execute(
+            f'lsblk -nld "{self.path}" -o FSTYPE', force=True, capture_output=True
+        ).output.strip()
+        self.uuid = execute(
+            f'lsblk -nld "{self.path}" -o UUID', force=True, capture_output=True
+        ).output.strip()
 
     def need_format(self):
         """
@@ -149,12 +138,7 @@ class Partition:
         """
         A method to detect if the partition is an existing-encrypted partition.
         """
-        return (
-            execute(
-                f"cryptsetup isLuks {self.path}", check=False, force=True
-            ).returncode
-            == 0
-        )
+        return bool(execute(f"cryptsetup isLuks {self.path}", check=False, force=True))
 
     def is_encryptable(self):
         """
@@ -275,7 +259,7 @@ class Partition:
         """
         A method to build a partition name with a disk and an index.
         """
-        block_devices_str = stdout(execute("lsblk -J", capture_output=True, force=True))
+        block_devices_str = execute("lsblk -J", force=True, capture_output=True).output
         if not block_devices_str:
             return
         block_devices_json = json.loads(block_devices_str)

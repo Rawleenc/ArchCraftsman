@@ -17,43 +17,52 @@ def ask_for_kernel() -> Optional[Bundle]:
     """
     A method to ask for a kernel.
     """
-    return prompt_bundle(
-        "> ",
-        _("Kernel '%s' is not supported."),
-        Kernels,
-        _("Supported kernels : "),
-        None,
-        new_line_prompt=False,
-    )
+    try:
+        return prompt_bundle(
+            "> ",
+            _("Kernel '%s' is not supported."),
+            Kernels,
+            _("Supported kernels : "),
+            None,
+            new_line_prompt=False,
+        )
+    except ValueError:
+        return None
 
 
 def ask_for_desktop() -> Optional[Bundle]:
     """
     A method to ask for a desktop environment.
     """
-    return prompt_bundle(
-        "> ",
-        _("Desktop environment '%s' is not supported."),
-        Desktops,
-        _("Supported desktop environments : "),
-        None,
-        new_line_prompt=False,
-    )
+    try:
+        return prompt_bundle(
+            "> ",
+            _("Desktop environment '%s' is not supported."),
+            Desktops,
+            _("Supported desktop environments : "),
+            None,
+            new_line_prompt=False,
+        )
+    except ValueError:
+        return None
 
 
 def ask_for_bundle() -> Optional[Bundle]:
     """
     A method to ask for a bundle.
     """
-    return prompt_bundle(
-        "> ",
-        _("Bundle '%s' is not supported."),
-        Bundles,
-        _("Available bundles : "),
-        None,
-        Bundles.COPY_ACM,
-        new_line_prompt=False,
-    )
+    try:
+        return prompt_bundle(
+            "> ",
+            _("Bundle '%s' is not supported."),
+            Bundles,
+            _("Available bundles : "),
+            None,
+            Bundles.COPY_ACM,
+            new_line_prompt=False,
+        )
+    except ValueError:
+        return None
 
 
 def install_bundle(bundle):

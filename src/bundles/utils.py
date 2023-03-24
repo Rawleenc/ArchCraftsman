@@ -35,11 +35,10 @@ from src.options import OptionEnum
 from src.utils import prompt_option
 
 
-def process_bundle(name: OptionEnum) -> Optional[Bundle]:
+def process_bundle(name: OptionEnum) -> Bundle:
     """
     Process a bundle name into a Bundle object.
     """
-    bundle = None
     match name:
         case Kernels.CURRENT:
             bundle = LinuxCurrent(name)
@@ -101,6 +100,8 @@ def process_bundle(name: OptionEnum) -> Optional[Bundle]:
             bundle = Zram(name)
         case Bundles.COPY_ACM:
             bundle = CopyACM(name)
+        case _:
+            bundle = Bundle(name)
     return bundle
 
 
@@ -115,7 +116,7 @@ def prompt_bundle(
     default: Optional[T],
     *ignores: T,
     new_line_prompt: bool = True,
-) -> Optional[Bundle]:
+) -> Bundle:
     """
     A method to prompt for a bundle.
     """
@@ -129,8 +130,7 @@ def prompt_bundle(
         new_line_prompt=new_line_prompt,
     )
     if not option:
-        return None
+        raise ValueError("No bundle selected")
     bundle = process_bundle(option)
-    if bundle:
-        bundle.prompt_extra()
+    bundle.prompt_extra()
     return bundle

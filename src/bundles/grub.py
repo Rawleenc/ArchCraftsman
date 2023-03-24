@@ -7,7 +7,7 @@ from src.bundles.bundle import Bundle
 from src.options import FSFormats, PartTypes
 from src.partitioninginfo import PartitioningInfo
 from src.systeminfo import SystemInfo
-from src.utils import is_bios, execute, stdout
+from src.utils import is_bios, execute
 
 
 class Grub(Bundle):
@@ -38,14 +38,12 @@ class Grub(Bundle):
         )
 
         if partitioning_info.root_partition.encrypted:
-            hooks = stdout(
-                execute(
-                    "grep -e '^HOOKS' /mnt/etc/mkinitcpio.conf",
-                    check=False,
-                    force=True,
-                    capture_output=True,
-                )
-            ).strip()
+            hooks = execute(
+                "grep -e '^HOOKS' /mnt/etc/mkinitcpio.conf",
+                check=False,
+                force=True,
+                capture_output=True,
+            ).output.strip()
             pattern = re.compile(r"^HOOKS=\((.+)\)")
             hooks_match = pattern.search(hooks)
             if hooks_match:
@@ -57,14 +55,12 @@ class Grub(Bundle):
             execute(f"sed -i 's|{hooks}|{processed_hooks}|g' /mnt/etc/mkinitcpio.conf")
             execute('arch-chroot /mnt bash -c "mkinitcpio -P"')
 
-            grub_cmdline = stdout(
-                execute(
-                    "grep -e '^GRUB_CMDLINE_LINUX_DEFAULT' /mnt/etc/default/grub",
-                    check=False,
-                    force=True,
-                    capture_output=True,
-                )
-            ).strip()
+            grub_cmdline = execute(
+                "grep -e '^GRUB_CMDLINE_LINUX_DEFAULT' /mnt/etc/default/grub",
+                check=False,
+                force=True,
+                capture_output=True,
+            ).output.strip()
             pattern = re.compile(r'^GRUB_CMDLINE_LINUX_DEFAULT="(.+)"')
             grub_cmdline_match = pattern.search(grub_cmdline)
             if grub_cmdline_match:

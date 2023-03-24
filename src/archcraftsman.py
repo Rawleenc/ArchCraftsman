@@ -42,7 +42,6 @@ from src.shell import shell
 from src.utils import (
     print_error,
     execute,
-    stdout,
     print_step,
     print_sub_step,
     glob_completer,
@@ -133,7 +132,7 @@ if __name__ == "__main__":
 
     GlobalArgs(args)
 
-    user = stdout(execute("whoami", capture_output=True, force=True))
+    user = execute("whoami", force=True, capture_output=True).output
     if not user or user.strip() != "root":
         print_error("This script must be run as root.")
         sys.exit(1)

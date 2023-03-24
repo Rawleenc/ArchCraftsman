@@ -69,13 +69,9 @@ def install(pre_launch_info: PreLaunchInfo):
             ]
         )
 
-        if (
-            pre_launch_info.global_language.lower() != "en"
-            and execute(
-                f"pacman -Si man-pages-{pre_launch_info.global_language.lower()} &>/dev/null",
-                check=False,
-            ).returncode
-            == 0
+        if pre_launch_info.global_language.lower() != "en" and execute(
+            f"pacman -Si man-pages-{pre_launch_info.global_language.lower()} &>/dev/null",
+            check=False,
         ):
             pkgs.add(f"man-pages-{pre_launch_info.global_language.lower()}")
 

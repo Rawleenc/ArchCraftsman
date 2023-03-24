@@ -5,7 +5,7 @@ import readline
 from threading import Lock
 
 from src.i18n import I18n
-from src.utils import prompt_ln, print_error, stdout, execute, glob_completer
+from src.utils import prompt_ln, print_error, execute, glob_completer
 
 _ = I18n().gettext
 
@@ -39,15 +39,13 @@ class Packages(metaclass=PackagesMeta):
 
     def __init__(self) -> None:
         self.packages = set(
-            stdout(
-                execute(
-                    "pacman -Sl | awk '{print $2}'",
-                    check=False,
-                    force=True,
-                    capture_output=True,
-                )
+            execute(
+                "pacman -Sl | awk '{print $2}'",
+                check=False,
+                force=True,
+                capture_output=True,
             )
-            .strip()
+            .output.strip()
             .split("\n")
         )
 

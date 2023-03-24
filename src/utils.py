@@ -48,11 +48,9 @@ def to_iec(size: int) -> str:
     return re.sub(
         "\\s",
         "",
-        stdout(
-            execute(
-                f'printf "{size}" | numfmt --to=iec', capture_output=True, force=True
-            )
-        ),
+        execute(
+            f'printf "{size}" | numfmt --to=iec', capture_output=True, force=True
+        ).output,
     )
 
 
@@ -64,13 +62,11 @@ def from_iec(size: str) -> int:
         re.sub(
             "\\s",
             "",
-            stdout(
-                execute(
-                    f'printf "{size}" | numfmt --from=iec',
-                    capture_output=True,
-                    force=True,
-                )
-            ),
+            execute(
+                f'printf "{size}" | numfmt --from=iec',
+                capture_output=True,
+                force=True,
+            ).output,
         )
     )
 
@@ -133,14 +129,12 @@ def ask_drive(
     A method to prompt for a drive to partition.
     """
     drives = (
-        stdout(
-            execute(
-                "lsblk -lpdno NAME,TYPE | grep disk | awk '{print $1}'",
-                capture_output=True,
-                force=True,
-            )
+        execute(
+            "lsblk -lpdno NAME,TYPE | grep disk | awk '{print $1}'",
+            capture_output=True,
+            force=True,
         )
-        .strip()
+        .output.strip()
         .split("\n")
     )
     readline.set_completer(
@@ -357,26 +351,62 @@ def pause(start_newline: bool = False, end_newline: bool = False):
         print("")
 
 
+class ExecutionResult:
+    """
+    A class to manage the result of an execution.
+    """
+
+    def __init__(self, command: str, result: subprocess.CompletedProcess):
+        self.command = command
+        self.output = (
+            ""
+            if not result.stdout
+            else result.stdout.decode(encodings.utf_8.getregentry().name)
+        )
+        self.returncode = result.returncode
+
+    def __bool__(self):
+        return self.returncode == 0
+
+    def __str__(self):
+        return self.output
+
+    def __repr__(self):
+        return self.output
+
+    def __eq__(self, other):
+        return (
+            self.command == other.command
+            and self.returncode == other.returncode
+            and self.output == other.output
+        )
+
+    def __ne__(self, other):
+        return (
+            self.command != other.command
+            or self.returncode != other.returncode
+            or self.output != other.output
+        )
+
+    def __hash__(self):
+        return hash(self.command) ^ hash(self.returncode) ^ hash(self.output)
+
+
 def execute(
     command: str, check: bool = True, capture_output: bool = False, force: bool = False
-) -> subprocess.CompletedProcess:
+) -> ExecutionResult:
     """
     A method to exec a command.
     """
     if force or not GlobalArgs().test():
         log(f"Real execution of: {command}")
-        return subprocess.run(
-            command, shell=True, check=check, capture_output=capture_output
+        return ExecutionResult(
+            command,
+            subprocess.run(
+                command, shell=True, check=check, capture_output=capture_output
+            ),
         )
     log(f"Fake execution of: {command}")
-    fake_result = subprocess.CompletedProcess(args=command, returncode=0)
-    if capture_output:
-        fake_result.stdout = b""
-    return fake_result
-
-
-def stdout(process_result: subprocess.CompletedProcess) -> str:
-    """
-    A method to get a decoded stdout.
-    """
-    return process_result.stdout.decode(encodings.utf_8.getregentry().name)
+    return ExecutionResult(
+        command, subprocess.CompletedProcess(args=command, returncode=0, stdout=b"")
+    )
