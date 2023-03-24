@@ -45,7 +45,6 @@ class CopyACM(Bundle):
             path = f"/home/{system_info.user_name}"
             execute(f"mkdir -p /mnt{path}")
             execute(f"cp -r ~/archcraftsman /mnt{path}")
-            execute(f"cp -r ~/locales /mnt{path}")
             execute(
                 f'arch-chroot /mnt bash -c "chown -R {system_info.user_name}:{system_info.user_name} {path}"'
             )
@@ -53,4 +52,3 @@ class CopyACM(Bundle):
             path = "/root"
             execute(f"mkdir -p /mnt{path}")
             execute(f"cp -r ~/archcraftsman /mnt{path}")
-            execute(f"cp -r ~/locales /mnt{path}")
