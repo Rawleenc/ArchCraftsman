@@ -340,7 +340,7 @@ if __name__ == "__main__":
         action="store_const",
         const=True,
         default=False,
-        help="Used to test the installer. No command will be executed.",
+        help="Used to test the installer. No destructive commands will be executed.",
     )
     args = parser.parse_args()
 
