@@ -318,7 +318,10 @@ def pre_launch() -> PreLaunchInfo:
         sys.exit(1)
 
 
-if __name__ == "__main__":
+def main():
+    """
+    The main installer method.
+    """
     parser = argparse.ArgumentParser(description="The ArchCraftsman installer.")
     parser.add_argument(
         "-i",
@@ -361,13 +364,17 @@ if __name__ == "__main__":
         print_error("This script must be run as root.")
         sys.exit(1)
 
-    PRE_LAUNCH_INFO = pre_launch()
-    I18n().update_method(PRE_LAUNCH_INFO.global_language)
+    pre_launch_info = pre_launch()
+    I18n().update_method(pre_launch_info.global_language)
 
     if GlobalArgs().install():
-        install(PRE_LAUNCH_INFO)
+        install(pre_launch_info)
         sys.exit(0)
 
     if GlobalArgs().shell():
         shell()
         sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()
