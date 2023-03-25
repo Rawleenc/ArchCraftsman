@@ -16,4 +16,5 @@ print_sub_step() {
 
 print_step "Building archcraftsman..."
 print_sub_step "  * Building python wheel distribution"
+rm -rf dist
 python -m build --wheel
