@@ -19,6 +19,7 @@ The packages management singleton module
 """
 import readline
 from threading import Lock
+from archcraftsman.globalargs import GlobalArgs
 
 from archcraftsman.i18n import I18n
 from archcraftsman.utils import prompt_ln, print_error, execute, glob_completer
@@ -58,7 +59,6 @@ class Packages(metaclass=PackagesMeta):
             execute(
                 "pacman -Sl | awk '{print $2}'",
                 check=False,
-                force=True,
                 capture_output=True,
             )
             .output.strip()
@@ -69,7 +69,7 @@ class Packages(metaclass=PackagesMeta):
         """
         A method to check if a package exist.
         """
-        return package in self.packages
+        return GlobalArgs().test() or package in self.packages
 
     def ask_packages(self) -> set[str]:
         """
