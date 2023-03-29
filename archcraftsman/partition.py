@@ -154,7 +154,11 @@ class Partition:
         """
         A method to detect if the partition is an existing-encrypted partition.
         """
-        return bool(execute(f"cryptsetup isLuks {self.path}", check=False, force=True))
+        return bool(
+            execute(
+                f"cryptsetup isLuks {self.path}", check=False, force=True, sudo=True
+            )
+        )
 
     def is_encryptable(self):
         """

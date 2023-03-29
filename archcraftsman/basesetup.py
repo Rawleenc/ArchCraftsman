@@ -17,7 +17,9 @@
 """
 The system setup module
 """
+import json
 import re
+from urllib.request import urlopen
 
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.bundles.copyacm import CopyACM
@@ -51,12 +53,32 @@ from archcraftsman.utils import (
 _ = I18n().gettext
 
 
-def initial_setup(detected_language: str, detected_timezone: str) -> PreLaunchInfo:
+def initial_setup(shell_mode: bool = False) -> PreLaunchInfo:
     """
     The method to get environment configurations from the user.
     """
+    print_sub_step(_("Querying IP geolocation information..."))
+    with urlopen("https://ipapi.co/json") as response:
+        geoip_info = json.loads(response.read())
+    detected_language = str(geoip_info["languages"]).split(",", maxsplit=1)[0]
+    detected_timezone = geoip_info["timezone"]
+
     pre_launch_info = PreLaunchInfo()
-    user_answer = False
+    if detected_language == "fr-FR":
+        default_language = "FR"
+    else:
+        default_language = "EN"
+
+    if detected_language == "fr-FR":
+        default_keymap = "fr-latin9"
+    else:
+        default_keymap = "de-latin1"
+
+    pre_launch_info.detected_timezone = detected_timezone
+    pre_launch_info.global_language = default_language
+    pre_launch_info.keymap = default_keymap
+
+    user_answer = shell_mode
     while not user_answer:
         print_step(_("Welcome to ArchCraftsman !"))
         if is_bios():
@@ -70,17 +92,11 @@ def initial_setup(detected_language: str, detected_timezone: str) -> PreLaunchIn
         print_step(_("Environment configuration : "), clear=False)
 
         supported_global_languages = ["FR", "EN"]
-        if detected_language == "fr-FR":
-            default_language = "FR"
-        else:
-            default_language = "EN"
 
         print_step(_("Supported languages : "), clear=False)
         print_sub_step(", ".join(supported_global_languages))
         print("")
         global_language_ok = False
-        pre_launch_info.global_language = ""
-        pre_launch_info.keymap = ""
         while not global_language_ok:
             pre_launch_info.global_language = prompt_ln(
                 _("Choose your installation's language (%s) : ") % default_language,
@@ -95,11 +111,6 @@ def initial_setup(detected_language: str, detected_timezone: str) -> PreLaunchIn
                     do_pause=False,
                 )
                 continue
-
-        if detected_language == "fr-FR":
-            default_keymap = "fr-latin9"
-        else:
-            default_keymap = "de-latin1"
 
         keymap_ok = False
         while not keymap_ok:
@@ -121,8 +132,8 @@ def initial_setup(detected_language: str, detected_timezone: str) -> PreLaunchIn
         )
         print_sub_step(_("Your installation's keymap : %s") % pre_launch_info.keymap)
         user_answer = prompt_bool(_("Is the information correct ?"), default=False)
-    pre_launch_info.detected_timezone = detected_timezone
-    pre_launch_info.setup_locale()
+    if not shell_mode:
+        pre_launch_info.setup_locale()
     return pre_launch_info
 
 

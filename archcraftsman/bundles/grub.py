@@ -57,7 +57,6 @@ class Grub(Bundle):
             hooks = execute(
                 "grep -e '^HOOKS' /mnt/etc/mkinitcpio.conf",
                 check=False,
-                force=True,
                 capture_output=True,
             ).output.strip()
             pattern = re.compile(r"^HOOKS=\((.+)\)")
@@ -74,7 +73,6 @@ class Grub(Bundle):
             grub_cmdline = execute(
                 "grep -e '^GRUB_CMDLINE_LINUX_DEFAULT' /mnt/etc/default/grub",
                 check=False,
-                force=True,
                 capture_output=True,
             ).output.strip()
             pattern = re.compile(r'^GRUB_CMDLINE_LINUX_DEFAULT="(.+)"')

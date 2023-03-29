@@ -50,6 +50,14 @@ class GlobalArgs(metaclass=GlobalArgsMeta):
     def __init__(self, args: Optional[Namespace] = None) -> None:
         if args:
             self.args = args
+        else:
+            self.args = Namespace()
+        if not hasattr(self.args, "install"):
+            self.args.install = False
+        if not hasattr(self.args, "test"):
+            self.args.test = False
+        if not hasattr(self.args, "shell"):
+            self.args.shell = False
 
     def is_call_ok(self) -> bool:
         """

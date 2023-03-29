@@ -18,8 +18,7 @@
                 "enable": true,
                 "filter": "archcraftsman"
             },
-            "justMyCode": true,
-            "sudo": true
+            "justMyCode": true
         },
         {
             "name": "Test shell",
@@ -35,8 +34,7 @@
                 "enable": true,
                 "filter": "archcraftsman"
             },
-            "justMyCode": true,
-            "sudo": true
+            "justMyCode": true
         },
         {
             "name": "Generate translations",

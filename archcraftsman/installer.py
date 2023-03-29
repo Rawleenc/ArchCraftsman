@@ -18,12 +18,10 @@
 The ArchCraftsman installer.
 """
 import argparse
-import json
 import readline
 import sys
 from importlib.resources import files
 from subprocess import CalledProcessError
-from urllib.request import urlopen
 
 from archcraftsman.autopart import auto_partitioning
 from archcraftsman.basesetup import initial_setup, setup_system
@@ -36,6 +34,7 @@ from archcraftsman.partitioninginfo import PartitioningInfo
 from archcraftsman.prelaunchinfo import PreLaunchInfo
 from archcraftsman.shell import shell
 from archcraftsman.utils import (
+    elevate,
     execute,
     glob_completer,
     print_error,
@@ -278,6 +277,7 @@ def pre_launch_steps() -> PreLaunchInfo:
     execute(
         f"msgfmt -o /usr/share/locale/fr/LC_MESSAGES/ArchCraftsman.mo {locale_file_path} &>/dev/null",
         force=True,
+        sudo=True,
     )
     if GlobalArgs().install():
         execute('sed -i "s|#Color|Color|g" /etc/pacman.conf')
@@ -290,12 +290,7 @@ def pre_launch_steps() -> PreLaunchInfo:
         execute("pacman -Sy &>/dev/null")
         Packages()
 
-    print_sub_step(_("Querying IP geolocation information..."))
-    with urlopen("https://ipapi.co/json") as response:
-        geoip_info = json.loads(response.read())
-    detected_language = str(geoip_info["languages"]).split(",", maxsplit=1)[0]
-    detected_timezone = geoip_info["timezone"]
-    return initial_setup(detected_language, detected_timezone)
+    return initial_setup()
 
 
 def pre_launch() -> PreLaunchInfo:
@@ -347,31 +342,28 @@ def main():
         default=False,
         help="Used to test the installer. No destructive commands will be executed.",
     )
-    args = parser.parse_args()
+    GlobalArgs(parser.parse_args())
 
     readline.set_completer_delims(" \t\n;")
     readline.parse_and_bind("tab: complete")
     readline.set_completer(glob_completer)
 
-    GlobalArgs(args)
-
     if not GlobalArgs().is_call_ok():
         parser.print_help()
         sys.exit(1)
 
-    user = execute("whoami", force=True, capture_output=True).output
-    if not user or user.strip() != "root":
-        print_error("This script must be run as root.")
-        sys.exit(1)
-
-    pre_launch_info = pre_launch()
-    I18n().update_method(pre_launch_info.global_language)
-
     if GlobalArgs().install():
+        if not elevate():
+            print_error(_("This script must be run as root."), do_pause=False)
+            sys.exit(1)
+        pre_launch_info = pre_launch()
+        I18n().update_method(pre_launch_info.global_language)
         install(pre_launch_info)
         sys.exit(0)
 
     if GlobalArgs().shell():
+        pre_launch_info = initial_setup(shell_mode=True)
+        I18n().update_method(pre_launch_info.global_language)
         shell()
         sys.exit(0)
 

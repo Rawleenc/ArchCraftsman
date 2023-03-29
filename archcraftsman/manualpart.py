@@ -50,7 +50,7 @@ def manual_partitioning() -> tuple[bool, PartitioningInfo]:
         print_sub_step(
             _("Partitioned drives so far : %s") % " ".join(partitioned_disks)
         )
-        execute("fdisk -l", force=True)
+        execute("fdisk -l", force=True, sudo=True)
         target_disk = ask_drive(
             _(
                 "On which drive should Archlinux be installed ? (type the entire name, for example '/dev/sda') : "
@@ -65,7 +65,7 @@ def manual_partitioning() -> tuple[bool, PartitioningInfo]:
         print_sub_step(
             _("Partitioned drives so far : %s") % " ".join(partitioned_disks)
         )
-        execute("fdisk -l", force=True)
+        execute("fdisk -l", force=True, sudo=True)
         other_drive = prompt_bool(
             _("Do you want to partition an other drive ?"), default=False
         )

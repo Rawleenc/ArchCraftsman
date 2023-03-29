@@ -46,7 +46,7 @@ def auto_partitioning() -> tuple[bool, PartitioningInfo]:
     user_answer = False
     while not user_answer:
         print_step(_("Automatic partitioning :"))
-        execute("fdisk -l", force=True)
+        execute("fdisk -l", force=True, sudo=True)
         target_disk = ask_drive(
             _(
                 "On which drive should Archlinux be installed ? (type the entire name, for example '/dev/sda') : "

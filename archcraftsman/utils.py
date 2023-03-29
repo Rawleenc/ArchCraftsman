@@ -409,13 +409,21 @@ class ExecutionResult:
 
 
 def execute(
-    command: str, check: bool = True, capture_output: bool = False, force: bool = False
+    command: str,
+    check: bool = True,
+    capture_output: bool = False,
+    force: bool = False,
+    sudo: bool = False,
 ) -> ExecutionResult:
     """
     A method to exec a command.
     """
     if force or not GlobalArgs().test():
         log(f"Real execution of: {command}")
+        if sudo and not sudo_exist() and not is_root():
+            raise PermissionError("This script must be run as root.")
+        if sudo and sudo_exist() and not is_root():
+            command = f"sudo {command}"
         return ExecutionResult(
             command,
             subprocess.run(
@@ -426,3 +434,30 @@ def execute(
     return ExecutionResult(
         command, subprocess.CompletedProcess(args=command, returncode=0, stdout=b"")
     )
+
+
+def elevate() -> bool:
+    """
+    A method to elevate the current user to root.
+    """
+    if is_root():
+        return True
+    if sudo_exist():
+        execute("sudo -v", force=True)
+        return True
+    return False
+
+
+def sudo_exist() -> bool:
+    """
+    A method to check if sudo is installed.
+    """
+    return execute("which sudo", force=True, capture_output=True).returncode == 0
+
+
+def is_root() -> bool:
+    """
+    A method to check if the user is root.
+    """
+    user = execute("whoami", force=True, capture_output=True).output
+    return user.strip() == "root"

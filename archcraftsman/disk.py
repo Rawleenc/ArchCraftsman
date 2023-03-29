@@ -84,6 +84,7 @@ class Disk:
                         f"fdisk -l | grep {last_partition_path} | awk '{{print $3}}'",
                         force=True,
                         capture_output=True,
+                        sudo=True,
                     ).output,
                 )
             )
