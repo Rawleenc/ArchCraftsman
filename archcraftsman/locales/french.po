@@ -112,8 +112,8 @@ msgid "Type your installation's keymap (%s) : "
 msgstr "Entrez la keymap de votre installation (%s) : "
 
 #: archcraftsman/basesetup.py:115
-msgid "Keymap %s doesn't exist."
-msgstr "La keymap %s n'existe pas."
+msgid "Keymap '%s' doesn't exist."
+msgstr "La keymap '%s' n'existe pas."
 
 #: archcraftsman/basesetup.py:120
 msgid "Your installation's language : %s"

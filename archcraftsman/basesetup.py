@@ -35,11 +35,19 @@ from archcraftsman.bundles.terminus import TerminusFont
 from archcraftsman.bundles.utils import prompt_bundle
 from archcraftsman.bundles.zram import Zram
 from archcraftsman.i18n import I18n
-from archcraftsman.options import Kernels, Desktops, Bundles, BootLoaders, Network
+from archcraftsman.options import (
+    Kernels,
+    Desktops,
+    Bundles,
+    BootLoaders,
+    Languages,
+    Network,
+)
 from archcraftsman.packages import Packages
 from archcraftsman.prelaunchinfo import PreLaunchInfo
 from archcraftsman.systeminfo import SystemInfo
 from archcraftsman.utils import (
+    ask_keymap,
     generate_translations,
     print_error,
     print_step,
@@ -47,8 +55,8 @@ from archcraftsman.utils import (
     prompt_ln,
     prompt_bool,
     ask_password,
-    execute,
     is_bios,
+    prompt_option,
 )
 
 _ = I18n().gettext
@@ -66,9 +74,9 @@ def initial_setup(shell_mode: bool = False) -> PreLaunchInfo:
 
     pre_launch_info = PreLaunchInfo()
     if detected_language == "fr-FR":
-        default_language = "FR"
+        default_language = Languages.FRENCH
     else:
-        default_language = "EN"
+        default_language = Languages.ENGLISH
 
     if detected_language == "fr-FR":
         default_keymap = "fr-latin9"
@@ -92,40 +100,21 @@ def initial_setup(shell_mode: bool = False) -> PreLaunchInfo:
 
         print_step(_("Environment configuration : "), clear=False)
 
-        supported_global_languages = ["FR", "EN"]
+        global_language = prompt_option(
+            _("Choose your installation's language (%s) : "),
+            _("Global language '%s' is not supported."),
+            Languages,
+            supported_msg=_("Supported languages : "),
+            default=default_language,
+        )
+        if global_language:
+            pre_launch_info.global_language = global_language
 
-        print_step(_("Supported languages : "), clear=False)
-        print_sub_step(", ".join(supported_global_languages))
-        print("")
-        global_language_ok = False
-        while not global_language_ok:
-            pre_launch_info.global_language = prompt_ln(
-                _("Choose your installation's language (%s) : ") % default_language,
-                default=default_language,
-            ).upper()
-            if pre_launch_info.global_language in supported_global_languages:
-                global_language_ok = True
-            else:
-                print_error(
-                    _("Global language '%s' is not supported.")
-                    % pre_launch_info.global_language,
-                    do_pause=False,
-                )
-                continue
-
-        keymap_ok = False
-        while not keymap_ok:
-            pre_launch_info.keymap = prompt_ln(
-                _("Type your installation's keymap (%s) : ") % default_keymap,
-                default=default_keymap,
-            )
-            if execute(
-                f'localectl list-keymaps | grep "^{pre_launch_info.keymap}$" &>/dev/null'
-            ):
-                keymap_ok = True
-            else:
-                print_error(_("Keymap %s doesn't exist.") % pre_launch_info.keymap)
-                continue
+        pre_launch_info.keymap = ask_keymap(
+            _("Type your installation's keymap (%s) : "),
+            _("Keymap '%s' doesn't exist."),
+            default_keymap,
+        )
 
         print_step(_("Summary of choices :"), clear=False)
         print_sub_step(

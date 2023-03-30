@@ -29,7 +29,7 @@ from typing import Optional, TypeVar
 
 from archcraftsman.globalargs import GlobalArgs
 from archcraftsman.i18n import I18n
-from archcraftsman.options import FSFormats
+from archcraftsman.options import FSFormats, Languages
 from archcraftsman.options import OptionEnum
 
 RED = "\033[0;31m"
@@ -86,6 +86,46 @@ def from_iec(size: str) -> int:
             ).output,
         )
     )
+
+
+def ask_keymap(message: str, error_msg: str, default: str) -> str:
+    """
+    A method to prompt for a keymap.
+    """
+    keymaps = (
+        execute(
+            "localectl list-keymaps",
+            capture_output=True,
+            force=True,
+        )
+        .output.strip()
+        .split("\n")
+    )
+    readline.set_completer(
+        lambda text, state: (
+            [
+                option
+                for option in keymaps + ["help"]
+                if (not text or option.lower().startswith(text.lower()))
+            ]
+            + [None]
+        )[state]
+    )
+    keymap_ok = False
+    keymap = ""
+    while not keymap_ok:
+        prompt_message = message % f"{default}, type 'help' to get the list of keymaps"
+        keymap = prompt_ln(prompt_message, default=default).lower()
+        if keymap == "help":
+            print_help(" ".join(keymaps))
+            continue
+        if keymap in keymaps:
+            keymap_ok = True
+        else:
+            print_error(error_msg % keymap, do_pause=False)
+            continue
+    readline.set_completer(glob_completer)
+    return keymap
 
 
 def ask_format_type() -> Optional[FSFormats]:
@@ -277,7 +317,7 @@ def print_supported(supported_msg: str, options: list[str], *ignores: str):
     """
     supported_options = [option for option in options if option not in ignores]
     print_step(supported_msg, clear=False)
-    print_sub_step(", ".join(supported_options))
+    print_sub_step(" ".join(supported_options))
     print("")
 
 
@@ -464,12 +504,12 @@ def is_root() -> bool:
     return user.strip() == "root"
 
 
-def generate_translations(global_language: str):
+def generate_translations(global_language: Languages):
     """
     Generate translations for ArchCraftsman.
     """
     locale_file_path = files("archcraftsman.locales").joinpath(
-        f"{global_language.lower()}.po"
+        f"{global_language.value}.po"
     )
     if locale_file_path.is_file():
         execute(

@@ -20,6 +20,8 @@ The I18n management singleton module
 import gettext
 from threading import Lock
 
+from archcraftsman.options import Languages
+
 
 class I18nMeta(type):
     """
@@ -49,15 +51,15 @@ class I18n(metaclass=I18nMeta):
     def __init__(self) -> None:
         self.gettext_method = gettext.gettext
 
-    def update_method(self, global_language: str):
+    def update_method(self, global_language: Languages):
         """
         Update the translation method to use according to the global language.
         """
-        if global_language != "EN":
+        if global_language != Languages.ENGLISH:
             translation = gettext.translation(
                 "archcraftsman",
                 localedir="/usr/share/locale",
-                languages=[global_language.lower()],
+                languages=[global_language.value],
             )
             translation.install()
             self.gettext_method = translation.gettext

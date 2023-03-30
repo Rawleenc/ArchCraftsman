@@ -20,6 +20,7 @@ The module of PreLaunchInfo class.
 import os
 
 from archcraftsman.i18n import I18n
+from archcraftsman.options import Languages
 from archcraftsman.utils import print_step, execute, log
 
 _ = I18n().gettext
@@ -30,7 +31,7 @@ class PreLaunchInfo:
     The class to contain all pre-launch information.
     """
 
-    global_language: str
+    global_language: Languages
     keymap: str
     detected_timezone: str
     live_console_font: str
@@ -53,7 +54,7 @@ class PreLaunchInfo:
             ):
                 self.live_console_font = "ter-v32b"
                 execute("setfont ter-v32b")
-        if self.global_language == "FR":
+        if self.global_language == Languages.FRENCH:
             execute('sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /etc/locale.gen')
             execute("locale-gen")
             os.putenv("LANG", "fr_FR.UTF-8")

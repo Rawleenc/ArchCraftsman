@@ -19,10 +19,6 @@ The all available options module.
 """
 from enum import Enum, auto
 
-from archcraftsman.i18n import I18n
-
-_ = I18n().gettext
-
 
 class OptionEnum(str, Enum):
     """
@@ -37,6 +33,15 @@ class OptionEnum(str, Enum):
 
     def __str__(self):
         return self.name.lower().replace("_", " ").capitalize()
+
+
+class Languages(OptionEnum):
+    """
+    All available languages.
+    """
+
+    ENGLISH = auto()
+    FRENCH = auto()
 
 
 class Commands(OptionEnum):
