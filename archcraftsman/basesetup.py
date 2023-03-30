@@ -107,13 +107,7 @@ def initial_setup(shell_mode: bool = False) -> PreLaunchInfo:
         if global_language:
             pre_launch_info.global_language = global_language
 
-        pre_launch_info.keymap = ask_keymap(
-            _(
-                "Type your installation's keymap, or 'help' to get the list of keymaps (%s) : "
-            ),
-            _("Keymap '%s' doesn't exist."),
-            default_keymap,
-        )
+        pre_launch_info.keymap = ask_keymap(default_keymap)
 
         print_step(_("Summary of choices :"), clear=False)
         print_sub_step(

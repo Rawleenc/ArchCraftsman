@@ -51,13 +51,7 @@ def manual_partitioning() -> tuple[bool, PartitioningInfo]:
             _("Partitioned drives so far : %s") % " ".join(partitioned_disks)
         )
         execute("fdisk -l", force=True, sudo=True)
-        target_disk = ask_drive(
-            _(
-                "On which drive should Archlinux be installed ? (type the entire name, for example '/dev/sda') : "
-            ),
-            _("The target drive '%s' doesn't exist."),
-            _("Detected drives :"),
-        )
+        target_disk = ask_drive()
         if target_disk not in partitioned_disks:
             partitioned_disks.append(target_disk)
         execute(f'cfdisk "{target_disk}"')

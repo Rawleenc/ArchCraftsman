@@ -58,6 +58,117 @@ def is_bios() -> bool:
     return not os.path.exists("/sys/firmware/efi")
 
 
+class ExecutionResult:
+    """
+    A class to manage the result of an execution.
+    """
+
+    def __init__(self, command: str, result: subprocess.CompletedProcess):
+        self.command = command
+        self.output = (
+            ""
+            if not result.stdout
+            else result.stdout.decode(encodings.utf_8.getregentry().name)
+        )
+        self.returncode = result.returncode
+
+    def __bool__(self):
+        return self.returncode == 0
+
+    def __str__(self):
+        return self.output
+
+    def __repr__(self):
+        return self.output
+
+    def __eq__(self, other):
+        return (
+            self.command == other.command
+            and self.returncode == other.returncode
+            and self.output == other.output
+        )
+
+    def __ne__(self, other):
+        return (
+            self.command != other.command
+            or self.returncode != other.returncode
+            or self.output != other.output
+        )
+
+    def __hash__(self):
+        return hash(self.command) ^ hash(self.returncode) ^ hash(self.output)
+
+
+def execute(
+    command: str,
+    check: bool = True,
+    capture_output: bool = False,
+    force: bool = False,
+    sudo: bool = False,
+) -> ExecutionResult:
+    """
+    A method to exec a command.
+    """
+    if force or not GlobalArgs().test():
+        log(f"Real execution of: {command}")
+        if sudo and not sudo_exist() and not is_root():
+            raise PermissionError("This script must be run as root.")
+        if sudo and sudo_exist() and not is_root():
+            command = f"sudo {command}"
+        return ExecutionResult(
+            command,
+            subprocess.run(
+                command, shell=True, check=check, capture_output=capture_output
+            ),
+        )
+    log(f"Fake execution of: {command}")
+    return ExecutionResult(
+        command, subprocess.CompletedProcess(args=command, returncode=0, stdout=b"")
+    )
+
+
+def elevate() -> bool:
+    """
+    A method to elevate the current user to root.
+    """
+    if is_root():
+        return True
+    if sudo_exist():
+        execute("sudo -v", force=True)
+        return True
+    return False
+
+
+def sudo_exist() -> bool:
+    """
+    A method to check if sudo is installed.
+    """
+    return execute("which sudo", force=True, capture_output=True).returncode == 0
+
+
+def is_root() -> bool:
+    """
+    A method to check if the user is root.
+    """
+    user = execute("whoami", force=True, capture_output=True).output
+    return user.strip() == "root"
+
+
+def generate_translations(global_language: Languages):
+    """
+    Generate translations for ArchCraftsman.
+    """
+    locale_file_path = files("archcraftsman.locales").joinpath(
+        f"{global_language.value}.po"
+    )
+    if locale_file_path.is_file():
+        execute(
+            f"msgfmt -o /usr/share/locale/fr/LC_MESSAGES/archcraftsman.mo {locale_file_path} &>/dev/null",
+            force=True,
+            sudo=True,
+        )
+
+
 def to_iec(size: int) -> str:
     """
     The method to convert a size in iec format.
@@ -88,135 +199,17 @@ def from_iec(size: str) -> int:
     )
 
 
-def ask_keymap(message: str, error_msg: str, default: str) -> str:
+def pause(start_newline: bool = False, end_newline: bool = False):
     """
-    A method to prompt for a keymap.
+    A method to insert a one key press pause.
     """
-    keymaps = (
-        execute(
-            "localectl list-keymaps",
-            capture_output=True,
-            force=True,
-        )
-        .output.strip()
-        .split("\n")
-    )
-    readline.set_completer(
-        lambda text, state: (
-            [
-                option
-                for option in keymaps + ["help"]
-                if (not text or option.lower().startswith(text.lower()))
-            ]
-            + [None]
-        )[state]
-    )
-    keymap_ok = False
-    keymap = ""
-    while not keymap_ok:
-        prompt_message = message % default
-        keymap = prompt_ln(prompt_message, default=default).lower()
-        if keymap == "help":
-            print_help(" ".join(keymaps))
-            continue
-        if keymap in keymaps:
-            keymap_ok = True
-        else:
-            print_error(error_msg % keymap, do_pause=False)
-            continue
-    readline.set_completer(glob_completer)
-    return keymap
-
-
-def ask_format_type() -> Optional[FSFormats]:
-    """
-    The method to ask the user for the format type.
-    """
-    return prompt_option(
-        _("Which format type do you want ? (%s) : "),
-        _("Format type '%s' is not supported."),
-        FSFormats,
-        _("Supported format types : "),
-        FSFormats.EXT4,
-        FSFormats.VFAT,
-    )
-
-
-def ask_encryption_block_name() -> Optional[str]:
-    """
-    Method to ask for encryption block name.
-    """
-    block_name_pattern = re.compile("^[a-z][a-z\\d_]*$")
-    block_name_ok = False
-    block_name = None
-    while not block_name_ok:
-        block_name = prompt_ln(
-            _("What will be the encrypted block name ? : "), required=True
-        )
-        if block_name and not block_name_pattern.match(block_name):
-            print_error(_("Invalid encrypted block name."))
-            continue
-        block_name_ok = True
-    return block_name
-
-
-def ask_password(prompt_message: str, required: bool = False) -> str:
-    """
-    A method to ask a password to the user.
-    """
-    password_confirm = None
-    password = None
-    while password is None or password != password_confirm:
-        password = prompt_passwd(prompt_message, required=required)
-        password_confirm = prompt_passwd(
-            _("Enter it again to confirm : "), required=required
-        )
-        if password != password_confirm:
-            print_error(_("Passwords entered don't match."))
-    return password
-
-
-def ask_drive(
-    message: str,
-    error_msg: str,
-    supported_msg: Optional[str],
-    new_line_prompt: bool = True,
-) -> str:
-    """
-    A method to prompt for a drive to partition.
-    """
-    drives = (
-        execute(
-            "lsblk -lpdno NAME,TYPE | grep disk | awk '{print $1}'",
-            capture_output=True,
-            force=True,
-        )
-        .output.strip()
-        .split("\n")
-    )
-    readline.set_completer(
-        lambda text, state: (
-            [option for option in drives if (not text or option.startswith(text))]
-            + [None]
-        )[state]
-    )
-    if supported_msg:
-        print_supported(supported_msg, drives)
-    drive_ok = False
-    drive = ""
-    while not drive_ok:
-        prompt_message = message
-        if new_line_prompt:
-            drive = prompt_ln(prompt_message).lower()
-        else:
-            drive = prompt(prompt_message).lower()
-        if drive in drives:
-            drive_ok = True
-        else:
-            print_error(error_msg % drive, do_pause=False)
-            continue
-    readline.set_completer(glob_completer)
-    return drive
+    message = _("Press any key to continue...")
+    if start_newline:
+        print("")
+    print(f"{ORANGE}{message}{NOCOLOR}")
+    execute("read -n 1 -sr", force=True)
+    if end_newline:
+        print("")
 
 
 def print_error(message: str, do_pause: bool = True):
@@ -395,125 +388,132 @@ def prompt_passwd(message: str, required: bool = False):
     return prompt(f"{ORANGE}{message}{NOCOLOR}", required=required, password=True)
 
 
-def pause(start_newline: bool = False, end_newline: bool = False):
+def ask_keymap(default: str) -> str:
     """
-    A method to insert a one key press pause.
+    A method to prompt for a keymap.
     """
-    message = _("Press any key to continue...")
-    if start_newline:
-        print("")
-    print(f"{ORANGE}{message}{NOCOLOR}")
-    execute("read -n 1 -sr", force=True)
-    if end_newline:
-        print("")
-
-
-class ExecutionResult:
-    """
-    A class to manage the result of an execution.
-    """
-
-    def __init__(self, command: str, result: subprocess.CompletedProcess):
-        self.command = command
-        self.output = (
-            ""
-            if not result.stdout
-            else result.stdout.decode(encodings.utf_8.getregentry().name)
-        )
-        self.returncode = result.returncode
-
-    def __bool__(self):
-        return self.returncode == 0
-
-    def __str__(self):
-        return self.output
-
-    def __repr__(self):
-        return self.output
-
-    def __eq__(self, other):
-        return (
-            self.command == other.command
-            and self.returncode == other.returncode
-            and self.output == other.output
-        )
-
-    def __ne__(self, other):
-        return (
-            self.command != other.command
-            or self.returncode != other.returncode
-            or self.output != other.output
-        )
-
-    def __hash__(self):
-        return hash(self.command) ^ hash(self.returncode) ^ hash(self.output)
-
-
-def execute(
-    command: str,
-    check: bool = True,
-    capture_output: bool = False,
-    force: bool = False,
-    sudo: bool = False,
-) -> ExecutionResult:
-    """
-    A method to exec a command.
-    """
-    if force or not GlobalArgs().test():
-        log(f"Real execution of: {command}")
-        if sudo and not sudo_exist() and not is_root():
-            raise PermissionError("This script must be run as root.")
-        if sudo and sudo_exist() and not is_root():
-            command = f"sudo {command}"
-        return ExecutionResult(
-            command,
-            subprocess.run(
-                command, shell=True, check=check, capture_output=capture_output
-            ),
-        )
-    log(f"Fake execution of: {command}")
-    return ExecutionResult(
-        command, subprocess.CompletedProcess(args=command, returncode=0, stdout=b"")
-    )
-
-
-def elevate() -> bool:
-    """
-    A method to elevate the current user to root.
-    """
-    if is_root():
-        return True
-    if sudo_exist():
-        execute("sudo -v", force=True)
-        return True
-    return False
-
-
-def sudo_exist() -> bool:
-    """
-    A method to check if sudo is installed.
-    """
-    return execute("which sudo", force=True, capture_output=True).returncode == 0
-
-
-def is_root() -> bool:
-    """
-    A method to check if the user is root.
-    """
-    user = execute("whoami", force=True, capture_output=True).output
-    return user.strip() == "root"
-
-
-def generate_translations(global_language: Languages):
-    """
-    Generate translations for ArchCraftsman.
-    """
-    locale_file_path = files("archcraftsman.locales").joinpath(
-        f"{global_language.value}.po"
-    )
-    if locale_file_path.is_file():
+    keymaps = (
         execute(
-            f"msgfmt -o /usr/share/locale/fr/LC_MESSAGES/archcraftsman.mo {locale_file_path} &>/dev/null",
+            "localectl list-keymaps",
+            capture_output=True,
             force=True,
-            sudo=True,
         )
+        .output.strip()
+        .split("\n")
+    )
+    readline.set_completer(
+        lambda text, state: (
+            [
+                option
+                for option in keymaps + ["help"]
+                if (not text or option.lower().startswith(text.lower()))
+            ]
+            + [None]
+        )[state]
+    )
+    keymap_ok = False
+    keymap = ""
+    while not keymap_ok:
+        prompt_message = (
+            _(
+                "Type your installation's keymap, or 'help' to get the list of keymaps (%s) : "
+            )
+            % default
+        )
+        keymap = prompt_ln(prompt_message, default=default).lower()
+        if keymap == "help":
+            print_help(" ".join(keymaps))
+            continue
+        if keymap in keymaps:
+            keymap_ok = True
+        else:
+            print_error(_("Keymap '%s' doesn't exist.") % keymap, do_pause=False)
+            continue
+    readline.set_completer(glob_completer)
+    return keymap
+
+
+def ask_format_type() -> Optional[FSFormats]:
+    """
+    The method to ask the user for the format type.
+    """
+    return prompt_option(
+        _("Which format type do you want ? (%s) : "),
+        _("Format type '%s' is not supported."),
+        FSFormats,
+        _("Supported format types : "),
+        FSFormats.EXT4,
+        FSFormats.VFAT,
+    )
+
+
+def ask_encryption_block_name() -> Optional[str]:
+    """
+    Method to ask for encryption block name.
+    """
+    block_name_pattern = re.compile("^[a-z][a-z\\d_]*$")
+    block_name_ok = False
+    block_name = None
+    while not block_name_ok:
+        block_name = prompt_ln(
+            _("What will be the encrypted block name ? : "), required=True
+        )
+        if block_name and not block_name_pattern.match(block_name):
+            print_error(_("Invalid encrypted block name."))
+            continue
+        block_name_ok = True
+    return block_name
+
+
+def ask_password(prompt_message: str, required: bool = False) -> str:
+    """
+    A method to ask a password to the user.
+    """
+    password_confirm = None
+    password = None
+    while password is None or password != password_confirm:
+        password = prompt_passwd(prompt_message, required=required)
+        password_confirm = prompt_passwd(
+            _("Enter it again to confirm : "), required=required
+        )
+        if password != password_confirm:
+            print_error(_("Passwords entered don't match."))
+    return password
+
+
+def ask_drive() -> str:
+    """
+    A method to prompt for a drive to partition.
+    """
+    drives = (
+        execute(
+            "lsblk -lpdno NAME,TYPE | grep disk | awk '{print $1}'",
+            capture_output=True,
+            force=True,
+        )
+        .output.strip()
+        .split("\n")
+    )
+    readline.set_completer(
+        lambda text, state: (
+            [option for option in drives if (not text or option.startswith(text))]
+            + [None]
+        )[state]
+    )
+    print_supported(_("Detected drives :"), drives)
+    drive_ok = False
+    drive = ""
+    while not drive_ok:
+        prompt_message = _(
+            "On which drive should Archlinux be installed ? (type the entire name, for example '/dev/sda') : "
+        )
+        drive = prompt_ln(prompt_message).lower()
+        if drive in drives:
+            drive_ok = True
+        else:
+            print_error(
+                _("The target drive '%s' doesn't exist.") % drive, do_pause=False
+            )
+            continue
+    readline.set_completer(glob_completer)
+    return drive

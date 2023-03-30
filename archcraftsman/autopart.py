@@ -47,13 +47,7 @@ def auto_partitioning() -> tuple[bool, PartitioningInfo]:
     while not user_answer:
         print_step(_("Automatic partitioning :"))
         execute("fdisk -l", force=True, sudo=True)
-        target_disk = ask_drive(
-            _(
-                "On which drive should Archlinux be installed ? (type the entire name, for example '/dev/sda') : "
-            ),
-            _("The target drive '%s' doesn't exist."),
-            _("Detected drives :"),
-        )
+        target_disk = ask_drive()
         partitioning_info.main_disk = target_disk
         disk = Disk(target_disk)
         efi_partition = disk.get_efi_partition()
