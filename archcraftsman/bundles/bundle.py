@@ -36,6 +36,12 @@ class Bundle:
         """
         return []
 
+    def is_aur(self) -> bool:
+        """
+        Is Bundle AUR based.
+        """
+        return False
+
     def prompt_extra(self):
         """
         Bundle's extra options prompting method.

@@ -45,8 +45,16 @@ from archcraftsman.bundles.sway import Sway
 from archcraftsman.bundles.systemdnet import SystemdNet
 from archcraftsman.bundles.terminus import TerminusFont
 from archcraftsman.bundles.xfce import Xfce
+from archcraftsman.bundles.yay import Yay
 from archcraftsman.bundles.zram import Zram
-from archcraftsman.options import Kernels, BootLoaders, Desktops, Bundles, Network
+from archcraftsman.options import (
+    Kernels,
+    BootLoaders,
+    Desktops,
+    Bundles,
+    Network,
+    ShellBundles,
+)
 from archcraftsman.options import OptionEnum
 from archcraftsman.utils import prompt_option
 
@@ -116,6 +124,8 @@ def process_bundle(name: OptionEnum) -> Bundle:
             bundle = Zram(name)
         case Bundles.COPY_ACM:
             bundle = CopyACM(name)
+        case ShellBundles.YAY:
+            bundle = Yay(name)
         case _:
             bundle = Bundle(name)
     return bundle

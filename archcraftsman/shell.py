@@ -23,7 +23,17 @@ from typing import Optional
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.bundles.utils import prompt_bundle
 from archcraftsman.i18n import I18n
-from archcraftsman.options import Commands, Kernels, Desktops, Bundles, SubCommands
+from archcraftsman.options import (
+    Commands,
+    Kernels,
+    Desktops,
+    Bundles,
+    ShellBundles,
+    SubCommands,
+)
+from archcraftsman.partitioninginfo import PartitioningInfo
+from archcraftsman.prelaunchinfo import PreLaunchInfo
+from archcraftsman.systeminfo import SystemInfo
 from archcraftsman.utils import (
     prompt_option,
     print_error,
@@ -87,24 +97,40 @@ def ask_for_bundle() -> Optional[Bundle]:
         return None
 
 
-def install_bundle(bundle):
+def ask_for_shell_bundle() -> Optional[Bundle]:
+    """
+    A method to ask for a bundle.
+    """
+    try:
+        return prompt_bundle(
+            "> ",
+            _("Shell bundle '%s' is not supported."),
+            ShellBundles,
+            _("Available shell bundles : "),
+            None,
+            new_line_prompt=False,
+        )
+    except ValueError:
+        return None
+
+
+def install_bundle(bundle: Bundle):
     """
     The method to install the bundle.
     """
-    match bundle.name:
-        case _:
-            if len(bundle.packages({})) > 0:
-                execute(f'pacman -S {" ".join(bundle.packages({}))}', check=False)
+    if bundle.is_aur():
+        bundle.configure(SystemInfo(), PreLaunchInfo(), PartitioningInfo())
+    else:
+        if len(bundle.packages(SystemInfo())) > 0:
+            execute(f'pacman -S {" ".join(bundle.packages(SystemInfo()))}', check=False)
 
 
 def uninstall_bundle(bundle):
     """
     The method to uninstall the bundle.
     """
-    match bundle.name:
-        case _:
-            if len(bundle.packages({})) > 0:
-                execute(f'pacman -Rsnc {" ".join(bundle.packages({}))}', check=False)
+    if len(bundle.packages(SystemInfo())) > 0:
+        execute(f'pacman -Rsnc {" ".join(bundle.packages(SystemInfo()))}', check=False)
 
 
 def shell():
@@ -132,6 +158,8 @@ def shell():
                     bundle = ask_for_desktop()
                 case Commands.BUNDLE:
                     bundle = ask_for_bundle()
+                case Commands.SHELL_BUNDLE:
+                    bundle = ask_for_shell_bundle()
                 case Commands.HELP:
                     print_supported(_("Available commands :"), list(Commands))
                     continue
@@ -155,6 +183,8 @@ def shell():
                 case SubCommands.UNINSTALL:
                     if bundle:
                         uninstall_bundle(bundle)
+                case SubCommands.CANCEL:
+                    continue
         except KeyboardInterrupt:
             print_error(_("Script execution interrupted by the user !"), do_pause=False)
             want_exit = True

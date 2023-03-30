@@ -64,6 +64,7 @@ class SubCommands(OptionEnum):
 
     INSTALL = auto()
     UNINSTALL = auto()
+    CANCEL = auto()
 
 
 class Kernels(OptionEnum):
@@ -131,6 +132,14 @@ class Bundles(OptionEnum):
     TERMINUS = auto()
     ZRAM = auto()
     COPY_ACM = auto()
+
+
+class ShellBundles(OptionEnum):
+    """
+    All shell options.
+    """
+
+    YAY = auto()
 
 
 class FSFormats(OptionEnum):
