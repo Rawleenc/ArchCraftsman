@@ -44,7 +44,7 @@ from archcraftsman.options import (
     Network,
 )
 from archcraftsman.packages import Packages
-from archcraftsman.prelaunchinfo import PreLaunchInfo
+from archcraftsman.prelaunchinfo import PreLaunchInfo, parse_detected_language
 from archcraftsman.systeminfo import SystemInfo
 from archcraftsman.utils import (
     ask_keymap,
@@ -73,10 +73,7 @@ def initial_setup(shell_mode: bool = False) -> PreLaunchInfo:
     detected_timezone = geoip_info["timezone"]
 
     pre_launch_info = PreLaunchInfo()
-    if detected_language == "fr-FR":
-        default_language = Languages.FRENCH
-    else:
-        default_language = Languages.ENGLISH
+    default_language = parse_detected_language(detected_language)
 
     if detected_language == "fr-FR":
         default_keymap = "fr-latin9"
@@ -111,7 +108,9 @@ def initial_setup(shell_mode: bool = False) -> PreLaunchInfo:
             pre_launch_info.global_language = global_language
 
         pre_launch_info.keymap = ask_keymap(
-            _("Type your installation's keymap (%s) : "),
+            _(
+                "Type your installation's keymap, or 'help' to get the list of keymaps (%s) : "
+            ),
             _("Keymap '%s' doesn't exist."),
             default_keymap,
         )

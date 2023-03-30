@@ -114,7 +114,7 @@ def ask_keymap(message: str, error_msg: str, default: str) -> str:
     keymap_ok = False
     keymap = ""
     while not keymap_ok:
-        prompt_message = message % f"{default}, type 'help' to get the list of keymaps"
+        prompt_message = message % default
         keymap = prompt_ln(prompt_message, default=default).lower()
         if keymap == "help":
             print_help(" ".join(keymaps))

@@ -108,8 +108,8 @@ msgid "Global language '%s' is not supported."
 msgstr "La langue globale '%s' n'est pas prise en charge."
 
 #: archcraftsman/basesetup.py:107
-msgid "Type your installation's keymap (%s) : "
-msgstr "Entrez la keymap de votre installation (%s) : "
+msgid "Type your installation's keymap, or 'help' to get the list of keymaps (%s) : "
+msgstr "Entrez la keymap de votre installation, ou 'help' pour obtenir la liste des keymaps (%s) : "
 
 #: archcraftsman/basesetup.py:115
 msgid "Keymap '%s' doesn't exist."

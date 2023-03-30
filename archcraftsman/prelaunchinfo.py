@@ -26,6 +26,17 @@ from archcraftsman.utils import print_step, execute, log
 _ = I18n().gettext
 
 
+def parse_detected_language(detected_language: str) -> Languages:
+    """
+    The function to parse the detected language.
+    """
+    match detected_language:
+        case "fr-FR":
+            return Languages.FRENCH
+        case _:
+            return Languages.ENGLISH
+
+
 class PreLaunchInfo:
     """
     The class to contain all pre-launch information.
