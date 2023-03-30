@@ -20,7 +20,6 @@ The ArchCraftsman installer.
 import argparse
 import readline
 import sys
-from importlib.resources import files
 from subprocess import CalledProcessError
 
 from archcraftsman.autopart import auto_partitioning
@@ -268,37 +267,28 @@ def install(pre_launch_info: PreLaunchInfo):
         sys.exit(1)
 
 
-def pre_launch_steps() -> PreLaunchInfo:
-    """
-    The method to proceed to the pre-launch steps
-    """
-    print_step(_("Running pre-launch steps : "), clear=False)
-    locale_file_path = files("archcraftsman.locales").joinpath("fr.po")
-    execute(
-        f"msgfmt -o /usr/share/locale/fr/LC_MESSAGES/ArchCraftsman.mo {locale_file_path} &>/dev/null",
-        force=True,
-        sudo=True,
-    )
-    if GlobalArgs().install():
-        execute('sed -i "s|#Color|Color|g" /etc/pacman.conf')
-        execute(
-            'sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /etc/pacman.conf'
-        )
-
-    if GlobalArgs().install():
-        print_sub_step(_("Synchronising repositories..."))
-        execute("pacman -Sy &>/dev/null")
-        Packages()
-
-    return initial_setup()
-
-
-def pre_launch() -> PreLaunchInfo:
+def pre_launch(shell_mode: bool = False) -> PreLaunchInfo:
     """
     A pre-launch steps method.
     """
     try:
-        return pre_launch_steps()
+        if not elevate():
+            print_error(_("This script must be run as root."), do_pause=False)
+            sys.exit(1)
+
+        print_step(_("Running pre-launch steps : "), clear=False)
+
+        if not shell_mode:
+            execute('sed -i "s|#Color|Color|g" /etc/pacman.conf')
+            execute(
+                'sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /etc/pacman.conf'
+            )
+
+            print_sub_step(_("Synchronising repositories..."))
+            execute("pacman -Sy &>/dev/null")
+            Packages()
+
+        return initial_setup(shell_mode)
     except KeyboardInterrupt:
         print_error(_("Script execution interrupted by the user !"), do_pause=False)
         sys.exit(1)
@@ -353,16 +343,13 @@ def main():
         sys.exit(1)
 
     if GlobalArgs().install():
-        if not elevate():
-            print_error(_("This script must be run as root."), do_pause=False)
-            sys.exit(1)
         pre_launch_info = pre_launch()
         I18n().update_method(pre_launch_info.global_language)
         install(pre_launch_info)
         sys.exit(0)
 
     if GlobalArgs().shell():
-        pre_launch_info = initial_setup(shell_mode=True)
+        pre_launch_info = pre_launch(shell_mode=True)
         I18n().update_method(pre_launch_info.global_language)
         shell()
         sys.exit(0)

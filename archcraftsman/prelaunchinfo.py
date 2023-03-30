@@ -19,7 +19,6 @@ The module of PreLaunchInfo class.
 """
 import os
 
-from archcraftsman.globalargs import GlobalArgs
 from archcraftsman.i18n import I18n
 from archcraftsman.utils import print_step, execute, log
 
@@ -42,25 +41,21 @@ class PreLaunchInfo:
         """
         print_step(_("Configuring live environment..."), clear=False)
         self.live_console_font = "ter-v16b"
-        if GlobalArgs().install():
-            execute(f'loadkeys "{self.keymap}"')
-            execute("setfont ter-v16b")
-            dimensions = execute("stty size", capture_output=True).output
-            if dimensions:
-                split_dimensions = dimensions.split(" ")
-                if (
-                    split_dimensions
-                    and len(split_dimensions) > 0
-                    and int(split_dimensions[0]) >= 80
-                ):
-                    self.live_console_font = "ter-v32b"
-                    execute("setfont ter-v32b")
+        execute(f'loadkeys "{self.keymap}"')
+        execute("setfont ter-v16b")
+        dimensions = execute("stty size", capture_output=True).output
+        if dimensions:
+            split_dimensions = dimensions.split(" ")
+            if (
+                split_dimensions
+                and len(split_dimensions) > 0
+                and int(split_dimensions[0]) >= 80
+            ):
+                self.live_console_font = "ter-v32b"
+                execute("setfont ter-v32b")
         if self.global_language == "FR":
-            if GlobalArgs().install():
-                execute(
-                    'sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /etc/locale.gen'
-                )
-                execute("locale-gen")
+            execute('sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /etc/locale.gen')
+            execute("locale-gen")
             os.putenv("LANG", "fr_FR.UTF-8")
             os.putenv("LANGUAGE", "fr_FR.UTF-8")
         else:

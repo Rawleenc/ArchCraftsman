@@ -20,6 +20,7 @@ The general utility methods and tools module
 import encodings
 import getpass
 import glob
+from importlib.resources import files
 import os
 import re
 import readline
@@ -461,3 +462,18 @@ def is_root() -> bool:
     """
     user = execute("whoami", force=True, capture_output=True).output
     return user.strip() == "root"
+
+
+def generate_translations(global_language: str):
+    """
+    Generate translations for ArchCraftsman.
+    """
+    locale_file_path = files("archcraftsman.locales").joinpath(
+        f"{global_language.lower()}.po"
+    )
+    if locale_file_path.is_file():
+        execute(
+            f"msgfmt -o /usr/share/locale/fr/LC_MESSAGES/archcraftsman.mo {locale_file_path} &>/dev/null",
+            force=True,
+            sudo=True,
+        )

@@ -40,6 +40,7 @@ from archcraftsman.packages import Packages
 from archcraftsman.prelaunchinfo import PreLaunchInfo
 from archcraftsman.systeminfo import SystemInfo
 from archcraftsman.utils import (
+    generate_translations,
     print_error,
     print_step,
     print_sub_step,
@@ -132,6 +133,7 @@ def initial_setup(shell_mode: bool = False) -> PreLaunchInfo:
         )
         print_sub_step(_("Your installation's keymap : %s") % pre_launch_info.keymap)
         user_answer = prompt_bool(_("Is the information correct ?"), default=False)
+    generate_translations(pre_launch_info.global_language)
     if not shell_mode:
         pre_launch_info.setup_locale()
     return pre_launch_info

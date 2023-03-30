@@ -54,8 +54,9 @@ class I18n(metaclass=I18nMeta):
         Update the translation method to use according to the global language.
         """
         if global_language != "EN":
+
             translation = gettext.translation(
-                "ArchCraftsman",
+                "archcraftsman",
                 localedir="/usr/share/locale",
                 languages=[global_language.lower()],
             )
