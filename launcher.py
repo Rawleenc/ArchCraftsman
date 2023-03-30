@@ -27,7 +27,7 @@ from urllib.request import urlopen, urlretrieve
 
 OWNER = "Rawleenc"
 REPO = "ArchCraftsman"
-BRANCH = "main"
+BRANCH = "dev"
 CMD = "python -m archcraftsman.installer --install"
 GREEN = "\033[0;32m"
 CYAN = "\033[0;36m"
