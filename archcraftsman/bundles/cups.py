@@ -20,9 +20,6 @@ The cups bundle module
 
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import I18n
-from archcraftsman.partitioninginfo import PartitioningInfo
-from archcraftsman.prelaunchinfo import PreLaunchInfo
-from archcraftsman.systeminfo import SystemInfo
 from archcraftsman.utils import print_sub_step, execute
 
 _ = I18n().gettext
@@ -33,7 +30,7 @@ class Cups(Bundle):
     Cups class.
     """
 
-    def packages(self, system_info: SystemInfo) -> list[str]:
+    def packages(self) -> list[str]:
         return [
             "cups",
             "cups-pdf",
@@ -51,12 +48,7 @@ class Cups(Bundle):
     def print_resume(self):
         print_sub_step(_("Install Cups."))
 
-    def configure(
-        self,
-        system_info: SystemInfo,
-        pre_launch_info: PreLaunchInfo,
-        partitioning_info: PartitioningInfo,
-    ):
+    def configure(self):
         execute('arch-chroot /mnt bash -c "systemctl enable avahi-daemon"')
         execute('arch-chroot /mnt bash -c "systemctl enable cups"')
         execute('arch-chroot /mnt bash -c "systemctl enable cups-browsed"')

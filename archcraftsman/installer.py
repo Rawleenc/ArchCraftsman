@@ -25,12 +25,11 @@ from subprocess import CalledProcessError
 from archcraftsman.autopart import auto_partitioning
 from archcraftsman.basesetup import initial_setup, setup_system
 from archcraftsman.globalargs import GlobalArgs
+from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.i18n import I18n
 from archcraftsman.manualpart import manual_partitioning
 from archcraftsman.options import FSFormats, PartTypes
 from archcraftsman.packages import Packages
-from archcraftsman.partitioninginfo import PartitioningInfo
-from archcraftsman.prelaunchinfo import PreLaunchInfo
 from archcraftsman.shell import shell
 from archcraftsman.utils import (
     elevate,
@@ -45,13 +44,12 @@ from archcraftsman.utils import (
 _ = I18n().gettext
 
 
-def install(pre_launch_info: PreLaunchInfo):
+def install():
     """
     The main installation method.
     """
-    partitioning_info: PartitioningInfo = PartitioningInfo()
     try:
-        system_info = setup_system(pre_launch_info.detected_timezone)
+        setup_system()
 
         partitioning_info_ok = None
         while not partitioning_info_ok:
@@ -60,11 +58,11 @@ def install(pre_launch_info: PreLaunchInfo):
                 _("Do you want an automatic partitioning ?"), default=False
             )
             if want_auto_part:
-                partitioning_info_ok, partitioning_info = auto_partitioning()
+                partitioning_info_ok = auto_partitioning()
             else:
-                partitioning_info_ok, partitioning_info = manual_partitioning()
+                partitioning_info_ok = manual_partitioning()
 
-        partitioning_info.format_and_mount_partitions()
+        GlobalInfo().partitioning_info.format_and_mount_partitions()
 
         print_step(_("Updating mirrors..."), clear=False)
         execute(
@@ -74,8 +72,8 @@ def install(pre_launch_info: PreLaunchInfo):
         base_pkgs = set()
         base_pkgs.update(["base", "base-devel", "linux-firmware"])
 
-        if system_info.kernel:
-            base_pkgs.update(system_info.kernel.packages(system_info))
+        if GlobalInfo().system_info.kernel:
+            base_pkgs.update(GlobalInfo().system_info.kernel.packages())
 
         pkgs = set()
         pkgs.update(
@@ -98,31 +96,33 @@ def install(pre_launch_info: PreLaunchInfo):
             ]
         )
 
-        if pre_launch_info.global_language.lower() != "en" and execute(
-            f"pacman -Si man-pages-{pre_launch_info.global_language.lower()} &>/dev/null",
+        if GlobalInfo().pre_launch_info.global_language.lower() != "en" and execute(
+            f"pacman -Si man-pages-{GlobalInfo().pre_launch_info.global_language.lower()} &>/dev/null",
             check=False,
         ):
-            pkgs.add(f"man-pages-{pre_launch_info.global_language.lower()}")
+            pkgs.add(
+                f"man-pages-{GlobalInfo().pre_launch_info.global_language.lower()}"
+            )
 
-        if partitioning_info.btrfs_in_use:
+        if GlobalInfo().partitioning_info.btrfs_in_use:
             pkgs.add("btrfs-progs")
 
-        pkgs.update(system_info.micro_codes.packages(system_info))
+        pkgs.update(GlobalInfo().system_info.micro_codes.packages())
 
-        if system_info.bootloader:
-            pkgs.update(system_info.bootloader.packages(system_info))
+        if GlobalInfo().system_info.bootloader:
+            pkgs.update(GlobalInfo().system_info.bootloader.packages())
 
-        if system_info.desktop:
-            pkgs.update(system_info.desktop.packages(system_info))
+        if GlobalInfo().system_info.desktop:
+            pkgs.update(GlobalInfo().system_info.desktop.packages())
 
-        if system_info.network:
-            pkgs.update(system_info.network.packages(system_info))
+        if GlobalInfo().system_info.network:
+            pkgs.update(GlobalInfo().system_info.network.packages())
 
-        for bundle in system_info.bundles:
-            pkgs.update(bundle.packages(system_info))
+        for bundle in GlobalInfo().system_info.bundles:
+            pkgs.update(bundle.packages())
 
-        if len(system_info.more_pkgs) > 0:
-            pkgs.update(system_info.more_pkgs)
+        if len(GlobalInfo().system_info.more_pkgs) > 0:
+            pkgs.update(GlobalInfo().system_info.more_pkgs)
 
         print_step(_("Installation of the base..."), clear=False)
         execute(f'pacstrap -K /mnt {" ".join(base_pkgs)}')
@@ -130,7 +130,7 @@ def install(pre_launch_info: PreLaunchInfo):
         print_step(_("System configuration..."), clear=False)
         execute('sed -i "s|#en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|g" /mnt/etc/locale.gen')
         execute('sed -i "s|#en_US ISO-8859-1|en_US ISO-8859-1|g" /mnt/etc/locale.gen')
-        if pre_launch_info.global_language == "FR":
+        if GlobalInfo().pre_launch_info.global_language == "FR":
             execute(
                 'sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /mnt/etc/locale.gen'
             )
@@ -140,14 +140,16 @@ def install(pre_launch_info: PreLaunchInfo):
             execute('echo "LANG=fr_FR.UTF-8" >/mnt/etc/locale.conf')
         else:
             execute('echo "LANG=en_US.UTF-8" >/mnt/etc/locale.conf')
-        execute(f'echo "KEYMAP={pre_launch_info.keymap}" >/mnt/etc/vconsole.conf')
-        execute(f'echo "{system_info.hostname}" >/mnt/etc/hostname')
+        execute(
+            f'echo "KEYMAP={GlobalInfo().pre_launch_info.keymap}" >/mnt/etc/vconsole.conf'
+        )
+        execute(f'echo "{GlobalInfo().system_info.hostname}" >/mnt/etc/hostname')
         execute(
             f"""
             {{
                 echo "127.0.0.1 localhost"
                 echo "::1 localhost"
-                echo "127.0.1.1 {system_info.hostname}.localdomain {system_info.hostname}"
+                echo "127.0.1.1 {GlobalInfo().system_info.hostname}.localdomain {GlobalInfo().system_info.hostname}"
             }} >>/mnt/etc/hosts
         """
         )
@@ -155,7 +157,7 @@ def install(pre_launch_info: PreLaunchInfo):
 
         print_step(_("Locales configuration..."), clear=False)
         execute(
-            f'arch-chroot /mnt bash -c "ln -sf {system_info.timezone} /etc/localtime"'
+            f'arch-chroot /mnt bash -c "ln -sf {GlobalInfo().system_info.timezone} /etc/localtime"'
         )
         execute('arch-chroot /mnt bash -c "locale-gen"')
 
@@ -170,11 +172,16 @@ def install(pre_launch_info: PreLaunchInfo):
 
         if (
             PartTypes.SWAP
-            not in [part.part_type for part in partitioning_info.partitions]
-            and partitioning_info.swapfile_size is not None
+            not in [
+                part.part_type for part in GlobalInfo().partitioning_info.partitions
+            ]
+            and GlobalInfo().partitioning_info.swapfile_size is not None
         ):
             print_step(_("Creation and activation of the swapfile..."), clear=False)
-            if partitioning_info.root_partition.part_format_type == FSFormats.BTRFS:
+            if (
+                GlobalInfo().partitioning_info.root_partition.part_format_type
+                == FSFormats.BTRFS
+            ):
                 execute(
                     "btrfs subvolume create /mnt/swap && "
                     "cd /mnt/swap && "
@@ -186,7 +193,7 @@ def install(pre_launch_info: PreLaunchInfo):
             else:
                 execute("mkdir -p /mnt/swap")
             execute(
-                f'fallocate -l "{partitioning_info.swapfile_size}" /mnt/swap/swapfile'
+                f'fallocate -l "{GlobalInfo().partitioning_info.swapfile_size}" /mnt/swap/swapfile'
             )
             execute("chmod 600 /mnt/swap/swapfile")
             execute("mkswap /mnt/swap/swapfile")
@@ -195,57 +202,54 @@ def install(pre_launch_info: PreLaunchInfo):
         print_step(_("Generating fstab..."), clear=False)
         execute("genfstab -U /mnt >>/mnt/etc/fstab")
 
-        if system_info.desktop:
+        if GlobalInfo().system_info.desktop:
             print_step(_("Desktop configuration..."), clear=False)
-            system_info.desktop.configure(
-                system_info, pre_launch_info, partitioning_info
-            )
+            GlobalInfo().system_info.desktop.configure()
 
-        if system_info.network:
+        if GlobalInfo().system_info.network:
             print_step(_("Network configuration..."), clear=False)
-            system_info.network.configure(
-                system_info, pre_launch_info, partitioning_info
-            )
+            GlobalInfo().system_info.network.configure()
 
         execute('arch-chroot /mnt bash -c "systemctl enable systemd-timesyncd"')
 
-        if system_info.bootloader:
+        if GlobalInfo().system_info.bootloader:
             print_step(_("Installation and configuration of the grub..."), clear=False)
-            system_info.bootloader.configure(
-                system_info, pre_launch_info, partitioning_info
-            )
+            GlobalInfo().system_info.bootloader.configure()
 
         print_step(_("Users configuration..."), clear=False)
         print_sub_step(_("Root account configuration..."))
-        if system_info.root_password:
+        if GlobalInfo().system_info.root_password:
             execute(
-                f"arch-chroot /mnt bash -c \"echo 'root:{system_info.root_password}' | chpasswd\""
+                f"arch-chroot /mnt bash -c \"echo 'root:{GlobalInfo().system_info.root_password}' | chpasswd\""
             )
-        if system_info.user_name:
-            print_sub_step(_("%s account configuration...") % system_info.user_name)
+        if GlobalInfo().system_info.user_name:
+            print_sub_step(
+                _("%s account configuration...") % GlobalInfo().system_info.user_name
+            )
             execute(
                 'sed -i "s|# %wheel ALL=(ALL:ALL) ALL|%wheel ALL=(ALL:ALL) ALL|g" /mnt/etc/sudoers'
             )
             execute(
                 f'arch-chroot /mnt bash -c "useradd --shell=/bin/bash --groups=wheel '
-                f'--create-home {system_info.user_name}"'
+                f'--create-home {GlobalInfo().system_info.user_name}"'
             )
-            if system_info.user_full_name:
+            if GlobalInfo().system_info.user_full_name:
                 execute(
                     f"arch-chroot /mnt bash -c "
-                    f"\"chfn -f '{system_info.user_full_name}' {system_info.user_name}\""
+                    f"\"chfn -f '{GlobalInfo().system_info.user_full_name}' {GlobalInfo().system_info.user_name}\""
                 )
-            if system_info.user_password:
+            if GlobalInfo().system_info.user_password:
                 execute(
-                    f"arch-chroot /mnt bash -c \"echo '{system_info.user_name}:"
-                    f"{system_info.user_password}' | chpasswd\""
+                    f"arch-chroot /mnt bash -c \"echo '{GlobalInfo().system_info.user_name}:"
+                    f"{GlobalInfo().system_info.user_password}' | chpasswd\""
                 )
 
         print_step(_("Extra packages configuration if needed..."), clear=False)
-        for bundle in system_info.bundles:
-            bundle.configure(system_info, pre_launch_info, partitioning_info)
+        for bundle in GlobalInfo().system_info.bundles:
+            bundle.configure()
 
-        partitioning_info.umount_partitions()
+        GlobalInfo().partitioning_info.umount_partitions()
+        GlobalInfo().serialize()
 
         print_step(
             _("Installation complete ! You can reboot your system."), clear=False
@@ -253,7 +257,8 @@ def install(pre_launch_info: PreLaunchInfo):
 
     except KeyboardInterrupt:
         print_error(_("Script execution interrupted by the user !"), do_pause=False)
-        partitioning_info.umount_partitions()
+        GlobalInfo().partitioning_info.umount_partitions()
+        GlobalInfo().serialize()
         sys.exit(1)
     except CalledProcessError as exception:
         print_error(
@@ -261,13 +266,14 @@ def install(pre_launch_info: PreLaunchInfo):
             % exception,
             do_pause=False,
         )
-        partitioning_info.umount_partitions()
+        GlobalInfo().partitioning_info.umount_partitions()
+        GlobalInfo().serialize()
         sys.exit(1)
     except EOFError:
         sys.exit(1)
 
 
-def pre_launch(shell_mode: bool = False) -> PreLaunchInfo:
+def pre_launch(shell_mode: bool = False):
     """
     A pre-launch steps method.
     """
@@ -288,7 +294,7 @@ def pre_launch(shell_mode: bool = False) -> PreLaunchInfo:
             execute("pacman -Sy &>/dev/null")
             Packages()
 
-        return initial_setup(shell_mode)
+        initial_setup(shell_mode)
     except KeyboardInterrupt:
         print_error(_("Script execution interrupted by the user !"), do_pause=False)
         sys.exit(1)
@@ -343,14 +349,14 @@ def main():
         sys.exit(1)
 
     if GlobalArgs().install():
-        pre_launch_info = pre_launch()
-        I18n().update_method(pre_launch_info.global_language)
-        install(pre_launch_info)
+        pre_launch()
+        I18n().update_method(GlobalInfo().pre_launch_info.global_language)
+        install()
         sys.exit(0)
 
     if GlobalArgs().shell():
-        pre_launch_info = pre_launch(shell_mode=True)
-        I18n().update_method(pre_launch_info.global_language)
+        pre_launch(shell_mode=True)
+        I18n().update_method(GlobalInfo().pre_launch_info.global_language)
         shell()
         sys.exit(0)
 

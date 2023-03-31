@@ -31,9 +31,6 @@ from archcraftsman.options import (
     ShellBundles,
     SubCommands,
 )
-from archcraftsman.partitioninginfo import PartitioningInfo
-from archcraftsman.prelaunchinfo import PreLaunchInfo
-from archcraftsman.systeminfo import SystemInfo
 from archcraftsman.utils import (
     prompt_option,
     print_error,
@@ -119,18 +116,24 @@ def install_bundle(bundle: Bundle):
     The method to install the bundle.
     """
     if bundle.is_aur():
-        bundle.configure(SystemInfo(), PreLaunchInfo(), PartitioningInfo())
+        bundle.configure()
     else:
-        if len(bundle.packages(SystemInfo())) > 0:
-            execute(f'pacman -S {" ".join(bundle.packages(SystemInfo()))}', check=False)
+        if len(bundle.packages()) > 0:
+            execute(
+                f'pacman -S {" ".join(bundle.packages())}',
+                check=False,
+            )
 
 
 def uninstall_bundle(bundle):
     """
     The method to uninstall the bundle.
     """
-    if len(bundle.packages(SystemInfo())) > 0:
-        execute(f'pacman -Rsnc {" ".join(bundle.packages(SystemInfo()))}', check=False)
+    if len(bundle.packages()) > 0:
+        execute(
+            f'pacman -Rsnc {" ".join(bundle.packages())}',
+            check=False,
+        )
 
 
 def shell():

@@ -30,7 +30,7 @@ class Bundle:
     def __init__(self, name: OptionEnum):
         self.name = name
 
-    def packages(self, system_info) -> list[str]:  # pylint: disable=unused-argument
+    def packages(self) -> list[str]:
         """
         Bundle's packages retrieving method.
         """
@@ -52,7 +52,7 @@ class Bundle:
         Bundle's print resume method.
         """
 
-    def configure(self, system_info, pre_launch_info, partitioning_info):
+    def configure(self):
         """
         Bundle configuration method.
         """

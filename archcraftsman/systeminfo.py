@@ -39,6 +39,6 @@ class SystemInfo:
     timezone: str
     user_name: str
     user_full_name: str
-    more_pkgs: set[str]
+    more_pkgs: list[str]
     root_password: str
     user_password: str

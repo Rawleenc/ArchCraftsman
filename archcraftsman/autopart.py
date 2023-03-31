@@ -18,10 +18,10 @@
 The automatic partitioning system module
 """
 from archcraftsman.disk import Disk
+from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.i18n import I18n
 from archcraftsman.options import FSFormats, PartTypes, SwapTypes
 from archcraftsman.partition import Partition
-from archcraftsman.partitioninginfo import PartitioningInfo
 from archcraftsman.utils import (
     ask_drive,
     ask_format_type,
@@ -38,17 +38,16 @@ from archcraftsman.utils import (
 _ = I18n().gettext
 
 
-def auto_partitioning() -> tuple[bool, PartitioningInfo]:
+def auto_partitioning() -> bool:
     """
     The method to proceed to the automatic partitioning.
     """
-    partitioning_info = PartitioningInfo()
     user_answer = False
     while not user_answer:
         print_step(_("Automatic partitioning :"))
         execute("fdisk -l", force=True, sudo=True)
         target_disk = ask_drive()
-        partitioning_info.main_disk = target_disk
+        GlobalInfo().partitioning_info.main_disk = target_disk
         disk = Disk(target_disk)
         efi_partition = disk.get_efi_partition()
         if (
@@ -94,7 +93,7 @@ def auto_partitioning() -> tuple[bool, PartitioningInfo]:
             swap_size = to_iec(int(disk.total / 32))
         if swap_type == SwapTypes.NONE:
             swap_size = None
-        partitioning_info.swapfile_size = swap_size
+        GlobalInfo().partitioning_info.swapfile_size = swap_size
         auto_part_str = ""
         index = 0
         if is_bios():
@@ -107,7 +106,7 @@ def auto_partitioning() -> tuple[bool, PartitioningInfo]:
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += "+1G\n"  # Last sector (Accept default: varies)
             auto_part_str += "a\n"  # Toggle bootable flag
-            partitioning_info.partitions.append(
+            GlobalInfo().partitioning_info.partitions.append(
                 Partition(
                     index=index,
                     part_type=PartTypes.OTHER,
@@ -130,7 +129,7 @@ def auto_partitioning() -> tuple[bool, PartitioningInfo]:
                 auto_part_str += "t\n"  # Change partition type
                 auto_part_str += " \n"  # Partition number (Accept default: auto)
                 auto_part_str += "1\n"  # Type EFI System
-                partitioning_info.partitions.append(
+                GlobalInfo().partitioning_info.partitions.append(
                     Partition(
                         index=index,
                         part_type=PartTypes.EFI,
@@ -142,7 +141,7 @@ def auto_partitioning() -> tuple[bool, PartitioningInfo]:
                 )
                 index += 1
             else:
-                partitioning_info.partitions.append(
+                GlobalInfo().partitioning_info.partitions.append(
                     Partition(
                         index=index,
                         part_type=PartTypes.EFI,
@@ -166,7 +165,7 @@ def auto_partitioning() -> tuple[bool, PartitioningInfo]:
                 auto_part_str += "82\n"  # Type Linux Swap
             else:
                 auto_part_str += "19\n"  # Type Linux Swap
-            partitioning_info.partitions.append(
+            GlobalInfo().partitioning_info.partitions.append(
                 Partition(index=index, part_type=PartTypes.SWAP, compute=False)
             )
             index += 1
@@ -178,7 +177,7 @@ def auto_partitioning() -> tuple[bool, PartitioningInfo]:
             auto_part_str += " \n"  # Partition number (Accept default: auto)
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += "+2G\n"  # Last sector (Accept default: varies)
-            partitioning_info.partitions.append(
+            GlobalInfo().partitioning_info.partitions.append(
                 Partition(
                     index=index,
                     part_type=PartTypes.BOOT,
@@ -197,7 +196,7 @@ def auto_partitioning() -> tuple[bool, PartitioningInfo]:
             auto_part_str += " \n"  # Partition number (Accept default: auto)
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += f"+{root_size}\n"  # Last sector (Accept default: varies)
-            partitioning_info.partitions.append(
+            GlobalInfo().partitioning_info.partitions.append(
                 Partition(
                     index=index,
                     part_type=PartTypes.ROOT,
@@ -215,7 +214,7 @@ def auto_partitioning() -> tuple[bool, PartitioningInfo]:
             auto_part_str += " \n"  # Partition number (Accept default: auto)
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += " \n"  # Last sector (Accept default: varies)
-            partitioning_info.partitions.append(
+            GlobalInfo().partitioning_info.partitions.append(
                 Partition(
                     index=index,
                     part_type=PartTypes.HOME,
@@ -234,7 +233,7 @@ def auto_partitioning() -> tuple[bool, PartitioningInfo]:
             auto_part_str += " \n"  # Partition number (Accept default: auto)
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += " \n"  # Last sector (Accept default: varies)
-            partitioning_info.partitions.append(
+            GlobalInfo().partitioning_info.partitions.append(
                 Partition(
                     index=index,
                     part_type=PartTypes.ROOT,
@@ -248,7 +247,7 @@ def auto_partitioning() -> tuple[bool, PartitioningInfo]:
         # WRITE
         auto_part_str += "w\n"
 
-        for partition in partitioning_info.partitions:
+        for partition in GlobalInfo().partitioning_info.partitions:
             if partition.part_type == PartTypes.ROOT and root_block_name is not None:
                 partition.encrypted = True
                 partition.block_name = root_block_name
@@ -257,7 +256,7 @@ def auto_partitioning() -> tuple[bool, PartitioningInfo]:
                 partition.block_name = home_block_name
 
         print_step(_("Summary of choices :"))
-        for partition in partitioning_info.partitions:
+        for partition in GlobalInfo().partitioning_info.partitions:
             print_sub_step(partition.summary())
         if swap_type == SwapTypes.FILE and swap_size is not None:
             print_sub_step(_("Swapfile size : %s") % swap_size)
@@ -267,18 +266,18 @@ def auto_partitioning() -> tuple[bool, PartitioningInfo]:
                 _("Do you want to change the partitioning mode ?"), default=False
             )
             if want_to_change:
-                return False, partitioning_info
-            partitioning_info.partitions.clear()
+                return False
+            GlobalInfo().partitioning_info.partitions.clear()
         else:
             execute(f'echo -e "{auto_part_str}" | fdisk "{target_disk}" &>/dev/null')
 
-            for partition in partitioning_info.partitions:
+            for partition in GlobalInfo().partitioning_info.partitions:
                 partition.build_partition_name(target_disk)
 
                 if partition.part_type == PartTypes.ROOT:
-                    partitioning_info.root_partition = partition
+                    GlobalInfo().partitioning_info.root_partition = partition
 
-                if partition not in partitioning_info.partitions:
-                    partitioning_info.partitions.append(partition)
+                if partition not in GlobalInfo().partitioning_info.partitions:
+                    GlobalInfo().partitioning_info.partitions.append(partition)
 
-    return True, partitioning_info
+    return True

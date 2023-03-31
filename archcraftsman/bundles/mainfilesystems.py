@@ -19,7 +19,6 @@ The main file systems bundle module
 """
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import I18n
-from archcraftsman.systeminfo import SystemInfo
 from archcraftsman.utils import print_sub_step
 
 _ = I18n().gettext
@@ -49,7 +48,7 @@ class MainFileSystems(Bundle):
     The main file systems class.
     """
 
-    def packages(self, system_info: SystemInfo) -> list[str]:
+    def packages(self) -> list[str]:
         return get_main_file_systems()
 
     def print_resume(self):

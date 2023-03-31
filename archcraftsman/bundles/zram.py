@@ -19,9 +19,6 @@ The zram bundle module
 """
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import I18n
-from archcraftsman.partitioninginfo import PartitioningInfo
-from archcraftsman.prelaunchinfo import PreLaunchInfo
-from archcraftsman.systeminfo import SystemInfo
 from archcraftsman.utils import print_sub_step, log
 
 _ = I18n().gettext
@@ -32,18 +29,13 @@ class Zram(Bundle):
     The ZRAM class.
     """
 
-    def packages(self, system_info: SystemInfo) -> list[str]:
+    def packages(self) -> list[str]:
         return ["zram-generator"]
 
     def print_resume(self):
         print_sub_step(_("Install and enable ZRAM."))
 
-    def configure(
-        self,
-        system_info: SystemInfo,
-        pre_launch_info: PreLaunchInfo,
-        partitioning_info: PartitioningInfo,
-    ):
+    def configure(self):
         content = ["[zram0]\n", "zram-size = ram / 2\n"]
         try:
             with open(

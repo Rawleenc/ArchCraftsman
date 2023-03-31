@@ -23,7 +23,6 @@ from typing import Optional
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import I18n
 from archcraftsman.options import Bundles
-from archcraftsman.systeminfo import SystemInfo
 from archcraftsman.utils import print_sub_step, execute
 
 _ = I18n().gettext
@@ -44,7 +43,7 @@ class Microcodes(Bundle):
         else:
             self.microcode_name = None
 
-    def packages(self, system_info: SystemInfo) -> list[str]:
+    def packages(self) -> list[str]:
         if self.microcode_name == "GenuineIntel":
             return ["intel-ucode"]
         if self.microcode_name == "AuthenticAMD":

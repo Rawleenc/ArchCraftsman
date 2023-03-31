@@ -21,9 +21,6 @@ The network manager bundle module
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.bundles.systemdnet import SystemdNet
 from archcraftsman.i18n import I18n
-from archcraftsman.partitioninginfo import PartitioningInfo
-from archcraftsman.prelaunchinfo import PreLaunchInfo
-from archcraftsman.systeminfo import SystemInfo
 from archcraftsman.utils import print_sub_step, execute
 
 _ = I18n().gettext
@@ -34,7 +31,7 @@ class Iwd(Bundle):
     Grml ZSH config class.
     """
 
-    def packages(self, system_info: SystemInfo) -> list[str]:
+    def packages(self) -> list[str]:
         packages = ["iwd"]
         return packages
 
@@ -42,11 +39,6 @@ class Iwd(Bundle):
         print_sub_step(_("Install Iwd."))
         SystemdNet(self.name).print_resume()
 
-    def configure(
-        self,
-        system_info: SystemInfo,
-        pre_launch_info: PreLaunchInfo,
-        partitioning_info: PartitioningInfo,
-    ):
+    def configure(self):
         execute('arch-chroot /mnt bash -c "systemctl enable iwd.service"')
-        SystemdNet(self.name).configure(system_info, pre_launch_info, partitioning_info)
+        SystemdNet(self.name).configure()

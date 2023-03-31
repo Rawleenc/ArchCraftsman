@@ -19,11 +19,9 @@ The plasma bundle module
 """
 
 from archcraftsman.bundles.bundle import Bundle
+from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.i18n import I18n
 from archcraftsman.options import Bundles
-from archcraftsman.partitioninginfo import PartitioningInfo
-from archcraftsman.prelaunchinfo import PreLaunchInfo
-from archcraftsman.systeminfo import SystemInfo
 from archcraftsman.utils import print_sub_step, prompt_bool, execute
 
 _ = I18n().gettext
@@ -37,7 +35,7 @@ class Plasma(Bundle):
     minimal = False
     plasma_wayland = False
 
-    def packages(self, system_info: SystemInfo) -> list[str]:
+    def packages(self) -> list[str]:
         packages = [
             "plasma",
             "xorg-server",
@@ -49,8 +47,8 @@ class Plasma(Bundle):
         ]
         if self.plasma_wayland:
             packages.extend(["plasma-wayland-session", "qt5-wayland"])
-            if system_info.bundles and Bundles.NVIDIA in [
-                bundle.name for bundle in system_info.bundles
+            if GlobalInfo().system_info.bundles and Bundles.NVIDIA in [
+                bundle.name for bundle in GlobalInfo().system_info.bundles
             ]:
                 packages.append("egl-wayland")
             if self.minimal is not True:
@@ -77,11 +75,6 @@ class Plasma(Bundle):
             _("Install Wayland support for the plasma session ?"), default=False
         )
 
-    def configure(
-        self,
-        system_info: SystemInfo,
-        pre_launch_info: PreLaunchInfo,
-        partitioning_info: PartitioningInfo,
-    ):
+    def configure(self):
         execute('arch-chroot /mnt bash -c "systemctl enable sddm"')
-        pre_launch_info.setup_chroot_keyboard()
+        GlobalInfo().pre_launch_info.setup_chroot_keyboard()

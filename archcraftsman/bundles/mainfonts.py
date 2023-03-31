@@ -19,7 +19,6 @@ The main fonts bundle module
 """
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import I18n
-from archcraftsman.systeminfo import SystemInfo
 from archcraftsman.utils import print_sub_step
 
 _ = I18n().gettext
@@ -60,7 +59,7 @@ class MainFonts(Bundle):
     The main fonts class.
     """
 
-    def packages(self, system_info: SystemInfo) -> list[str]:
+    def packages(self) -> list[str]:
         return get_main_fonts()
 
     def print_resume(self):
