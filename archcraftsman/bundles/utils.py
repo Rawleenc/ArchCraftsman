@@ -59,76 +59,83 @@ from archcraftsman.options import OptionEnum
 from archcraftsman.utils import prompt_option
 
 
+def get_bundle_type_by_name(name: str) -> type[Bundle]:
+    """
+    A function to get the bundle type by its name.
+    """
+    match name:
+        case Kernels.CURRENT:
+            bundle = LinuxCurrent
+        case Kernels.LTS:
+            bundle = LinuxLts
+        case Kernels.ZEN:
+            bundle = LinuxZen
+        case Kernels.HARDENED:
+            bundle = LinuxHardened
+        case BootLoaders.GRUB:
+            bundle = Grub
+        case Desktops.GNOME:
+            bundle = Gnome
+        case Desktops.PLASMA:
+            bundle = Plasma
+        case Desktops.XFCE:
+            bundle = Xfce
+        case Desktops.BUDGIE:
+            bundle = Budgie
+        case Desktops.CINNAMON:
+            bundle = Cinnamon
+        case Desktops.CUTEFISH:
+            bundle = Cutefish
+        case Desktops.DEEPIN:
+            bundle = Deepin
+        case Desktops.LXQT:
+            bundle = Lxqt
+        case Desktops.MATE:
+            bundle = Mate
+        case Desktops.ENLIGHTENMENT:
+            bundle = Enlightenment
+        case Desktops.I3:
+            bundle = I3
+        case Desktops.SWAY:
+            bundle = Sway
+        case Network.NETWORK_MANAGER:
+            bundle = NetworkManager
+        case Network.IWD:
+            bundle = Iwd
+        case Network.SYSTEMD:
+            bundle = SystemdNet
+        case Bundles.CUPS:
+            bundle = Cups
+        case Bundles.GRML:
+            bundle = GrmlZsh
+        case Bundles.MAIN_FILE_SYSTEMS:
+            bundle = MainFileSystems
+        case Bundles.MAIN_FONTS:
+            bundle = MainFonts
+        case Bundles.MICROCODES:
+            bundle = Microcodes
+        case Bundles.NVIDIA:
+            bundle = NvidiaDriver
+        case Bundles.PIPEWIRE:
+            bundle = PipeWire
+        case Bundles.TERMINUS:
+            bundle = TerminusFont
+        case Bundles.ZRAM:
+            bundle = Zram
+        case Bundles.COPY_ACM:
+            bundle = CopyACM
+        case ShellBundles.YAY:
+            bundle = Yay
+        case _:
+            bundle = Bundle
+    return bundle
+
+
 def process_bundle(name: OptionEnum) -> Bundle:
     """
     Process a bundle name into a Bundle object.
     """
-    match name:
-        case Kernels.CURRENT:
-            bundle = LinuxCurrent(name)
-        case Kernels.LTS:
-            bundle = LinuxLts(name)
-        case Kernels.ZEN:
-            bundle = LinuxZen(name)
-        case Kernels.HARDENED:
-            bundle = LinuxHardened(name)
-        case BootLoaders.GRUB:
-            bundle = Grub(name)
-        case Desktops.GNOME:
-            bundle = Gnome(name)
-        case Desktops.PLASMA:
-            bundle = Plasma(name)
-        case Desktops.XFCE:
-            bundle = Xfce(name)
-        case Desktops.BUDGIE:
-            bundle = Budgie(name)
-        case Desktops.CINNAMON:
-            bundle = Cinnamon(name)
-        case Desktops.CUTEFISH:
-            bundle = Cutefish(name)
-        case Desktops.DEEPIN:
-            bundle = Deepin(name)
-        case Desktops.LXQT:
-            bundle = Lxqt(name)
-        case Desktops.MATE:
-            bundle = Mate(name)
-        case Desktops.ENLIGHTENMENT:
-            bundle = Enlightenment(name)
-        case Desktops.I3:
-            bundle = I3(name)
-        case Desktops.SWAY:
-            bundle = Sway(name)
-        case Network.NETWORK_MANAGER:
-            bundle = NetworkManager(name)
-        case Network.IWD:
-            bundle = Iwd(name)
-        case Network.SYSTEMD:
-            bundle = SystemdNet(name)
-        case Bundles.CUPS:
-            bundle = Cups(name)
-        case Bundles.GRML:
-            bundle = GrmlZsh(name)
-        case Bundles.MAIN_FILE_SYSTEMS:
-            bundle = MainFileSystems(name)
-        case Bundles.MAIN_FONTS:
-            bundle = MainFonts(name)
-        case Bundles.MICROCODES:
-            bundle = Microcodes()
-        case Bundles.NVIDIA:
-            bundle = NvidiaDriver(name)
-        case Bundles.PIPEWIRE:
-            bundle = PipeWire(name)
-        case Bundles.TERMINUS:
-            bundle = TerminusFont(name)
-        case Bundles.ZRAM:
-            bundle = Zram(name)
-        case Bundles.COPY_ACM:
-            bundle = CopyACM(name)
-        case ShellBundles.YAY:
-            bundle = Yay(name)
-        case _:
-            bundle = Bundle(name)
-    return bundle
+    return get_bundle_type_by_name(name.value)(name)
 
 
 T = TypeVar("T", bound=OptionEnum)
