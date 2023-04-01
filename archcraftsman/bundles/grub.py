@@ -22,7 +22,8 @@ import re
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.options import FSFormats, PartTypes
-from archcraftsman.utils import is_bios, execute
+from archcraftsman.base import is_bios
+from archcraftsman.utils import execute
 
 
 class Grub(Bundle):
@@ -47,7 +48,7 @@ class Grub(Bundle):
             'sed -i "/^GRUB_CMDLINE_LINUX=.*/a GRUB_DISABLE_OS_PROBER=false" /mnt/etc/default/grub'
         )
 
-        if GlobalInfo().partitioning_info.root_partition.encrypted:
+        if GlobalInfo().partitioning_info.root_partition().encrypted:
             hooks = execute(
                 "grep -e '^HOOKS' /mnt/etc/mkinitcpio.conf",
                 check=False,
@@ -76,7 +77,7 @@ class Grub(Bundle):
             else:
                 extracted_grub_cmdline = []
             extracted_grub_cmdline.append(
-                f"cryptdevice=UUID={GlobalInfo().partitioning_info.root_partition.uuid}:root"
+                f"cryptdevice=UUID={GlobalInfo().partitioning_info.root_partition().uuid}:root"
             )
             processed_grub_cmdline = (
                 f"GRUB_CMDLINE_LINUX_DEFAULT=\"{' '.join(extracted_grub_cmdline)}\""
@@ -95,7 +96,7 @@ class Grub(Bundle):
             )
 
         if (
-            GlobalInfo().partitioning_info.root_partition.part_format_type
+            GlobalInfo().partitioning_info.root_partition().part_format_type
             == FSFormats.EXT4
         ):
             execute(

@@ -21,6 +21,7 @@ The network manager bundle module
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.bundles.systemdnet import SystemdNet
 from archcraftsman.i18n import I18n
+from archcraftsman.options import BundleTypes
 from archcraftsman.utils import print_sub_step, execute
 
 _ = I18n().gettext
@@ -37,8 +38,8 @@ class Iwd(Bundle):
 
     def print_resume(self):
         print_sub_step(_("Install Iwd."))
-        SystemdNet(self.name).print_resume()
+        SystemdNet(self.name, BundleTypes.OTHER).print_resume()
 
     def configure(self):
         execute('arch-chroot /mnt bash -c "systemctl enable iwd.service"')
-        SystemdNet(self.name).configure()
+        SystemdNet(self.name, BundleTypes.OTHER).configure()

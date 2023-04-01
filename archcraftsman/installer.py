@@ -24,15 +24,16 @@ from subprocess import CalledProcessError
 
 from archcraftsman.autopart import auto_partitioning
 from archcraftsman.basesetup import initial_setup, setup_system
+from archcraftsman.config import deserialize
 from archcraftsman.globalargs import GlobalArgs
 from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.i18n import I18n
 from archcraftsman.manualpart import manual_partitioning
-from archcraftsman.options import FSFormats, PartTypes
+from archcraftsman.options import Desktops, FSFormats, PartTypes
 from archcraftsman.packages import Packages
 from archcraftsman.shell import shell
+from archcraftsman.base import elevate
 from archcraftsman.utils import (
-    elevate,
     execute,
     glob_completer,
     print_error,
@@ -49,9 +50,10 @@ def install():
     The main installation method.
     """
     try:
-        setup_system()
+        if not GlobalArgs().config():
+            setup_system()
 
-        partitioning_info_ok = None
+        partitioning_info_ok: bool = bool(GlobalArgs().config())
         while not partitioning_info_ok:
             print_step(_("Partitioning :"))
             want_auto_part = prompt_bool(
@@ -72,8 +74,7 @@ def install():
         base_pkgs = set()
         base_pkgs.update(["base", "base-devel", "linux-firmware"])
 
-        if GlobalInfo().system_info.kernel:
-            base_pkgs.update(GlobalInfo().system_info.kernel.packages())
+        base_pkgs.update(GlobalInfo().system_info.kernel().packages())
 
         pkgs = set()
         pkgs.update(
@@ -106,17 +107,6 @@ def install():
 
         if GlobalInfo().partitioning_info.btrfs_in_use:
             pkgs.add("btrfs-progs")
-
-        pkgs.update(GlobalInfo().system_info.micro_codes.packages())
-
-        if GlobalInfo().system_info.bootloader:
-            pkgs.update(GlobalInfo().system_info.bootloader.packages())
-
-        if GlobalInfo().system_info.desktop:
-            pkgs.update(GlobalInfo().system_info.desktop.packages())
-
-        if GlobalInfo().system_info.network:
-            pkgs.update(GlobalInfo().system_info.network.packages())
 
         for bundle in GlobalInfo().system_info.bundles:
             pkgs.update(bundle.packages())
@@ -179,7 +169,7 @@ def install():
         ):
             print_step(_("Creation and activation of the swapfile..."), clear=False)
             if (
-                GlobalInfo().partitioning_info.root_partition.part_format_type
+                GlobalInfo().partitioning_info.root_partition().part_format_type
                 == FSFormats.BTRFS
             ):
                 execute(
@@ -202,19 +192,17 @@ def install():
         print_step(_("Generating fstab..."), clear=False)
         execute("genfstab -U /mnt >>/mnt/etc/fstab")
 
-        if GlobalInfo().system_info.desktop:
+        if GlobalInfo().system_info.desktop().name != Desktops.NONE:
             print_step(_("Desktop configuration..."), clear=False)
-            GlobalInfo().system_info.desktop.configure()
+            GlobalInfo().system_info.desktop().configure()
 
-        if GlobalInfo().system_info.network:
-            print_step(_("Network configuration..."), clear=False)
-            GlobalInfo().system_info.network.configure()
+        print_step(_("Network configuration..."), clear=False)
+        GlobalInfo().system_info.network().configure()
 
         execute('arch-chroot /mnt bash -c "systemctl enable systemd-timesyncd"')
 
-        if GlobalInfo().system_info.bootloader:
-            print_step(_("Installation and configuration of the grub..."), clear=False)
-            GlobalInfo().system_info.bootloader.configure()
+        print_step(_("Installation and configuration of the grub..."), clear=False)
+        GlobalInfo().system_info.bootloader().configure()
 
         print_step(_("Users configuration..."), clear=False)
         print_sub_step(_("Root account configuration..."))
@@ -245,7 +233,7 @@ def install():
                 )
 
         print_step(_("Extra packages configuration if needed..."), clear=False)
-        for bundle in GlobalInfo().system_info.bundles:
+        for bundle in GlobalInfo().system_info.others():
             bundle.configure()
 
         GlobalInfo().partitioning_info.umount_partitions()
@@ -331,6 +319,12 @@ def main():
         help="Start ArchCraftsman in interactive shell mode. Useless if used with --install.",
     )
     parser.add_argument(
+        "-c",
+        "--config",
+        action="store",
+        help="Used to specify a config file to use. Can be used with both --install and --shell.",
+    )
+    parser.add_argument(
         "-t",
         "--test",
         action="store_const",
@@ -343,6 +337,9 @@ def main():
     readline.set_completer_delims(" \t\n;")
     readline.parse_and_bind("tab: complete")
     readline.set_completer(glob_completer)
+
+    if GlobalArgs().config():
+        deserialize(GlobalArgs().config())
 
     if not GlobalArgs().is_call_ok():
         parser.print_help()

@@ -17,6 +17,7 @@
 """
 The manual partitioning system module
 """
+from archcraftsman.base import log, is_bios
 from archcraftsman.disk import Disk
 from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.i18n import I18n
@@ -25,8 +26,6 @@ from archcraftsman.partition import Partition
 from archcraftsman.utils import (
     ask_drive,
     execute,
-    is_bios,
-    log,
     print_error,
     print_step,
     print_sub_step,
@@ -110,7 +109,6 @@ def manual_partitioning() -> bool:
             elif partition_type == PartTypes.ROOT:
                 partition.part_type = PartTypes.ROOT
                 partition.part_mount_point = "/"
-                GlobalInfo().partitioning_info.root_partition = partition
                 GlobalInfo().partitioning_info.main_disk = f"/dev/{partition.disk_name}"
             elif partition_type == PartTypes.BOOT:
                 partition.part_type = PartTypes.BOOT

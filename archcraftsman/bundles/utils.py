@@ -48,6 +48,7 @@ from archcraftsman.bundles.xfce import Xfce
 from archcraftsman.bundles.yay import Yay
 from archcraftsman.bundles.zram import Zram
 from archcraftsman.options import (
+    BundleTypes,
     Kernels,
     BootLoaders,
     Desktops,
@@ -131,11 +132,11 @@ def get_bundle_type_by_name(name: str) -> type[Bundle]:
     return bundle
 
 
-def process_bundle(name: OptionEnum) -> Bundle:
+def process_bundle(name: OptionEnum, bundle_type: BundleTypes) -> Bundle:
     """
     Process a bundle name into a Bundle object.
     """
-    return get_bundle_type_by_name(name.value)(name)
+    return get_bundle_type_by_name(name.value)(name, bundle_type)
 
 
 T = TypeVar("T", bound=OptionEnum)
@@ -145,6 +146,7 @@ def prompt_bundle(
     message: str,
     error_msg: str,
     options: type[T],
+    bundle_type: BundleTypes,
     supported_msg: Optional[str],
     default: Optional[T],
     *ignores: T,
@@ -164,6 +166,6 @@ def prompt_bundle(
     )
     if not option:
         raise ValueError("No bundle selected")
-    bundle = process_bundle(option)
+    bundle = process_bundle(option, bundle_type)
     bundle.prompt_extra()
     return bundle

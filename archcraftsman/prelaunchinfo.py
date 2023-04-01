@@ -21,7 +21,8 @@ import os
 
 from archcraftsman.i18n import I18n
 from archcraftsman.options import Languages
-from archcraftsman.utils import print_step, execute, log
+from archcraftsman.base import log
+from archcraftsman.utils import print_step, execute
 
 _ = I18n().gettext
 

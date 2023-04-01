@@ -47,8 +47,8 @@ class Plasma(Bundle):
         ]
         if self.plasma_wayland:
             packages.extend(["plasma-wayland-session", "qt5-wayland"])
-            if GlobalInfo().system_info.bundles and Bundles.NVIDIA in [
-                bundle.name for bundle in GlobalInfo().system_info.bundles
+            if GlobalInfo().system_info.others() and Bundles.NVIDIA in [
+                bundle.name for bundle in GlobalInfo().system_info.others()
             ]:
                 packages.append("egl-wayland")
             if self.minimal is not True:

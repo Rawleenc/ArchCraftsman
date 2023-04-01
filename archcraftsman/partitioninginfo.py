@@ -21,7 +21,7 @@ import re
 from typing import Optional
 
 from archcraftsman.i18n import I18n
-from archcraftsman.options import FSFormats
+from archcraftsman.options import FSFormats, PartTypes
 from archcraftsman.partition import Partition
 from archcraftsman.utils import print_step, execute
 
@@ -34,7 +34,6 @@ class PartitioningInfo:
     """
 
     partitions: list[Partition]
-    root_partition: Partition
     swapfile_size: Optional[str]
     main_disk: str
 
@@ -42,6 +41,16 @@ class PartitioningInfo:
 
     def __init__(self) -> None:
         self.partitions = []
+
+    def root_partition(self) -> Partition:
+        """
+        The root partition retrieving method.
+        """
+        return next(
+            partition
+            for partition in self.partitions
+            if partition.part_type == PartTypes.ROOT
+        )
 
     def format_and_mount_partitions(self):
         """

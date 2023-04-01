@@ -20,6 +20,7 @@ The system setup module
 import json
 import re
 from urllib.request import urlopen
+from archcraftsman.base import is_bios, print_step, print_sub_step, prompt_ln
 
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.bundles.copyacm import CopyACM
@@ -34,9 +35,11 @@ from archcraftsman.bundles.pipewire import PipeWire
 from archcraftsman.bundles.terminus import TerminusFont
 from archcraftsman.bundles.utils import prompt_bundle
 from archcraftsman.bundles.zram import Zram
+from archcraftsman.globalargs import GlobalArgs
 from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.i18n import I18n
 from archcraftsman.options import (
+    BundleTypes,
     Kernels,
     Desktops,
     Bundles,
@@ -50,12 +53,8 @@ from archcraftsman.utils import (
     ask_keymap,
     generate_translations,
     print_error,
-    print_step,
-    print_sub_step,
-    prompt_ln,
     prompt_bool,
     ask_password,
-    is_bios,
     prompt_option,
 )
 
@@ -79,11 +78,12 @@ def initial_setup(shell_mode: bool = False):
     else:
         default_keymap = "de-latin1"
 
-    GlobalInfo().pre_launch_info.detected_timezone = detected_timezone
-    GlobalInfo().pre_launch_info.global_language = default_language
-    GlobalInfo().pre_launch_info.keymap = default_keymap
+    if not GlobalArgs().config():
+        GlobalInfo().pre_launch_info.detected_timezone = detected_timezone
+        GlobalInfo().pre_launch_info.global_language = default_language
+        GlobalInfo().pre_launch_info.keymap = default_keymap
 
-    user_answer = shell_mode
+    user_answer = shell_mode or GlobalArgs().config()
     while not user_answer:
         print_step(_("Welcome to ArchCraftsman !"))
         if is_bios():
@@ -134,38 +134,53 @@ def setup_system():
         )
         GlobalInfo().system_info.bundles = []
 
-        GlobalInfo().system_info.kernel = prompt_bundle(
-            _("Choose your kernel (%s) : "),
-            _("Kernel '%s' is not supported."),
-            Kernels,
-            _("Supported kernels : "),
-            Kernels.CURRENT,
+        GlobalInfo().system_info.bundles.append(
+            prompt_bundle(
+                _("Choose your kernel (%s) : "),
+                _("Kernel '%s' is not supported."),
+                Kernels,
+                BundleTypes.KERNEL,
+                _("Supported kernels : "),
+                Kernels.CURRENT,
+            )
         )
 
-        GlobalInfo().system_info.desktop = prompt_bundle(
-            _("Install a desktop environment ? (%s) : "),
-            _("Desktop environment '%s' is not supported."),
-            Desktops,
-            _("Supported desktop environments : "),
-            Desktops.NONE,
+        GlobalInfo().system_info.bundles.append(
+            prompt_bundle(
+                _("Install a desktop environment ? (%s) : "),
+                _("Desktop environment '%s' is not supported."),
+                Desktops,
+                BundleTypes.DESKTOP,
+                _("Supported desktop environments : "),
+                Desktops.NONE,
+            )
         )
 
-        GlobalInfo().system_info.network = prompt_bundle(
-            _("Choose your network stack (%s) : "),
-            _("Network stack '%s' is not supported."),
-            Network,
-            _("Supported network stacks : "),
-            Network.NETWORK_MANAGER,
+        GlobalInfo().system_info.bundles.append(
+            prompt_bundle(
+                _("Choose your network stack (%s) : "),
+                _("Network stack '%s' is not supported."),
+                Network,
+                BundleTypes.NETWORK,
+                _("Supported network stacks : "),
+                Network.NETWORK_MANAGER,
+            )
         )
 
         if prompt_bool(_("Install proprietary Nvidia driver ?"), default=False):
-            GlobalInfo().system_info.bundles.append(NvidiaDriver(Bundles.NVIDIA))
+            GlobalInfo().system_info.bundles.append(
+                NvidiaDriver(Bundles.NVIDIA, BundleTypes.OTHER)
+            )
 
         if prompt_bool(_("Install terminus console font ?"), default=False):
-            GlobalInfo().system_info.bundles.append(TerminusFont(Bundles.TERMINUS))
+            GlobalInfo().system_info.bundles.append(
+                TerminusFont(Bundles.TERMINUS, BundleTypes.OTHER)
+            )
 
         if prompt_bool(_("Install Cups ?"), default=False):
-            GlobalInfo().system_info.bundles.append(Cups(Bundles.CUPS))
+            GlobalInfo().system_info.bundles.append(
+                Cups(Bundles.CUPS, BundleTypes.OTHER)
+            )
 
         if prompt_bool(
             _("Install ZSH with GRML configuration ?"),
@@ -176,7 +191,9 @@ def setup_system():
                 "live environment."
             ),
         ):
-            GlobalInfo().system_info.bundles.append(GrmlZsh(Bundles.GRML))
+            GlobalInfo().system_info.bundles.append(
+                GrmlZsh(Bundles.GRML, BundleTypes.OTHER)
+            )
 
         if prompt_bool(
             _("Install a set of main fonts ?"),
@@ -184,7 +201,9 @@ def setup_system():
             help_msg=_("If yes, the following packages will be installed :\n%s")
             % " ".join(get_main_fonts()),
         ):
-            GlobalInfo().system_info.bundles.append(MainFonts(Bundles.MAIN_FONTS))
+            GlobalInfo().system_info.bundles.append(
+                MainFonts(Bundles.MAIN_FONTS, BundleTypes.OTHER)
+            )
 
         if prompt_bool(
             _("Install main file systems support ?"),
@@ -193,7 +212,7 @@ def setup_system():
             % " ".join(get_main_file_systems()),
         ):
             GlobalInfo().system_info.bundles.append(
-                MainFileSystems(Bundles.MAIN_FILE_SYSTEMS)
+                MainFileSystems(Bundles.MAIN_FILE_SYSTEMS, BundleTypes.OTHER)
             )
 
         if prompt_bool(
@@ -206,7 +225,9 @@ def setup_system():
                 "ZRAM is fully compatible with a swap, it just has a higher priority."
             ),
         ):
-            GlobalInfo().system_info.bundles.append(Zram(Bundles.ZRAM))
+            GlobalInfo().system_info.bundles.append(
+                Zram(Bundles.ZRAM, BundleTypes.OTHER)
+            )
 
         if prompt_bool(
             _("Install PipeWire ?"),
@@ -216,10 +237,14 @@ def setup_system():
                 "to manage audio and video capture."
             ),
         ):
-            GlobalInfo().system_info.bundles.append(PipeWire(Bundles.PIPEWIRE))
+            GlobalInfo().system_info.bundles.append(
+                PipeWire(Bundles.PIPEWIRE, BundleTypes.OTHER)
+            )
 
         if prompt_bool(_("Copy ArchCraftsman to the new system ?"), default=False):
-            GlobalInfo().system_info.bundles.append(CopyACM(Bundles.COPY_ACM))
+            GlobalInfo().system_info.bundles.append(
+                CopyACM(Bundles.COPY_ACM, BundleTypes.OTHER)
+            )
 
         default_timezone_file = (
             f"/usr/share/zoneinfo/{GlobalInfo().pre_launch_info.detected_timezone}"
@@ -266,18 +291,15 @@ def setup_system():
                 _("Enter the %s password : ") % GlobalInfo().system_info.user_name
             )
 
-        GlobalInfo().system_info.bootloader = Grub(BootLoaders.GRUB)
-        GlobalInfo().system_info.micro_codes = Microcodes()
+        GlobalInfo().system_info.bundles.append(
+            Grub(BootLoaders.GRUB, BundleTypes.BOOTLOADER)
+        )
+        GlobalInfo().system_info.bundles.append(
+            Microcodes(Bundles.MICROCODES, BundleTypes.MICRO_CODES)
+        )
 
         print_step(_("Summary of choices :"))
         print_sub_step(_("Your hostname : %s") % GlobalInfo().system_info.hostname)
-        GlobalInfo().system_info.micro_codes.print_resume()
-        if GlobalInfo().system_info.kernel:
-            GlobalInfo().system_info.kernel.print_resume()
-        if GlobalInfo().system_info.desktop:
-            GlobalInfo().system_info.desktop.print_resume()
-        if GlobalInfo().system_info.network:
-            GlobalInfo().system_info.network.print_resume()
         for bundle in GlobalInfo().system_info.bundles:
             if bundle is not None and isinstance(bundle, Bundle):
                 bundle.print_resume()

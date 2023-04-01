@@ -22,7 +22,6 @@ from typing import Optional
 
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import I18n
-from archcraftsman.options import Bundles
 from archcraftsman.utils import print_sub_step, execute
 
 _ = I18n().gettext
@@ -33,8 +32,8 @@ class Microcodes(Bundle):
     The Microcodes class.
     """
 
-    def __init__(self):
-        super().__init__(Bundles.MICROCODES)
+    def __init__(self, name: str, bundle_type: str):
+        super().__init__(name, bundle_type)
         cpu_info_vendor = execute(
             'grep </proc/cpuinfo "vendor" | uniq', force=True, capture_output=True
         ).output

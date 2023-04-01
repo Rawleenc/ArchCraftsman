@@ -20,6 +20,7 @@ The module of SystemInfo class.
 
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import I18n
+from archcraftsman.options import BundleTypes
 
 _ = I18n().gettext
 
@@ -31,14 +32,67 @@ class SystemInfo:
 
     hostname: str
     bundles: list[Bundle]
-    kernel: Bundle
-    desktop: Bundle
-    network: Bundle
-    bootloader: Bundle
-    micro_codes: Bundle
     timezone: str
     user_name: str
     user_full_name: str
     more_pkgs: list[str]
     root_password: str
     user_password: str
+
+    def kernel(self) -> Bundle:
+        """
+        The kernel bundle retrieving method.
+        """
+        return [
+            bundle
+            for bundle in self.bundles
+            if bundle.bundle_type == BundleTypes.KERNEL
+        ][0]
+
+    def microcode(self) -> Bundle:
+        """
+        The microcode bundle retrieving method.
+        """
+        return next(
+            bundle
+            for bundle in self.bundles
+            if bundle.bundle_type == BundleTypes.MICRO_CODES
+        )
+
+    def bootloader(self) -> Bundle:
+        """
+        The bootloader bundle retrieving method.
+        """
+        return next(
+            bundle
+            for bundle in self.bundles
+            if bundle.bundle_type == BundleTypes.BOOTLOADER
+        )
+
+    def desktop(self) -> Bundle:
+        """
+        The desktop bundle retrieving method.
+        """
+        return next(
+            bundle
+            for bundle in self.bundles
+            if bundle.bundle_type == BundleTypes.DESKTOP
+        )
+
+    def network(self) -> Bundle:
+        """
+        The network bundle retrieving method.
+        """
+        return next(
+            bundle
+            for bundle in self.bundles
+            if bundle.bundle_type == BundleTypes.NETWORK
+        )
+
+    def others(self) -> list[Bundle]:
+        """
+        The other bundles retrieving method.
+        """
+        return [
+            bundle for bundle in self.bundles if bundle.bundle_type == BundleTypes.OTHER
+        ]

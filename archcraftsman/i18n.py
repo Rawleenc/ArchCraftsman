@@ -51,7 +51,7 @@ class I18n(metaclass=I18nMeta):
     def __init__(self) -> None:
         self.gettext_method = gettext.gettext
 
-    def update_method(self, global_language: Languages):
+    def update_method(self, global_language: str):
         """
         Update the translation method to use according to the global language.
         """
@@ -59,7 +59,7 @@ class I18n(metaclass=I18nMeta):
             translation = gettext.translation(
                 "archcraftsman",
                 localedir="/usr/share/locale",
-                languages=[global_language.value],
+                languages=[global_language],
             )
             translation.install()
             self.gettext_method = translation.gettext

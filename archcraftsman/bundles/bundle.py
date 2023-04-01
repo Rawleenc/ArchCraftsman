@@ -17,7 +17,6 @@
 """
 The generic bundle blueprint module
 """
-from archcraftsman.options import OptionEnum
 
 
 class Bundle:
@@ -25,10 +24,12 @@ class Bundle:
     A class to represent a bootloader.
     """
 
-    name: OptionEnum
+    name: str
+    bundle_type: str
 
-    def __init__(self, name: OptionEnum):
+    def __init__(self, name: str, bundle_type: str):
         self.name = name
+        self.bundle_type = bundle_type
 
     def packages(self) -> list[str]:
         """

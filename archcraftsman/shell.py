@@ -24,6 +24,7 @@ from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.bundles.utils import prompt_bundle
 from archcraftsman.i18n import I18n
 from archcraftsman.options import (
+    BundleTypes,
     Commands,
     Kernels,
     Desktops,
@@ -51,6 +52,7 @@ def ask_for_kernel() -> Optional[Bundle]:
             "> ",
             _("Kernel '%s' is not supported."),
             Kernels,
+            BundleTypes.KERNEL,
             _("Supported kernels : "),
             None,
             new_line_prompt=False,
@@ -68,6 +70,7 @@ def ask_for_desktop() -> Optional[Bundle]:
             "> ",
             _("Desktop environment '%s' is not supported."),
             Desktops,
+            BundleTypes.DESKTOP,
             _("Supported desktop environments : "),
             None,
             new_line_prompt=False,
@@ -85,6 +88,7 @@ def ask_for_bundle() -> Optional[Bundle]:
             "> ",
             _("Bundle '%s' is not supported."),
             Bundles,
+            BundleTypes.OTHER,
             _("Available bundles : "),
             None,
             Bundles.COPY_ACM,
@@ -103,6 +107,7 @@ def ask_for_shell_bundle() -> Optional[Bundle]:
             "> ",
             _("Shell bundle '%s' is not supported."),
             ShellBundles,
+            BundleTypes.OTHER,
             _("Available shell bundles : "),
             None,
             new_line_prompt=False,

@@ -22,12 +22,12 @@ from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.i18n import I18n
 from archcraftsman.options import FSFormats, PartTypes, SwapTypes
 from archcraftsman.partition import Partition
+from archcraftsman.base import is_bios
 from archcraftsman.utils import (
     ask_drive,
     ask_format_type,
     execute,
     from_iec,
-    is_bios,
     print_step,
     print_sub_step,
     prompt_bool,
@@ -273,9 +273,6 @@ def auto_partitioning() -> bool:
 
             for partition in GlobalInfo().partitioning_info.partitions:
                 partition.build_partition_name(target_disk)
-
-                if partition.part_type == PartTypes.ROOT:
-                    GlobalInfo().partitioning_info.root_partition = partition
 
                 if partition not in GlobalInfo().partitioning_info.partitions:
                     GlobalInfo().partitioning_info.partitions.append(partition)

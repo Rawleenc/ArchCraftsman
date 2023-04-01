@@ -34,19 +34,15 @@ class NetworkManager(Bundle):
 
     def packages(self) -> list[str]:
         packages = ["networkmanager"]
-        if (
-            GlobalInfo().system_info.desktop
-            and GlobalInfo().system_info.desktop.name
-            in [
-                Desktops.BUDGIE,
-                Desktops.I3,
-                Desktops.LXQT,
-                Desktops.MATE,
-                Desktops.SWAY,
-                Desktops.ENLIGHTENMENT,
-                Desktops.XFCE,
-            ]
-        ):
+        if GlobalInfo().system_info.desktop().name in [
+            Desktops.BUDGIE,
+            Desktops.I3,
+            Desktops.LXQT,
+            Desktops.MATE,
+            Desktops.SWAY,
+            Desktops.ENLIGHTENMENT,
+            Desktops.XFCE,
+        ]:
             packages.append("network-manager-applet")
         return packages
 
