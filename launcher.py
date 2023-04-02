@@ -20,10 +20,12 @@ The ArchCraftsman entry point. A launcher to download all ArchCraftsman's module
 import json
 import multiprocessing
 import os
+import re
 import subprocess
 import sys
+import urllib.error
+import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from urllib.request import urlopen, urlretrieve
 
 OWNER = "Rawleenc"
 REPO = "ArchCraftsman"
@@ -31,6 +33,7 @@ BRANCH = "dev"
 CMD = "python -m archcraftsman.installer --install"
 GREEN = "\033[0;32m"
 CYAN = "\033[0;36m"
+ORANGE = "\033[0;33m"
 NOCOLOR = "\033[0m"
 
 
@@ -50,7 +53,38 @@ def print_sub_step(message: str):
     print(f"{CYAN}  * {message}{NOCOLOR}")
 
 
-def download(url: str, destination: str, replace: bool = False):
+def input_str(message: str) -> str:
+    """
+    A method to ask to input something.
+    """
+    return input(f"{ORANGE}{message}{NOCOLOR}")
+
+
+def urlopen(url: str):
+    """
+    A method to open an url with a custom user-agent.
+    """
+    return urllib.request.urlopen(
+        urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    )
+
+
+def download_file(url, file_path) -> bool:
+    """
+    A method to stream download a single file.
+    """
+    if not re.match(r"^[a-zA-Z]+://", url):
+        url = f"https://{url}"
+    try:
+        with urlopen(url) as response:
+            with open(file_path, "wb") as file:
+                file.write(response.read())
+        return True
+    except urllib.error.URLError:
+        return False
+
+
+def download(url: str, destination: str, replace: bool = False) -> bool:
     """
     A method to download a file
     """
@@ -61,7 +95,10 @@ def download(url: str, destination: str, replace: bool = False):
         parent = os.path.dirname(destination)
         if parent:
             subprocess.run(f"mkdir -p {parent}", shell=True, check=True)
-        urlretrieve(url, destination)
+        download_file(url, destination)
+    if not os.path.exists(destination):
+        return False
+    return True
 
 
 def get_all_files(directory: str) -> list:
@@ -83,7 +120,10 @@ def get_all_files(directory: str) -> list:
     return files
 
 
-if __name__ == "__main__":
+def main(cmd: str):
+    """
+    Main launcher function.
+    """
     print_step("Downloading all ArchCraftsman's modules...", clear=False)
 
     module_files = []
@@ -98,9 +138,23 @@ if __name__ == "__main__":
         for future in as_completed(futures):
             future.result()
 
+    config_file = input_str(
+        "Enter a config file path or url if you want to use one (leave empty for no file) : \n> "
+    )
+    if os.path.exists(config_file):
+        cmd += f" --config {config_file}"
+    else:
+        download(config_file, "config.json", True)
+        if os.path.exists("config.json"):
+            cmd += " --config config.json"
+
     try:
-        subprocess.run(CMD, shell=True, check=True)
+        subprocess.run(cmd, shell=True, check=True)
     except KeyboardInterrupt:
         sys.exit(1)
-    except subprocess.CalledProcessError as e:
-        sys.exit(e.returncode)
+    except subprocess.CalledProcessError as exception:
+        sys.exit(exception.returncode)
+
+
+if __name__ == "__main__":
+    main(CMD)
