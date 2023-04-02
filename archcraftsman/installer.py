@@ -236,8 +236,8 @@ def install():
         for bundle in GlobalInfo().system_info.others():
             bundle.configure()
 
-        GlobalInfo().partitioning_info.umount_partitions()
         GlobalInfo().serialize()
+        GlobalInfo().partitioning_info.umount_partitions()
 
         print_step(
             _("Installation complete ! You can reboot your system."), clear=False
@@ -245,8 +245,8 @@ def install():
 
     except KeyboardInterrupt:
         print_error(_("Script execution interrupted by the user !"), do_pause=False)
-        GlobalInfo().partitioning_info.umount_partitions()
         GlobalInfo().serialize()
+        GlobalInfo().partitioning_info.umount_partitions()
         sys.exit(1)
     except CalledProcessError as exception:
         print_error(
@@ -254,8 +254,8 @@ def install():
             % exception,
             do_pause=False,
         )
-        GlobalInfo().partitioning_info.umount_partitions()
         GlobalInfo().serialize()
+        GlobalInfo().partitioning_info.umount_partitions()
         sys.exit(1)
     except EOFError:
         sys.exit(1)

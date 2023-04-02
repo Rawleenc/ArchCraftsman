@@ -62,5 +62,10 @@ class GlobalInfo(metaclass=GlobalInfoMeta):
         json_str = json.dumps(
             self, default=lambda o: o.__dict__, sort_keys=True, indent=2
         )
-        with open(f"{self.system_info.hostname}.json", "w", encoding="UTF-8") as file:
+        file_path = (
+            f"/mnt/home/{self.system_info.user_name}/{self.system_info.hostname}.json"
+            if self.system_info.user_name
+            else f"/mnt/root/{self.system_info.hostname}.json"
+        )
+        with open(file_path, "w", encoding="UTF-8") as file:
             file.write(json_str)
