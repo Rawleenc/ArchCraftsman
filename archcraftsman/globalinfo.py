@@ -19,6 +19,7 @@ The global information singleton module
 """
 import json
 from threading import Lock
+from archcraftsman.globalargs import GlobalArgs
 
 from archcraftsman.prelaunchinfo import PreLaunchInfo
 from archcraftsman.partitioninginfo import PartitioningInfo
@@ -66,6 +67,11 @@ class GlobalInfo(metaclass=GlobalInfoMeta):
             f"/mnt/home/{self.system_info.user_name}/{self.system_info.hostname}.json"
             if self.system_info.user_name
             else f"/mnt/root/{self.system_info.hostname}.json"
+        )
+        file_path = (
+            file_path
+            if not GlobalArgs().test()
+            else f"{self.system_info.hostname}.json"
         )
         with open(file_path, "w", encoding="UTF-8") as file:
             file.write(json_str)

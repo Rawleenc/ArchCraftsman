@@ -43,10 +43,10 @@ class PreLaunchInfo:
     The class to contain all pre-launch information.
     """
 
-    global_language: Languages
-    keymap: str
-    detected_timezone: str
-    live_console_font: str
+    global_language: Languages = Languages.ENGLISH
+    keymap: str = "en"
+    detected_timezone: str = "Etc/UTC"
+    live_console_font: str = ""
 
     def setup_locale(self):
         """

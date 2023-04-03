@@ -18,7 +18,7 @@
 The module of PartitioningInfo class.
 """
 import re
-from typing import Optional
+from archcraftsman.globalargs import GlobalArgs
 
 from archcraftsman.i18n import I18n
 from archcraftsman.options import FSFormats, PartTypes
@@ -33,9 +33,9 @@ class PartitioningInfo:
     The class to contain all partitioning information.
     """
 
-    partitions: list[Partition]
-    swapfile_size: Optional[str]
-    main_disk: str
+    partitions: list[Partition] = []
+    swapfile_size: str = ""
+    main_disk: str = ""
 
     btrfs_in_use: bool = False
 
@@ -66,7 +66,7 @@ class PartitioningInfo:
         not_mounted_partitions = [
             partition
             for partition in self.partitions
-            if not partition.part_mounted and partition.part_mount_point
+            if not partition.is_mounted() and partition.part_mount_point
         ]
         not_mounted_partitions.sort(
             key=lambda part: 0
@@ -74,7 +74,9 @@ class PartitioningInfo:
             else len(part.part_mount_point)
         )
 
-        while False in [partition.part_mounted for partition in not_mounted_partitions]:
+        while not GlobalArgs().test and False in [
+            partition.is_mounted() for partition in not_mounted_partitions
+        ]:
             for partition in not_mounted_partitions:
                 if partition.part_format_type == FSFormats.BTRFS:
                     self.btrfs_in_use = True
@@ -101,7 +103,7 @@ class PartitioningInfo:
             execute(f"swapoff {swap} &>/dev/null", check=False)
 
         mounted_partitions = [
-            partition for partition in self.partitions if partition.part_mounted
+            partition for partition in self.partitions if partition.is_mounted()
         ]
         mounted_partitions.sort(
             key=lambda part: 0
@@ -110,8 +112,10 @@ class PartitioningInfo:
             reverse=True,
         )
 
-        while True in [partition.part_mounted for partition in mounted_partitions]:
+        while not GlobalArgs().test and True in [
+            partition.is_mounted() for partition in mounted_partitions
+        ]:
             for partition in [
-                partition for partition in mounted_partitions if partition.part_mounted
+                partition for partition in mounted_partitions if partition.is_mounted()
             ]:
                 partition.umount()

@@ -19,15 +19,18 @@ The generic bundle blueprint module
 """
 
 
+from archcraftsman.options import BundleTypes
+
+
 class Bundle:
     """
     A class to represent a bootloader.
     """
 
     name: str
-    bundle_type: str
+    bundle_type: BundleTypes
 
-    def __init__(self, name: str, bundle_type: str):
+    def __init__(self, name: str, bundle_type: BundleTypes):
         self.name = name
         self.bundle_type = bundle_type
 

@@ -30,14 +30,14 @@ class SystemInfo:
     The class to contain all system information.
     """
 
-    hostname: str
-    bundles: list[Bundle]
-    timezone: str
-    user_name: str
-    user_full_name: str
-    more_pkgs: list[str]
-    root_password: str
-    user_password: str
+    hostname: str = "archlinux"
+    bundles: list[Bundle] = []
+    timezone: str = "Etc/UTC"
+    user_name: str = ""
+    user_full_name: str = ""
+    more_pkgs: list[str] = []
+    root_password: str = ""
+    user_password: str = ""
 
     def kernel(self) -> Bundle:
         """

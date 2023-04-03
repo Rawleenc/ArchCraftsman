@@ -18,7 +18,6 @@
 The disk class module
 """
 import re
-from typing import Optional
 
 from archcraftsman.i18n import I18n
 from archcraftsman.options import PartTypes
@@ -101,9 +100,9 @@ class Disk:
                 p for p in self.partitions if PartTypes.EFI in p.part_type_name
             ].pop()
         except IndexError:
-            return Partition(None)
+            return Partition()
 
-    def ask_swapfile_size(self) -> Optional[str]:
+    def ask_swapfile_size(self) -> str:
         """
         The method to ask the user for the swapfile size.
         """
@@ -117,7 +116,7 @@ class Disk:
                 default=default_swapfile_size,
             )
             if swapfile_size == "0":
-                swapfile_size = None
+                swapfile_size = ""
                 swapfile_ok = True
             elif swapfile_size_pattern.match(swapfile_size):
                 swapfile_ok = True

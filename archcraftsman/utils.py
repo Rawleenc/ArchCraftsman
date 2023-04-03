@@ -205,11 +205,11 @@ def ask_keymap(default: str) -> str:
     return keymap
 
 
-def ask_format_type() -> Optional[FSFormats]:
+def ask_format_type() -> FSFormats:
     """
     The method to ask the user for the format type.
     """
-    return prompt_option(
+    format_type = prompt_option(
         _("Which format type do you want ? (%s) : "),
         _("Format type '%s' is not supported."),
         FSFormats,
@@ -217,15 +217,16 @@ def ask_format_type() -> Optional[FSFormats]:
         FSFormats.EXT4,
         FSFormats.VFAT,
     )
+    return format_type if format_type else FSFormats.EXT4
 
 
-def ask_encryption_block_name() -> Optional[str]:
+def ask_encryption_block_name() -> str:
     """
     Method to ask for encryption block name.
     """
     block_name_pattern = re.compile("^[a-z][a-z\\d_]*$")
     block_name_ok = False
-    block_name = None
+    block_name = ""
     while not block_name_ok:
         block_name = prompt_ln(
             _("What will be the encrypted block name ? : "), required=True

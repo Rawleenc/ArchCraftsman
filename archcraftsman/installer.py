@@ -165,7 +165,7 @@ def install():
             not in [
                 part.part_type for part in GlobalInfo().partitioning_info.partitions
             ]
-            and GlobalInfo().partitioning_info.swapfile_size is not None
+            and GlobalInfo().partitioning_info.swapfile_size
         ):
             print_step(_("Creation and activation of the swapfile..."), clear=False)
             if (
@@ -270,6 +270,9 @@ def pre_launch(shell_mode: bool = False):
             print_error(_("This script must be run as root."), do_pause=False)
             sys.exit(1)
 
+        if GlobalArgs().config():
+            deserialize(GlobalArgs().config())
+
         print_step(_("Running pre-launch steps : "), clear=False)
 
         if not shell_mode:
@@ -337,9 +340,6 @@ def main():
     readline.set_completer_delims(" \t\n;")
     readline.parse_and_bind("tab: complete")
     readline.set_completer(glob_completer)
-
-    if GlobalArgs().config():
-        deserialize(GlobalArgs().config())
 
     if not GlobalArgs().is_call_ok():
         parser.print_help()

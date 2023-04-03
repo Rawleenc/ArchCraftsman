@@ -92,7 +92,7 @@ def auto_partitioning() -> bool:
             root_size = to_iec(int(disk.total / 4))
             swap_size = to_iec(int(disk.total / 32))
         if swap_type == SwapTypes.NONE:
-            swap_size = None
+            swap_size = ""
         GlobalInfo().partitioning_info.swapfile_size = swap_size
         auto_part_str = ""
         index = 0

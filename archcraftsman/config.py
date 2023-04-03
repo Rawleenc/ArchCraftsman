@@ -20,6 +20,8 @@ The config related methods module
 
 
 import json
+import sys
+from archcraftsman.base import print_error, print_step, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.bundles.utils import get_bundle_type_by_name
 
@@ -38,7 +40,8 @@ def dict_to_obj(dict_obj, class_type):
     for key, value in dict_obj.items():
         if isinstance(value, dict):
             value = dict_to_obj(value, class_type)
-        setattr(obj, key, value)
+        if hasattr(obj, key):
+            setattr(obj, key, value)
     return obj
 
 
@@ -50,7 +53,8 @@ def dict_to_bundle(dict_obj) -> Bundle:
         dict_obj["name"], dict_obj["bundle_type"]
     )
     for key, value in dict_obj.items():
-        setattr(bundle, key, value)
+        if hasattr(bundle, key):
+            setattr(bundle, key, value)
     return bundle
 
 
@@ -60,8 +64,38 @@ def dict_to_partition(dict_obj) -> Partition:
     """
     partition = Partition()
     for key, value in dict_obj.items():
-        setattr(partition, key, value)
+        if hasattr(partition, key):
+            setattr(partition, key, value)
     return partition
+
+
+def validate(data: dict, model_object):
+    """
+    Validate a config file.
+    """
+    for key, value in data.items():
+        print_sub_step(f"Validating {key}...")
+        if not hasattr(model_object, key):
+            print_error(f"{key} is not a valid key.", do_pause=False)
+            sys.exit(1)
+        model_value = getattr(model_object, key)
+        if isinstance(value, dict):
+            validate(value, model_value)
+            continue
+        if isinstance(value, list) and len(model_value) > 0:
+            for i, item in enumerate(value):
+                if isinstance(item, dict):
+                    validate(item, model_value[i])
+            continue
+        model_value_type = type(model_value)
+        if not isinstance(value, model_value_type) and not issubclass(
+            model_value_type, type(value)
+        ):
+            print_error(
+                f"{key} is not a valid key. {key} should be {model_value_type}",
+                do_pause=False,
+            )
+            sys.exit(1)
 
 
 def deserialize(file_path: str):
@@ -69,9 +103,12 @@ def deserialize(file_path: str):
     Deserialize a json config file.
     """
     if not file_path:
-        raise ValueError("Config file path is empty.")
+        print_error("Config file path is empty.")
+        sys.exit(1)
     if not file_path.endswith(".json"):
-        raise ValueError(f"{file_path} is not a json file.")
+        print_error(f"{file_path} is not a json file.")
+        sys.exit(1)
+    print_step("Deserializing config file...", clear=False)
     with open(file_path, "r", encoding="UTF-8") as file:
         data = json.loads(file.read())
         global_info = GlobalInfo()
@@ -90,3 +127,5 @@ def deserialize(file_path: str):
         global_info.system_info.bundles = []
         for bundle in data["system_info"]["bundles"]:
             global_info.system_info.bundles.append(dict_to_bundle(bundle))
+    print_step("Validating config file...", clear=False)
+    validate(data, GlobalInfo())
