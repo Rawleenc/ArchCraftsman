@@ -31,9 +31,6 @@ class OptionEnum(str, Enum):
     ) -> str:
         return name.lower().replace("_", "")
 
-    def __str__(self):
-        return self.name.lower().replace("_", " ").capitalize()
-
 
 class Languages(OptionEnum):
     """
