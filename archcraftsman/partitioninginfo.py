@@ -74,7 +74,7 @@ class PartitioningInfo:
             else len(part.part_mount_point)
         )
 
-        while not GlobalArgs().test and False in [
+        while not GlobalArgs().test() and False in [
             partition.is_mounted() for partition in not_mounted_partitions
         ]:
             for partition in not_mounted_partitions:
@@ -112,7 +112,7 @@ class PartitioningInfo:
             reverse=True,
         )
 
-        while not GlobalArgs().test and True in [
+        while not GlobalArgs().test() and True in [
             partition.is_mounted() for partition in mounted_partitions
         ]:
             for partition in [

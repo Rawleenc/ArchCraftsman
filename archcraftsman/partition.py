@@ -248,6 +248,7 @@ class Partition:
             execute(
                 f"cat /proc/mounts | grep {self.real_path()}",
                 check=False,
+                capture_output=True,
                 force=True,
             )
         )

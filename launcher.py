@@ -17,10 +17,12 @@
 """
 The ArchCraftsman entry point. A launcher to download all ArchCraftsman's modules and run it.
 """
+import glob
 import json
 import multiprocessing
 import os
 import re
+import readline
 import subprocess
 import sys
 import urllib.error
@@ -67,6 +69,15 @@ def urlopen(url: str):
     return urllib.request.urlopen(
         urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     )
+
+
+def glob_completer(text, state) -> str:
+    """
+    The glob completer for readline completions.
+    """
+    return [
+        path + "/" if os.path.isdir(path) else path for path in glob.glob(text + "*")
+    ][state]
 
 
 def download_file(url, file_path) -> bool:
@@ -125,6 +136,9 @@ def main(cmd: str):
     Main launcher function.
     """
     print_step("Downloading all ArchCraftsman's modules...", clear=False)
+    readline.set_completer_delims(" \t\n;")
+    readline.parse_and_bind("tab: complete")
+    readline.set_completer(glob_completer)
 
     module_files = []
     for module_file in get_all_files("archcraftsman"):
