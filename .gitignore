@@ -174,3 +174,4 @@ cython_debug/
 
 # Filter json configs
 *.json
+!configs/*.json

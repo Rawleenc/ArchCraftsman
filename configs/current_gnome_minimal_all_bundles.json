@@ -1,0 +1,123 @@
+{
+  "partitioning_info": {
+    "main_disk": "/dev/vda",
+    "partitions": [
+      {
+        "disk_name": "vda",
+        "fs_type": "vfat",
+        "index": 0,
+        "part_format": true,
+        "part_format_type": "vfat",
+        "part_mount_point": "/boot/efi",
+        "part_type": "efi",
+        "part_type_name": "EFI System",
+        "path": "/dev/vda1",
+        "size": 536870912,
+        "uuid": "AA2B-D4DD"
+      },
+      {
+        "disk_name": "vda",
+        "fs_type": "ext4",
+        "index": 1,
+        "part_format": true,
+        "part_format_type": "ext4",
+        "part_mount_point": "/",
+        "part_type": "root",
+        "part_type_name": "Linux filesystem",
+        "path": "/dev/vda2",
+        "size": 34359738368,
+        "uuid": "79192185-ed09-40b2-aa47-9a4bdd09aae4"
+      },
+      {
+        "disk_name": "vda",
+        "fs_type": "ext4",
+        "index": 2,
+        "part_format": true,
+        "part_format_type": "ext4",
+        "part_mount_point": "/home",
+        "part_type": "home",
+        "part_type_name": "Linux filesystem",
+        "path": "/dev/vda3",
+        "size": 102542344192,
+        "uuid": "484a271f-6599-48bb-9701-dd94346256ff"
+      }
+    ],
+    "swapfile_size": "4,0G"
+  },
+  "pre_launch_info": {
+    "detected_timezone": "Europe/Paris",
+    "global_language": "french",
+    "keymap": "fr-latin9",
+    "live_console_font": "ter-v16b"
+  },
+  "system_info": {
+    "bundles": [
+      {
+        "bundle_type": "kernel",
+        "name": "current"
+      },
+      {
+        "bundle_type": "desktop",
+        "minimal": true,
+        "name": "gnome"
+      },
+      {
+        "bundle_type": "network",
+        "name": "networkmanager"
+      },
+      {
+        "bundle_type": "other",
+        "name": "terminus"
+      },
+      {
+        "bundle_type": "other",
+        "name": "cups"
+      },
+      {
+        "bundle_type": "other",
+        "name": "grml"
+      },
+      {
+        "bundle_type": "other",
+        "name": "mainfonts"
+      },
+      {
+        "bundle_type": "other",
+        "name": "mainfilesystems"
+      },
+      {
+        "bundle_type": "other",
+        "name": "zram"
+      },
+      {
+        "bundle_type": "other",
+        "name": "pipewire"
+      },
+      {
+        "bundle_type": "other",
+        "name": "copyacm"
+      },
+      {
+        "bundle_type": "bootloader",
+        "name": "grub"
+      },
+      {
+        "bundle_type": "microcodes",
+        "microcode_name": "GenuineIntel",
+        "name": "microcodes"
+      }
+    ],
+    "hostname": "archlinux",
+    "more_pkgs": [
+      "htop",
+      "neofetch",
+      "inxi",
+      "btop"
+    ],
+    "root_password": "root",
+    "timezone": "/usr/share/zoneinfo/Europe/Paris",
+    "user_full_name": "Rawleenc",
+    "user_name": "raw",
+    "user_password": "raw"
+  }
+}
