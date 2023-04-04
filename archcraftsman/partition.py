@@ -192,9 +192,7 @@ class Partition:
             formatting = _("yes")
         else:
             formatting = _("no")
-        name = "NO_NAME"
-        if self.index:
-            name = str(self.index + 1)
+        name = str(self.index + 1)
         if self.path:
             name = self.path
         if self.part_type == PartTypes.SWAP:
@@ -317,13 +315,10 @@ class Partition:
         if (
             not partitions
             or not isinstance(partitions, list)
-            or self.index
             and len(list(partitions)) <= self.index
         ):
             return
-        partition = None
-        if self.index:
-            partition = list(partitions)[self.index]
+        partition = list(partitions)[self.index]
         if (
             not partition
             or not isinstance(partition, dict)
