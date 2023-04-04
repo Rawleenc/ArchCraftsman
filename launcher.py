@@ -140,14 +140,17 @@ def main(cmd: str):
     readline.parse_and_bind("tab: complete")
     readline.set_completer(glob_completer)
 
-    module_files = []
-    for module_file in get_all_files("archcraftsman"):
-        module_files.append(module_file)
+    files = []
+    for file in get_all_files("archcraftsman"):
+        files.append(file)
+
+    for file in get_all_files("configs"):
+        files.append(file)
 
     cpus = multiprocessing.cpu_count()
     with ThreadPoolExecutor(max_workers=cpus) as exe:
         futures = []
-        for module_file in module_files:
+        for module_file in files:
             exe.submit(download, module_file["download_url"], module_file["path"], True)
         for future in as_completed(futures):
             future.result()
