@@ -19,11 +19,15 @@ The shell mode module
 """
 from subprocess import CalledProcessError
 from typing import Optional
+from archcraftsman.basesetup import pre_launch, setup_system
 
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.bundles.utils import prompt_bundle
+from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.i18n import I18n
+from archcraftsman.manualpart import manual_partitioning
 from archcraftsman.options import (
+    BundleTypes,
     Commands,
     Kernels,
     Desktops,
@@ -31,9 +35,6 @@ from archcraftsman.options import (
     ShellBundles,
     SubCommands,
 )
-from archcraftsman.partitioninginfo import PartitioningInfo
-from archcraftsman.prelaunchinfo import PreLaunchInfo
-from archcraftsman.systeminfo import SystemInfo
 from archcraftsman.utils import (
     prompt_option,
     print_error,
@@ -54,6 +55,7 @@ def ask_for_kernel() -> Optional[Bundle]:
             "> ",
             _("Kernel '%s' is not supported."),
             Kernels,
+            BundleTypes.KERNEL,
             _("Supported kernels : "),
             None,
             new_line_prompt=False,
@@ -71,6 +73,7 @@ def ask_for_desktop() -> Optional[Bundle]:
             "> ",
             _("Desktop environment '%s' is not supported."),
             Desktops,
+            BundleTypes.DESKTOP,
             _("Supported desktop environments : "),
             None,
             new_line_prompt=False,
@@ -88,6 +91,7 @@ def ask_for_bundle() -> Optional[Bundle]:
             "> ",
             _("Bundle '%s' is not supported."),
             Bundles,
+            BundleTypes.OTHER,
             _("Available bundles : "),
             None,
             Bundles.COPY_ACM,
@@ -106,6 +110,7 @@ def ask_for_shell_bundle() -> Optional[Bundle]:
             "> ",
             _("Shell bundle '%s' is not supported."),
             ShellBundles,
+            BundleTypes.OTHER,
             _("Available shell bundles : "),
             None,
             new_line_prompt=False,
@@ -119,18 +124,24 @@ def install_bundle(bundle: Bundle):
     The method to install the bundle.
     """
     if bundle.is_aur():
-        bundle.configure(SystemInfo(), PreLaunchInfo(), PartitioningInfo())
+        bundle.configure()
     else:
-        if len(bundle.packages(SystemInfo())) > 0:
-            execute(f'pacman -S {" ".join(bundle.packages(SystemInfo()))}', check=False)
+        if len(bundle.packages()) > 0:
+            execute(
+                f'pacman -S {" ".join(bundle.packages())}',
+                check=False,
+            )
 
 
 def uninstall_bundle(bundle):
     """
     The method to uninstall the bundle.
     """
-    if len(bundle.packages(SystemInfo())) > 0:
-        execute(f'pacman -Rsnc {" ".join(bundle.packages(SystemInfo()))}', check=False)
+    if len(bundle.packages()) > 0:
+        execute(
+            f'pacman -Rsnc {" ".join(bundle.packages())}',
+            check=False,
+        )
 
 
 def shell():
@@ -165,7 +176,16 @@ def shell():
                     continue
                 case Commands.EXIT:
                     want_exit = True
+                    GlobalInfo().serialize()
                     continue
+
+            if bundle and bundle.name == ShellBundles.GENERATE_CONFIG:
+                pre_launch()
+                setup_system()
+                partitioning_info_ok: bool = False
+                while not partitioning_info_ok:
+                    partitioning_info_ok = manual_partitioning(change_disks=False)
+                continue
 
             sub_command = prompt_option(
                 "> ",
@@ -186,9 +206,11 @@ def shell():
                 case SubCommands.CANCEL:
                     continue
         except KeyboardInterrupt:
+            GlobalInfo().serialize()
             print_error(_("Script execution interrupted by the user !"), do_pause=False)
             want_exit = True
         except CalledProcessError as sub_process_exception:
+            GlobalInfo().serialize()
             print_error(
                 _("A subprocess execution failed ! See the following error: %s")
                 % sub_process_exception,
@@ -196,4 +218,5 @@ def shell():
             )
             want_exit = True
         except EOFError:
+            GlobalInfo().serialize()
             want_exit = True

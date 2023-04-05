@@ -42,31 +42,16 @@ class Partition:
     A class to represent a partition.
     """
 
-    index: Optional[int]
-    path: Optional[str]
-    size: int
-    part_type_name: str
-    disk_name: str
-    fs_type: str
-    uuid: str
-    part_type: Optional[PartTypes]
-    part_mount_point: Optional[str]
-    part_format_type: Optional[FSFormats]
-    part_format: bool
-
-    part_mounted: bool = False
-    encrypted: bool = False
-    block_name: Optional[str] = None
-
     def __init__(
         self,
-        index: Optional[int] = None,
-        path: Optional[str] = None,
-        part_type: Optional[PartTypes] = None,
-        part_mount_point: Optional[str] = None,
-        part_format_type: Optional[FSFormats] = None,
+        index: int = 0,
+        path: str = "",
+        part_type: PartTypes = PartTypes.OTHER,
+        part_mount_point: str = "",
+        part_format_type: FSFormats = FSFormats.EXT4,
         part_format: bool = True,
-        compute: bool = True,
+        encrypted: bool = False,
+        block_name: str = "",
     ):
         """
         Partition initialisation.
@@ -76,47 +61,60 @@ class Partition:
         self.part_mount_point = part_mount_point
         self.part_format_type = part_format_type
         self.part_format = part_format
-        if path is None:
-            self.path = ""
-            self.size = 0
-            self.part_type_name = ""
-            self.fs_type = ""
-            self.uuid = ""
-        else:
-            self.path = path
-            if compute:
-                self.compute()
+        self.encrypted = encrypted
+        self.block_name = block_name
+        self.path = path
 
     def __str__(self) -> str:
         """
         Partition str formatting.
         """
         formatted_str = (
-            f"'{self.path}' - '{self.part_type_name}' - '{to_iec(int(self.size))}'"
+            f"'{self.path}' - '{self.part_type_name()}' - '{to_iec(int(self.size()))}'"
         )
         return formatted_str
 
-    def compute(self):
+    def size(self) -> int:
         """
-        A method to compute partition information.
+        A method to get the partition size.
         """
-        self.size = from_iec(
+        return from_iec(
             execute(
                 f'lsblk -nld "{self.path}" -o SIZE', force=True, capture_output=True
             ).output.strip()
         )
-        self.part_type_name = execute(
+
+    def part_type_name(self) -> str:
+        """
+        A method to get the partition type name.
+        """
+        return execute(
             f'lsblk -nld "{self.path}" -o PARTTYPENAME',
             force=True,
             capture_output=True,
         ).output.strip()
-        self.disk_name = execute(
+
+    def disk_name(self) -> str:
+        """
+        A method to get the disk name.
+        """
+        return execute(
             f'lsblk -nld "{self.path}" -o PKNAME', force=True, capture_output=True
         ).output.strip()
-        self.fs_type = execute(
+
+    def fs_type(self) -> str:
+        """
+        A method to get the filesystem type.
+        """
+        return execute(
             f'lsblk -nld "{self.path}" -o FSTYPE', force=True, capture_output=True
         ).output.strip()
-        self.uuid = execute(
+
+    def uuid(self) -> str:
+        """
+        A method to get the partition uuid.
+        """
+        return execute(
             f'lsblk -nld "{self.path}" -o UUID', force=True, capture_output=True
         ).output.strip()
 
@@ -194,9 +192,7 @@ class Partition:
             formatting = _("yes")
         else:
             formatting = _("no")
-        name = "NO_NAME"
-        if self.index is not None:
-            name = str(self.index + 1)
+        name = str(self.index + 1)
         if self.path:
             name = self.path
         if self.part_type == PartTypes.SWAP:
@@ -244,6 +240,19 @@ class Partition:
                 if self.part_format:
                     execute(f'mkfs.ext4 "{self.real_path()}"')
 
+    def is_mounted(self) -> bool:
+        """
+        A method to detect if the partition is mounted.
+        """
+        return bool(
+            execute(
+                f"cat /proc/mounts | grep {self.real_path()}",
+                check=False,
+                capture_output=True,
+                force=True,
+            )
+        )
+
     def mount(self):
         """
         A method to mount the partition.
@@ -258,7 +267,6 @@ class Partition:
                 execute(
                     f'mount --mkdir "{self.real_path()}" "/mnt{self.part_mount_point}"'
                 )
-        self.part_mounted = True
 
     def umount(self) -> bool:
         """
@@ -270,7 +278,6 @@ class Partition:
             if self.encrypted:
                 print_sub_step(_("Closing %s...") % (self.real_path()))
                 execute(f"cryptsetup close {self.block_name}")
-            self.part_mounted = False
         except CalledProcessError:
             return False
         return True
@@ -284,40 +291,37 @@ class Partition:
             return
         block_devices_json = json.loads(block_devices_str)
         if (
-            block_devices_json is None
+            not block_devices_json
             or not isinstance(block_devices_json, dict)
             or "blockdevices" not in dict(block_devices_json)
         ):
             return
         block_devices = dict(block_devices_json).get("blockdevices")
-        if block_devices is None or not isinstance(block_devices, list):
+        if not block_devices or not isinstance(block_devices, list):
             return
         disk = next(
             (
                 d
                 for d in block_devices
-                if d is not None
+                if d
                 and isinstance(d, dict)
                 and "name" in d
                 and dict(d).get("name") == os.path.basename(disk_name)
             ),
             None,
         )
-        if disk is None or not isinstance(disk, dict) or "children" not in dict(disk):
+        if not disk or not isinstance(disk, dict) or "children" not in dict(disk):
             return
         partitions = dict(disk).get("children")
         if (
-            partitions is None
+            not partitions
             or not isinstance(partitions, list)
-            or self.index
             and len(list(partitions)) <= self.index
         ):
             return
-        partition = None
-        if self.index is not None:
-            partition = list(partitions)[self.index]
+        partition = list(partitions)[self.index]
         if (
-            partition is None
+            not partition
             or not isinstance(partition, dict)
             or "name" not in dict(partition)
         ):

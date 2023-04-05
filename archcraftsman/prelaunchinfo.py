@@ -21,7 +21,8 @@ import os
 
 from archcraftsman.i18n import I18n
 from archcraftsman.options import Languages
-from archcraftsman.utils import print_step, execute, log
+from archcraftsman.base import log
+from archcraftsman.utils import print_step, execute
 
 _ = I18n().gettext
 
@@ -42,10 +43,17 @@ class PreLaunchInfo:
     The class to contain all pre-launch information.
     """
 
-    global_language: Languages
-    keymap: str
-    detected_timezone: str
-    live_console_font: str
+    def __init__(
+        self,
+        global_language: Languages = Languages.ENGLISH,
+        keymap: str = "en",
+        detected_timezone: str = "Etc/UTC",
+        live_console_font: str = "",
+    ) -> None:
+        self.global_language = global_language
+        self.keymap = keymap
+        self.detected_timezone = detected_timezone
+        self.live_console_font = live_console_font
 
     def setup_locale(self):
         """

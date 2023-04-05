@@ -19,10 +19,8 @@ The mate bundle module
 """
 
 from archcraftsman.bundles.bundle import Bundle
+from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.i18n import I18n
-from archcraftsman.partitioninginfo import PartitioningInfo
-from archcraftsman.prelaunchinfo import PreLaunchInfo
-from archcraftsman.systeminfo import SystemInfo
 from archcraftsman.utils import print_sub_step, prompt_bool, execute
 
 _ = I18n().gettext
@@ -36,7 +34,7 @@ class Mate(Bundle):
     display_manager = True
     minimal = False
 
-    def packages(self, system_info: SystemInfo) -> list[str]:
+    def packages(self) -> list[str]:
         packages = [
             "mate",
             "xorg-server",
@@ -75,15 +73,10 @@ class Mate(Bundle):
             ),
         )
 
-    def configure(
-        self,
-        system_info: SystemInfo,
-        pre_launch_info: PreLaunchInfo,
-        partitioning_info: PartitioningInfo,
-    ):
+    def configure(self):
         if self.display_manager:
             execute('arch-chroot /mnt bash -c "systemctl enable lightdm"')
         execute(
             'sed -i "s|#logind-check-graphical=false|logind-check-graphical=true|g" /mnt/etc/lightdm/lightdm.conf'
         )
-        pre_launch_info.setup_chroot_keyboard()
+        GlobalInfo().pre_launch_info.setup_chroot_keyboard()

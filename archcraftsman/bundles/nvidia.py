@@ -18,9 +18,9 @@
 The nvidia proprietary driver bundle module
 """
 from archcraftsman.bundles.bundle import Bundle
+from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.i18n import I18n
 from archcraftsman.options import Kernels
-from archcraftsman.systeminfo import SystemInfo
 from archcraftsman.utils import print_sub_step
 
 _ = I18n().gettext
@@ -31,8 +31,11 @@ class NvidiaDriver(Bundle):
     The Nvidia driver class.
     """
 
-    def packages(self, system_info: SystemInfo) -> list[str]:
-        if system_info.kernel and system_info.kernel.name == Kernels.LTS:
+    def packages(self) -> list[str]:
+        if (
+            GlobalInfo().system_info.kernel
+            and GlobalInfo().system_info.kernel.name == Kernels.LTS
+        ):
             return ["nvidia-lts"]
         return ["nvidia"]
 

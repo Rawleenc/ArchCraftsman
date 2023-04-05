@@ -17,7 +17,9 @@
 """
 The generic bundle blueprint module
 """
-from archcraftsman.options import OptionEnum
+
+
+from archcraftsman.options import BundleTypes
 
 
 class Bundle:
@@ -25,12 +27,11 @@ class Bundle:
     A class to represent a bootloader.
     """
 
-    name: OptionEnum
-
-    def __init__(self, name: OptionEnum):
+    def __init__(self, name: str = "", bundle_type: BundleTypes = BundleTypes.OTHER):
         self.name = name
+        self.bundle_type = bundle_type
 
-    def packages(self, system_info) -> list[str]:  # pylint: disable=unused-argument
+    def packages(self) -> list[str]:
         """
         Bundle's packages retrieving method.
         """
@@ -52,7 +53,7 @@ class Bundle:
         Bundle's print resume method.
         """
 
-    def configure(self, system_info, pre_launch_info, partitioning_info):
+    def configure(self):
         """
         Bundle configuration method.
         """

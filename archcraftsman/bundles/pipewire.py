@@ -19,7 +19,6 @@ The pipewire bundle module
 """
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import I18n
-from archcraftsman.systeminfo import SystemInfo
 from archcraftsman.utils import print_sub_step
 
 _ = I18n().gettext
@@ -30,7 +29,7 @@ class PipeWire(Bundle):
     The PipeWire class.
     """
 
-    def packages(self, system_info: SystemInfo) -> list[str]:
+    def packages(self) -> list[str]:
         return [
             "pipewire",
             "pipewire-alsa",

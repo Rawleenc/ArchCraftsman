@@ -19,10 +19,8 @@ The lxqt bundle module
 """
 
 from archcraftsman.bundles.bundle import Bundle
+from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.i18n import I18n
-from archcraftsman.partitioninginfo import PartitioningInfo
-from archcraftsman.prelaunchinfo import PreLaunchInfo
-from archcraftsman.systeminfo import SystemInfo
 from archcraftsman.utils import print_sub_step, prompt_bool, execute
 
 _ = I18n().gettext
@@ -35,7 +33,7 @@ class Lxqt(Bundle):
 
     display_manager = True
 
-    def packages(self, system_info: SystemInfo) -> list[str]:
+    def packages(self) -> list[str]:
         packages = [
             "lxqt",
             "xorg-server",
@@ -71,12 +69,7 @@ class Lxqt(Bundle):
             _("Display manager : %s") % ("SDDM" if self.display_manager else _("none"))
         )
 
-    def configure(
-        self,
-        system_info: SystemInfo,
-        pre_launch_info: PreLaunchInfo,
-        partitioning_info: PartitioningInfo,
-    ):
+    def configure(self):
         if self.display_manager:
             execute('arch-chroot /mnt bash -c "systemctl enable sddm"')
-        pre_launch_info.setup_chroot_keyboard()
+        GlobalInfo().pre_launch_info.setup_chroot_keyboard()

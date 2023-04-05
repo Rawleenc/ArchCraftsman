@@ -19,10 +19,8 @@ The sway bundle module
 """
 
 from archcraftsman.bundles.bundle import Bundle
+from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.i18n import I18n
-from archcraftsman.partitioninginfo import PartitioningInfo
-from archcraftsman.prelaunchinfo import PreLaunchInfo
-from archcraftsman.systeminfo import SystemInfo
 from archcraftsman.utils import print_sub_step, execute
 
 _ = I18n().gettext
@@ -33,7 +31,7 @@ class Sway(Bundle):
     Bundle class.
     """
 
-    def packages(self, system_info: SystemInfo) -> list[str]:
+    def packages(self) -> list[str]:
         packages = [
             "sway",
             "dmenu",
@@ -73,13 +71,8 @@ class Sway(Bundle):
         print_sub_step(_("Desktop environment : %s") % self.name)
         print_sub_step(_("Display manager : %s") % _("none"))
 
-    def configure(
-        self,
-        system_info: SystemInfo,
-        pre_launch_info: PreLaunchInfo,
-        partitioning_info: PartitioningInfo,
-    ):
+    def configure(self):
         execute('arch-chroot /mnt bash -c "systemctl enable acpid"')
-        pre_launch_info.setup_chroot_keyboard()
-        if "fr" in pre_launch_info.keymap:
+        GlobalInfo().pre_launch_info.setup_chroot_keyboard()
+        if "fr" in GlobalInfo().pre_launch_info.keymap:
             execute("echo 'XKB_DEFAULT_LAYOUT=fr' >> /mnt/etc/environment")

@@ -20,6 +20,7 @@ The module of SystemInfo class.
 
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import I18n
+from archcraftsman.options import BundleTypes
 
 _ = I18n().gettext
 
@@ -29,16 +30,78 @@ class SystemInfo:
     The class to contain all system information.
     """
 
-    hostname: str
-    bundles: list[Bundle]
-    kernel: Bundle
-    desktop: Bundle
-    network: Bundle
-    bootloader: Bundle
-    micro_codes: Bundle
-    timezone: str
-    user_name: str
-    user_full_name: str
-    more_pkgs: set[str]
-    root_password: str
-    user_password: str
+    def __init__(
+        self,
+        hostname: str = "archlinux",
+        timezone: str = "Etc/UTC",
+        user_name: str = "",
+        user_full_name: str = "",
+        root_password: str = "",
+        user_password: str = "",
+    ) -> None:
+        self.hostname = hostname
+        self.bundles: list[Bundle] = []
+        self.timezone = timezone
+        self.user_name = user_name
+        self.user_full_name = user_full_name
+        self.more_pkgs: list[str] = []
+        self.root_password = root_password
+        self.user_password = user_password
+
+    def kernel(self) -> Bundle:
+        """
+        The kernel bundle retrieving method.
+        """
+        return [
+            bundle
+            for bundle in self.bundles
+            if bundle.bundle_type == BundleTypes.KERNEL
+        ][0]
+
+    def microcode(self) -> Bundle:
+        """
+        The microcode bundle retrieving method.
+        """
+        return next(
+            bundle
+            for bundle in self.bundles
+            if bundle.bundle_type == BundleTypes.MICRO_CODES
+        )
+
+    def bootloader(self) -> Bundle:
+        """
+        The bootloader bundle retrieving method.
+        """
+        return next(
+            bundle
+            for bundle in self.bundles
+            if bundle.bundle_type == BundleTypes.BOOTLOADER
+        )
+
+    def desktop(self) -> Bundle:
+        """
+        The desktop bundle retrieving method.
+        """
+        return next(
+            bundle
+            for bundle in self.bundles
+            if bundle.bundle_type == BundleTypes.DESKTOP
+        )
+
+    def network(self) -> Bundle:
+        """
+        The network bundle retrieving method.
+        """
+        return next(
+            bundle
+            for bundle in self.bundles
+            if bundle.bundle_type == BundleTypes.NETWORK
+        )
+
+    def others(self) -> list[Bundle]:
+        """
+        The other bundles retrieving method.
+        """
+        return [
+            bundle for bundle in self.bundles if bundle.bundle_type == BundleTypes.OTHER
+        ]

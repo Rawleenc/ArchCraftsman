@@ -15,15 +15,18 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-The I18n management singleton module
+The global information singleton module
 """
-import gettext
+import json
 from threading import Lock
+from archcraftsman.globalargs import GlobalArgs
 
-from archcraftsman.options import Languages
+from archcraftsman.prelaunchinfo import PreLaunchInfo
+from archcraftsman.partitioninginfo import PartitioningInfo
+from archcraftsman.systeminfo import SystemInfo
 
 
-class I18nMeta(type):
+class GlobalInfoMeta(type):
     """
     Thread-safe implementation of Singleton to manage translations.
     """
@@ -43,30 +46,32 @@ class I18nMeta(type):
         return cls._instances[cls]
 
 
-class I18n(metaclass=I18nMeta):
+class GlobalInfo(metaclass=GlobalInfoMeta):
     """
     The singleton implementation containing the translation method to use.
     """
 
     def __init__(self) -> None:
-        self.gettext_method = gettext.gettext
+        self.pre_launch_info: PreLaunchInfo = PreLaunchInfo()
+        self.partitioning_info: PartitioningInfo = PartitioningInfo()
+        self.system_info: SystemInfo = SystemInfo()
 
-    def update_method(self, global_language: str):
+    def serialize(self):
         """
-        Update the translation method to use according to the global language.
+        Serialize the GlobalInfo object to a json file.
         """
-        if global_language != Languages.ENGLISH:
-            translation = gettext.translation(
-                "archcraftsman",
-                localedir="/usr/share/locale",
-                languages=[global_language],
-            )
-            translation.install()
-            self.gettext_method = translation.gettext
-        return self.gettext_method
-
-    def gettext(self, message):
-        """
-        Translate the given text with the translation method.
-        """
-        return self.gettext_method(message)
+        json_str = json.dumps(
+            self, default=lambda o: o.__dict__, sort_keys=True, indent=2
+        )
+        file_path = (
+            f"/mnt/home/{self.system_info.user_name}/{self.system_info.hostname}.json"
+            if self.system_info.user_name
+            else f"/mnt/root/{self.system_info.hostname}.json"
+        )
+        file_path = (
+            file_path
+            if not GlobalArgs().test() and not GlobalArgs().shell()
+            else f"{self.system_info.hostname}.json"
+        )
+        with open(file_path, "w", encoding="UTF-8") as file:
+            file.write(json_str)

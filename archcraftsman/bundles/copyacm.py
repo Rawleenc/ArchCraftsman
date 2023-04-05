@@ -18,10 +18,8 @@
 The copy ArchCraftsman bundle module
 """
 from archcraftsman.bundles.bundle import Bundle
+from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.i18n import I18n
-from archcraftsman.partitioninginfo import PartitioningInfo
-from archcraftsman.prelaunchinfo import PreLaunchInfo
-from archcraftsman.systeminfo import SystemInfo
 from archcraftsman.utils import execute, print_sub_step
 
 _ = I18n().gettext
@@ -35,18 +33,16 @@ class CopyACM(Bundle):
     def print_resume(self):
         print_sub_step(_("Copy ArchCraftsman to the new system."))
 
-    def configure(
-        self,
-        system_info: SystemInfo,
-        pre_launch_info: PreLaunchInfo,
-        partitioning_info: PartitioningInfo,
-    ):
-        if system_info.user_name:
-            path = f"/home/{system_info.user_name}"
+    def configure(self):
+        if GlobalInfo().system_info.user_name:
+            path = f"/home/{GlobalInfo().system_info.user_name}"
             execute(f"mkdir -p /mnt{path}")
             execute(f"cp -r ~/archcraftsman /mnt{path}")
             execute(
-                f'arch-chroot /mnt bash -c "chown -R {system_info.user_name}:{system_info.user_name} {path}"'
+                (
+                    f'arch-chroot /mnt bash -c "chown -R {GlobalInfo().system_info.user_name}:'
+                    f'{GlobalInfo().system_info.user_name} {path}"'
+                )
             )
         else:
             path = "/root"

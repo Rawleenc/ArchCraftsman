@@ -20,10 +20,10 @@ The grub bundle module
 import re
 
 from archcraftsman.bundles.bundle import Bundle
+from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.options import FSFormats, PartTypes
-from archcraftsman.partitioninginfo import PartitioningInfo
-from archcraftsman.systeminfo import SystemInfo
-from archcraftsman.utils import is_bios, execute
+from archcraftsman.base import is_bios
+from archcraftsman.utils import execute
 
 
 class Grub(Bundle):
@@ -31,18 +31,13 @@ class Grub(Bundle):
     The Grub Bootloader class.
     """
 
-    def packages(self, system_info: SystemInfo) -> list[str]:
+    def packages(self) -> list[str]:
         return ["grub"]
 
-    def configure(
-        self,
-        system_info: dict,
-        pre_launch_info: dict,
-        partitioning_info: PartitioningInfo,
-    ):
+    def configure(self):
         if is_bios():
             execute(
-                f'arch-chroot /mnt bash -c "grub-install --target=i386-pc {partitioning_info.main_disk}"'
+                f'arch-chroot /mnt bash -c "grub-install --target=i386-pc {GlobalInfo().partitioning_info.main_disk}"'
             )
         else:
             execute(
@@ -53,7 +48,7 @@ class Grub(Bundle):
             'sed -i "/^GRUB_CMDLINE_LINUX=.*/a GRUB_DISABLE_OS_PROBER=false" /mnt/etc/default/grub'
         )
 
-        if partitioning_info.root_partition.encrypted:
+        if GlobalInfo().partitioning_info.root_partition().encrypted:
             hooks = execute(
                 "grep -e '^HOOKS' /mnt/etc/mkinitcpio.conf",
                 check=False,
@@ -82,7 +77,7 @@ class Grub(Bundle):
             else:
                 extracted_grub_cmdline = []
             extracted_grub_cmdline.append(
-                f"cryptdevice=UUID={partitioning_info.root_partition.uuid}:root"
+                f"cryptdevice=UUID={GlobalInfo().partitioning_info.root_partition().uuid()}:root"
             )
             processed_grub_cmdline = (
                 f"GRUB_CMDLINE_LINUX_DEFAULT=\"{' '.join(extracted_grub_cmdline)}\""
@@ -93,14 +88,17 @@ class Grub(Bundle):
 
         for partition in [
             part
-            for part in partitioning_info.partitions
+            for part in GlobalInfo().partitioning_info.partitions
             if part.encrypted and part.part_type != PartTypes.ROOT
         ]:
             execute(
-                f'echo "{partition.block_name} UUID={partition.uuid} none" >> /mnt/etc/crypttab'
+                f'echo "{partition.block_name} UUID={partition.uuid()} none" >> /mnt/etc/crypttab'
             )
 
-        if partitioning_info.root_partition.part_format_type == FSFormats.EXT4:
+        if (
+            GlobalInfo().partitioning_info.root_partition().part_format_type
+            == FSFormats.EXT4
+        ):
             execute(
                 'sed -i "s|GRUB_DEFAULT=.*|GRUB_DEFAULT=saved|g" /mnt/etc/default/grub'
             )

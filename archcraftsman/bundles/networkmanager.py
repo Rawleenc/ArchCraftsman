@@ -19,11 +19,9 @@ The network manager bundle module
 """
 
 from archcraftsman.bundles.bundle import Bundle
+from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.i18n import I18n
 from archcraftsman.options import Desktops
-from archcraftsman.partitioninginfo import PartitioningInfo
-from archcraftsman.prelaunchinfo import PreLaunchInfo
-from archcraftsman.systeminfo import SystemInfo
 from archcraftsman.utils import print_sub_step, execute
 
 _ = I18n().gettext
@@ -34,9 +32,9 @@ class NetworkManager(Bundle):
     Grml ZSH config class.
     """
 
-    def packages(self, system_info: SystemInfo) -> list[str]:
+    def packages(self) -> list[str]:
         packages = ["networkmanager"]
-        if system_info.desktop and system_info.desktop.name in [
+        if GlobalInfo().system_info.desktop().name in [
             Desktops.BUDGIE,
             Desktops.I3,
             Desktops.LXQT,
@@ -51,10 +49,5 @@ class NetworkManager(Bundle):
     def print_resume(self):
         print_sub_step(_("Install NetworkManager."))
 
-    def configure(
-        self,
-        system_info: SystemInfo,
-        pre_launch_info: PreLaunchInfo,
-        partitioning_info: PartitioningInfo,
-    ):
+    def configure(self):
         execute('arch-chroot /mnt bash -c "systemctl enable NetworkManager"')

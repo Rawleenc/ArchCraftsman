@@ -19,10 +19,8 @@ The terminus console font bundle module
 """
 
 from archcraftsman.bundles.bundle import Bundle
+from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.i18n import I18n
-from archcraftsman.partitioninginfo import PartitioningInfo
-from archcraftsman.prelaunchinfo import PreLaunchInfo
-from archcraftsman.systeminfo import SystemInfo
 from archcraftsman.utils import print_sub_step, execute
 
 _ = I18n().gettext
@@ -33,18 +31,13 @@ class TerminusFont(Bundle):
     The Terminus console font class.
     """
 
-    def packages(self, system_info: SystemInfo) -> list[str]:
+    def packages(self) -> list[str]:
         return ["terminus-font"]
 
     def print_resume(self):
         print_sub_step(_("Install terminus console font."))
 
-    def configure(
-        self,
-        system_info: SystemInfo,
-        pre_launch_info: PreLaunchInfo,
-        partitioning_info: PartitioningInfo,
-    ):
+    def configure(self):
         execute(
-            f'echo "FONT={pre_launch_info.live_console_font}" >>/mnt/etc/vconsole.conf'
+            f'echo "FONT={GlobalInfo().pre_launch_info.live_console_font}" >>/mnt/etc/vconsole.conf'
         )

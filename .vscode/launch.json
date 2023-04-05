@@ -21,6 +21,24 @@
             "justMyCode": true
         },
         {
+            "name": "Test installation with config",
+            "type": "python",
+            "request": "launch",
+            "module": "archcraftsman.installer",
+            "args": [
+                "--install",
+                "--test",
+                "--config",
+                "archlinux.json"
+            ],
+            "console": "externalTerminal",
+            "autoReload": {
+                "enable": true,
+                "filter": "archcraftsman"
+            },
+            "justMyCode": true
+        },
+        {
             "name": "Test shell",
             "type": "python",
             "request": "launch",

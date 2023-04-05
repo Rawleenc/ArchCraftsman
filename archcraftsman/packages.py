@@ -52,10 +52,10 @@ class Packages(metaclass=PackagesMeta):
     The singleton implementation containing all archlinux packages and autocompleted prompt method.
     """
 
-    packages: set[str]
+    packages: list[str]
 
     def __init__(self) -> None:
-        self.packages = set(
+        self.packages = (
             execute(
                 "pacman -Sl | awk '{print $2}'",
                 check=False,
@@ -71,7 +71,7 @@ class Packages(metaclass=PackagesMeta):
         """
         return GlobalArgs().test() or package in self.packages
 
-    def ask_packages(self) -> set[str]:
+    def ask_packages(self) -> list[str]:
         """
         A method to ask the user for more packages to install.
         """
@@ -86,9 +86,9 @@ class Packages(metaclass=PackagesMeta):
         )
 
         pkgs_select_ok = False
-        more_pkgs = set()
+        more_pkgs = []
         while not pkgs_select_ok:
-            more_pkgs = set()
+            more_pkgs = []
             more_pkgs_str = prompt_ln(
                 _(
                     "Install more packages ? (type extra packages full names, example : 'htop neofetch', "
@@ -102,7 +102,7 @@ class Packages(metaclass=PackagesMeta):
                         pkgs_select_ok = False
                         print_error(_("Package %s doesn't exist.") % pkg)
                         break
-                    more_pkgs.add(pkg)
+                    more_pkgs.append(pkg)
 
         readline.set_completer(glob_completer)
         return more_pkgs

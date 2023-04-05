@@ -31,8 +31,8 @@ class OptionEnum(str, Enum):
     ) -> str:
         return name.lower().replace("_", "")
 
-    def __str__(self):
-        return self.name.lower().replace("_", " ").capitalize()
+    def __str__(self) -> str:
+        return self.value
 
 
 class Languages(OptionEnum):
@@ -140,6 +140,7 @@ class ShellBundles(OptionEnum):
     """
 
     YAY = auto()
+    GENERATE_CONFIG = auto()
 
 
 class FSFormats(OptionEnum):
@@ -173,4 +174,17 @@ class PartTypes(OptionEnum):
     HOME = auto()
     SWAP = auto()
     NOT_USED = auto()
+    OTHER = auto()
+
+
+class BundleTypes(OptionEnum):
+    """
+    All bundle type options.
+    """
+
+    BOOTLOADER = auto()
+    DESKTOP = auto()
+    KERNEL = auto()
+    MICRO_CODES = auto()
+    NETWORK = auto()
     OTHER = auto()

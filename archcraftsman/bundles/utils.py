@@ -26,6 +26,7 @@ from archcraftsman.bundles.cups import Cups
 from archcraftsman.bundles.cutefish import Cutefish
 from archcraftsman.bundles.deepin import Deepin
 from archcraftsman.bundles.enlightenment import Enlightenment
+from archcraftsman.bundles.generateconfig import GenerateConfig
 from archcraftsman.bundles.gnome import Gnome
 from archcraftsman.bundles.grmlzsh import GrmlZsh
 from archcraftsman.bundles.grub import Grub
@@ -48,6 +49,7 @@ from archcraftsman.bundles.xfce import Xfce
 from archcraftsman.bundles.yay import Yay
 from archcraftsman.bundles.zram import Zram
 from archcraftsman.options import (
+    BundleTypes,
     Kernels,
     BootLoaders,
     Desktops,
@@ -59,76 +61,85 @@ from archcraftsman.options import OptionEnum
 from archcraftsman.utils import prompt_option
 
 
-def process_bundle(name: OptionEnum) -> Bundle:
+def get_bundle_type_by_name(name: str) -> type[Bundle]:
     """
-    Process a bundle name into a Bundle object.
+    A function to get the bundle type by its name.
     """
     match name:
         case Kernels.CURRENT:
-            bundle = LinuxCurrent(name)
+            bundle = LinuxCurrent
         case Kernels.LTS:
-            bundle = LinuxLts(name)
+            bundle = LinuxLts
         case Kernels.ZEN:
-            bundle = LinuxZen(name)
+            bundle = LinuxZen
         case Kernels.HARDENED:
-            bundle = LinuxHardened(name)
+            bundle = LinuxHardened
         case BootLoaders.GRUB:
-            bundle = Grub(name)
+            bundle = Grub
         case Desktops.GNOME:
-            bundle = Gnome(name)
+            bundle = Gnome
         case Desktops.PLASMA:
-            bundle = Plasma(name)
+            bundle = Plasma
         case Desktops.XFCE:
-            bundle = Xfce(name)
+            bundle = Xfce
         case Desktops.BUDGIE:
-            bundle = Budgie(name)
+            bundle = Budgie
         case Desktops.CINNAMON:
-            bundle = Cinnamon(name)
+            bundle = Cinnamon
         case Desktops.CUTEFISH:
-            bundle = Cutefish(name)
+            bundle = Cutefish
         case Desktops.DEEPIN:
-            bundle = Deepin(name)
+            bundle = Deepin
         case Desktops.LXQT:
-            bundle = Lxqt(name)
+            bundle = Lxqt
         case Desktops.MATE:
-            bundle = Mate(name)
+            bundle = Mate
         case Desktops.ENLIGHTENMENT:
-            bundle = Enlightenment(name)
+            bundle = Enlightenment
         case Desktops.I3:
-            bundle = I3(name)
+            bundle = I3
         case Desktops.SWAY:
-            bundle = Sway(name)
+            bundle = Sway
         case Network.NETWORK_MANAGER:
-            bundle = NetworkManager(name)
+            bundle = NetworkManager
         case Network.IWD:
-            bundle = Iwd(name)
+            bundle = Iwd
         case Network.SYSTEMD:
-            bundle = SystemdNet(name)
+            bundle = SystemdNet
         case Bundles.CUPS:
-            bundle = Cups(name)
+            bundle = Cups
         case Bundles.GRML:
-            bundle = GrmlZsh(name)
+            bundle = GrmlZsh
         case Bundles.MAIN_FILE_SYSTEMS:
-            bundle = MainFileSystems(name)
+            bundle = MainFileSystems
         case Bundles.MAIN_FONTS:
-            bundle = MainFonts(name)
+            bundle = MainFonts
         case Bundles.MICROCODES:
-            bundle = Microcodes()
+            bundle = Microcodes
         case Bundles.NVIDIA:
-            bundle = NvidiaDriver(name)
+            bundle = NvidiaDriver
         case Bundles.PIPEWIRE:
-            bundle = PipeWire(name)
+            bundle = PipeWire
         case Bundles.TERMINUS:
-            bundle = TerminusFont(name)
+            bundle = TerminusFont
         case Bundles.ZRAM:
-            bundle = Zram(name)
+            bundle = Zram
         case Bundles.COPY_ACM:
-            bundle = CopyACM(name)
+            bundle = CopyACM
         case ShellBundles.YAY:
-            bundle = Yay(name)
+            bundle = Yay
+        case ShellBundles.GENERATE_CONFIG:
+            bundle = GenerateConfig
         case _:
-            bundle = Bundle(name)
+            bundle = Bundle
     return bundle
+
+
+def process_bundle(name: OptionEnum, bundle_type: BundleTypes) -> Bundle:
+    """
+    Process a bundle name into a Bundle object.
+    """
+    return get_bundle_type_by_name(name.value)(name, bundle_type)
 
 
 T = TypeVar("T", bound=OptionEnum)
@@ -138,6 +149,7 @@ def prompt_bundle(
     message: str,
     error_msg: str,
     options: type[T],
+    bundle_type: BundleTypes,
     supported_msg: Optional[str],
     default: Optional[T],
     *ignores: T,
@@ -157,6 +169,6 @@ def prompt_bundle(
     )
     if not option:
         raise ValueError("No bundle selected")
-    bundle = process_bundle(option)
+    bundle = process_bundle(option, bundle_type)
     bundle.prompt_extra()
     return bundle

@@ -54,10 +54,12 @@ class GlobalArgs(metaclass=GlobalArgsMeta):
             self.args = Namespace()
         if not hasattr(self.args, "install"):
             self.args.install = False
-        if not hasattr(self.args, "test"):
-            self.args.test = False
         if not hasattr(self.args, "shell"):
             self.args.shell = False
+        if not hasattr(self.args, "config"):
+            self.args.config = ""
+        if not hasattr(self.args, "test"):
+            self.args.test = False
 
     def is_call_ok(self) -> bool:
         """
@@ -71,14 +73,20 @@ class GlobalArgs(metaclass=GlobalArgsMeta):
         """
         return self.args and self.args.install
 
-    def test(self) -> bool:
-        """
-        Check if the installer is in fake test mode.
-        """
-        return self.args and self.args.test
-
     def shell(self) -> bool:
         """
         Check if the installer is in shell mode.
         """
         return self.args and self.args.shell
+
+    def config(self) -> str:
+        """
+        Check if the installer is in shell mode.
+        """
+        return self.args and self.args.config
+
+    def test(self) -> bool:
+        """
+        Check if the installer is in fake test mode.
+        """
+        return self.args and self.args.test
