@@ -54,7 +54,7 @@ def auto_partitioning() -> bool:
             not is_bios()
             and len(disk.partitions) > 0
             and efi_partition.path
-            and efi_partition.fs_type == "vfat"
+            and efi_partition.fs_type() == "vfat"
             and disk.free_space > from_iec("32G")
         ):
             want_dual_boot = prompt_bool(
@@ -113,7 +113,6 @@ def auto_partitioning() -> bool:
                     part_mount_point="/boot",
                     part_format=True,
                     part_format_type=part_format_type,
-                    compute=False,
                 )
             )
             index += 1
@@ -136,7 +135,6 @@ def auto_partitioning() -> bool:
                         part_mount_point="/boot/efi",
                         part_format=True,
                         part_format_type=FSFormats.VFAT,
-                        compute=False,
                     )
                 )
                 index += 1
@@ -147,7 +145,6 @@ def auto_partitioning() -> bool:
                         part_type=PartTypes.EFI,
                         part_mount_point="/boot/efi",
                         part_format=False,
-                        compute=False,
                     )
                 )
                 index += len(disk.partitions)
@@ -166,7 +163,7 @@ def auto_partitioning() -> bool:
             else:
                 auto_part_str += "19\n"  # Type Linux Swap
             GlobalInfo().partitioning_info.partitions.append(
-                Partition(index=index, part_type=PartTypes.SWAP, compute=False)
+                Partition(index=index, part_type=PartTypes.SWAP)
             )
             index += 1
         if root_block_name:
@@ -184,7 +181,6 @@ def auto_partitioning() -> bool:
                     part_mount_point="/boot",
                     part_format=True,
                     part_format_type=part_format_type,
-                    compute=False,
                 )
             )
             index += 1
@@ -203,7 +199,6 @@ def auto_partitioning() -> bool:
                     part_mount_point="/",
                     part_format=True,
                     part_format_type=part_format_type,
-                    compute=False,
                 )
             )
             index += 1
@@ -221,7 +216,6 @@ def auto_partitioning() -> bool:
                     part_mount_point="/home",
                     part_format=True,
                     part_format_type=part_format_type,
-                    compute=False,
                 )
             )
             index += 1
@@ -240,7 +234,6 @@ def auto_partitioning() -> bool:
                     part_mount_point="/",
                     part_format=True,
                     part_format_type=part_format_type,
-                    compute=False,
                 )
             )
             index += 1

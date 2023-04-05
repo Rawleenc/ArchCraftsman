@@ -109,7 +109,9 @@ def manual_partitioning() -> bool:
             elif partition_type == PartTypes.ROOT:
                 partition.part_type = PartTypes.ROOT
                 partition.part_mount_point = "/"
-                GlobalInfo().partitioning_info.main_disk = f"/dev/{partition.disk_name}"
+                GlobalInfo().partitioning_info.main_disk = (
+                    f"/dev/{partition.disk_name()}"
+                )
             elif partition_type == PartTypes.BOOT:
                 partition.part_type = PartTypes.BOOT
                 partition.part_mount_point = "/boot"

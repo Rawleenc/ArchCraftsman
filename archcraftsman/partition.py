@@ -44,11 +44,6 @@ class Partition:
 
     index: int = 0
     path: str = ""
-    size: int = 0
-    part_type_name: str = ""
-    disk_name: str = ""
-    fs_type: str = ""
-    uuid: str = ""
     part_type: PartTypes = PartTypes.OTHER
     part_mount_point: str = ""
     part_format_type: FSFormats = FSFormats.EXT4
@@ -64,7 +59,6 @@ class Partition:
         part_mount_point: str = "",
         part_format_type: FSFormats = FSFormats.EXT4,
         part_format: bool = True,
-        compute: bool = True,
     ):
         """
         Partition initialisation.
@@ -76,45 +70,59 @@ class Partition:
         self.part_format = part_format
         if not path:
             self.path = ""
-            self.size = 0
-            self.part_type_name = ""
-            self.fs_type = ""
-            self.uuid = ""
         else:
             self.path = path
-            if compute:
-                self.compute()
 
     def __str__(self) -> str:
         """
         Partition str formatting.
         """
         formatted_str = (
-            f"'{self.path}' - '{self.part_type_name}' - '{to_iec(int(self.size))}'"
+            f"'{self.path}' - '{self.part_type_name()}' - '{to_iec(int(self.size()))}'"
         )
         return formatted_str
 
-    def compute(self):
+    def size(self) -> int:
         """
-        A method to compute partition information.
+        A method to get the partition size.
         """
-        self.size = from_iec(
+        return from_iec(
             execute(
                 f'lsblk -nld "{self.path}" -o SIZE', force=True, capture_output=True
             ).output.strip()
         )
-        self.part_type_name = execute(
+
+    def part_type_name(self) -> str:
+        """
+        A method to get the partition type name.
+        """
+        return execute(
             f'lsblk -nld "{self.path}" -o PARTTYPENAME',
             force=True,
             capture_output=True,
         ).output.strip()
-        self.disk_name = execute(
+
+    def disk_name(self) -> str:
+        """
+        A method to get the disk name.
+        """
+        return execute(
             f'lsblk -nld "{self.path}" -o PKNAME', force=True, capture_output=True
         ).output.strip()
-        self.fs_type = execute(
+
+    def fs_type(self) -> str:
+        """
+        A method to get the filesystem type.
+        """
+        return execute(
             f'lsblk -nld "{self.path}" -o FSTYPE', force=True, capture_output=True
         ).output.strip()
-        self.uuid = execute(
+
+    def uuid(self) -> str:
+        """
+        A method to get the partition uuid.
+        """
+        return execute(
             f'lsblk -nld "{self.path}" -o UUID', force=True, capture_output=True
         ).output.strip()
 

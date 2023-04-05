@@ -77,7 +77,7 @@ class Grub(Bundle):
             else:
                 extracted_grub_cmdline = []
             extracted_grub_cmdline.append(
-                f"cryptdevice=UUID={GlobalInfo().partitioning_info.root_partition().uuid}:root"
+                f"cryptdevice=UUID={GlobalInfo().partitioning_info.root_partition().uuid()}:root"
             )
             processed_grub_cmdline = (
                 f"GRUB_CMDLINE_LINUX_DEFAULT=\"{' '.join(extracted_grub_cmdline)}\""
@@ -92,7 +92,7 @@ class Grub(Bundle):
             if part.encrypted and part.part_type != PartTypes.ROOT
         ]:
             execute(
-                f'echo "{partition.block_name} UUID={partition.uuid} none" >> /mnt/etc/crypttab'
+                f'echo "{partition.block_name} UUID={partition.uuid()} none" >> /mnt/etc/crypttab'
             )
 
         if (

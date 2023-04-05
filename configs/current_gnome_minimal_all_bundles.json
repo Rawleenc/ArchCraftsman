@@ -3,43 +3,28 @@
     "main_disk": "/dev/vda",
     "partitions": [
       {
-        "disk_name": "vda",
-        "fs_type": "vfat",
         "index": 0,
         "part_format": true,
         "part_format_type": "vfat",
         "part_mount_point": "/boot/efi",
         "part_type": "efi",
-        "part_type_name": "EFI System",
-        "path": "/dev/vda1",
-        "size": 536870912,
-        "uuid": "AA2B-D4DD"
+        "path": "/dev/vda1"
       },
       {
-        "disk_name": "vda",
-        "fs_type": "ext4",
         "index": 1,
         "part_format": true,
         "part_format_type": "ext4",
         "part_mount_point": "/",
         "part_type": "root",
-        "part_type_name": "Linux filesystem",
-        "path": "/dev/vda2",
-        "size": 34359738368,
-        "uuid": "79192185-ed09-40b2-aa47-9a4bdd09aae4"
+        "path": "/dev/vda2"
       },
       {
-        "disk_name": "vda",
-        "fs_type": "ext4",
         "index": 2,
         "part_format": true,
         "part_format_type": "ext4",
         "part_mount_point": "/home",
         "part_type": "home",
-        "part_type_name": "Linux filesystem",
-        "path": "/dev/vda3",
-        "size": 102542344192,
-        "uuid": "484a271f-6599-48bb-9701-dd94346256ff"
+        "path": "/dev/vda3"
       }
     ],
     "swapfile_size": "4,0G"
