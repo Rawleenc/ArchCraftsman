@@ -1,0 +1,115 @@
+{
+  "partitioning_info": {
+    "main_disk": "/dev/vda",
+    "partitions": [
+      {
+        "block_name": "",
+        "encrypted": false,
+        "index": 0,
+        "part_format": true,
+        "part_format_type": "vfat",
+        "part_mount_point": "/boot/efi",
+        "part_type": "efi",
+        "path": "/dev/vda1"
+      },
+      {
+        "block_name": "",
+        "encrypted": false,
+        "index": 1,
+        "part_format": true,
+        "part_format_type": "ext4",
+        "part_mount_point": "/",
+        "part_type": "root",
+        "path": "/dev/vda2"
+      },
+      {
+        "block_name": "",
+        "encrypted": false,
+        "index": 2,
+        "part_format": true,
+        "part_format_type": "ext4",
+        "part_mount_point": "/home",
+        "part_type": "home",
+        "path": "/dev/vda3"
+      }
+    ],
+    "swapfile_size": "4,0G"
+  },
+  "pre_launch_info": {
+    "detected_timezone": "Europe/Paris",
+    "global_language": "french",
+    "keymap": "fr-latin9",
+    "live_console_font": "ter-v16b"
+  },
+  "system_info": {
+    "bundles": [
+      {
+        "bundle_type": "kernel",
+        "name": "zen"
+      },
+      {
+        "bundle_type": "desktop",
+        "minimal": true,
+        "display_manager": true,
+        "name": "xfce"
+      },
+      {
+        "bundle_type": "network",
+        "name": "networkmanager"
+      },
+      {
+        "bundle_type": "other",
+        "name": "terminus"
+      },
+      {
+        "bundle_type": "other",
+        "name": "cups"
+      },
+      {
+        "bundle_type": "other",
+        "name": "grml"
+      },
+      {
+        "bundle_type": "other",
+        "name": "mainfonts"
+      },
+      {
+        "bundle_type": "other",
+        "name": "mainfilesystems"
+      },
+      {
+        "bundle_type": "other",
+        "name": "zram"
+      },
+      {
+        "bundle_type": "other",
+        "name": "pipewire"
+      },
+      {
+        "bundle_type": "other",
+        "name": "copyacm"
+      },
+      {
+        "bundle_type": "bootloader",
+        "name": "grub"
+      },
+      {
+        "bundle_type": "microcodes",
+        "microcode_name": "GenuineIntel",
+        "name": "microcodes"
+      }
+    ],
+    "hostname": "archlinux",
+    "more_pkgs": [
+      "htop",
+      "neofetch",
+      "inxi",
+      "btop"
+    ],
+    "root_password": "root",
+    "timezone": "/usr/share/zoneinfo/Europe/Paris",
+    "user_full_name": "Rawleenc",
+    "user_name": "raw",
+    "user_password": "raw"
+  }
+}
