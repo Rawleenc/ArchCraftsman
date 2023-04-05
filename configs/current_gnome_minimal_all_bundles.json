@@ -3,6 +3,8 @@
     "main_disk": "/dev/vda",
     "partitions": [
       {
+        "block_name": "",
+        "encrypted": false,
         "index": 0,
         "part_format": true,
         "part_format_type": "vfat",
@@ -11,6 +13,8 @@
         "path": "/dev/vda1"
       },
       {
+        "block_name": "",
+        "encrypted": false,
         "index": 1,
         "part_format": true,
         "part_format_type": "ext4",
@@ -19,6 +23,8 @@
         "path": "/dev/vda2"
       },
       {
+        "block_name": "",
+        "encrypted": false,
         "index": 2,
         "part_format": true,
         "part_format_type": "ext4",

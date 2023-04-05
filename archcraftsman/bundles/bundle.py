@@ -27,10 +27,7 @@ class Bundle:
     A class to represent a bootloader.
     """
 
-    name: str
-    bundle_type: BundleTypes
-
-    def __init__(self, name: str, bundle_type: BundleTypes):
+    def __init__(self, name: str = "", bundle_type: BundleTypes = BundleTypes.OTHER):
         self.name = name
         self.bundle_type = bundle_type
 

@@ -33,14 +33,16 @@ class PartitioningInfo:
     The class to contain all partitioning information.
     """
 
-    partitions: list[Partition] = []
-    swapfile_size: str = ""
-    main_disk: str = ""
-
-    btrfs_in_use: bool = False
-
-    def __init__(self) -> None:
-        self.partitions = []
+    def __init__(
+        self,
+        swapfile_size: str = "",
+        main_disk: str = "",
+        btrfs_in_use: bool = False,
+    ) -> None:
+        self.partitions: list[Partition] = []
+        self.swapfile_size = swapfile_size
+        self.main_disk = main_disk
+        self.btrfs_in_use = btrfs_in_use
 
     def root_partition(self) -> Partition:
         """

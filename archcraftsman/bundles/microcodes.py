@@ -41,7 +41,7 @@ class Microcodes(Bundle):
         if cpu_info_vendor:
             self.microcode_name = re.sub("\\s+", "", cpu_info_vendor).split(":")[1]
         else:
-            self.microcode_name = None
+            self.microcode_name = ""
 
     def packages(self) -> list[str]:
         if self.microcode_name == "GenuineIntel":

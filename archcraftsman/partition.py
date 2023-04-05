@@ -42,15 +42,6 @@ class Partition:
     A class to represent a partition.
     """
 
-    index: int = 0
-    path: str = ""
-    part_type: PartTypes = PartTypes.OTHER
-    part_mount_point: str = ""
-    part_format_type: FSFormats = FSFormats.EXT4
-    part_format: bool = True
-    encrypted: bool = False
-    block_name: str = ""
-
     def __init__(
         self,
         index: int = 0,
@@ -59,6 +50,8 @@ class Partition:
         part_mount_point: str = "",
         part_format_type: FSFormats = FSFormats.EXT4,
         part_format: bool = True,
+        encrypted: bool = False,
+        block_name: str = "",
     ):
         """
         Partition initialisation.
@@ -68,10 +61,9 @@ class Partition:
         self.part_mount_point = part_mount_point
         self.part_format_type = part_format_type
         self.part_format = part_format
-        if not path:
-            self.path = ""
-        else:
-            self.path = path
+        self.encrypted = encrypted
+        self.block_name = block_name
+        self.path = path
 
     def __str__(self) -> str:
         """
