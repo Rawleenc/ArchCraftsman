@@ -23,16 +23,13 @@ import sys
 from subprocess import CalledProcessError
 
 from archcraftsman.autopart import auto_partitioning
-from archcraftsman.basesetup import initial_setup, setup_system
-from archcraftsman.config import deserialize
+from archcraftsman.basesetup import pre_launch, setup_system
 from archcraftsman.globalargs import GlobalArgs
 from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.i18n import I18n
 from archcraftsman.manualpart import manual_partitioning
 from archcraftsman.options import Desktops, FSFormats, PartTypes
-from archcraftsman.packages import Packages
 from archcraftsman.shell import shell
-from archcraftsman.base import elevate
 from archcraftsman.utils import (
     execute,
     glob_completer,
@@ -256,45 +253,6 @@ def install():
         )
         GlobalInfo().serialize()
         GlobalInfo().partitioning_info.umount_partitions()
-        sys.exit(1)
-    except EOFError:
-        sys.exit(1)
-
-
-def pre_launch(shell_mode: bool = False):
-    """
-    A pre-launch steps method.
-    """
-    try:
-        if not elevate():
-            print_error(_("This script must be run as root."), do_pause=False)
-            sys.exit(1)
-
-        if GlobalArgs().config():
-            deserialize(GlobalArgs().config())
-
-        print_step(_("Running pre-launch steps : "), clear=False)
-
-        if not shell_mode:
-            execute('sed -i "s|#Color|Color|g" /etc/pacman.conf')
-            execute(
-                'sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /etc/pacman.conf'
-            )
-
-            print_sub_step(_("Synchronising repositories..."))
-            execute("pacman -Sy &>/dev/null")
-            Packages()
-
-        initial_setup(shell_mode)
-    except KeyboardInterrupt:
-        print_error(_("Script execution interrupted by the user !"), do_pause=False)
-        sys.exit(1)
-    except CalledProcessError as exception:
-        print_error(
-            _("A subprocess execution failed ! See the following error: %s")
-            % exception,
-            do_pause=False,
-        )
         sys.exit(1)
     except EOFError:
         sys.exit(1)

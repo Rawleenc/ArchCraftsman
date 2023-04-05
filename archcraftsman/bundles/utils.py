@@ -26,6 +26,7 @@ from archcraftsman.bundles.cups import Cups
 from archcraftsman.bundles.cutefish import Cutefish
 from archcraftsman.bundles.deepin import Deepin
 from archcraftsman.bundles.enlightenment import Enlightenment
+from archcraftsman.bundles.generateconfig import GenerateConfig
 from archcraftsman.bundles.gnome import Gnome
 from archcraftsman.bundles.grmlzsh import GrmlZsh
 from archcraftsman.bundles.grub import Grub
@@ -127,6 +128,8 @@ def get_bundle_type_by_name(name: str) -> type[Bundle]:
             bundle = CopyACM
         case ShellBundles.YAY:
             bundle = Yay
+        case ShellBundles.GENERATE_CONFIG:
+            bundle = GenerateConfig
         case _:
             bundle = Bundle
     return bundle

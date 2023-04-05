@@ -19,8 +19,17 @@ The system setup module
 """
 import json
 import re
+from subprocess import CalledProcessError
+import sys
 from urllib.request import urlopen
-from archcraftsman.base import is_bios, print_step, print_sub_step, prompt_ln
+from archcraftsman.base import (
+    elevate,
+    execute,
+    is_bios,
+    print_step,
+    print_sub_step,
+    prompt_ln,
+)
 
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.bundles.copyacm import CopyACM
@@ -35,6 +44,7 @@ from archcraftsman.bundles.pipewire import PipeWire
 from archcraftsman.bundles.terminus import TerminusFont
 from archcraftsman.bundles.utils import prompt_bundle
 from archcraftsman.bundles.zram import Zram
+from archcraftsman.config import deserialize
 from archcraftsman.globalargs import GlobalArgs
 from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.i18n import I18n
@@ -120,6 +130,45 @@ def initial_setup(shell_mode: bool = False):
     generate_translations(GlobalInfo().pre_launch_info.global_language)
     if not shell_mode:
         GlobalInfo().pre_launch_info.setup_locale()
+
+
+def pre_launch(shell_mode: bool = False):
+    """
+    A pre-launch steps method.
+    """
+    try:
+        if not elevate():
+            print_error(_("This script must be run as root."), do_pause=False)
+            sys.exit(1)
+
+        if GlobalArgs().config():
+            deserialize(GlobalArgs().config())
+
+        print_step(_("Running pre-launch steps : "), clear=False)
+
+        if not shell_mode:
+            execute('sed -i "s|#Color|Color|g" /etc/pacman.conf')
+            execute(
+                'sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /etc/pacman.conf'
+            )
+
+            print_sub_step(_("Synchronising repositories..."))
+            execute("pacman -Sy &>/dev/null")
+            Packages()
+
+        initial_setup(shell_mode)
+    except KeyboardInterrupt:
+        print_error(_("Script execution interrupted by the user !"), do_pause=False)
+        sys.exit(1)
+    except CalledProcessError as exception:
+        print_error(
+            _("A subprocess execution failed ! See the following error: %s")
+            % exception,
+            do_pause=False,
+        )
+        sys.exit(1)
+    except EOFError:
+        sys.exit(1)
 
 
 def setup_system():

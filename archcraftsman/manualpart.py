@@ -37,7 +37,7 @@ from archcraftsman.utils import (
 _ = I18n().gettext
 
 
-def manual_partitioning() -> bool:
+def manual_partitioning(change_disks: bool = True) -> bool:
     """
     The method to proceed to the manual partitioning.
     """
@@ -52,7 +52,8 @@ def manual_partitioning() -> bool:
         target_disk = ask_drive()
         if target_disk not in partitioned_disks:
             partitioned_disks.append(target_disk)
-        execute(f'cfdisk "{target_disk}"')
+        if change_disks:
+            execute(f'cfdisk "{target_disk}"')
         print_step(_("Manual partitioning :"))
         print_sub_step(
             _("Partitioned drives so far : %s") % " ".join(partitioned_disks)

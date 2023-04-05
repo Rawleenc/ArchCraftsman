@@ -70,7 +70,7 @@ class GlobalInfo(metaclass=GlobalInfoMeta):
         )
         file_path = (
             file_path
-            if not GlobalArgs().test()
+            if not GlobalArgs().test() and not GlobalArgs().shell()
             else f"{self.system_info.hostname}.json"
         )
         with open(file_path, "w", encoding="UTF-8") as file:

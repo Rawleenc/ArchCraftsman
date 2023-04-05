@@ -19,10 +19,13 @@ The shell mode module
 """
 from subprocess import CalledProcessError
 from typing import Optional
+from archcraftsman.basesetup import pre_launch, setup_system
 
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.bundles.utils import prompt_bundle
+from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.i18n import I18n
+from archcraftsman.manualpart import manual_partitioning
 from archcraftsman.options import (
     BundleTypes,
     Commands,
@@ -173,7 +176,16 @@ def shell():
                     continue
                 case Commands.EXIT:
                     want_exit = True
+                    GlobalInfo().serialize()
                     continue
+
+            if bundle and bundle.name == ShellBundles.GENERATE_CONFIG:
+                pre_launch()
+                setup_system()
+                partitioning_info_ok: bool = False
+                while not partitioning_info_ok:
+                    partitioning_info_ok = manual_partitioning(change_disks=False)
+                continue
 
             sub_command = prompt_option(
                 "> ",
@@ -194,9 +206,11 @@ def shell():
                 case SubCommands.CANCEL:
                     continue
         except KeyboardInterrupt:
+            GlobalInfo().serialize()
             print_error(_("Script execution interrupted by the user !"), do_pause=False)
             want_exit = True
         except CalledProcessError as sub_process_exception:
+            GlobalInfo().serialize()
             print_error(
                 _("A subprocess execution failed ! See the following error: %s")
                 % sub_process_exception,
@@ -204,4 +218,5 @@ def shell():
             )
             want_exit = True
         except EOFError:
+            GlobalInfo().serialize()
             want_exit = True

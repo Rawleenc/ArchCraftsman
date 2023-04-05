@@ -31,6 +31,9 @@ class OptionEnum(str, Enum):
     ) -> str:
         return name.lower().replace("_", "")
 
+    def __str__(self) -> str:
+        return self.value
+
 
 class Languages(OptionEnum):
     """
@@ -137,6 +140,7 @@ class ShellBundles(OptionEnum):
     """
 
     YAY = auto()
+    GENERATE_CONFIG = auto()
 
 
 class FSFormats(OptionEnum):
