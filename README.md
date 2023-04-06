@@ -145,7 +145,8 @@ If you choose to not create a Swap partition, you will be proposed a swapfile of
 
 ## Encryption
 
-ArchCraftsman is able to encrypt any partitions you want using dm-crypt + LUKS on partitions. CF. [LUKS on a partition](https://wiki.archlinux.org/title/Dm-crypt/Encrypting_an_entire_system#LUKS_on_a_partition).
+ArchCraftsman is able to encrypt any partitions you want using dm-crypt + LUKS on partitions.  
+CF. [LUKS on a partition](https://wiki.archlinux.org/title/Dm-crypt/Encrypting_an_entire_system#LUKS_on_a_partition).
 
 If you choose to encrypt the root partition, then you'll need to have a /boot separated partition in order to be able to boot the system. During the format step, cryptsetup will be used leading to prompts asking you to enter a password for each partition you want to encrypt. These passwords will be asked to you during the boot to unlock your system.
 
