@@ -155,6 +155,8 @@ An installation with a configuration file will be fully automatic, without any r
 
 A new configuration file can be generated in the shell mode on an existing archlinux system by using the `generateconfig` shell bundle.
 
+Some configuration file examples are available in the [configs](configs) folder. These configuration files are examples of few typical possible installations. They are working on qemu/kvm virtual machines.
+
 # Disclaimer
 
 ArchCraftsman Copyright (C) 2023 Rawleenc
