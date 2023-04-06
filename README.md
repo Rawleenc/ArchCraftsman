@@ -57,7 +57,7 @@ This script supports both UEFI and BIOS.
 
 ## Installation startup
 
-At the very beginning, some information will be gathered using your IP address with ipapi.co API in order to propose more relevant default values :  
+At the very beginning, some information will be gathered using your IP address with [ipapi.co](https://ipapi.co/) API in order to propose more relevant default values :  
 - Language, to propose an adapted default global language and keymap
 - Timezone, to propose an adapted default value for the timezone
 
@@ -142,6 +142,14 @@ If the EFI partition has to be formatted it will be formatted in vfat, otherwise
 All other partitions will be formatted in the format you want. 
 
 If you choose to not create a Swap partition, you will be proposed a swapfile of the size you want, called swapfile. It will be created and placed at the base of the Root partition. If you specify 0 for the swapfile size, no swap will be created.
+
+## Encryption
+
+ArchCraftsman is able to encrypt any partitions you want using dm-crypt + LUKS on partitions. CF. [LUKS on a partition](https://wiki.archlinux.org/title/Dm-crypt/Encrypting_an_entire_system#LUKS_on_a_partition).
+
+If you choose to encrypt the root partition, then you'll need to have a /boot separated partition in order to be able to boot the system. During the format step, cryptsetup will be used leading to prompts asking you to enter a password for each partition you want to encrypt. These passwords will be asked to you during the boot to unlock your system.
+
+During boot time, encrypted root partition will be unlocked by the kernel and all other encrypted partitions will be unlocked by systemd.
 
 ## Configuration file
 
