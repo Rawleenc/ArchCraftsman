@@ -161,7 +161,7 @@ Some configuration file examples are available in the [configs](configs) folder.
 
 ArchCraftsman Copyright (C) 2023 Rawleenc
 
-This program comes with ABSOLUTELY NO WARRANTY; See the [GNU General Public License](LICENSE) for more details.
+This program comes with ABSOLUTELY NO WARRANTY; See the [GNU General Public License](LICENSE.txt) for more details.
 
 This is free software, and you are welcome to redistribute it
-under certain conditions; See the [GNU General Public License](LICENSE) for more details.
+under certain conditions; See the [GNU General Public License](LICENSE.txt) for more details.
