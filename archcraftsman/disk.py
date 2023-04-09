@@ -20,7 +20,7 @@ The disk class module
 import re
 
 from archcraftsman.i18n import I18n
-from archcraftsman.options import PartTypes
+from archcraftsman.options import FSFormats, PartTypes
 from archcraftsman.partition import Partition
 from archcraftsman.utils import to_iec, prompt, print_error, execute
 
@@ -33,7 +33,7 @@ class Disk:
     """
 
     path: str
-    partitions: list
+    partitions: list[Partition]
     total: int
     free_space: int
 
@@ -96,11 +96,13 @@ class Disk:
         The Disk method to get the EFI partition if it exist. Else return an empty partition object.
         """
         try:
-            return [
-                p for p in self.partitions if PartTypes.EFI in p.part_type_name
-            ].pop()
+            return [p for p in self.partitions if p.part_type == PartTypes.EFI].pop()
         except IndexError:
-            return Partition()
+            return Partition(
+                part_type=PartTypes.EFI,
+                part_format_type=FSFormats.VFAT,
+                part_mount_point="/boot/efi",
+            )
 
     def ask_swapfile_size(self) -> str:
         """

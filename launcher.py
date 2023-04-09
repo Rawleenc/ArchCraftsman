@@ -99,6 +99,8 @@ def download(url: str, destination: str, replace: bool = False) -> bool:
     """
     A method to download a file
     """
+    if not url:
+        return False
     print_sub_step(f"Downloading '{destination}'...")
     if replace and os.path.exists(destination):
         subprocess.run(f"rm -rf {destination}", shell=True, check=True)
