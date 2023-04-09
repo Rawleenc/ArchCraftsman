@@ -28,7 +28,7 @@ from archcraftsman.globalargs import GlobalArgs
 from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.i18n import I18n
 from archcraftsman.manualpart import manual_partitioning
-from archcraftsman.options import Desktops, FSFormats, PartTypes
+from archcraftsman.options import Desktops, FSFormats, Languages, PartTypes
 from archcraftsman.shell import shell
 from archcraftsman.utils import (
     execute,
@@ -117,7 +117,7 @@ def install():
         print_step(_("System configuration..."), clear=False)
         execute('sed -i "s|#en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|g" /mnt/etc/locale.gen')
         execute('sed -i "s|#en_US ISO-8859-1|en_US ISO-8859-1|g" /mnt/etc/locale.gen')
-        if GlobalInfo().pre_launch_info.global_language == "FR":
+        if GlobalInfo().pre_launch_info.global_language == Languages.FRENCH:
             execute(
                 'sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /mnt/etc/locale.gen'
             )
