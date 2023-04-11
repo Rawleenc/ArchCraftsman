@@ -88,6 +88,12 @@ jobs:
         run: addlicense -c 'Rawleenc' -f NOTICES -check **/*.py
   
   coverage:
+    needs:
+      - pylint
+      - flake8
+      - bandit
+      - pyright
+      - black
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -99,9 +105,10 @@ jobs:
       - name: Test
         run: |
           coverage run -m unittest
+          coverage report
           coverage html
       - name: Archive code coverage results
         uses: actions/upload-artifact@v3
         with:
           name: code-coverage-report
-          path: htmlcov/index.html
+          path: htmlcov
