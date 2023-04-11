@@ -38,31 +38,31 @@ class TestBase(unittest.TestCase):
     Tests for the base module.
     """
 
-    @patch("archcraftsman.base.glob.glob", return_value=["toto", "tata", "titi"])
-    @patch("archcraftsman.base.os.path.isdir", return_value=False)
+    @patch("glob.glob", return_value=["toto", "tata", "titi"])
+    @patch("os.path.isdir", return_value=False)
     def test_glob_completer_first(self, _mock_glob, _mock_isdir):
         """
         Test the glob completer.
         """
         self.assertEqual(glob_completer("t", 0), "toto")
 
-    @patch("archcraftsman.base.glob.glob", return_value=["toto", "tata", "titi"])
-    @patch("archcraftsman.base.os.path.isdir", return_value=False)
+    @patch("glob.glob", return_value=["toto", "tata", "titi"])
+    @patch("os.path.isdir", return_value=False)
     def test_glob_completer_second(self, _mock_glob, _mock_isdir):
         """
         Test the glob completer.
         """
         self.assertEqual(glob_completer("t", 1), "tata")
 
-    @patch("archcraftsman.base.glob.glob", return_value=["toto", "tata", "titi"])
-    @patch("archcraftsman.base.os.path.isdir", return_value=False)
+    @patch("glob.glob", return_value=["toto", "tata", "titi"])
+    @patch("os.path.isdir", return_value=False)
     def test_glob_completer_third(self, _mock_glob, _mock_isdir):
         """
         Test the glob completer.
         """
         self.assertEqual(glob_completer("t", 2), "titi")
 
-    @patch("archcraftsman.base.os.path.exists", return_value=False)
+    @patch("os.path.exists", return_value=False)
     def test_is_bios(self, _mock_is_bios):
         """
         Test the is_bios function.
@@ -73,7 +73,7 @@ class TestBase(unittest.TestCase):
         """
         Test the execute function.
         """
-        with patch("archcraftsman.base.subprocess.run") as mock_subprocess_run:
+        with patch("subprocess.run") as mock_subprocess_run:
             mock_subprocess_run.side_effect = [
                 subprocess.CompletedProcess(args="echo A", returncode=0, stdout=b"A"),
                 subprocess.CompletedProcess(args="echo B", returncode=0, stdout=b"B"),
@@ -96,7 +96,7 @@ class TestBase(unittest.TestCase):
             )
             with (
                 patch("sys.stdout", new_callable=StringIO) as mock_stdout,
-                patch("archcraftsman.base.GlobalArgs.test", return_value=True),
+                patch("archcraftsman.globalargs.GlobalArgs.test", return_value=True),
             ):
                 execute("echo C")
                 self.assertTrue(mock_stdout.getvalue())
@@ -219,7 +219,7 @@ class TestBase(unittest.TestCase):
                 f"{CYAN}  * Sub step{NOCOLOR}\n",
             )
 
-    @patch("archcraftsman.base.GlobalArgs.test", return_value=True)
+    @patch("archcraftsman.globalargs.GlobalArgs.test", return_value=True)
     def test_log(self, _mock_test):
         """
         Test the log function.
