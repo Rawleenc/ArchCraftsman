@@ -91,9 +91,7 @@ jobs:
     needs:
       - pylint
       - flake8
-      - bandit
       - pyright
-      - black
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
