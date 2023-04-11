@@ -69,20 +69,47 @@ class TestBase(unittest.TestCase):
         """
         self.assertTrue(is_bios())
 
-    @patch(
-        "archcraftsman.base.subprocess.run",
-        return_value=subprocess.CompletedProcess(
-            args="echo toto", returncode=0, stdout=b"toto"
-        ),
-    )
-    def test_execute(self, _mock_subprocess_run):
+    def test_execute(self):
         """
         Test the execute function.
         """
-        result = execute("echo toto")
-        self.assertEqual(result.command, "echo toto")
-        self.assertEqual(result.returncode, 0)
-        self.assertEqual(result.output, "toto")
+        with patch("archcraftsman.base.subprocess.run") as mock_subprocess_run:
+            mock_subprocess_run.side_effect = [
+                subprocess.CompletedProcess(args="echo A", returncode=0, stdout=b"A"),
+                subprocess.CompletedProcess(args="echo B", returncode=0, stdout=b"B"),
+                subprocess.CompletedProcess(args="echo C", returncode=0, stdout=b"C"),
+                subprocess.CompletedProcess(args="echo D", returncode=0, stdout=b"D"),
+            ]
+            result1 = execute("echo A")
+            result2 = execute("echo B")
+            self.assertEqual(result1.command, "echo A")
+            self.assertEqual(result1.returncode, 0)
+            self.assertEqual(result1.output, "A")
+            self.assertTrue(bool(result1))
+            self.assertEqual(str(result1), "A")
+            self.assertEqual(repr(result1), "A")
+            self.assertFalse(result1 == result2)
+            self.assertTrue(result1 != result2)
+            self.assertEqual(
+                hash(result1),
+                hash(result1.command) ^ hash(result1.returncode) ^ hash(result1.output),
+            )
+            with (
+                patch("sys.stdout", new_callable=StringIO) as mock_stdout,
+                patch("archcraftsman.base.GlobalArgs.test", return_value=True),
+            ):
+                execute("echo C")
+                self.assertTrue(mock_stdout.getvalue())
+            with (
+                patch("archcraftsman.base.sudo_exist", return_value=False),
+                patch("archcraftsman.base.is_root", return_value=False),
+            ):
+                self.assertRaises(PermissionError, lambda: execute("echo D", sudo=True))
+            with (
+                patch("archcraftsman.base.sudo_exist", return_value=True),
+                patch("archcraftsman.base.is_root", return_value=False),
+            ):
+                self.assertTrue("sudo" in execute("echo D", sudo=True).command)
 
     @patch(
         "archcraftsman.base.execute",
@@ -121,8 +148,9 @@ class TestBase(unittest.TestCase):
             self.assertTrue(elevate())
         with patch("archcraftsman.base.sudo_exist", return_value=True):
             self.assertTrue(elevate())
-        with patch("archcraftsman.base.is_root", return_value=False), patch(
-            "archcraftsman.base.sudo_exist", return_value=False
+        with (
+            patch("archcraftsman.base.is_root", return_value=False),
+            patch("archcraftsman.base.sudo_exist", return_value=False),
         ):
             self.assertFalse(elevate())
 
