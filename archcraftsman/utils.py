@@ -20,6 +20,7 @@ The general utility methods and tools module
 from importlib.resources import files
 import re
 import readline
+import subprocess
 from typing import Optional, TypeVar
 from archcraftsman.base import (
     glob_completer,
@@ -70,8 +71,8 @@ def from_iec(size: str) -> int:
     """
     The method to convert an iec formatted size in bytes.
     """
-    return int(
-        re.sub(
+    try:
+        value = re.sub(
             "\\s",
             "",
             execute(
@@ -80,7 +81,9 @@ def from_iec(size: str) -> int:
                 force=True,
             ).output,
         )
-    )
+        return int(value) if value else 0
+    except subprocess.CalledProcessError:
+        return 0
 
 
 def print_supported(supported_msg: str, options: list[str], *ignores: str):
