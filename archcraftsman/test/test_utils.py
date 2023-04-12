@@ -49,19 +49,19 @@ class TestUtils(unittest.TestCase):
         """
         Test the to_iec function.
         """
-        self.assertEqual("1,0K", to_iec(1024))
+        self.assertEqual(to_iec(10240), "10K")
 
     def test_to_iec_with_negative_value(self):
         """
         Test the to_iec function with a negative value.
         """
-        self.assertEqual("", to_iec(-1))
+        self.assertEqual(to_iec(-1), "")
 
     def test_from_iec(self):
         """
         Test the from_iec function.
         """
-        self.assertEqual(1024, from_iec("1,0K"))
+        self.assertEqual(1024, from_iec("1K"))
 
     def test_from_iec_with_invalid_value(self):
         """
@@ -73,7 +73,7 @@ class TestUtils(unittest.TestCase):
         """
         Test the from_iec function with a negative value.
         """
-        self.assertEqual(from_iec("-1,0K"), 0)
+        self.assertEqual(from_iec("-1K"), 0)
 
     def test_print_supported(self):
         """
