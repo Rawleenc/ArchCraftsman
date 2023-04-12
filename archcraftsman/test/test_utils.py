@@ -61,7 +61,7 @@ class TestUtils(unittest.TestCase):
         """
         Test the from_iec function.
         """
-        self.assertEqual(1024, from_iec("1K"))
+        self.assertEqual(from_iec("1K"), 1024)
 
     def test_from_iec_with_invalid_value(self):
         """
