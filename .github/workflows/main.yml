@@ -85,7 +85,7 @@ jobs:
       - name: Setup environment
         run: go install github.com/google/addlicense@latest
       - name: Check
-        run: addlicense -c 'Rawleenc' -f NOTICES -check **/*.py
+        run: ls -als; addlicense -c 'Rawleenc' -f NOTICES -check archcraftsman/**/*.py launcher.py
   
   coverage:
     needs:
