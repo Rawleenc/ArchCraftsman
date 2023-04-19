@@ -31,7 +31,7 @@ class Microcodes(Bundle):
     The Microcodes class.
     """
 
-    def __init__(self, name: str, bundle_type: BundleTypes):
+    def __init__(self, name: str = "", bundle_type: BundleTypes = BundleTypes.OTHER):
         super().__init__(name, bundle_type)
         cpu_info_vendor = execute(
             'grep </proc/cpuinfo "vendor" | uniq', force=True, capture_output=True

@@ -149,4 +149,9 @@ def deserialize(file_path: str):
         for bundle in data["system_info"]["bundles"]:
             info.ai.system_info.bundles.append(dict_to_bundle(bundle))
     print_step("Validating config file...", clear=False)
-    validate(data, info.AllInfo())
+    fake = info.AllInfo()
+    for partition in info.ai.partitioning_info.partitions:
+        fake.partitioning_info.partitions.append(type(partition)())
+    for bundle in info.ai.system_info.bundles:
+        fake.system_info.bundles.append(type(bundle)())
+    validate(data, fake)

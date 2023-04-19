@@ -29,9 +29,10 @@ class AllInfo:
     The singleton implementation containing the translation method to use.
     """
 
-    pre_launch_info: PreLaunchInfo = PreLaunchInfo()
-    partitioning_info: PartitioningInfo = PartitioningInfo()
-    system_info: SystemInfo = SystemInfo()
+    def __init__(self) -> None:
+        self.pre_launch_info: PreLaunchInfo = PreLaunchInfo()
+        self.partitioning_info: PartitioningInfo = PartitioningInfo()
+        self.system_info: SystemInfo = SystemInfo()
 
 
 ai = AllInfo()
