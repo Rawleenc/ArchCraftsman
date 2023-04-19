@@ -38,7 +38,9 @@ def serialize():
     """
     Serialize the GlobalInfo object to a json file.
     """
-    json_str = json.dumps(info, default=lambda o: o.__dict__, sort_keys=True, indent=2)
+    json_str = json.dumps(
+        info.ai, default=lambda o: o.__dict__, sort_keys=True, indent=2
+    )
     file_path = (
         f"/mnt/home/{info.ai.system_info.user_name}/{info.ai.system_info.hostname}.json"
         if info.ai.system_info.user_name
