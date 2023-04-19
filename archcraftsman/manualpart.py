@@ -26,13 +26,12 @@ from archcraftsman.base import (
     print_step,
     print_sub_step,
     prompt,
-    prompt_bool,
 )
 from archcraftsman.disk import Disk
 from archcraftsman.i18n import _
 from archcraftsman.options import PartTypes
 from archcraftsman.partition import Partition
-from archcraftsman.utils import ask_drive, prompt_option
+from archcraftsman.utils import ask_drive, prompt_bool, prompt_option
 
 
 def manual_partitioning(change_disks: bool = True) -> bool:

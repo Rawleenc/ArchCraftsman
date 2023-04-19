@@ -22,13 +22,14 @@ import os
 from subprocess import CalledProcessError
 from typing import Optional
 
-from archcraftsman.base import execute, print_sub_step, prompt_bool
+from archcraftsman.base import execute, print_sub_step
 from archcraftsman.i18n import _
 from archcraftsman.options import FSFormats, PartTypes
 from archcraftsman.utils import (
     ask_encryption_block_name,
     ask_format_type,
     from_iec,
+    prompt_bool,
     to_iec,
 )
 

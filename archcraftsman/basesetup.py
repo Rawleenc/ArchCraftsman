@@ -31,7 +31,6 @@ from archcraftsman.base import (
     print_error,
     print_step,
     print_sub_step,
-    prompt_bool,
     prompt_ln,
 )
 from archcraftsman.bundles.bundle import Bundle
@@ -64,6 +63,7 @@ from archcraftsman.utils import (
     ask_keymap,
     ask_password,
     generate_translations,
+    prompt_bool,
     prompt_option,
 )
 

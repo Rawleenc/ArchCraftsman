@@ -18,7 +18,7 @@
 The automatic partitioning system module
 """
 from archcraftsman import info
-from archcraftsman.base import execute, is_bios, print_step, print_sub_step, prompt_bool
+from archcraftsman.base import execute, is_bios, print_step, print_sub_step
 from archcraftsman.disk import Disk
 from archcraftsman.i18n import _
 from archcraftsman.options import FSFormats, PartTypes, SwapTypes
@@ -27,6 +27,7 @@ from archcraftsman.utils import (
     ask_drive,
     ask_format_type,
     from_iec,
+    prompt_bool,
     prompt_option,
     to_iec,
 )

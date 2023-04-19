@@ -19,9 +19,10 @@ The lxqt bundle module
 """
 
 from archcraftsman import info
-from archcraftsman.base import execute, print_sub_step, prompt_bool
+from archcraftsman.base import execute, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import _
+from archcraftsman.utils import prompt_bool
 
 
 class Lxqt(Bundle):

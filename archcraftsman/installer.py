@@ -30,13 +30,13 @@ from archcraftsman.base import (
     print_error,
     print_step,
     print_sub_step,
-    prompt_bool,
 )
 from archcraftsman.basesetup import pre_launch, setup_system
 from archcraftsman.i18n import _
 from archcraftsman.manualpart import manual_partitioning
 from archcraftsman.options import Desktops, FSFormats, Languages, PartTypes
 from archcraftsman.shell import shell
+from archcraftsman.utils import prompt_bool
 
 
 def install():
