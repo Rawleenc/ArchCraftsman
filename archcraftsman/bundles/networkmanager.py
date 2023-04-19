@@ -18,13 +18,11 @@
 The network manager bundle module
 """
 
+from archcraftsman import info
+from archcraftsman.base import execute, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.globalinfo import GlobalInfo
-from archcraftsman.i18n import I18n
+from archcraftsman.i18n import _
 from archcraftsman.options import Desktops
-from archcraftsman.utils import print_sub_step, execute
-
-_ = I18n().gettext
 
 
 class NetworkManager(Bundle):
@@ -34,7 +32,7 @@ class NetworkManager(Bundle):
 
     def packages(self) -> list[str]:
         packages = ["networkmanager"]
-        if GlobalInfo().system_info.desktop().name in [
+        if info.ai.system_info.desktop().name in [
             Desktops.BUDGIE,
             Desktops.I3,
             Desktops.LXQT,

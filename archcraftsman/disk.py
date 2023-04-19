@@ -19,12 +19,11 @@ The disk class module
 """
 import re
 
-from archcraftsman.i18n import I18n
+from archcraftsman.base import execute, print_error, prompt
+from archcraftsman.i18n import _
 from archcraftsman.options import FSFormats, PartTypes
 from archcraftsman.partition import Partition
-from archcraftsman.utils import to_iec, prompt, print_error, execute
-
-_ = I18n().gettext
+from archcraftsman.utils import to_iec
 
 
 class Disk:

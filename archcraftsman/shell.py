@@ -19,31 +19,24 @@ The shell mode module
 """
 from subprocess import CalledProcessError
 from typing import Optional
-from archcraftsman.basesetup import pre_launch, setup_system
 
+from archcraftsman import config
+from archcraftsman.base import execute, print_error, print_step
+from archcraftsman.basesetup import pre_launch, setup_system
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.bundles.utils import prompt_bundle
-from archcraftsman.globalinfo import GlobalInfo
-from archcraftsman.i18n import I18n
+from archcraftsman.i18n import _
 from archcraftsman.manualpart import manual_partitioning
 from archcraftsman.options import (
+    Bundles,
     BundleTypes,
     Commands,
-    Kernels,
     Desktops,
-    Bundles,
+    Kernels,
     ShellBundles,
     SubCommands,
 )
-from archcraftsman.utils import (
-    prompt_option,
-    print_error,
-    print_supported,
-    execute,
-    print_step,
-)
-
-_ = I18n().gettext
+from archcraftsman.utils import print_supported, prompt_option
 
 
 def ask_for_kernel() -> Optional[Bundle]:
@@ -176,7 +169,7 @@ def shell():
                     continue
                 case Commands.EXIT:
                     want_exit = True
-                    GlobalInfo().serialize()
+                    config.serialize()
                     continue
 
             if bundle and bundle.name == ShellBundles.GENERATE_CONFIG:
@@ -206,11 +199,11 @@ def shell():
                 case SubCommands.CANCEL:
                     continue
         except KeyboardInterrupt:
-            GlobalInfo().serialize()
+            config.serialize()
             print_error(_("Script execution interrupted by the user !"), do_pause=False)
             want_exit = True
         except CalledProcessError as sub_process_exception:
-            GlobalInfo().serialize()
+            config.serialize()
             print_error(
                 _("A subprocess execution failed ! See the following error: %s")
                 % sub_process_exception,
@@ -218,5 +211,5 @@ def shell():
             )
             want_exit = True
         except EOFError:
-            GlobalInfo().serialize()
+            config.serialize()
             want_exit = True

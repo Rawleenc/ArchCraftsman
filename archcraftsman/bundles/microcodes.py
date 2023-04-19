@@ -20,12 +20,10 @@ The microcodes auto-installation bundle module
 import re
 from typing import Optional
 
+from archcraftsman.base import execute, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import I18n
+from archcraftsman.i18n import _
 from archcraftsman.options import BundleTypes
-from archcraftsman.utils import print_sub_step, execute
-
-_ = I18n().gettext
 
 
 class Microcodes(Bundle):

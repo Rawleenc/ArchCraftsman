@@ -17,11 +17,9 @@
 """
 The zram bundle module
 """
+from archcraftsman.base import log, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import I18n
-from archcraftsman.base import print_sub_step, log
-
-_ = I18n().gettext
+from archcraftsman.i18n import _
 
 
 class Zram(Bundle):

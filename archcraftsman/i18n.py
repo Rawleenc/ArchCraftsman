@@ -18,55 +18,30 @@
 The I18n management singleton module
 """
 import gettext
-from threading import Lock
 
 from archcraftsman.options import Languages
 
+_I18N_METHOD = gettext.gettext
 
-class I18nMeta(type):
+
+def update_method(global_language: str):
     """
-    Thread-safe implementation of Singleton to manage translations.
-    """
-
-    _instances = {}
-    _lock: Lock = Lock()
-
-    def __call__(cls, *args, **kwargs):
-        """
-        Possible changes to the value of the `__init__` argument do not affect
-        the returned instance.
-        """
-        with cls._lock:
-            if cls not in cls._instances:
-                instance = super().__call__(*args, **kwargs)
-                cls._instances[cls] = instance
-        return cls._instances[cls]
-
-
-class I18n(metaclass=I18nMeta):
-    """
-    The singleton implementation containing the translation method to use.
+    Update the translation method to use according to the global language.
     """
 
-    def __init__(self) -> None:
-        self.gettext_method = gettext.gettext
+    if global_language != Languages.ENGLISH:
+        translation = gettext.translation(
+            "archcraftsman",
+            localedir="/usr/share/locale",
+            languages=[global_language],
+        )
+        translation.install()
+        global _I18N_METHOD
+        _I18N_METHOD = translation.gettext
 
-    def update_method(self, global_language: str):
-        """
-        Update the translation method to use according to the global language.
-        """
-        if global_language != Languages.ENGLISH:
-            translation = gettext.translation(
-                "archcraftsman",
-                localedir="/usr/share/locale",
-                languages=[global_language],
-            )
-            translation.install()
-            self.gettext_method = translation.gettext
-        return self.gettext_method
 
-    def gettext(self, message):
-        """
-        Translate the given text with the translation method.
-        """
-        return self.gettext_method(message)
+def _(message) -> str:
+    """
+    Translate the given text with the translation method.
+    """
+    return _I18N_METHOD(message)

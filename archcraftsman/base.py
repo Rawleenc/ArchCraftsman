@@ -23,10 +23,9 @@ import glob
 import os
 import subprocess
 from typing import Optional
-from archcraftsman.globalargs import GlobalArgs
-from archcraftsman.i18n import I18n
 
-_ = I18n().gettext
+from archcraftsman import arguments
+from archcraftsman.i18n import _
 
 RED = "\033[0;31m"
 GREEN = "\033[0;32m"
@@ -130,7 +129,7 @@ def execute(
     """
     A method to exec a command.
     """
-    if force or not GlobalArgs().test():
+    if force or not arguments.test():
         log(f"Real execution of: {command}")
         if sudo and not sudo_exist() and not is_root():
             raise PermissionError("This script must be run as root.")
@@ -190,7 +189,7 @@ def log(message: str):
     """
     A method to print a log message.
     """
-    if GlobalArgs().test():
+    if arguments.test():
         print(f"{GRAY}> {message}{NOCOLOR}")
 
 
@@ -258,3 +257,22 @@ def prompt_passwd(message: str, required: bool = False):
     A method to prompt for a password without displaying an echo.
     """
     return prompt(f"{ORANGE}{message}{NOCOLOR}", required=required, password=True)
+
+
+def prompt_bool(
+    message: str, default: bool = True, help_msg: Optional[str] = None
+) -> bool:
+    """
+    A method to prompt for a boolean choice.
+    """
+    message += " ("
+    if default:
+        message += f"{_('yes').upper()[0]}/{_('no')[0]}"
+    else:
+        message += f"{_('yes')[0]}/{_('no').upper()[0]}"
+    if help_msg is not None:
+        message += "/?"
+    message += ") : "
+    if not default:
+        return prompt(f"{message}", help_msg=help_msg).upper() == _("yes").upper()[0]
+    return prompt(f"{message}", help_msg=help_msg).upper() != _("no").upper()[0]

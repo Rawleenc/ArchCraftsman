@@ -18,12 +18,10 @@
 The gnome bundle module
 """
 
+from archcraftsman import info
+from archcraftsman.base import execute, print_sub_step, prompt_bool
 from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.globalinfo import GlobalInfo
-from archcraftsman.i18n import I18n
-from archcraftsman.utils import print_sub_step, prompt_bool, execute
-
-_ = I18n().gettext
+from archcraftsman.i18n import _
 
 
 class Gnome(Bundle):
@@ -62,4 +60,4 @@ class Gnome(Bundle):
 
     def configure(self):
         execute('arch-chroot /mnt bash -c "systemctl enable gdm"')
-        GlobalInfo().pre_launch_info.setup_chroot_keyboard()
+        info.ai.pre_launch_info.setup_chroot_keyboard()

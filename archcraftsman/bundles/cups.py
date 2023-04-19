@@ -18,11 +18,9 @@
 The cups bundle module
 """
 
+from archcraftsman.base import execute, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import I18n
-from archcraftsman.utils import print_sub_step, execute
-
-_ = I18n().gettext
+from archcraftsman.i18n import _
 
 
 class Cups(Bundle):

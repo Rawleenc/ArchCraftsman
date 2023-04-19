@@ -17,9 +17,9 @@
 """
 Tests for the base module.
 """
-from io import StringIO
 import subprocess
 import unittest
+from io import StringIO
 from unittest.mock import patch
 
 from archcraftsman.base import (
@@ -112,7 +112,7 @@ class TestBase(unittest.TestCase):
             )
             with (
                 patch("sys.stdout", new_callable=StringIO) as mock_stdout,
-                patch("archcraftsman.globalargs.GlobalArgs.test", return_value=True),
+                patch("archcraftsman.arguments.test", return_value=True),
             ):
                 execute("echo C")
                 self.assertTrue(mock_stdout.getvalue())
@@ -235,7 +235,7 @@ class TestBase(unittest.TestCase):
                 f"{CYAN}  * Sub step{NOCOLOR}\n",
             )
 
-    @patch("archcraftsman.globalargs.GlobalArgs.test", return_value=True)
+    @patch("archcraftsman.arguments.test", return_value=True)
     def test_log(self, _mock_test):
         """
         Test the log function.

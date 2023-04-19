@@ -17,12 +17,10 @@
 """
 The copy ArchCraftsman bundle module
 """
+from archcraftsman import info
+from archcraftsman.base import execute, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.globalinfo import GlobalInfo
-from archcraftsman.i18n import I18n
-from archcraftsman.utils import execute, print_sub_step
-
-_ = I18n().gettext
+from archcraftsman.i18n import _
 
 
 class CopyACM(Bundle):
@@ -34,14 +32,14 @@ class CopyACM(Bundle):
         print_sub_step(_("Copy ArchCraftsman to the new system."))
 
     def configure(self):
-        if GlobalInfo().system_info.user_name:
-            path = f"/home/{GlobalInfo().system_info.user_name}"
+        if info.ai.system_info.user_name:
+            path = f"/home/{info.ai.system_info.user_name}"
             execute(f"mkdir -p /mnt{path}")
             execute(f"cp -r ~/archcraftsman /mnt{path}")
             execute(
                 (
-                    f'arch-chroot /mnt bash -c "chown -R {GlobalInfo().system_info.user_name}:'
-                    f'{GlobalInfo().system_info.user_name} {path}"'
+                    f'arch-chroot /mnt bash -c "chown -R {info.ai.system_info.user_name}:'
+                    f'{info.ai.system_info.user_name} {path}"'
                 )
             )
         else:

@@ -19,12 +19,9 @@ The module of PreLaunchInfo class.
 """
 import os
 
-from archcraftsman.i18n import I18n
+from archcraftsman.base import execute, log, print_step
+from archcraftsman.i18n import _
 from archcraftsman.options import Languages
-from archcraftsman.base import log
-from archcraftsman.utils import print_step, execute
-
-_ = I18n().gettext
 
 
 def parse_detected_language(detected_language: str) -> Languages:

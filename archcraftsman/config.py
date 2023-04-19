@@ -20,16 +20,38 @@ The config related methods module
 
 
 import json
+import os
 import sys
+
+from archcraftsman import info
+from archcraftsman.arguments import shell, test
 from archcraftsman.base import print_error, print_step, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.bundles.utils import get_bundle_type_by_name
-
-from archcraftsman.globalinfo import GlobalInfo
 from archcraftsman.partition import Partition
 from archcraftsman.partitioninginfo import PartitioningInfo
 from archcraftsman.prelaunchinfo import PreLaunchInfo
 from archcraftsman.systeminfo import SystemInfo
+
+
+def serialize():
+    """
+    Serialize the GlobalInfo object to a json file.
+    """
+    json_str = json.dumps(info, default=lambda o: o.__dict__, sort_keys=True, indent=2)
+    file_path = (
+        f"/mnt/home/{info.ai.system_info.user_name}/{info.ai.system_info.hostname}.json"
+        if info.ai.system_info.user_name
+        else f"/mnt/root/{info.ai.system_info.hostname}.json"
+    )
+    file_path = (
+        file_path
+        if not test() and not shell()
+        else f"{info.ai.system_info.hostname}.json"
+    )
+    if os.path.exists(file_path):
+        with open(file_path, "w", encoding="UTF-8") as file:
+            file.write(json_str)
 
 
 def dict_to_obj(dict_obj, class_type):
@@ -111,21 +133,18 @@ def deserialize(file_path: str):
     print_step("Deserializing config file...", clear=False)
     with open(file_path, "r", encoding="UTF-8") as file:
         data = json.loads(file.read())
-        global_info = GlobalInfo()
-        global_info.pre_launch_info = dict_to_obj(
-            data["pre_launch_info"], PreLaunchInfo
-        )
+        info.ai.pre_launch_info = dict_to_obj(data["pre_launch_info"], PreLaunchInfo)
 
-        global_info.partitioning_info = dict_to_obj(
+        info.ai.partitioning_info = dict_to_obj(
             data["partitioning_info"], PartitioningInfo
         )
-        global_info.partitioning_info.partitions = []
+        info.ai.partitioning_info.partitions = []
         for bundle in data["partitioning_info"]["partitions"]:
-            global_info.partitioning_info.partitions.append(dict_to_partition(bundle))
+            info.ai.partitioning_info.partitions.append(dict_to_partition(bundle))
 
-        global_info.system_info = dict_to_obj(data["system_info"], SystemInfo)
-        global_info.system_info.bundles = []
+        info.ai.system_info = dict_to_obj(data["system_info"], SystemInfo)
+        info.ai.system_info.bundles = []
         for bundle in data["system_info"]["bundles"]:
-            global_info.system_info.bundles.append(dict_to_bundle(bundle))
+            info.ai.system_info.bundles.append(dict_to_bundle(bundle))
     print_step("Validating config file...", clear=False)
-    validate(data, GlobalInfo())
+    validate(data, info.AllInfo())

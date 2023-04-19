@@ -22,19 +22,15 @@ import os
 from subprocess import CalledProcessError
 from typing import Optional
 
-from archcraftsman.i18n import I18n
-from archcraftsman.options import PartTypes, FSFormats
+from archcraftsman.base import execute, print_sub_step, prompt_bool
+from archcraftsman.i18n import _
+from archcraftsman.options import FSFormats, PartTypes
 from archcraftsman.utils import (
-    execute,
-    prompt_bool,
-    to_iec,
-    ask_format_type,
     ask_encryption_block_name,
+    ask_format_type,
     from_iec,
-    print_sub_step,
+    to_iec,
 )
-
-_ = I18n().gettext
 
 
 class Partition:

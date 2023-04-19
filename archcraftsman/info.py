@@ -15,31 +15,23 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-The yay bundle module
+The config related methods module
 """
 
-from archcraftsman.base import execute, is_root, print_error, print_sub_step
-from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import _
+
+from archcraftsman.partitioninginfo import PartitioningInfo
+from archcraftsman.prelaunchinfo import PreLaunchInfo
+from archcraftsman.systeminfo import SystemInfo
 
 
-class Yay(Bundle):
+class AllInfo:
     """
-    The Yay class.
+    The singleton implementation containing the translation method to use.
     """
 
-    def packages(self) -> list[str]:
-        return ["yay"]
+    pre_launch_info: PreLaunchInfo = PreLaunchInfo()
+    partitioning_info: PartitioningInfo = PartitioningInfo()
+    system_info: SystemInfo = SystemInfo()
 
-    def is_aur(self) -> bool:
-        return True
 
-    def print_resume(self):
-        print_sub_step(_("Install YAY."))
-
-    def configure(self):
-        if is_root():
-            print_error(_("You must not be root to install yay."), do_pause=False)
-            return
-        execute("git clone https://aur.archlinux.org/yay")
-        execute("cd yay; makepkg -si; cd -; rm -rf yay")
+ai = AllInfo()

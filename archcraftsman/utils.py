@@ -17,28 +17,25 @@
 """
 The general utility methods and tools module
 """
-from importlib.resources import files
 import re
 import readline
 import subprocess
+from importlib.resources import files
 from typing import Optional, TypeVar
+
 from archcraftsman.base import (
-    glob_completer,
     execute,
-    print_step,
-    print_sub_step,
+    glob_completer,
     print_error,
     print_help,
+    print_step,
+    print_sub_step,
     prompt,
     prompt_ln,
     prompt_passwd,
 )
-
-from archcraftsman.i18n import I18n
-from archcraftsman.options import FSFormats
-from archcraftsman.options import OptionEnum
-
-_ = I18n().gettext
+from archcraftsman.i18n import _
+from archcraftsman.options import FSFormats, OptionEnum
 
 
 def generate_translations(global_language: str):
@@ -142,25 +139,6 @@ def prompt_option(
             continue
     readline.set_completer(glob_completer)
     return option
-
-
-def prompt_bool(
-    message: str, default: bool = True, help_msg: Optional[str] = None
-) -> bool:
-    """
-    A method to prompt for a boolean choice.
-    """
-    message += " ("
-    if default:
-        message += f"{_('yes').upper()[0]}/{_('no')[0]}"
-    else:
-        message += f"{_('yes')[0]}/{_('no').upper()[0]}"
-    if help_msg is not None:
-        message += "/?"
-    message += ") : "
-    if not default:
-        return prompt(f"{message}", help_msg=help_msg).upper() == _("yes").upper()[0]
-    return prompt(f"{message}", help_msg=help_msg).upper() != _("no").upper()[0]
 
 
 def ask_keymap(default: str) -> str:

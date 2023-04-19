@@ -18,14 +18,12 @@
 The module of PartitioningInfo class.
 """
 import re
-from archcraftsman.globalargs import GlobalArgs
 
-from archcraftsman.i18n import I18n
+from archcraftsman import arguments
+from archcraftsman.base import execute, print_step
+from archcraftsman.i18n import _
 from archcraftsman.options import FSFormats, PartTypes
 from archcraftsman.partition import Partition
-from archcraftsman.utils import print_step, execute
-
-_ = I18n().gettext
 
 
 class PartitioningInfo:
@@ -76,7 +74,7 @@ class PartitioningInfo:
             else len(part.part_mount_point)
         )
 
-        while not GlobalArgs().test() and False in [
+        while not arguments.test() and False in [
             partition.is_mounted() for partition in not_mounted_partitions
         ]:
             for partition in not_mounted_partitions:
@@ -111,7 +109,7 @@ class PartitioningInfo:
             reverse=True,
         )
 
-        while not GlobalArgs().test() and True in [
+        while not arguments.test() and True in [
             partition.is_mounted() for partition in mounted_partitions
         ]:
             for partition in [

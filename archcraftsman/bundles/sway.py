@@ -18,12 +18,10 @@
 The sway bundle module
 """
 
+from archcraftsman import info
+from archcraftsman.base import execute, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.globalinfo import GlobalInfo
-from archcraftsman.i18n import I18n
-from archcraftsman.utils import print_sub_step, execute
-
-_ = I18n().gettext
+from archcraftsman.i18n import _
 
 
 class Sway(Bundle):
@@ -73,6 +71,6 @@ class Sway(Bundle):
 
     def configure(self):
         execute('arch-chroot /mnt bash -c "systemctl enable acpid"')
-        GlobalInfo().pre_launch_info.setup_chroot_keyboard()
-        if "fr" in GlobalInfo().pre_launch_info.keymap:
+        info.ai.pre_launch_info.setup_chroot_keyboard()
+        if "fr" in info.ai.pre_launch_info.keymap:
             execute("echo 'XKB_DEFAULT_LAYOUT=fr' >> /mnt/etc/environment")

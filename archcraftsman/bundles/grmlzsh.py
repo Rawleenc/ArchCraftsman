@@ -18,12 +18,10 @@
 The grml zsh bundle module
 """
 
+from archcraftsman import info
+from archcraftsman.base import execute, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.globalinfo import GlobalInfo
-from archcraftsman.i18n import I18n
-from archcraftsman.utils import print_sub_step, execute
-
-_ = I18n().gettext
+from archcraftsman.i18n import _
 
 
 class GrmlZsh(Bundle):
@@ -40,5 +38,5 @@ class GrmlZsh(Bundle):
     def configure(self):
         execute('arch-chroot /mnt bash -c "chsh --shell /bin/zsh"')
         execute(
-            f'arch-chroot /mnt bash -c "chsh --shell /bin/zsh {GlobalInfo().system_info.user_name}"'
+            f'arch-chroot /mnt bash -c "chsh --shell /bin/zsh {info.ai.system_info.user_name}"'
         )

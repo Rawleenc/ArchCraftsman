@@ -19,10 +19,7 @@ The module of SystemInfo class.
 """
 
 from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import I18n
 from archcraftsman.options import BundleTypes
-
-_ = I18n().gettext
 
 
 class SystemInfo:
@@ -52,11 +49,11 @@ class SystemInfo:
         """
         The kernel bundle retrieving method.
         """
-        return [
+        return next(
             bundle
             for bundle in self.bundles
             if bundle.bundle_type == BundleTypes.KERNEL
-        ][0]
+        )
 
     def microcode(self) -> Bundle:
         """

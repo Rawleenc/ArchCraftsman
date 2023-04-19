@@ -17,11 +17,9 @@
 """
 The main file systems bundle module
 """
+from archcraftsman.base import print_sub_step
 from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import I18n
-from archcraftsman.utils import print_sub_step
-
-_ = I18n().gettext
+from archcraftsman.i18n import _
 
 
 def get_main_file_systems() -> list[str]:

@@ -18,13 +18,11 @@
 The plasma bundle module
 """
 
+from archcraftsman import info
+from archcraftsman.base import execute, print_sub_step, prompt_bool
 from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.globalinfo import GlobalInfo
-from archcraftsman.i18n import I18n
+from archcraftsman.i18n import _
 from archcraftsman.options import Bundles
-from archcraftsman.utils import print_sub_step, prompt_bool, execute
-
-_ = I18n().gettext
 
 
 class Plasma(Bundle):
@@ -47,8 +45,8 @@ class Plasma(Bundle):
         ]
         if self.plasma_wayland:
             packages.extend(["plasma-wayland-session", "qt5-wayland"])
-            if GlobalInfo().system_info.others() and Bundles.NVIDIA in [
-                bundle.name for bundle in GlobalInfo().system_info.others()
+            if info.ai.system_info.others() and Bundles.NVIDIA in [
+                bundle.name for bundle in info.ai.system_info.others()
             ]:
                 packages.append("egl-wayland")
             if self.minimal is not True:
@@ -77,4 +75,4 @@ class Plasma(Bundle):
 
     def configure(self):
         execute('arch-chroot /mnt bash -c "systemctl enable sddm"')
-        GlobalInfo().pre_launch_info.setup_chroot_keyboard()
+        info.ai.pre_launch_info.setup_chroot_keyboard()

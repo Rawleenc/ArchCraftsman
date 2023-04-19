@@ -18,12 +18,10 @@
 The mate bundle module
 """
 
+from archcraftsman import info
+from archcraftsman.base import execute, print_sub_step, prompt_bool
 from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.globalinfo import GlobalInfo
-from archcraftsman.i18n import I18n
-from archcraftsman.utils import print_sub_step, prompt_bool, execute
-
-_ = I18n().gettext
+from archcraftsman.i18n import _
 
 
 class Mate(Bundle):
@@ -79,4 +77,4 @@ class Mate(Bundle):
         execute(
             'sed -i "s|#logind-check-graphical=false|logind-check-graphical=true|g" /mnt/etc/lightdm/lightdm.conf'
         )
-        GlobalInfo().pre_launch_info.setup_chroot_keyboard()
+        info.ai.pre_launch_info.setup_chroot_keyboard()

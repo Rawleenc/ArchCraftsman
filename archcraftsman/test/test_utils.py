@@ -19,8 +19,8 @@ Test the utils module.
 """
 import unittest
 from unittest.mock import patch
-from archcraftsman.options import Languages
 
+from archcraftsman.options import Languages
 from archcraftsman.utils import from_iec, generate_translations, print_supported, to_iec
 
 

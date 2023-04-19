@@ -617,15 +617,15 @@ msgstr "Démontage de %s..."
 msgid "Closing %s..."
 msgstr "Fermeture de %s..."
 
-#: archcraftsman/partitioninginfo.py:50
+#: archcraftsman/partitioninginfo.info.py:50
 msgid "Formatting and mounting partitions..."
 msgstr "Formatage et montage des partitions..."
 
-#: archcraftsman/partitioninginfo.py:81
+#: archcraftsman/partitioninginfo.info.py:81
 msgid "Unmounting partitions..."
 msgstr "Démontage des partitions..."
 
-#: archcraftsman/prelaunchinfo.py:54
+#: archcraftsman/prelaunchinfo.info.py:54
 msgid "Configuring live environment..."
 msgstr "Configuration de l'environnement live..."
 

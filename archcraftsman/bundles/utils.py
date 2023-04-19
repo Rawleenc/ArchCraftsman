@@ -18,6 +18,7 @@
 The bundles related utility methods and tools module
 """
 from typing import Optional, TypeVar
+
 from archcraftsman.bundles.budgie import Budgie
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.bundles.cinnamon import Cinnamon
@@ -32,7 +33,7 @@ from archcraftsman.bundles.grmlzsh import GrmlZsh
 from archcraftsman.bundles.grub import Grub
 from archcraftsman.bundles.i3 import I3
 from archcraftsman.bundles.iwd import Iwd
-from archcraftsman.bundles.linux import LinuxCurrent, LinuxLts, LinuxZen, LinuxHardened
+from archcraftsman.bundles.linux import LinuxCurrent, LinuxHardened, LinuxLts, LinuxZen
 from archcraftsman.bundles.lxqt import Lxqt
 from archcraftsman.bundles.mainfilesystems import MainFileSystems
 from archcraftsman.bundles.mainfonts import MainFonts
@@ -49,15 +50,15 @@ from archcraftsman.bundles.xfce import Xfce
 from archcraftsman.bundles.yay import Yay
 from archcraftsman.bundles.zram import Zram
 from archcraftsman.options import (
-    BundleTypes,
-    Kernels,
     BootLoaders,
-    Desktops,
     Bundles,
+    BundleTypes,
+    Desktops,
+    Kernels,
     Network,
+    OptionEnum,
     ShellBundles,
 )
-from archcraftsman.options import OptionEnum
 from archcraftsman.utils import prompt_option
 
 

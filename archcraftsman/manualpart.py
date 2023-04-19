@@ -17,24 +17,22 @@
 """
 The manual partitioning system module
 """
-from archcraftsman.base import log, is_bios
-from archcraftsman.disk import Disk
-from archcraftsman.globalinfo import GlobalInfo
-from archcraftsman.i18n import I18n
-from archcraftsman.options import PartTypes
-from archcraftsman.partition import Partition
-from archcraftsman.utils import (
-    ask_drive,
+from archcraftsman import info
+from archcraftsman.base import (
     execute,
+    is_bios,
+    log,
     print_error,
     print_step,
     print_sub_step,
     prompt,
     prompt_bool,
-    prompt_option,
 )
-
-_ = I18n().gettext
+from archcraftsman.disk import Disk
+from archcraftsman.i18n import _
+from archcraftsman.options import PartTypes
+from archcraftsman.partition import Partition
+from archcraftsman.utils import ask_drive, prompt_option
 
 
 def manual_partitioning(change_disks: bool = True) -> bool:
@@ -71,20 +69,18 @@ def manual_partitioning(change_disks: bool = True) -> bool:
             log(f"Partitions: {partitions}")
             for partition in partitions:
                 log(f"Partition : {partition}")
-                GlobalInfo().partitioning_info.partitions.append(
-                    Partition(path=partition)
-                )
+                info.ai.partitioning_info.partitions.append(Partition(path=partition))
         print_step(
             _("Detected target drive partitions : %s")
             % " ".join(
                 [
                     part.path
-                    for part in GlobalInfo().partitioning_info.partitions
+                    for part in info.ai.partitioning_info.partitions
                     if part.path
                 ]
             )
         )
-        for partition in GlobalInfo().partitioning_info.partitions:
+        for partition in info.ai.partitioning_info.partitions:
             print_step(_("Partition :"), clear=False)
             print_sub_step(str(partition))
             if is_bios():
@@ -110,9 +106,7 @@ def manual_partitioning(change_disks: bool = True) -> bool:
             elif partition_type == PartTypes.ROOT:
                 partition.part_type = PartTypes.ROOT
                 partition.part_mount_point = "/"
-                GlobalInfo().partitioning_info.main_disk = (
-                    f"/dev/{partition.disk_name()}"
-                )
+                info.ai.partitioning_info.main_disk = f"/dev/{partition.disk_name()}"
             elif partition_type == PartTypes.BOOT:
                 partition.part_type = PartTypes.BOOT
                 partition.part_mount_point = "/boot"
@@ -132,48 +126,46 @@ def manual_partitioning(change_disks: bool = True) -> bool:
             partition.ask_for_encryption()
 
         if not is_bios() and PartTypes.EFI not in [
-            part.part_type for part in GlobalInfo().partitioning_info.partitions
+            part.part_type for part in info.ai.partitioning_info.partitions
         ]:
             print_error(_("The EFI partition is required for system installation."))
-            GlobalInfo().partitioning_info.partitions.clear()
+            info.ai.partitioning_info.partitions.clear()
             partitioned_disks.clear()
             continue
         if PartTypes.ROOT not in [
-            part.part_type for part in GlobalInfo().partitioning_info.partitions
+            part.part_type for part in info.ai.partitioning_info.partitions
         ]:
             print_error(_("The Root partition is required for system installation."))
-            GlobalInfo().partitioning_info.partitions.clear()
+            info.ai.partitioning_info.partitions.clear()
             partitioned_disks.clear()
             continue
         if True in [
             part.encrypted and part.part_type == PartTypes.ROOT
-            for part in GlobalInfo().partitioning_info.partitions
+            for part in info.ai.partitioning_info.partitions
         ] and PartTypes.BOOT not in [
-            part.part_type for part in GlobalInfo().partitioning_info.partitions
+            part.part_type for part in info.ai.partitioning_info.partitions
         ]:
             print_error(_("The Boot partition is required for system installation."))
-            GlobalInfo().partitioning_info.partitions.clear()
+            info.ai.partitioning_info.partitions.clear()
             partitioned_disks.clear()
             continue
         if PartTypes.SWAP not in [
-            part.part_type for part in GlobalInfo().partitioning_info.partitions
+            part.part_type for part in info.ai.partitioning_info.partitions
         ]:
-            GlobalInfo().partitioning_info.swapfile_size = Disk(
-                GlobalInfo().partitioning_info.main_disk
+            info.ai.partitioning_info.swapfile_size = Disk(
+                info.ai.partitioning_info.main_disk
             ).ask_swapfile_size()
 
         print_step(_("Summary of choices :"))
-        for partition in GlobalInfo().partitioning_info.partitions:
+        for partition in info.ai.partitioning_info.partitions:
             print_sub_step(partition.summary())
         if (
             PartTypes.SWAP
-            not in [
-                part.part_type for part in GlobalInfo().partitioning_info.partitions
-            ]
-            and GlobalInfo().partitioning_info.swapfile_size
+            not in [part.part_type for part in info.ai.partitioning_info.partitions]
+            and info.ai.partitioning_info.swapfile_size
         ):
             print_sub_step(
-                _("Swapfile size : %s") % GlobalInfo().partitioning_info.swapfile_size
+                _("Swapfile size : %s") % info.ai.partitioning_info.swapfile_size
             )
         user_answer = prompt_bool(_("Is the information correct ?"), default=False)
         if not user_answer:
@@ -182,6 +174,6 @@ def manual_partitioning(change_disks: bool = True) -> bool:
             )
             if want_to_change:
                 return False
-            GlobalInfo().partitioning_info.partitions.clear()
+            info.ai.partitioning_info.partitions.clear()
             partitioned_disks.clear()
     return True

@@ -17,13 +17,11 @@
 """
 The nvidia proprietary driver bundle module
 """
+from archcraftsman import info
+from archcraftsman.base import print_sub_step
 from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.globalinfo import GlobalInfo
-from archcraftsman.i18n import I18n
+from archcraftsman.i18n import _
 from archcraftsman.options import Kernels
-from archcraftsman.utils import print_sub_step
-
-_ = I18n().gettext
 
 
 class NvidiaDriver(Bundle):
@@ -33,8 +31,8 @@ class NvidiaDriver(Bundle):
 
     def packages(self) -> list[str]:
         if (
-            GlobalInfo().system_info.kernel
-            and GlobalInfo().system_info.kernel.name == Kernels.LTS
+            info.ai.system_info.kernel()
+            and info.ai.system_info.kernel().name == Kernels.LTS
         ):
             return ["nvidia-lts"]
         return ["nvidia"]
