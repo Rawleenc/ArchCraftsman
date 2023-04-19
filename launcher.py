@@ -62,15 +62,6 @@ def input_str(message: str) -> str:
     return input(f"{ORANGE}{message}{NOCOLOR}")
 
 
-def urlopen(url: str):
-    """
-    A method to open an url with a custom user-agent.
-    """
-    return urllib.request.urlopen(
-        urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    )
-
-
 def glob_completer(text, state) -> str:
     """
     The glob completer for readline completions.
@@ -80,6 +71,16 @@ def glob_completer(text, state) -> str:
     ][state]
 
 
+def change_user_agent():
+    """
+    A method to change the user agent.
+    """
+    user_agent = "Mozilla/5.0 (Linux) ArchCraftsman"
+    opener = urllib.request.build_opener()
+    opener.addheaders = [("User-Agent", user_agent)]
+    urllib.request.install_opener(opener)
+
+
 def download_file(url, file_path) -> bool:
     """
     A method to stream download a single file.
@@ -87,9 +88,7 @@ def download_file(url, file_path) -> bool:
     if not re.match(r"^[a-zA-Z]+://", url):
         url = f"https://{url}"
     try:
-        with urlopen(url) as response:
-            with open(file_path, "wb") as file:
-                file.write(response.read())
+        urllib.request.urlretrieve(url, file_path)
         return True
     except urllib.error.URLError:
         return False
@@ -118,7 +117,7 @@ def get_all_files(directory: str) -> list:
     """
     A method to download all files of a given directory.
     """
-    with urlopen(
+    with urllib.request.urlopen(
         f"https://api.github.com/repos/{OWNER}/{REPO}/contents/{directory}?ref={BRANCH}"
     ) as response:
         components = json.loads(response.read())
@@ -163,6 +162,7 @@ def main(cmd: str):
     if os.path.exists(config_file):
         cmd += f" --config {config_file}"
     else:
+        change_user_agent()
         download(config_file, "config.json", True)
         if os.path.exists("config.json"):
             cmd += " --config config.json"
