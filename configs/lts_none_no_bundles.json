@@ -44,23 +44,18 @@
   "system_info": {
     "bundles": [
       {
-        "bundle_type": "kernel",
         "name": "lts"
       },
       {
-        "bundle_type": "desktop",
         "name": "none"
       },
       {
-        "bundle_type": "network",
         "name": "systemd"
       },
       {
-        "bundle_type": "bootloader",
         "name": "grub"
       },
       {
-        "bundle_type": "microcodes",
         "microcode_name": "GenuineIntel",
         "name": "microcodes"
       }

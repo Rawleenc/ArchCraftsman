@@ -73,9 +73,7 @@ def dict_to_bundle(dict_obj) -> Bundle:
     """
     Convert a dict to a bundle object.
     """
-    bundle = get_bundle_type_by_name(dict_obj["name"])(
-        dict_obj["name"], dict_obj["bundle_type"]
-    )
+    bundle = get_bundle_type_by_name(dict_obj["name"])(dict_obj["name"])
     for key, value in dict_obj.items():
         if hasattr(bundle, key):
             setattr(bundle, key, value)

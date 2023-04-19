@@ -19,7 +19,7 @@ The module of SystemInfo class.
 """
 
 from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.options import BundleTypes
+from archcraftsman.options import BundleTypes, get_btype_by_name
 
 
 class SystemInfo:
@@ -52,7 +52,7 @@ class SystemInfo:
         return next(
             bundle
             for bundle in self.bundles
-            if bundle.bundle_type == BundleTypes.KERNEL
+            if get_btype_by_name(bundle.name) == BundleTypes.KERNEL
         )
 
     def microcode(self) -> Bundle:
@@ -62,7 +62,7 @@ class SystemInfo:
         return next(
             bundle
             for bundle in self.bundles
-            if bundle.bundle_type == BundleTypes.MICRO_CODES
+            if get_btype_by_name(bundle.name) == BundleTypes.MICRO_CODES
         )
 
     def bootloader(self) -> Bundle:
@@ -72,7 +72,7 @@ class SystemInfo:
         return next(
             bundle
             for bundle in self.bundles
-            if bundle.bundle_type == BundleTypes.BOOTLOADER
+            if get_btype_by_name(bundle.name) == BundleTypes.BOOTLOADER
         )
 
     def desktop(self) -> Bundle:
@@ -82,7 +82,7 @@ class SystemInfo:
         return next(
             bundle
             for bundle in self.bundles
-            if bundle.bundle_type == BundleTypes.DESKTOP
+            if get_btype_by_name(bundle.name) == BundleTypes.DESKTOP
         )
 
     def network(self) -> Bundle:
@@ -92,7 +92,7 @@ class SystemInfo:
         return next(
             bundle
             for bundle in self.bundles
-            if bundle.bundle_type == BundleTypes.NETWORK
+            if get_btype_by_name(bundle.name) == BundleTypes.NETWORK
         )
 
     def others(self) -> list[Bundle]:
@@ -100,5 +100,7 @@ class SystemInfo:
         The other bundles retrieving method.
         """
         return [
-            bundle for bundle in self.bundles if bundle.bundle_type == BundleTypes.OTHER
+            bundle
+            for bundle in self.bundles
+            if get_btype_by_name(bundle.name) == BundleTypes.OTHER
         ]

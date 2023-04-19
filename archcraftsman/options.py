@@ -188,3 +188,20 @@ class BundleTypes(OptionEnum):
     MICRO_CODES = auto()
     NETWORK = auto()
     OTHER = auto()
+
+
+def get_btype_by_name(name: str) -> BundleTypes:
+    """
+    Get the bundle type by name.
+    """
+    if name == Bundles.MICROCODES.value:
+        return BundleTypes.MICRO_CODES
+    if name in [option.value for option in BootLoaders]:
+        return BundleTypes.BOOTLOADER
+    if name in [option.value for option in Desktops]:
+        return BundleTypes.DESKTOP
+    if name in [option.value for option in Kernels]:
+        return BundleTypes.KERNEL
+    if name in [option.value for option in Network]:
+        return BundleTypes.NETWORK
+    return BundleTypes.OTHER

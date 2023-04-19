@@ -44,56 +44,43 @@
   "system_info": {
     "bundles": [
       {
-        "bundle_type": "kernel",
         "name": "current"
       },
       {
-        "bundle_type": "desktop",
         "minimal": true,
         "name": "gnome"
       },
       {
-        "bundle_type": "network",
         "name": "networkmanager"
       },
       {
-        "bundle_type": "other",
         "name": "terminus"
       },
       {
-        "bundle_type": "other",
         "name": "cups"
       },
       {
-        "bundle_type": "other",
         "name": "grml"
       },
       {
-        "bundle_type": "other",
         "name": "mainfonts"
       },
       {
-        "bundle_type": "other",
         "name": "mainfilesystems"
       },
       {
-        "bundle_type": "other",
         "name": "zram"
       },
       {
-        "bundle_type": "other",
         "name": "pipewire"
       },
       {
-        "bundle_type": "other",
         "name": "copyacm"
       },
       {
-        "bundle_type": "bootloader",
         "name": "grub"
       },
       {
-        "bundle_type": "microcodes",
         "microcode_name": "GenuineIntel",
         "name": "microcodes"
       }

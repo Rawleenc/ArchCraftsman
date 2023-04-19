@@ -51,7 +51,6 @@ from archcraftsman.i18n import _
 from archcraftsman.options import (
     BootLoaders,
     Bundles,
-    BundleTypes,
     Desktops,
     Kernels,
     Languages,
@@ -185,7 +184,6 @@ def setup_system():
                 _("Choose your kernel (%s) : "),
                 _("Kernel '%s' is not supported."),
                 Kernels,
-                BundleTypes.KERNEL,
                 _("Supported kernels : "),
                 Kernels.CURRENT,
             )
@@ -196,7 +194,6 @@ def setup_system():
                 _("Install a desktop environment ? (%s) : "),
                 _("Desktop environment '%s' is not supported."),
                 Desktops,
-                BundleTypes.DESKTOP,
                 _("Supported desktop environments : "),
                 Desktops.NONE,
             )
@@ -207,24 +204,19 @@ def setup_system():
                 _("Choose your network stack (%s) : "),
                 _("Network stack '%s' is not supported."),
                 Network,
-                BundleTypes.NETWORK,
                 _("Supported network stacks : "),
                 Network.NETWORK_MANAGER,
             )
         )
 
         if prompt_bool(_("Install proprietary Nvidia driver ?"), default=False):
-            info.ai.system_info.bundles.append(
-                NvidiaDriver(Bundles.NVIDIA, BundleTypes.OTHER)
-            )
+            info.ai.system_info.bundles.append(NvidiaDriver(Bundles.NVIDIA))
 
         if prompt_bool(_("Install terminus console font ?"), default=False):
-            info.ai.system_info.bundles.append(
-                TerminusFont(Bundles.TERMINUS, BundleTypes.OTHER)
-            )
+            info.ai.system_info.bundles.append(TerminusFont(Bundles.TERMINUS))
 
         if prompt_bool(_("Install Cups ?"), default=False):
-            info.ai.system_info.bundles.append(Cups(Bundles.CUPS, BundleTypes.OTHER))
+            info.ai.system_info.bundles.append(Cups(Bundles.CUPS))
 
         if prompt_bool(
             _("Install ZSH with GRML configuration ?"),
@@ -235,7 +227,7 @@ def setup_system():
                 "live environment."
             ),
         ):
-            info.ai.system_info.bundles.append(GrmlZsh(Bundles.GRML, BundleTypes.OTHER))
+            info.ai.system_info.bundles.append(GrmlZsh(Bundles.GRML))
 
         if prompt_bool(
             _("Install a set of main fonts ?"),
@@ -243,9 +235,7 @@ def setup_system():
             help_msg=_("If yes, the following packages will be installed :\n%s")
             % " ".join(get_main_fonts()),
         ):
-            info.ai.system_info.bundles.append(
-                MainFonts(Bundles.MAIN_FONTS, BundleTypes.OTHER)
-            )
+            info.ai.system_info.bundles.append(MainFonts(Bundles.MAIN_FONTS))
 
         if prompt_bool(
             _("Install main file systems support ?"),
@@ -254,7 +244,7 @@ def setup_system():
             % " ".join(get_main_file_systems()),
         ):
             info.ai.system_info.bundles.append(
-                MainFileSystems(Bundles.MAIN_FILE_SYSTEMS, BundleTypes.OTHER)
+                MainFileSystems(Bundles.MAIN_FILE_SYSTEMS)
             )
 
         if prompt_bool(
@@ -267,7 +257,7 @@ def setup_system():
                 "ZRAM is fully compatible with a swap, it just has a higher priority."
             ),
         ):
-            info.ai.system_info.bundles.append(Zram(Bundles.ZRAM, BundleTypes.OTHER))
+            info.ai.system_info.bundles.append(Zram(Bundles.ZRAM))
 
         if prompt_bool(
             _("Install PipeWire ?"),
@@ -277,14 +267,10 @@ def setup_system():
                 "to manage audio and video capture."
             ),
         ):
-            info.ai.system_info.bundles.append(
-                PipeWire(Bundles.PIPEWIRE, BundleTypes.OTHER)
-            )
+            info.ai.system_info.bundles.append(PipeWire(Bundles.PIPEWIRE))
 
         if prompt_bool(_("Copy ArchCraftsman to the new system ?"), default=False):
-            info.ai.system_info.bundles.append(
-                CopyACM(Bundles.COPY_ACM, BundleTypes.OTHER)
-            )
+            info.ai.system_info.bundles.append(CopyACM(Bundles.COPY_ACM))
 
         default_timezone_file = (
             f"/usr/share/zoneinfo/{info.ai.pre_launch_info.detected_timezone}"
@@ -331,12 +317,8 @@ def setup_system():
                 _("Enter the %s password : ") % info.ai.system_info.user_name
             )
 
-        info.ai.system_info.bundles.append(
-            Grub(BootLoaders.GRUB, BundleTypes.BOOTLOADER)
-        )
-        info.ai.system_info.bundles.append(
-            Microcodes(Bundles.MICROCODES, BundleTypes.MICRO_CODES)
-        )
+        info.ai.system_info.bundles.append(Grub(BootLoaders.GRUB))
+        info.ai.system_info.bundles.append(Microcodes(Bundles.MICROCODES))
 
         print_step(_("Summary of choices :"))
         print_sub_step(_("Your hostname : %s") % info.ai.system_info.hostname)

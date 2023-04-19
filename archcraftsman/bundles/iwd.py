@@ -22,7 +22,6 @@ from archcraftsman.base import execute, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.bundles.systemdnet import SystemdNet
 from archcraftsman.i18n import _
-from archcraftsman.options import BundleTypes
 
 
 class Iwd(Bundle):
@@ -36,8 +35,8 @@ class Iwd(Bundle):
 
     def print_resume(self):
         print_sub_step(_("Install Iwd."))
-        SystemdNet(self.name, BundleTypes.OTHER).print_resume()
+        SystemdNet(self.name).print_resume()
 
     def configure(self):
         execute('arch-chroot /mnt bash -c "systemctl enable iwd.service"')
-        SystemdNet(self.name, BundleTypes.OTHER).configure()
+        SystemdNet(self.name).configure()
