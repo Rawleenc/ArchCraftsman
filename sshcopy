@@ -19,9 +19,9 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-print_step "Copying archcraftsman to $1..."
+print_step "Copying archcraftsman to root@$1:~..."
 print_sub_step "  * Copying archcraftsman to $1"
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r archcraftsman root@$1:~
 
-print_sub_step "  * Copying configs to $1"
+print_sub_step "  * Copying configs to root@$1:~..."
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r configs root@$1:~
