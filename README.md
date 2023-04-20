@@ -50,6 +50,12 @@ python /usr/lib/pythonX.Y/Tools/i18n/pygettext.py -d base -o base.pot archcrafts
 ```
 Then use [Poedit](https://archlinux.org/packages/community/x86_64/poedit/) to create or update translations based on the newly generated `base.pot`
 
+# Requirements
+
+ArchCraftsman is a pure native python 3 project based on the Archlinux's distribution of python. Therefore, it doesn't require any external dependencies to be executed. There is also no dependencies on the pypi.org package.
+
+The requirements.txt file is only used for linting, formating, licensing, building, publishing, etc.
+
 # Operation details and purpose
 
 The purpose of this script is to propose a very fast and straightforward Arch Linux installation while bringing all the care I put on my own installations. The customization options are therefore not countless. However, some flexibility is still proposed.  
