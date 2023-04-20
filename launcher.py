@@ -179,11 +179,11 @@ def main(cmd: str):
     edit = input_str("Do you want to edit the config file (with nano) ? (y/N) : ")
     if edit == "y":
         subprocess.run(
-            "echo 'include /usr/share/nano/json.nanorc' > ~/.nanorc",
+            "/bin/echo 'include /usr/share/nano/json.nanorc' > ~/.nanorc",
             shell=True,
             check=False,
         )
-        subprocess.run(f"nano {config_file}", shell=True, check=False)
+        subprocess.run(f"/bin/nano {config_file}", shell=True, check=False)
 
     try:
         subprocess.run(cmd, shell=True, check=True)
