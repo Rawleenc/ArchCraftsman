@@ -52,6 +52,9 @@ class Plasma(Bundle):
                 packages.append("egl-wayland")
             if self.minimal is not True:
                 packages.append("kde-applications")
+            else:
+                packages.append("konsole")
+
         return packages
 
     def print_resume(self):

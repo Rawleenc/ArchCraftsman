@@ -47,6 +47,8 @@ class Mate(Bundle):
             )
         if self.minimal is not True:
             packages.append("mate-extra")
+        else:
+            packages.append("mate-terminal")
         return packages
 
     def print_resume(self):

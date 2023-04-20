@@ -132,6 +132,21 @@ def get_all_files(directory: str) -> list:
     return files
 
 
+def set_config_file(cmd: str, config_file: str) -> tuple[str, str]:
+    """
+    A recursive method to set the config file.
+    """
+    if os.path.exists(config_file):
+        cmd += f" --config {config_file}"
+    else:
+        change_user_agent()
+        download(config_file, "config.json", True)
+        config_file = "config.json"
+        if os.path.exists(config_file):
+            cmd += f" --config {config_file}"
+    return cmd, config_file
+
+
 def main(cmd: str):
     """
     Main launcher function.
@@ -157,15 +172,18 @@ def main(cmd: str):
             future.result()
 
     config_file = input_str(
-        "Enter a config file path or url if you want to use one (leave empty for no file) : \n> "
+        "Enter a config file path or url if you want to use one (leave empty to run interactive mode) : \n> "
     )
-    if os.path.exists(config_file):
-        cmd += f" --config {config_file}"
-    else:
-        change_user_agent()
-        download(config_file, "config.json", True)
-        if os.path.exists("config.json"):
-            cmd += " --config config.json"
+    cmd, config_file = set_config_file(cmd, config_file)
+
+    edit = input_str("Do you want to edit the config file (with nano) ? (y/N) : ")
+    if edit == "y":
+        subprocess.run(
+            "echo 'include /usr/share/nano/json.nanorc' > ~/.nanorc",
+            shell=True,
+            check=False,
+        )
+        subprocess.run(f"nano {config_file}", shell=True, check=False)
 
     try:
         subprocess.run(cmd, shell=True, check=True)

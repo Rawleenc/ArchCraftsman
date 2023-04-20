@@ -42,6 +42,8 @@ class Deepin(Bundle):
         ]
         if self.minimal is not True:
             packages.append("deepin-extra")
+        else:
+            packages.append("deepin-terminal")
         return packages
 
     def print_resume(self):
