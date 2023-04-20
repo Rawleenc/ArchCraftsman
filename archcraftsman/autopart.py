@@ -99,12 +99,12 @@ def auto_partitioning() -> bool:
             auto_part_str += "p\n"  # Partition primary (Accept default: primary)
             auto_part_str += " \n"  # Partition number (Accept default: auto)
             auto_part_str += " \n"  # First sector (Accept default: 1)
-            auto_part_str += "+1G\n"  # Last sector (Accept default: varies)
+            auto_part_str += "+2G\n"  # Last sector (Accept default: varies)
             auto_part_str += "a\n"  # Toggle bootable flag
             info.ai.partitioning_info.partitions.append(
                 Partition(
                     index=index,
-                    part_type=PartTypes.OTHER,
+                    part_type=PartTypes.BOOT,
                     part_mount_point="/boot",
                     part_format=True,
                     part_format_type=part_format_type,
@@ -161,7 +161,9 @@ def auto_partitioning() -> bool:
                 Partition(index=index, part_type=PartTypes.SWAP)
             )
             index += 1
-        if root_block_name:
+        if root_block_name and not any(
+            p.part_type == PartTypes.BOOT for p in info.ai.partitioning_info.partitions
+        ):
             # BOOT
             auto_part_str += "n\n"  # Add a new partition
             if is_bios():

@@ -313,7 +313,7 @@ class Partition:
         if (
             not partitions
             or not isinstance(partitions, list)
-            and len(list(partitions)) <= self.index
+            or len(list(partitions)) <= self.index
         ):
             return
         partition = list(partitions)[self.index]
