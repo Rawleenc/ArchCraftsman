@@ -25,7 +25,7 @@ Answer the questions and let the magic happen ;)
 
 If you want to only test the script, you can clone it and then run it with this command :
 ```bash
-python -m archcraftsman.installer --install --test
+python -m archcraftsman --install --test
 ```
 It will simulate the execution of the script without changing anything to your system.
 
@@ -38,7 +38,7 @@ _Executing with root privilege or sudo installed is still required to gather dis
 ArchCraftsman can run in an interactive shell mode to manage bundles.  
 The shell mode can be executed with this command :
 ```bash
-python -m archcraftsman.installer --shell
+python -m archcraftsman --shell
 ```
 The shell mode is compatible with the test mode.
 

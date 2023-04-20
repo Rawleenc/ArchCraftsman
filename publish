@@ -14,6 +14,11 @@ print_sub_step() {
   echo -e "${CYAN}$1${NOCOLOR}"
 }
 
+if [ -z "$1" ]; then
+  echo "Usage: publish <wheel file>"
+  exit 1
+fi
+
 print_sub_step "  * Checking if python wheel distribution is uploadable"
 twine check $1
 

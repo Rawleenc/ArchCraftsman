@@ -18,9 +18,10 @@
 The module of PartitioningInfo class.
 """
 import re
+import subprocess
 
 from archcraftsman import arguments
-from archcraftsman.base import execute, print_step
+from archcraftsman.base import execute, print_error, print_step
 from archcraftsman.i18n import _
 from archcraftsman.options import FSFormats, PartTypes
 from archcraftsman.partition import Partition
@@ -58,10 +59,20 @@ class PartitioningInfo:
         """
         print_step(_("Formatting and mounting partitions..."), clear=False)
 
-        for partition in self.partitions:
-            if partition.part_format_type == FSFormats.BTRFS:
-                self.btrfs_in_use = True
-            partition.format_partition()
+        formatting_ok = False
+        while not formatting_ok:
+            try:
+                for partition in self.partitions:
+                    if partition.part_format_type == FSFormats.BTRFS:
+                        self.btrfs_in_use = True
+                    partition.format_partition()
+                formatting_ok = True
+            except subprocess.CalledProcessError as exception:
+                self.umount_partitions()
+                print_error(
+                    _("A subprocess execution failed ! See the following error: %s")
+                    % exception
+                )
 
         not_mounted_partitions = [
             partition

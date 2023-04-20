@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -e
+
+GREEN="\033[0;32m"
+CYAN="\033[0;36m"
+NOCOLOR="\033[0m"
+
+print_step() {
+  echo -e "${GREEN}$1${NOCOLOR}"
+}
+
+print_sub_step() {
+  echo -e "${CYAN}$1${NOCOLOR}"
+}
+
+if [ -z "$1" ]; then
+  echo "Usage: sshcopy <host>"
+  exit 1
+fi
+
+print_step "Copying archcraftsman to $1..."
+print_sub_step "  * Copying archcraftsman to $1"
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r archcraftsman root@$1:~
+
+print_sub_step "  * Copying configs to $1"
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r configs root@$1:~
