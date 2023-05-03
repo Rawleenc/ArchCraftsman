@@ -135,7 +135,7 @@ release() {
   git add --all . >/dev/null
 
   print_sub_step "  * Create release commit"
-  git commit --quiet --allow-empty --message="Release $tag"
+  git commit --quiet --allow-empty --message="chore: :rocket: Release $tag"
 
   print_sub_step "  * Create tag"
   git tag --annotate $tag --message="Release $tag"
@@ -156,7 +156,7 @@ prepare_next_version() {
   git add --all . >/dev/null
 
   print_sub_step "  * Create preparation commit"
-  git commit --quiet --allow-empty --message="Prepare next version"
+  git commit --quiet --allow-empty --message="chore: :wrench: Prepare next version"
 
   print_sub_step "  * Push preparation commit"
   git push --quiet origin $dev_branch
