@@ -125,7 +125,7 @@ Partitions sizes are determined as follows :
 - Root : All the rest of available space if no separated home, else 1/4 of the total drive size or 1/4 of the remaining free space in case of dualboot
 - Home : All the rest of available space (if separated home only)
 
-## The manual paritioning
+## The manual partitioning
 
 It is the default most flexible and powerful option :  
 The cfdisk tool will be proposed to you to partition your drives. You can create as many partitions as you want on as many drive as you want. Main partitions are the EFI partition, the Root partition, the Swap partition and the Home partition.
