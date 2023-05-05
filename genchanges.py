@@ -34,9 +34,9 @@ def print_commit(commit: Commit):
     details: str = message.replace(short_message, "").strip().replace("\n", "\n  ")
     print(f"* {short_message}")
     if details:
-        print("\n  <details>\n")
+        print("  <details>")
         print(f"  {details}")
-        print("\n  </details>\n")
+        print("  </details>")
 
 
 def main(version: str):
@@ -64,17 +64,17 @@ def main(version: str):
     print(f"## Release {version} ({datetime.now().strftime('%Y-%m-%d')})")
 
     if features:
-        print("\n#### New features\n")
+        print("#### New features")
         for commit in features:
             print_commit(commit)
 
     if fixes:
-        print("\n#### Fixed issues\n")
+        print("#### Fixed issues")
         for commit in fixes:
             print_commit(commit)
 
     if others:
-        print("\n#### Other changes\n")
+        print("#### Other changes")
         for commit in others:
             print_commit(commit)
 
