@@ -40,7 +40,7 @@ def get_main_fonts() -> list[str]:
         "ttf-inconsolata",
         "ttf-input",
         "ttf-liberation",
-        "ttf-nerd-fonts-symbols-2048-em",
+        "ttf-nerd-fonts-symbols",
         "ttf-opensans",
         "ttf-roboto",
         "ttf-roboto-mono",
