@@ -2,8 +2,6 @@
 
 set -e
 
-CURRENT_PATH=$(dirname "$(readlink -f "$0")")
-
 GREEN="\033[0;32m"
 CYAN="\033[0;36m"
 NOCOLOR="\033[0m"
@@ -122,6 +120,9 @@ check_prerequisites() {
 
 release() {
   print_step "Releasing $tag..."
+
+  print_sub_step "  * Generate changelog"
+  python genchanges.py $tag > $tag.md
 
   if [ "$current_branch" = "$dev_branch" ]; then
     print_sub_step "  * Merge dev on main branch"
