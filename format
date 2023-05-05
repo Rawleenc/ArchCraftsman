@@ -16,8 +16,8 @@ print_sub_step() {
 
 print_step "Formatting archcraftsman..."
 print_sub_step "  * Sorting imports"
-isort archcraftsman launcher.py
+isort archcraftsman launcher.py genchanges.py
 print_sub_step "  * Applying black format"
-black archcraftsman launcher.py
+black archcraftsman launcher.py genchanges.py
 print_sub_step "  * Adding license headers"
 addlicense -c 'Rawleenc' -f NOTICES . *.py

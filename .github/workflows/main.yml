@@ -38,9 +38,9 @@ jobs:
         with:
           python-version: '3.10'
       - name: Setup environment
-        run: pip install pylint
+        run: pip install pylint GitPython
       - name: Check
-        run: pylint archcraftsman launcher.py
+        run: pylint archcraftsman launcher.py genchanges.py
 
   flake8:
     runs-on: ubuntu-latest
@@ -52,7 +52,7 @@ jobs:
       - name: Setup environment
         run: pip install flake8
       - name: Check
-        run: flake8 archcraftsman launcher.py
+        run: flake8 archcraftsman launcher.py genchanges.py
 
   pyright:
     runs-on: ubuntu-latest
@@ -62,9 +62,9 @@ jobs:
         with:
           python-version: '3.10'
       - name: Setup environment
-        run: pip install pyright
+        run: pip install pyright GitPython
       - name: Check
-        run: pyright archcraftsman launcher.py
+        run: pyright archcraftsman launcher.py genchanges.py
 
   black:
     runs-on: ubuntu-latest
@@ -76,7 +76,7 @@ jobs:
       - name: Setup environment
         run: pip install black
       - name: Check
-        run: black --check archcraftsman launcher.py
+        run: black --check archcraftsman launcher.py genchanges.py
 
   bandit:
     runs-on: ubuntu-latest

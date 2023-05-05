@@ -1,0 +1,86 @@
+# ArchCraftsman, The careful yet very fast Arch Linux Craftsman.
+# Copyright (C) 2023 Rawleenc
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+"""
+A Python script to generate a changelog from git commits.
+"""
+import re
+import sys
+from datetime import datetime
+
+from git import Commit
+from git.repo import Repo
+
+
+def print_commit(commit: Commit):
+    """
+    Print a commit in markdown format.
+    """
+    message: str = re.sub(r"^[a-z]+:|:[a-z]+:", "", str(commit.message)).strip()
+    short_message: str = str(message).split("\n", maxsplit=1)[0]
+    details: str = message.replace(short_message, "").strip().replace("\n", "\n  ")
+    print(f"* {short_message}")
+    if details:
+        print("\n  <details>\n")
+        print(f"  {details}")
+        print("\n  </details>\n")
+
+
+def main(version: str):
+    """
+    Generate a changelog from git commits.
+    """
+    repo = Repo(".")
+    commits: list[Commit] = []
+
+    for commit in repo.iter_commits():
+        if "chore: :wrench: Prepare next version" in str(commit.message):
+            break
+        if re.match(r"^[a-z]+: ", str(commit.message)):
+            commits.append(commit)
+
+    features = [it for it in commits if str(it.message).startswith("feat:")]
+    fixes = [it for it in commits if str(it.message).startswith("fix:")]
+    others = [
+        it
+        for it in commits
+        if not str(it.message).startswith("feat:")
+        and not str(it.message).startswith("fix:")
+    ]
+
+    print(f"## Release {version} ({datetime.now().strftime('%Y-%m-%d')})")
+
+    if features:
+        print("\n#### New features\n")
+        for commit in features:
+            print_commit(commit)
+
+    if fixes:
+        print("\n#### Fixed issues\n")
+        for commit in fixes:
+            print_commit(commit)
+
+    if others:
+        print("\n#### Other changes\n")
+        for commit in others:
+            print_commit(commit)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: python genchangelog.py <version>")
+        sys.exit(1)
+    main(sys.argv[1])

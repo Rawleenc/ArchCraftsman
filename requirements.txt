@@ -58,3 +58,4 @@ urllib3
 webencodings
 wrapt
 zipp
+GitPython

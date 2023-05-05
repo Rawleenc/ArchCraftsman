@@ -175,3 +175,7 @@ cython_debug/
 # Filter json configs
 *.json
 !configs/*.json
+
+*.md
+!README.md
+!CHANGELOG.md
