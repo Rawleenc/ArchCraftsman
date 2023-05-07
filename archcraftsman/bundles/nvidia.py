@@ -21,13 +21,16 @@ from archcraftsman import info
 from archcraftsman.base import print_sub_step
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import _
-from archcraftsman.options import Kernels
+from archcraftsman.options import Bundles, Kernels
 
 
 class NvidiaDriver(Bundle):
     """
     The Nvidia driver class.
     """
+
+    def __init__(self):
+        super().__init__(Bundles.NVIDIA)
 
     def packages(self) -> list[str]:
         if (

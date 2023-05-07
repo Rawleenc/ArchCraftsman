@@ -21,12 +21,16 @@ The systemd network bundle module
 from archcraftsman.base import execute, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import _
+from archcraftsman.options import Network
 
 
 class SystemdNet(Bundle):
     """
     Grml ZSH config class.
     """
+
+    def __init__(self):
+        super().__init__(Network.SYSTEMD)
 
     def packages(self) -> list[str]:
         return ["systemd-resolvconf"]

@@ -22,12 +22,16 @@ from archcraftsman import info
 from archcraftsman.base import execute, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import _
+from archcraftsman.options import Desktops
 
 
 class Sway(Bundle):
     """
     Bundle class.
     """
+
+    def __init__(self):
+        super().__init__(Desktops.SWAY)
 
     def packages(self) -> list[str]:
         packages = [

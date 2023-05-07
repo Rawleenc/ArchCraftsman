@@ -20,12 +20,16 @@ The zram bundle module
 from archcraftsman.base import log, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import _
+from archcraftsman.options import Bundles
 
 
 class Zram(Bundle):
     """
     The ZRAM class.
     """
+
+    def __init__(self):
+        super().__init__(Bundles.ZRAM)
 
     def packages(self) -> list[str]:
         return ["zram-generator"]

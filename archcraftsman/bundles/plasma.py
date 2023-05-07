@@ -22,7 +22,7 @@ from archcraftsman import info
 from archcraftsman.base import execute, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import _
-from archcraftsman.options import Bundles
+from archcraftsman.options import Bundles, Desktops
 from archcraftsman.utils import prompt_bool
 
 
@@ -31,8 +31,10 @@ class Plasma(Bundle):
     Bundle class.
     """
 
-    minimal = False
-    plasma_wayland = False
+    def __init__(self):
+        super().__init__(Desktops.PLASMA)
+        self.minimal = False
+        self.plasma_wayland = False
 
     def packages(self) -> list[str]:
         packages = [

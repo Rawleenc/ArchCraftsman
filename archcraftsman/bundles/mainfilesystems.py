@@ -20,6 +20,7 @@ The main file systems bundle module
 from archcraftsman.base import print_sub_step
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import _
+from archcraftsman.options import Bundles
 
 
 def get_main_file_systems() -> list[str]:
@@ -45,6 +46,9 @@ class MainFileSystems(Bundle):
     """
     The main file systems class.
     """
+
+    def __init__(self):
+        super().__init__(Bundles.MAIN_FILE_SYSTEMS)
 
     def packages(self) -> list[str]:
         return get_main_file_systems()

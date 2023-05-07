@@ -20,12 +20,16 @@ The pipewire bundle module
 from archcraftsman.base import print_sub_step
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import _
+from archcraftsman.options import Bundles
 
 
 class PipeWire(Bundle):
     """
     The PipeWire class.
     """
+
+    def __init__(self):
+        super().__init__(Bundles.PIPEWIRE)
 
     def packages(self) -> list[str]:
         return [

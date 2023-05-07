@@ -17,123 +17,40 @@
 """
 The bundles related utility methods and tools module
 """
-import tomllib
+import importlib
 from importlib.resources import files
 from typing import Optional, TypeVar
 
-from archcraftsman.bundles.budgie import Budgie
 from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.bundles.cinnamon import Cinnamon
-from archcraftsman.bundles.copyacm import CopyACM
-from archcraftsman.bundles.cutefish import Cutefish
-from archcraftsman.bundles.deepin import Deepin
-from archcraftsman.bundles.enlightenment import Enlightenment
-from archcraftsman.bundles.generateconfig import GenerateConfig
-from archcraftsman.bundles.genericbundle import GenericBundle
-from archcraftsman.bundles.gnome import Gnome
-from archcraftsman.bundles.grmlzsh import GrmlZsh
-from archcraftsman.bundles.grub import Grub
-from archcraftsman.bundles.i3 import I3
-from archcraftsman.bundles.iwd import Iwd
-from archcraftsman.bundles.linux import LinuxCurrent, LinuxHardened, LinuxLts, LinuxZen
-from archcraftsman.bundles.lxqt import Lxqt
-from archcraftsman.bundles.mainfilesystems import MainFileSystems
-from archcraftsman.bundles.mainfonts import MainFonts
-from archcraftsman.bundles.mate import Mate
-from archcraftsman.bundles.microcodes import Microcodes
-from archcraftsman.bundles.networkmanager import NetworkManager
-from archcraftsman.bundles.nvidia import NvidiaDriver
-from archcraftsman.bundles.pipewire import PipeWire
-from archcraftsman.bundles.plasma import Plasma
-from archcraftsman.bundles.sway import Sway
-from archcraftsman.bundles.systemdnet import SystemdNet
-from archcraftsman.bundles.terminus import TerminusFont
-from archcraftsman.bundles.xfce import Xfce
-from archcraftsman.bundles.yay import Yay
-from archcraftsman.bundles.zram import Zram
-from archcraftsman.i18n import _
-from archcraftsman.options import (
-    BootLoaders,
-    Bundles,
-    Desktops,
-    Kernels,
-    Network,
-    OptionEnum,
-    ShellBundles,
-)
+from archcraftsman.options import OptionEnum
 from archcraftsman.utils import prompt_option
+
+
+def get_all_bundle_types() -> list[type[Bundle]]:
+    """
+    A function to get all available bundles.
+    """
+    for name in list(
+        f'archcraftsman.bundles.{resource.name.replace(".py", "")}'
+        for resource in files("archcraftsman.bundles").iterdir()
+        if resource.is_file()
+        and resource.name.endswith(".py")
+        and resource.name != "__init__.py"
+    ):
+        importlib.import_module(name)
+    return Bundle.__subclasses__()
+
+
+_BUNDLES_MAP: dict[str, type[Bundle]] = {
+    bundle().name: bundle for bundle in get_all_bundle_types()
+}
 
 
 def get_bundle_type_by_name(name: str) -> type[Bundle]:
     """
     A function to get the bundle type by its name.
     """
-    match name:
-        case Kernels.CURRENT:
-            bundle = LinuxCurrent
-        case Kernels.LTS:
-            bundle = LinuxLts
-        case Kernels.ZEN:
-            bundle = LinuxZen
-        case Kernels.HARDENED:
-            bundle = LinuxHardened
-        case BootLoaders.GRUB:
-            bundle = Grub
-        case Desktops.GNOME:
-            bundle = Gnome
-        case Desktops.PLASMA:
-            bundle = Plasma
-        case Desktops.XFCE:
-            bundle = Xfce
-        case Desktops.BUDGIE:
-            bundle = Budgie
-        case Desktops.CINNAMON:
-            bundle = Cinnamon
-        case Desktops.CUTEFISH:
-            bundle = Cutefish
-        case Desktops.DEEPIN:
-            bundle = Deepin
-        case Desktops.LXQT:
-            bundle = Lxqt
-        case Desktops.MATE:
-            bundle = Mate
-        case Desktops.ENLIGHTENMENT:
-            bundle = Enlightenment
-        case Desktops.I3:
-            bundle = I3
-        case Desktops.SWAY:
-            bundle = Sway
-        case Network.NETWORK_MANAGER:
-            bundle = NetworkManager
-        case Network.IWD:
-            bundle = Iwd
-        case Network.SYSTEMD:
-            bundle = SystemdNet
-        case Bundles.GRML:
-            bundle = GrmlZsh
-        case Bundles.MAIN_FILE_SYSTEMS:
-            bundle = MainFileSystems
-        case Bundles.MAIN_FONTS:
-            bundle = MainFonts
-        case Bundles.MICROCODES:
-            bundle = Microcodes
-        case Bundles.NVIDIA:
-            bundle = NvidiaDriver
-        case Bundles.PIPEWIRE:
-            bundle = PipeWire
-        case Bundles.TERMINUS:
-            bundle = TerminusFont
-        case Bundles.ZRAM:
-            bundle = Zram
-        case Bundles.COPY_ACM:
-            bundle = CopyACM
-        case ShellBundles.YAY:
-            bundle = Yay
-        case ShellBundles.GENERATE_CONFIG:
-            bundle = GenerateConfig
-        case _:
-            bundle = Bundle
-    return bundle
+    return _BUNDLES_MAP[name] if name in _BUNDLES_MAP else Bundle
 
 
 def list_generic_bundles() -> list[str]:
@@ -147,33 +64,11 @@ def list_generic_bundles() -> list[str]:
     )
 
 
-def new_generic_bundle(name: str) -> Bundle:
-    """
-    Create a new generic bundle.
-    """
-    generic_bundle_config = files("archcraftsman.bundles.configs").joinpath(
-        f"{name}.toml"
-    )
-    if not generic_bundle_config.is_file():
-        return Bundle(name)
-    with open(str(generic_bundle_config), "rb") as config_file:
-        bundle_config = tomllib.load(config_file)
-    generic_bundle = GenericBundle(name)
-    generic_bundle.prompt_str = _(
-        bundle_config.get("prompt", f"Do you want to install {name} ?")
-    )
-    generic_bundle.resume = _(bundle_config.get("resume", f"Install {name}."))
-    generic_bundle.help_str = bundle_config.get("help", None)
-    generic_bundle.packages_list = bundle_config.get("packages", [])
-    generic_bundle.commands_list = bundle_config.get("commands", [])
-    return generic_bundle
-
-
 def process_bundle(name: OptionEnum) -> Bundle:
     """
     Process a bundle name into a Bundle object.
     """
-    return get_bundle_type_by_name(name.value)(name)
+    return get_bundle_type_by_name(name.value)()
 
 
 T = TypeVar("T", bound=OptionEnum)

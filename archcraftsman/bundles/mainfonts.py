@@ -20,6 +20,7 @@ The main fonts bundle module
 from archcraftsman.base import print_sub_step
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import _
+from archcraftsman.options import Bundles
 
 
 def get_main_fonts() -> list[str]:
@@ -56,6 +57,9 @@ class MainFonts(Bundle):
     """
     The main fonts class.
     """
+
+    def __init__(self):
+        super().__init__(Bundles.MAIN_FONTS)
 
     def packages(self) -> list[str]:
         return get_main_fonts()

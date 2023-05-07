@@ -22,13 +22,16 @@ from archcraftsman import info
 from archcraftsman.base import execute, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import _
-from archcraftsman.options import Desktops
+from archcraftsman.options import Desktops, Network
 
 
 class NetworkManager(Bundle):
     """
     Grml ZSH config class.
     """
+
+    def __init__(self):
+        super().__init__(Network.NETWORK_MANAGER)
 
     def packages(self) -> list[str]:
         packages = ["networkmanager"]

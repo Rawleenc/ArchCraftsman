@@ -18,6 +18,8 @@
 The TOML valued generic bundle module
 """
 
+import tomllib
+from importlib.resources import files
 from typing import Optional
 
 from archcraftsman.base import execute, print_sub_step
@@ -30,26 +32,43 @@ class GenericBundle(Bundle):
     GenericBundle class.
     """
 
-    prompt_str: str
-    help_str: Optional[str]
-    resume: str
-    packages_list: list[str]
-    commands_list: list[str]
+    _prompt: str
+    _resume: str
+    _help: Optional[str]
+    _packages: list[str]
+    _commands: list[str]
+
+    def __init__(self, name: str = ""):
+        super().__init__(name)
+        generic_bundle_config = files("archcraftsman.bundles.configs").joinpath(
+            f"{name}.toml"
+        )
+        if not generic_bundle_config.is_file():
+            data = None
+        else:
+            with open(str(generic_bundle_config), "rb") as config_file:
+                data = tomllib.load(config_file)
+        if data:
+            self._prompt = data.get("prompt", f"Do you want to install {name} ?")
+            self._resume = data.get("resume", f"Install {name}.")
+            self._help = data.get("help", None)
+            self._packages = data.get("packages", [])
+            self._commands = data.get("commands", [])
 
     def prompt(self) -> str:
-        return _(self.prompt_str)
+        return _(self._prompt)
 
-    def help(self) -> Optional[str]:
-        return _(self.help_str)
+    def help(self) -> str:
+        return _(self._help) if self._help else ""
 
     def packages(self) -> list[str]:
-        return [] if self.packages_list is None else self.packages_list
+        return [] if self._packages is None else self._packages
 
     def print_resume(self):
-        print_sub_step(_(self.resume))
+        print_sub_step(_(self._resume))
 
     def configure(self):
-        if self.commands_list is None:
+        if self._commands is None:
             return
-        for command in self.commands_list:
+        for command in self._commands:
             execute(f'arch-chroot /mnt bash -c "{command}"')

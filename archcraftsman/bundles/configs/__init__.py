@@ -13,33 +13,3 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-"""
-The terminus console font bundle module
-"""
-
-from archcraftsman import info
-from archcraftsman.base import execute, print_sub_step
-from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import _
-from archcraftsman.options import Bundles
-
-
-class TerminusFont(Bundle):
-    """
-    The Terminus console font class.
-    """
-
-    def __init__(self):
-        super().__init__(Bundles.TERMINUS)
-
-    def packages(self) -> list[str]:
-        return ["terminus-font"]
-
-    def print_resume(self):
-        print_sub_step(_("Install terminus console font."))
-
-    def configure(self):
-        execute(
-            f'echo "FONT={info.ai.pre_launch_info.live_console_font}" >>/mnt/etc/vconsole.conf'
-        )

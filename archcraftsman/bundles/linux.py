@@ -21,12 +21,16 @@ from archcraftsman.base import print_sub_step
 from archcraftsman.bundles import bundle
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import _
+from archcraftsman.options import Kernels
 
 
 class LinuxCurrent(bundle.Bundle):
     """
     The Linux current kernel class.
     """
+
+    def __init__(self):
+        super().__init__(Kernels.CURRENT)
 
     def packages(self) -> list[str]:
         return ["linux", "linux-headers"]
@@ -40,6 +44,9 @@ class LinuxHardened(Bundle):
     The Linux hardened kernel class.
     """
 
+    def __init__(self):
+        super().__init__(Kernels.HARDENED)
+
     def packages(self) -> list[str]:
         return ["linux-hardened", "linux-hardened-headers"]
 
@@ -52,6 +59,9 @@ class LinuxLts(bundle.Bundle):
     The Linux LTS kernel class.
     """
 
+    def __init__(self):
+        super().__init__(Kernels.LTS)
+
     def packages(self) -> list[str]:
         return ["linux-lts", "linux-lts-headers"]
 
@@ -63,6 +73,9 @@ class LinuxZen(bundle.Bundle):
     """
     The Linux zen kernel class.
     """
+
+    def __init__(self):
+        super().__init__(Kernels.ZEN)
 
     def packages(self) -> list[str]:
         return ["linux-zen", "linux-zen-headers"]

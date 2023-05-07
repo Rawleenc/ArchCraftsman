@@ -21,12 +21,16 @@ The yay bundle module
 from archcraftsman.base import print_sub_step
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import _
+from archcraftsman.options import ShellBundles
 
 
 class GenerateConfig(Bundle):
     """
     The generate configuration shell bundle.
     """
+
+    def __init__(self):
+        super().__init__(ShellBundles.GENERATE_CONFIG)
 
     def print_resume(self):
         print_sub_step(_("Generate configuration."))

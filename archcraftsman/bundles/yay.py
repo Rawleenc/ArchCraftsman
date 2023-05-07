@@ -21,12 +21,16 @@ The yay bundle module
 from archcraftsman.base import execute, is_root, print_error, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import _
+from archcraftsman.options import ShellBundles
 
 
 class Yay(Bundle):
     """
     The Yay class.
     """
+
+    def __init__(self):
+        super().__init__(ShellBundles.YAY)
 
     def packages(self) -> list[str]:
         return ["yay"]

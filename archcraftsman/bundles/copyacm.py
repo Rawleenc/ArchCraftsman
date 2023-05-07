@@ -21,12 +21,16 @@ from archcraftsman import info
 from archcraftsman.base import execute, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import _
+from archcraftsman.options import Bundles
 
 
 class CopyACM(Bundle):
     """
     The CopyACM class.
     """
+
+    def __init__(self):
+        super().__init__(Bundles.COPY_ACM)
 
     def print_resume(self):
         print_sub_step(_("Copy ArchCraftsman to the new system."))

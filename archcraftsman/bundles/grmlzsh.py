@@ -22,12 +22,16 @@ from archcraftsman import info
 from archcraftsman.base import execute, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import _
+from archcraftsman.options import Bundles
 
 
 class GrmlZsh(Bundle):
     """
     Grml ZSH config class.
     """
+
+    def __init__(self):
+        super().__init__(Bundles.GRML)
 
     def packages(self) -> list[str]:
         return ["zsh", "zsh-completions", "grml-zsh-config"]

@@ -22,6 +22,7 @@ from archcraftsman import info
 from archcraftsman.base import execute, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import _
+from archcraftsman.options import Desktops
 from archcraftsman.utils import prompt_bool
 
 
@@ -30,8 +31,10 @@ class Xfce(Bundle):
     Bundle class.
     """
 
-    display_manager = True
-    minimal = False
+    def __init__(self):
+        super().__init__(Desktops.XFCE)
+        self.display_manager = True
+        self.minimal = False
 
     def packages(self) -> list[str]:
         packages = [

@@ -35,6 +35,7 @@ from archcraftsman.base import (
 )
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.bundles.copyacm import CopyACM
+from archcraftsman.bundles.genericbundle import GenericBundle
 from archcraftsman.bundles.grmlzsh import GrmlZsh
 from archcraftsman.bundles.grub import Grub
 from archcraftsman.bundles.mainfilesystems import MainFileSystems, get_main_file_systems
@@ -43,22 +44,11 @@ from archcraftsman.bundles.microcodes import Microcodes
 from archcraftsman.bundles.nvidia import NvidiaDriver
 from archcraftsman.bundles.pipewire import PipeWire
 from archcraftsman.bundles.terminus import TerminusFont
-from archcraftsman.bundles.utils import (
-    list_generic_bundles,
-    new_generic_bundle,
-    prompt_bundle,
-)
+from archcraftsman.bundles.utils import list_generic_bundles, prompt_bundle
 from archcraftsman.bundles.zram import Zram
 from archcraftsman.config import deserialize
 from archcraftsman.i18n import _
-from archcraftsman.options import (
-    BootLoaders,
-    Bundles,
-    Desktops,
-    Kernels,
-    Languages,
-    Network,
-)
+from archcraftsman.options import Desktops, Kernels, Languages, Network
 from archcraftsman.packages import Packages
 from archcraftsman.prelaunchinfo import parse_detected_language
 from archcraftsman.utils import (
@@ -213,10 +203,10 @@ def setup_system():
         )
 
         if prompt_bool(_("Install proprietary Nvidia driver ?"), default=False):
-            info.ai.system_info.bundles.append(NvidiaDriver(Bundles.NVIDIA))
+            info.ai.system_info.bundles.append(NvidiaDriver())
 
         if prompt_bool(_("Install terminus console font ?"), default=False):
-            info.ai.system_info.bundles.append(TerminusFont(Bundles.TERMINUS))
+            info.ai.system_info.bundles.append(TerminusFont())
 
         if prompt_bool(
             _("Install ZSH with GRML configuration ?"),
@@ -227,7 +217,7 @@ def setup_system():
                 "live environment."
             ),
         ):
-            info.ai.system_info.bundles.append(GrmlZsh(Bundles.GRML))
+            info.ai.system_info.bundles.append(GrmlZsh())
 
         if prompt_bool(
             _("Install a set of main fonts ?"),
@@ -235,7 +225,7 @@ def setup_system():
             help_msg=_("If yes, the following packages will be installed :\n%s")
             % " ".join(get_main_fonts()),
         ):
-            info.ai.system_info.bundles.append(MainFonts(Bundles.MAIN_FONTS))
+            info.ai.system_info.bundles.append(MainFonts())
 
         if prompt_bool(
             _("Install main file systems support ?"),
@@ -243,9 +233,7 @@ def setup_system():
             help_msg=_("If yes, the following packages will be installed :\n%s")
             % " ".join(get_main_file_systems()),
         ):
-            info.ai.system_info.bundles.append(
-                MainFileSystems(Bundles.MAIN_FILE_SYSTEMS)
-            )
+            info.ai.system_info.bundles.append(MainFileSystems())
 
         if prompt_bool(
             _("Install and enable ZRAM ?"),
@@ -257,7 +245,7 @@ def setup_system():
                 "ZRAM is fully compatible with a swap, it just has a higher priority."
             ),
         ):
-            info.ai.system_info.bundles.append(Zram(Bundles.ZRAM))
+            info.ai.system_info.bundles.append(Zram())
 
         if prompt_bool(
             _("Install PipeWire ?"),
@@ -267,13 +255,13 @@ def setup_system():
                 "to manage audio and video capture."
             ),
         ):
-            info.ai.system_info.bundles.append(PipeWire(Bundles.PIPEWIRE))
+            info.ai.system_info.bundles.append(PipeWire())
 
         if prompt_bool(_("Copy ArchCraftsman to the new system ?"), default=False):
-            info.ai.system_info.bundles.append(CopyACM(Bundles.COPY_ACM))
+            info.ai.system_info.bundles.append(CopyACM())
 
         for generic_bundle_name in list_generic_bundles():
-            generic_bundle = new_generic_bundle(generic_bundle_name)
+            generic_bundle = GenericBundle(generic_bundle_name)
             if prompt_bool(
                 generic_bundle.prompt(), default=False, help_msg=generic_bundle.help()
             ):
@@ -324,8 +312,8 @@ def setup_system():
                 _("Enter the %s password : ") % info.ai.system_info.user_name
             )
 
-        info.ai.system_info.bundles.append(Grub(BootLoaders.GRUB))
-        info.ai.system_info.bundles.append(Microcodes(Bundles.MICROCODES))
+        info.ai.system_info.bundles.append(Grub())
+        info.ai.system_info.bundles.append(Microcodes())
 
         print_step(_("Summary of choices :"))
         print_sub_step(_("Your hostname : %s") % info.ai.system_info.hostname)

@@ -23,6 +23,7 @@ from typing import Optional
 from archcraftsman.base import execute, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import _
+from archcraftsman.options import Bundles
 
 
 class Microcodes(Bundle):
@@ -30,20 +31,21 @@ class Microcodes(Bundle):
     The Microcodes class.
     """
 
-    def __init__(self, name: str = ""):
-        super().__init__(name)
-        cpu_info_vendor = execute(
+    def __init__(self):
+        super().__init__(Bundles.MICROCODES)
+        self._cpu_info_vendor = execute(
             'grep </proc/cpuinfo "vendor" | uniq', force=True, capture_output=True
         ).output
-        if cpu_info_vendor:
-            self.microcode_name = re.sub("\\s+", "", cpu_info_vendor).split(":")[1]
-        else:
-            self.microcode_name = ""
+        self._microcode_name = (
+            re.sub("\\s+", "", self._cpu_info_vendor).split(":")[1]
+            if self._cpu_info_vendor
+            else ""
+        )
 
     def packages(self) -> list[str]:
-        if self.microcode_name == "GenuineIntel":
+        if self._microcode_name == "GenuineIntel":
             return ["intel-ucode"]
-        if self.microcode_name == "AuthenticAMD":
+        if self._microcode_name == "AuthenticAMD":
             return ["amd-ucode"]
         return []
 
@@ -51,12 +53,12 @@ class Microcodes(Bundle):
         """
         The microcode img file name retrieving method.
         """
-        if self.microcode_name == "GenuineIntel":
+        if self._microcode_name == "GenuineIntel":
             return "/intel-ucode.img"
-        if self.microcode_name == "AuthenticAMD":
+        if self._microcode_name == "AuthenticAMD":
             return "/amd-ucode.img"
         return None
 
     def print_resume(self):
-        if self.microcode_name in {"GenuineIntel", "AuthenticAMD"}:
-            print_sub_step(_("Microcodes to install : %s") % self.microcode_name)
+        if self._microcode_name in {"GenuineIntel", "AuthenticAMD"}:
+            print_sub_step(_("Microcodes to install : %s") % self._microcode_name)

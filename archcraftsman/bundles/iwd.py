@@ -22,12 +22,16 @@ from archcraftsman.base import execute, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.bundles.systemdnet import SystemdNet
 from archcraftsman.i18n import _
+from archcraftsman.options import Network
 
 
 class Iwd(Bundle):
     """
-    Grml ZSH config class.
+    Iwd config class.
     """
+
+    def __init__(self):
+        super().__init__(Network.IWD)
 
     def packages(self) -> list[str]:
         packages = ["iwd"]
@@ -35,8 +39,8 @@ class Iwd(Bundle):
 
     def print_resume(self):
         print_sub_step(_("Install Iwd."))
-        SystemdNet(self.name).print_resume()
+        SystemdNet().print_resume()
 
     def configure(self):
         execute('arch-chroot /mnt bash -c "systemctl enable iwd.service"')
-        SystemdNet(self.name).configure()
+        SystemdNet().configure()

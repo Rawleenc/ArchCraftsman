@@ -284,7 +284,7 @@ def prompt_bool(
         message += f"{_('yes').upper()[0]}/{_('no')[0]}"
     else:
         message += f"{_('yes')[0]}/{_('no').upper()[0]}"
-    if help_msg is not None:
+    if help_msg:
         message += "/?"
     message += ") : "
     if not default:

@@ -22,13 +22,16 @@ import re
 from archcraftsman import info
 from archcraftsman.base import execute, is_bios
 from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.options import FSFormats, PartTypes
+from archcraftsman.options import BootLoaders, FSFormats, PartTypes
 
 
 class Grub(Bundle):
     """
     The Grub Bootloader class.
     """
+
+    def __init__(self):
+        super().__init__(BootLoaders.GRUB)
 
     def packages(self) -> list[str]:
         return ["grub"]
