@@ -1,0 +1,20 @@
+prompt = "Install Cups ?"
+resume = "Install Cups."
+packages = [
+    "cups",
+    "cups-pdf",
+    "avahi",
+    "samba",
+    "foomatic-db-engine",
+    "foomatic-db",
+    "foomatic-db-ppds",
+    "foomatic-db-nonfree-ppds",
+    "foomatic-db-gutenprint-ppds",
+    "gutenprint",
+    "ghostscript",
+]
+commands = [
+    "systemctl enable avahi-daemon",
+    "systemctl enable cups",
+    "systemctl enable cups-browsed",
+]

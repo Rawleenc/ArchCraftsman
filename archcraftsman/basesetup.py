@@ -35,7 +35,6 @@ from archcraftsman.base import (
 )
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.bundles.copyacm import CopyACM
-from archcraftsman.bundles.cups import Cups
 from archcraftsman.bundles.grmlzsh import GrmlZsh
 from archcraftsman.bundles.grub import Grub
 from archcraftsman.bundles.mainfilesystems import MainFileSystems, get_main_file_systems
@@ -44,7 +43,11 @@ from archcraftsman.bundles.microcodes import Microcodes
 from archcraftsman.bundles.nvidia import NvidiaDriver
 from archcraftsman.bundles.pipewire import PipeWire
 from archcraftsman.bundles.terminus import TerminusFont
-from archcraftsman.bundles.utils import prompt_bundle
+from archcraftsman.bundles.utils import (
+    list_generic_bundles,
+    new_generic_bundle,
+    prompt_bundle,
+)
 from archcraftsman.bundles.zram import Zram
 from archcraftsman.config import deserialize
 from archcraftsman.i18n import _
@@ -215,9 +218,6 @@ def setup_system():
         if prompt_bool(_("Install terminus console font ?"), default=False):
             info.ai.system_info.bundles.append(TerminusFont(Bundles.TERMINUS))
 
-        if prompt_bool(_("Install Cups ?"), default=False):
-            info.ai.system_info.bundles.append(Cups(Bundles.CUPS))
-
         if prompt_bool(
             _("Install ZSH with GRML configuration ?"),
             default=False,
@@ -271,6 +271,13 @@ def setup_system():
 
         if prompt_bool(_("Copy ArchCraftsman to the new system ?"), default=False):
             info.ai.system_info.bundles.append(CopyACM(Bundles.COPY_ACM))
+
+        for generic_bundle_name in list_generic_bundles():
+            generic_bundle = new_generic_bundle(generic_bundle_name)
+            if prompt_bool(
+                generic_bundle.prompt(), default=False, help_msg=generic_bundle.help()
+            ):
+                info.ai.system_info.bundles.append(generic_bundle)
 
         default_timezone_file = (
             f"/usr/share/zoneinfo/{info.ai.pre_launch_info.detected_timezone}"

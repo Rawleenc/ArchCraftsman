@@ -17,17 +17,19 @@
 """
 The bundles related utility methods and tools module
 """
+import tomllib
+from importlib.resources import files
 from typing import Optional, TypeVar
 
 from archcraftsman.bundles.budgie import Budgie
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.bundles.cinnamon import Cinnamon
 from archcraftsman.bundles.copyacm import CopyACM
-from archcraftsman.bundles.cups import Cups
 from archcraftsman.bundles.cutefish import Cutefish
 from archcraftsman.bundles.deepin import Deepin
 from archcraftsman.bundles.enlightenment import Enlightenment
 from archcraftsman.bundles.generateconfig import GenerateConfig
+from archcraftsman.bundles.genericbundle import GenericBundle
 from archcraftsman.bundles.gnome import Gnome
 from archcraftsman.bundles.grmlzsh import GrmlZsh
 from archcraftsman.bundles.grub import Grub
@@ -49,6 +51,7 @@ from archcraftsman.bundles.terminus import TerminusFont
 from archcraftsman.bundles.xfce import Xfce
 from archcraftsman.bundles.yay import Yay
 from archcraftsman.bundles.zram import Zram
+from archcraftsman.i18n import _
 from archcraftsman.options import (
     BootLoaders,
     Bundles,
@@ -106,8 +109,6 @@ def get_bundle_type_by_name(name: str) -> type[Bundle]:
             bundle = Iwd
         case Network.SYSTEMD:
             bundle = SystemdNet
-        case Bundles.CUPS:
-            bundle = Cups
         case Bundles.GRML:
             bundle = GrmlZsh
         case Bundles.MAIN_FILE_SYSTEMS:
@@ -133,6 +134,39 @@ def get_bundle_type_by_name(name: str) -> type[Bundle]:
         case _:
             bundle = Bundle
     return bundle
+
+
+def list_generic_bundles() -> list[str]:
+    """
+    List all available generic bundles.
+    """
+    return list(
+        resource.name.replace(".toml", "")
+        for resource in files("archcraftsman.bundles.configs").iterdir()
+        if resource.is_file() and resource.name.endswith(".toml")
+    )
+
+
+def new_generic_bundle(name: str) -> Bundle:
+    """
+    Create a new generic bundle.
+    """
+    generic_bundle_config = files("archcraftsman.bundles.configs").joinpath(
+        f"{name}.toml"
+    )
+    if not generic_bundle_config.is_file():
+        return Bundle(name)
+    with open(str(generic_bundle_config), "rb") as config_file:
+        bundle_config = tomllib.load(config_file)
+    generic_bundle = GenericBundle(name)
+    generic_bundle.prompt_str = _(
+        bundle_config.get("prompt", f"Do you want to install {name} ?")
+    )
+    generic_bundle.resume = _(bundle_config.get("resume", f"Install {name}."))
+    generic_bundle.help_str = bundle_config.get("help", None)
+    generic_bundle.packages_list = bundle_config.get("packages", [])
+    generic_bundle.commands_list = bundle_config.get("commands", [])
+    return generic_bundle
 
 
 def process_bundle(name: OptionEnum) -> Bundle:

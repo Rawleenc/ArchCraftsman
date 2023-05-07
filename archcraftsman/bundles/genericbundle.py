@@ -15,38 +15,41 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-The cups bundle module
+The TOML valued generic bundle module
 """
+
+from typing import Optional
 
 from archcraftsman.base import execute, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import _
 
 
-class Cups(Bundle):
+class GenericBundle(Bundle):
     """
-    Cups class.
+    GenericBundle class.
     """
+
+    prompt_str: str
+    help_str: Optional[str]
+    resume: str
+    packages_list: list[str]
+    commands_list: list[str]
+
+    def prompt(self) -> str:
+        return _(self.prompt_str)
+
+    def help(self) -> Optional[str]:
+        return _(self.help_str)
 
     def packages(self) -> list[str]:
-        return [
-            "cups",
-            "cups-pdf",
-            "avahi",
-            "samba",
-            "foomatic-db-engine",
-            "foomatic-db",
-            "foomatic-db-ppds",
-            "foomatic-db-nonfree-ppds",
-            "foomatic-db-gutenprint-ppds",
-            "gutenprint",
-            "ghostscript",
-        ]
+        return [] if self.packages_list is None else self.packages_list
 
     def print_resume(self):
-        print_sub_step(_("Install Cups."))
+        print_sub_step(_(self.resume))
 
     def configure(self):
-        execute('arch-chroot /mnt bash -c "systemctl enable avahi-daemon"')
-        execute('arch-chroot /mnt bash -c "systemctl enable cups"')
-        execute('arch-chroot /mnt bash -c "systemctl enable cups-browsed"')
+        if self.commands_list is None:
+            return
+        for command in self.commands_list:
+            execute(f'arch-chroot /mnt bash -c "{command}"')

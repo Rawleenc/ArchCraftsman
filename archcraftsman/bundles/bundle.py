@@ -19,6 +19,11 @@ The generic bundle blueprint module
 """
 
 
+from typing import Optional
+
+from archcraftsman.i18n import _
+
+
 class Bundle:
     """
     A class to represent a bootloader.
@@ -26,6 +31,18 @@ class Bundle:
 
     def __init__(self, name: str = ""):
         self.name = name
+
+    def prompt(self) -> str:
+        """
+        Bundle's main prompt retrieving method.
+        """
+        return _("Install %s ?") % self.name
+
+    def help(self) -> Optional[str]:
+        """
+        Bundle's help retrieving method.
+        """
+        return None
 
     def packages(self) -> list[str]:
         """
