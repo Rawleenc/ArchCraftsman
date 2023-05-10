@@ -29,7 +29,9 @@ def print_commit(commit: Commit):
     """
     Print a commit in markdown format.
     """
-    message: str = re.sub(r"^[a-z]+:|:[a-z]+:", "", str(commit.message)).strip()
+    message: str = re.sub(
+        r"^[a-z]+(:|\(\w+\):)|:[a-z]+:", "", str(commit.message)
+    ).strip()
     short_message: str = str(message).split("\n", maxsplit=1)[0]
     details: str = message.replace(short_message, "").strip().replace("\n", "\n  ")
     print(f"* {short_message}")
@@ -49,16 +51,16 @@ def main(version: str):
     for commit in repo.iter_commits():
         if "chore: :wrench: Prepare next version" in str(commit.message):
             break
-        if re.match(r"^[a-z]+: ", str(commit.message)):
+        if re.match(r"^[a-z]+(:|\(\w+\):) ", str(commit.message)):
             commits.append(commit)
 
-    features = [it for it in commits if str(it.message).startswith("feat:")]
-    fixes = [it for it in commits if str(it.message).startswith("fix:")]
+    features = [it for it in commits if re.match(r"^feat(:|\(\w+\):)", str(it.message))]
+    fixes = [it for it in commits if re.match(r"^fix(:|\(\w+\):)", str(it.message))]
     others = [
         it
         for it in commits
-        if not str(it.message).startswith("feat:")
-        and not str(it.message).startswith("fix:")
+        if not re.match(r"^feat(:|\(\w+\):)", str(it.message))
+        and not re.match(r"^fix(:|\(\w+\):)", str(it.message))
     ]
 
     print(f"## Release {version} ({datetime.now().strftime('%Y-%m-%d')})")

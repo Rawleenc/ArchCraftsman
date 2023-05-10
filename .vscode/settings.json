@@ -2,6 +2,7 @@
     "python.analysis.typeCheckingMode": "basic",
     "python.formatting.provider": "black",
     "conventionalCommits.scopes": [
-        "bundles"
+        "bundles",
+        "scripts"
     ]
 }
