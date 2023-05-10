@@ -17,72 +17,156 @@
 """
 A Python script to generate a changelog from git commits.
 """
+import argparse
 import re
-import sys
 from datetime import datetime
 
 from git import Commit
 from git.repo import Repo
 
+TITLES = {
+    "feat": "#### New features",
+    "fix": "#### Fixed issues",
+    "revert": "#### Revertions",
+    "perf": "#### Performance improvements",
+    "refactor": "#### Refactors",
+    "test": "#### Tests",
+    "docs": "#### Documentation changes",
+    "style": "#### Code style changes",
+    "chore": "#### Chores",
+    "build": "#### Build system or dependencies changes",
+    "ci": "#### CI related changes",
+}
+TITLE_DEFAULT = "#### Other changes"
+TYPE_OTHER = "other"
 
-def print_commit(commit: Commit):
+
+class ConventionalCommit:
+    """
+    A class representing a conventional commit.
+    """
+
+    def __init__(self, commit: Commit) -> None:
+        header = str(commit.message).split("\n", maxsplit=1)[0]
+        type_scope = header.split(":", maxsplit=1)[0].strip()
+
+        match = re.search(r"^[a-z]+", type_scope)
+        self.ctype = match.group(0) if match else TYPE_OTHER
+
+        match = re.search(r"\(([^()]+)\)", type_scope)
+        self.scope = (
+            next(group for group in match.groups()) if match and match.groups() else ""
+        )
+
+        self.short_message = header.split(":", maxsplit=1)[1].strip()
+        self.body = str(commit.message).replace(header, "").strip()
+
+
+def print_commit(commit: ConventionalCommit):
     """
     Print a commit in markdown format.
     """
-    message: str = re.sub(
-        r"^[a-z]+(:|\(\w+\):)|:[a-z]+:", "", str(commit.message)
-    ).strip()
-    short_message: str = str(message).split("\n", maxsplit=1)[0]
-    details: str = message.replace(short_message, "").strip().replace("\n", "\n  ")
-    print(f"* {short_message}")
-    if details:
+    if commit.scope:
+        print(f"* {commit.scope}: {commit.short_message}")
+    else:
+        print(f"* {commit.short_message}")
+    if commit.body:
         print("  <details>")
-        print(f"  {details}")
+        print(f"  {commit.body}")
         print("  </details>")
 
 
-def main(version: str):
+TYPE = "type"
+TITLE = "title"
+COMMITS = "commits"
+
+
+def new_part(ctype: str) -> dict:
     """
-    Generate a changelog from git commits.
+    Build a part of the changelog.
+    """
+    return {
+        TYPE: ctype,
+        TITLE: TITLES.get(ctype, TITLE_DEFAULT),
+        COMMITS: [],
+    }
+
+
+def parse_commits(args) -> list[dict]:
+    """
+    Parse commits and build parts by type.
     """
     repo = Repo(".")
-    commits: list[Commit] = []
-
+    parts: list[dict] = []
     for commit in repo.iter_commits():
         if "chore: :wrench: Prepare next version" in str(commit.message):
             break
-        if re.match(r"^[a-z]+(:|\(\w+\):) ", str(commit.message)):
-            commits.append(commit)
+        if re.search(r"^[a-z]+(:|\(\w+\):) ", str(commit.message)):
+            ccommit = ConventionalCommit(commit)
+            ctype = ccommit.ctype if ccommit.ctype in args.types else TYPE_OTHER
+            part = next(
+                (part for part in parts if part[TYPE] == ctype),
+                new_part(ctype) if ctype != TYPE_OTHER or args.others else None,
+            )
+            if part:
+                part[COMMITS].append(ccommit)
+                if part not in parts:
+                    parts.append(part)
 
-    features = [it for it in commits if re.match(r"^feat(:|\(\w+\):)", str(it.message))]
-    fixes = [it for it in commits if re.match(r"^fix(:|\(\w+\):)", str(it.message))]
-    others = [
-        it
-        for it in commits
-        if not re.match(r"^feat(:|\(\w+\):)", str(it.message))
-        and not re.match(r"^fix(:|\(\w+\):)", str(it.message))
-    ]
+    # Sort parts by type based on the TITLES dictionary order
+    parts.sort(
+        key=lambda part: len(TITLES) + 1
+        if part[TYPE] not in TITLES
+        else list(TITLES).index(part[TYPE])
+    )
+    return parts
 
-    print(f"## Release {version} ({datetime.now().strftime('%Y-%m-%d')})")
 
-    if features:
-        print("#### New features")
-        for commit in features:
-            print_commit(commit)
+def main():
+    """
+    Generate a changelog from git commits.
+    """
+    parser = argparse.ArgumentParser(
+        description=(
+            "The conventional commits changelogs generator "
+            "(cf. https://www.conventionalcommits.org/en/v1.0.0)"
+        )
+    )
+    parser.add_argument(
+        "version",
+        help="specify the version to generate the changelog for",
+    )
+    parser.add_argument(
+        "-t",
+        "--types",
+        nargs="+",
+        default=TITLES.keys(),
+        help=(
+            "specify types to include in the changelog, separated by spaces "
+            "(default: all types of conventional commits)"
+        ),
+    )
+    parser.add_argument(
+        "-o",
+        "--others",
+        action="store_true",
+        help="specifty whether to include commits of other types in a dedicated section",
+    )
+    args = parser.parse_args()
 
-    if fixes:
-        print("#### Fixed issues")
-        for commit in fixes:
-            print_commit(commit)
+    parts = parse_commits(args)
 
-    if others:
-        print("#### Other changes")
-        for commit in others:
-            print_commit(commit)
+    # Print the changelog
+    print(f"## Release {args.version} ({datetime.now().strftime('%Y-%m-%d')})")
+    for part in parts:
+        title = part[TITLE]
+        commits = part[COMMITS]
+        commits.reverse()
+        if title and commits:
+            print(f"{title}")
+            for commit in commits:
+                print_commit(commit)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python genchangelog.py <version>")
-        sys.exit(1)
-    main(sys.argv[1])
+    main()
