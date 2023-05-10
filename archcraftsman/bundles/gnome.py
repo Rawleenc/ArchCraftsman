@@ -44,6 +44,7 @@ class Gnome(Bundle):
             "xdg-desktop-portal",
             "xdg-desktop-portal-gnome",
             "qt5-wayland",
+            "gst-plugin-pipewire",
         ]
         if self.minimal is not True:
             packages.append("gnome-extra")
