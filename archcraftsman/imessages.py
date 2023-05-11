@@ -15,34 +15,19 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-The pipewire bundle module
+I18n messages translation keys.
 """
-from archcraftsman.base import print_sub_step
-from archcraftsman.bundles.bundle import Bundle
 from archcraftsman.i18n import _
-from archcraftsman.options import Bundles
 
-
-class PipeWire(Bundle):
-    """
-    The PipeWire class.
-    """
-
-    def __init__(self):
-        super().__init__(Bundles.PIPEWIRE)
-
-    def packages(self) -> list[str]:
-        return [
-            "pipewire",
-            "pipewire-alsa",
-            "pipewire-audio",
-            "pipewire-jack",
-            "pipewire-media-session",
-            "pipewire-pulse",
-            "pipewire-v4l2",
-            "pipewire-x11-bell",
-            "pipewire-zeroconf",
-        ]
-
-    def print_resume(self):
-        print_sub_step(_("Install PipeWire."))
+CUPS_PROMPT = _("Install Cups ?")
+CUPS_RESUME = _("Install Cups.")
+MAIN_FS_PROMPT = _("Install main file systems support ?")
+MAIN_FS_RESUME = _("Install main file systems support.")
+PKGS_LIST_HELP = _("If yes, the following packages will be installed :\n{packages}")
+MAIN_FONTS_PROMPT = _("Install a set of main fonts ?")
+MAIN_FONTS_RESUME = _("Install a set of main fonts.")
+PIPEWIRE_PROMPT = _("Install PipeWire ?")
+PIPEWIRE_RESUME = _("Install PipeWire.")
+PIPEWIRE_HELP = _(
+    "If yes, the PipeWire multimedia framework will be installed to manage audio and video capture."
+)

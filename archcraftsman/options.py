@@ -122,13 +122,9 @@ class Bundles(OptionEnum):
     All other options.
     """
 
-    CUPS = auto()
     GRML = auto()
-    MAIN_FILE_SYSTEMS = auto()
-    MAIN_FONTS = auto()
     MICROCODES = auto()
     NVIDIA = auto()
-    PIPEWIRE = auto()
     TERMINUS = auto()
     ZRAM = auto()
     COPY_ACM = auto()

@@ -58,7 +58,7 @@
             "name": "Generate translations",
             "type": "python",
             "request": "launch",
-            "program": "/usr/lib/python3.10/Tools/i18n/pygettext.py",
+            "program": "/usr/lib/python3.11/Tools/i18n/pygettext.py",
             "args": [
                 "-d",
                 "base",

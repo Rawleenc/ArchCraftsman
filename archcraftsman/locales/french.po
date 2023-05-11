@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2023-03-30 23:31+0200\n"
-"PO-Revision-Date: 2023-03-30 23:34+0200\n"
+"POT-Creation-Date: 2023-05-12 01:19+0200\n"
+"PO-Revision-Date: 2023-05-12 01:21+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -15,63 +15,75 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "Generated-By: pygettext.py 1.5\n"
-"X-Generator: Poedit 3.2.2\n"
+"X-Generator: Poedit 3.3\n"
 
-#: archcraftsman/autopart.py:48
+#: archcraftsman/autopart.py:42
 msgid "Automatic partitioning :"
 msgstr "Partitionnement automatique :"
 
-#: archcraftsman/autopart.py:62
+#: archcraftsman/autopart.py:56
 msgid "Do you want to install Arch Linux next to other systems ?"
 msgstr "Voulez-vous installer Arch Linux à côté des autres systèmes ?"
 
-#: archcraftsman/autopart.py:68
+#: archcraftsman/autopart.py:62
 msgid "What type of Swap do you want ? (%s) : "
 msgstr "Quel type de swap voulez-vous ? (%s) : "
 
-#: archcraftsman/autopart.py:69
+#: archcraftsman/autopart.py:63
 msgid "Swap type '%s' is not supported."
 msgstr "Le type de swap '%s' n'est pas supporté."
 
-#: archcraftsman/autopart.py:71
+#: archcraftsman/autopart.py:65
 msgid "Supported Swap types : "
 msgstr "Types de swap supportés : "
 
-#: archcraftsman/autopart.py:75
+#: archcraftsman/autopart.py:69
 msgid "Do you want a separated Home ?"
 msgstr "Voulez-vous un Home séparé ?"
 
-#: archcraftsman/autopart.py:79 archcraftsman/autopart.py:85
+#: archcraftsman/autopart.py:73 archcraftsman/autopart.py:79
 msgid "Do you want to encrypt the %s partition ?"
 msgstr "Voulez-vous chiffrer la partition %s ?"
 
-#: archcraftsman/autopart.py:259 archcraftsman/basesetup.py:112
-#: archcraftsman/basesetup.py:266 archcraftsman/manualpart.py:159
+#: archcraftsman/autopart.py:248 archcraftsman/basesetup.py:107
+#: archcraftsman/basesetup.py:289 archcraftsman/manualpart.py:158
 msgid "Summary of choices :"
 msgstr "Résumé des choix :"
 
-#: archcraftsman/autopart.py:263 archcraftsman/manualpart.py:167
+#: archcraftsman/autopart.py:252 archcraftsman/manualpart.py:167
 msgid "Swapfile size : %s"
 msgstr "Taille du fichier d'échange : %s"
 
-#: archcraftsman/autopart.py:264 archcraftsman/basesetup.py:117
-#: archcraftsman/basesetup.py:287 archcraftsman/manualpart.py:168
+#: archcraftsman/autopart.py:253 archcraftsman/basesetup.py:115
+#: archcraftsman/basesetup.py:308 archcraftsman/manualpart.py:169
 msgid "Is the information correct ?"
 msgstr "Les informations sont-elles correctes ?"
 
-#: archcraftsman/autopart.py:267 archcraftsman/manualpart.py:171
+#: archcraftsman/autopart.py:256 archcraftsman/manualpart.py:172
 msgid "Do you want to change the partitioning mode ?"
 msgstr "Voulez-vous changer de mode de partitionnement ?"
 
-#: archcraftsman/basesetup.py:69
+#: archcraftsman/base.py:162
+msgid "Press any key to continue..."
+msgstr "Appuyez sur n'importe quelle touche pour continuer..."
+
+#: archcraftsman/base.py:208
+msgid "Help :"
+msgstr "Aide :"
+
+#: archcraftsman/base.py:243
+msgid "The input must not be empty."
+msgstr "La saisie ne doit pas être vide."
+
+#: archcraftsman/basesetup.py:64
 msgid "Querying IP geolocation information..."
 msgstr "Interrogation des informations de géolocalisation IP..."
 
-#: archcraftsman/basesetup.py:89
+#: archcraftsman/basesetup.py:84
 msgid "Welcome to ArchCraftsman !"
 msgstr "Bienvenue sur ArchCraftsman !"
 
-#: archcraftsman/basesetup.py:92
+#: archcraftsman/basesetup.py:87
 msgid ""
 "BIOS detected ! The script will act accordingly. Don't forget to select a "
 "DOS label type before partitioning."
@@ -79,91 +91,111 @@ msgstr ""
 "BIOS détecté ! Le script agira en conséquence. N'oubliez pas de sélectionner "
 "un label type DOS avant de partitionner."
 
-#: archcraftsman/basesetup.py:98
+#: archcraftsman/basesetup.py:93
 msgid "Environment configuration : "
 msgstr "Configuration de l'environnement : "
 
-#: archcraftsman/basesetup.py:101
+#: archcraftsman/basesetup.py:96
 msgid "Choose your installation's language (%s) : "
 msgstr "Choisissez la langue de votre installation (%s) : "
 
-#: archcraftsman/basesetup.py:102
+#: archcraftsman/basesetup.py:97
 msgid "Global language '%s' is not supported."
 msgstr "La langue globale '%s' n'est pas prise en charge."
 
-#: archcraftsman/basesetup.py:104
+#: archcraftsman/basesetup.py:99
 msgid "Supported languages : "
 msgstr "Langues prises en charge : "
 
-#: archcraftsman/basesetup.py:114
+#: archcraftsman/basesetup.py:109
 msgid "Your installation's language : %s"
 msgstr "La langue de votre installation : %s"
 
-#: archcraftsman/basesetup.py:116
+#: archcraftsman/basesetup.py:113
 msgid "Your installation's keymap : %s"
 msgstr "La keymap de votre installation : %s"
 
-#: archcraftsman/basesetup.py:131
+#: archcraftsman/basesetup.py:127
+msgid "This script must be run as root."
+msgstr "Ce script doit être exécuté en tant que root."
+
+#: archcraftsman/basesetup.py:133
+msgid "Running pre-launch steps : "
+msgstr "Exécution des étapes de pré-lancement : "
+
+#: archcraftsman/basesetup.py:141
+msgid "Synchronising repositories..."
+msgstr "Synchronisation des dépôts..."
+
+#: archcraftsman/basesetup.py:147 archcraftsman/installer.py:237
+#: archcraftsman/shell.py:198
+msgid "Script execution interrupted by the user !"
+msgstr "Exécution du script interrompue par l'utilisateur !"
+
+#: archcraftsman/basesetup.py:151 archcraftsman/installer.py:243
+#: archcraftsman/partitioninginfo.py:73 archcraftsman/shell.py:203
+msgid "A subprocess execution failed ! See the following error: %s"
+msgstr ""
+"L'exécution d'un sous-processus a échoué ! L'erreur suivante s'est "
+"produite : %s"
+
+#: archcraftsman/basesetup.py:166
 msgid "System configuration : "
 msgstr "Configuration du système : "
 
-#: archcraftsman/basesetup.py:133
+#: archcraftsman/basesetup.py:168
 msgid "What will be your hostname (archlinux) : "
 msgstr "Quel sera votre nom d'hôte (archlinux) : "
 
-#: archcraftsman/basesetup.py:138
+#: archcraftsman/basesetup.py:174
 msgid "Choose your kernel (%s) : "
 msgstr "Choisissez votre kernel (%s) : "
 
-#: archcraftsman/basesetup.py:139 archcraftsman/shell.py:55
+#: archcraftsman/basesetup.py:175 archcraftsman/shell.py:48
 msgid "Kernel '%s' is not supported."
 msgstr "Le kernel '%s' n'est pas supporté."
 
-#: archcraftsman/basesetup.py:141 archcraftsman/shell.py:57
+#: archcraftsman/basesetup.py:177 archcraftsman/shell.py:50
 msgid "Supported kernels : "
 msgstr "Kernels pris en charge : "
 
-#: archcraftsman/basesetup.py:146
+#: archcraftsman/basesetup.py:184
 msgid "Install a desktop environment ? (%s) : "
 msgstr "Installer un environnement de bureau ? (%s) : "
 
-#: archcraftsman/basesetup.py:147 archcraftsman/shell.py:72
+#: archcraftsman/basesetup.py:185 archcraftsman/shell.py:65
 msgid "Desktop environment '%s' is not supported."
 msgstr "L'environnement de bureau '%s' n'est pas pris en charge."
 
-#: archcraftsman/basesetup.py:149 archcraftsman/shell.py:74
+#: archcraftsman/basesetup.py:187 archcraftsman/shell.py:67
 msgid "Supported desktop environments : "
 msgstr "Environnements de bureau supportés : "
 
-#: archcraftsman/basesetup.py:154
+#: archcraftsman/basesetup.py:194
 msgid "Choose your network stack (%s) : "
 msgstr "Choisissez votre pile réseau (%s) : "
 
-#: archcraftsman/basesetup.py:155
+#: archcraftsman/basesetup.py:195
 msgid "Network stack '%s' is not supported."
 msgstr "La pile réseau '%s' n'est pas supporté."
 
-#: archcraftsman/basesetup.py:157
+#: archcraftsman/basesetup.py:197
 msgid "Supported network stacks : "
 msgstr "Pile réseau supportés : "
 
-#: archcraftsman/basesetup.py:161
+#: archcraftsman/basesetup.py:202
 msgid "Install proprietary Nvidia driver ?"
 msgstr "Installer le pilote propriétaire Nvidia ?"
 
-#: archcraftsman/basesetup.py:164
+#: archcraftsman/basesetup.py:205
 msgid "Install terminus console font ?"
 msgstr "Installer la police de console Terminus ?"
 
-#: archcraftsman/basesetup.py:167
-msgid "Install Cups ?"
-msgstr "Installer Cups ?"
-
-#: archcraftsman/basesetup.py:171
+#: archcraftsman/basesetup.py:209
 msgid "Install ZSH with GRML configuration ?"
 msgstr "Installer ZSH avec la configuration GRML ?"
 
-#: archcraftsman/basesetup.py:173
+#: archcraftsman/basesetup.py:211
 msgid ""
 "If yes, the script will install the ZSH shell with GRML configuration. GRML "
 "is a ZSH pre-configuration used by Archlinux's live environment."
@@ -172,27 +204,11 @@ msgstr ""
 "est une pré-configuration de ZSH utilisée par l'environnement live "
 "d'Archlinux."
 
-#: archcraftsman/basesetup.py:182
-msgid "Install a set of main fonts ?"
-msgstr "Installer un ensemble de polices principales ?"
-
-#: archcraftsman/basesetup.py:184 archcraftsman/basesetup.py:192
-msgid ""
-"If yes, the following packages will be installed :\n"
-"%s"
-msgstr ""
-"Si oui, les paquets suivants seront installés :\n"
-"%s"
-
-#: archcraftsman/basesetup.py:190
-msgid "Install main file systems support ?"
-msgstr "Installer le support des systèmes de fichiers principaux ?"
-
-#: archcraftsman/basesetup.py:198
+#: archcraftsman/basesetup.py:220
 msgid "Install and enable ZRAM ?"
 msgstr "Installer et activer ZRAM ?"
 
-#: archcraftsman/basesetup.py:200
+#: archcraftsman/basesetup.py:222
 msgid ""
 "ZRAM is a process to compress datas directly in the RAM instead of moving "
 "them in a swap. Enabled ZRAM will allow you to compress up to half of your "
@@ -207,37 +223,25 @@ msgstr ""
 "mais est plus gourmande en ressources CPU. ZRAM est entièrement compatible "
 "avec un swap, il a juste une priorité plus élevée."
 
-#: archcraftsman/basesetup.py:210
-msgid "Install PipeWire ?"
-msgstr "Installer PipeWire ?"
-
-#: archcraftsman/basesetup.py:212
-msgid ""
-"If yes, the PipeWire multimedia framework will be installed to manage audio "
-"and video capture."
-msgstr ""
-"Si oui, le framework multimédia PipeWire sera installé pour gérer l'audio et "
-"la capture vidéo."
-
-#: archcraftsman/basesetup.py:219
+#: archcraftsman/basesetup.py:231
 msgid "Copy ArchCraftsman to the new system ?"
 msgstr "Copier ArchCraftsman sur le nouveau système ?"
 
-#: archcraftsman/basesetup.py:224
+#: archcraftsman/basesetup.py:245
 msgid "Your timezone (%s) : "
 msgstr "Votre fuseau horaire (%s) : "
 
-#: archcraftsman/basesetup.py:231
+#: archcraftsman/basesetup.py:252
 msgid "Would you like to add a user? (type username, leave blank if none) : "
 msgstr ""
 "Voulez-vous ajouter un utilisateur ? (tapez le nom d'utilisateur, laissez "
 "vide si vous n'en avez pas) : "
 
-#: archcraftsman/basesetup.py:239
+#: archcraftsman/basesetup.py:260
 msgid "Invalid user name."
 msgstr "Nom d'utilisateur invalide."
 
-#: archcraftsman/basesetup.py:245
+#: archcraftsman/basesetup.py:266
 msgid ""
 "What is the %s's full name (type the entire full name, leave blank if "
 "none) : "
@@ -245,55 +249,55 @@ msgstr ""
 "Quel est le nom complet de %s (tapez le nom complet, laissez un blanc si "
 "vous n'en avez pas) : "
 
-#: archcraftsman/basesetup.py:253 archcraftsman/basesetup.py:258
+#: archcraftsman/basesetup.py:274 archcraftsman/basesetup.py:280
 msgid "%s password configuration : "
 msgstr "Configuration du mot de passe de %s : "
 
-#: archcraftsman/basesetup.py:255 archcraftsman/basesetup.py:260
+#: archcraftsman/basesetup.py:276 archcraftsman/basesetup.py:283
 msgid "Enter the %s password : "
 msgstr "Entrez le mot de passe de %s : "
 
-#: archcraftsman/basesetup.py:267
+#: archcraftsman/basesetup.py:290
 msgid "Your hostname : %s"
 msgstr "Votre nom d'hôte : %s"
 
-#: archcraftsman/basesetup.py:278
+#: archcraftsman/basesetup.py:294
 msgid "Your timezone : %s"
 msgstr "Votre fuseau horaire : %s"
 
-#: archcraftsman/basesetup.py:280
+#: archcraftsman/basesetup.py:297
 msgid "Additional user name : %s"
 msgstr "Nom d'utilisateur supplémentaire : %s"
 
-#: archcraftsman/basesetup.py:282
+#: archcraftsman/basesetup.py:301
 msgid "User's full name : %s"
 msgstr "Nom complet de l'utilisateur : %s"
 
-#: archcraftsman/basesetup.py:285
+#: archcraftsman/basesetup.py:305
 msgid "More packages to install : %s"
 msgstr "Plus de paquets à installer : %s"
 
 #: archcraftsman/bundles/budgie.py:62 archcraftsman/bundles/cinnamon.py:63
 #: archcraftsman/bundles/cutefish.py:53 archcraftsman/bundles/lxqt.py:63
-#: archcraftsman/bundles/mate.py:66 archcraftsman/bundles/xfce.py:67
+#: archcraftsman/bundles/mate.py:68 archcraftsman/bundles/xfce.py:67
 msgid "The display manager to install is '%s'. Do you want to install it ?"
 msgstr ""
 "Le gestionnaire d'affichage à installer est '%s'. Voulez-vous l'installer ?"
 
 #: archcraftsman/bundles/budgie.py:68 archcraftsman/bundles/cinnamon.py:69
-#: archcraftsman/bundles/cutefish.py:59 archcraftsman/bundles/deepin.py:51
-#: archcraftsman/bundles/enlightenment.py:52 archcraftsman/bundles/gnome.py:53
+#: archcraftsman/bundles/cutefish.py:59 archcraftsman/bundles/deepin.py:53
+#: archcraftsman/bundles/enlightenment.py:52 archcraftsman/bundles/gnome.py:54
 #: archcraftsman/bundles/i3.py:57 archcraftsman/bundles/lxqt.py:69
-#: archcraftsman/bundles/mate.py:56 archcraftsman/bundles/plasma.py:61
+#: archcraftsman/bundles/mate.py:58 archcraftsman/bundles/plasma.py:63
 #: archcraftsman/bundles/sway.py:73 archcraftsman/bundles/xfce.py:57
 msgid "Desktop environment : %s"
 msgstr "Environnement de bureau : %s"
 
 #: archcraftsman/bundles/budgie.py:70 archcraftsman/bundles/cinnamon.py:71
-#: archcraftsman/bundles/cutefish.py:61 archcraftsman/bundles/deepin.py:52
-#: archcraftsman/bundles/enlightenment.py:53 archcraftsman/bundles/gnome.py:54
+#: archcraftsman/bundles/cutefish.py:61 archcraftsman/bundles/deepin.py:54
+#: archcraftsman/bundles/enlightenment.py:53 archcraftsman/bundles/gnome.py:55
 #: archcraftsman/bundles/i3.py:58 archcraftsman/bundles/lxqt.py:71
-#: archcraftsman/bundles/mate.py:58 archcraftsman/bundles/plasma.py:62
+#: archcraftsman/bundles/mate.py:60 archcraftsman/bundles/plasma.py:64
 #: archcraftsman/bundles/sway.py:74 archcraftsman/bundles/xfce.py:59
 msgid "Display manager : %s"
 msgstr "Gestionnaire d'affichage : %s"
@@ -301,7 +305,7 @@ msgstr "Gestionnaire d'affichage : %s"
 #: archcraftsman/bundles/budgie.py:71 archcraftsman/bundles/cinnamon.py:72
 #: archcraftsman/bundles/cutefish.py:61
 #: archcraftsman/bundles/enlightenment.py:53 archcraftsman/bundles/i3.py:58
-#: archcraftsman/bundles/lxqt.py:71 archcraftsman/bundles/mate.py:59
+#: archcraftsman/bundles/lxqt.py:71 archcraftsman/bundles/mate.py:61
 #: archcraftsman/bundles/sway.py:74 archcraftsman/bundles/xfce.py:60
 msgid "none"
 msgstr "aucun"
@@ -310,23 +314,19 @@ msgstr "aucun"
 msgid "Copy ArchCraftsman to the new system."
 msgstr "Copier ArchCraftsman sur le nouveau système."
 
-#: archcraftsman/bundles/cups.py:52
-msgid "Install Cups."
-msgstr "Installer Cups."
-
-#: archcraftsman/bundles/deepin.py:54 archcraftsman/bundles/mate.py:62
-#: archcraftsman/bundles/plasma.py:64 archcraftsman/bundles/xfce.py:63
+#: archcraftsman/bundles/deepin.py:56 archcraftsman/bundles/mate.py:64
+#: archcraftsman/bundles/plasma.py:66 archcraftsman/bundles/xfce.py:63
 msgid "Install a minimal environment."
 msgstr "Installer un environnement minimal."
 
-#: archcraftsman/bundles/deepin.py:58 archcraftsman/bundles/gnome.py:58
-#: archcraftsman/bundles/mate.py:71 archcraftsman/bundles/plasma.py:70
+#: archcraftsman/bundles/deepin.py:60 archcraftsman/bundles/gnome.py:59
+#: archcraftsman/bundles/mate.py:73 archcraftsman/bundles/plasma.py:72
 #: archcraftsman/bundles/xfce.py:72
 msgid "Install a minimal environment ?"
 msgstr "Installer un environnement minimal ?"
 
-#: archcraftsman/bundles/deepin.py:60 archcraftsman/bundles/gnome.py:60
-#: archcraftsman/bundles/mate.py:73 archcraftsman/bundles/plasma.py:72
+#: archcraftsman/bundles/deepin.py:62 archcraftsman/bundles/gnome.py:61
+#: archcraftsman/bundles/mate.py:75 archcraftsman/bundles/plasma.py:74
 #: archcraftsman/bundles/xfce.py:74
 msgid ""
 "If yes, the script will not install any extra packages, only base packages."
@@ -334,63 +334,55 @@ msgstr ""
 "Si oui, le script n'installera pas de paquets supplémentaires, seulement les "
 "paquets de base."
 
+#: archcraftsman/bundles/generateconfig.py:36
+msgid "Generate configuration."
+msgstr "Générer la configuration."
+
 #: archcraftsman/bundles/grmlzsh.py:40
 msgid "Install ZSH with GRML configuration."
 msgstr "Installer ZSH avec la configuration GRML."
 
-#: archcraftsman/bundles/iwd.py:42
+#: archcraftsman/bundles/iwd.py:41
 msgid "Install Iwd."
 msgstr "Installer Iwd."
 
-#: archcraftsman/bundles/linux.py:38
+#: archcraftsman/bundles/linux.py:39
 msgid "Install Linux current kernel."
 msgstr "Installer le noyau Linux current."
 
-#: archcraftsman/bundles/linux.py:50
+#: archcraftsman/bundles/linux.py:54
 msgid "Install Linux hardened kernel."
 msgstr "Installer le noyau Linux hardened."
 
-#: archcraftsman/bundles/linux.py:62
+#: archcraftsman/bundles/linux.py:69
 msgid "Install Linux LTS kernel."
 msgstr "Installer le noyau Linux LTS."
 
-#: archcraftsman/bundles/linux.py:74
+#: archcraftsman/bundles/linux.py:84
 msgid "Install Linux zen kernel."
 msgstr "Installer le noyau Linux zen."
 
-#: archcraftsman/bundles/mainfilesystems.py:56
-msgid "Install main file systems support."
-msgstr "Installer le support des systèmes de fichiers principaux."
-
-#: archcraftsman/bundles/mainfonts.py:67
-msgid "Install a set of main fonts."
-msgstr "Installer un ensemble de polices principales."
-
-#: archcraftsman/bundles/microcodes.py:66
+#: archcraftsman/bundles/microcodes.py:64
 msgid "Microcodes to install : %s"
 msgstr "Microcodes à installer : %s"
 
-#: archcraftsman/bundles/networkmanager.py:52
+#: archcraftsman/bundles/networkmanager.py:51
 msgid "Install NetworkManager."
 msgstr "Installer NetworkManager."
 
-#: archcraftsman/bundles/nvidia.py:40
+#: archcraftsman/bundles/nvidia.py:44
 msgid "Install proprietary Nvidia driver."
 msgstr "Installer le pilote propriétaire Nvidia."
 
-#: archcraftsman/bundles/pipewire.py:47
-msgid "Install PipeWire."
-msgstr "Installer PipeWire."
-
-#: archcraftsman/bundles/plasma.py:66
+#: archcraftsman/bundles/plasma.py:68
 msgid "Install Wayland support for the plasma session."
 msgstr "Installer le support Wayland pour la session plasma."
 
-#: archcraftsman/bundles/plasma.py:77
+#: archcraftsman/bundles/plasma.py:79
 msgid "Install Wayland support for the plasma session ?"
 msgstr "Installer le support Wayland pour la session plasma ?"
 
-#: archcraftsman/bundles/systemdnet.py:40
+#: archcraftsman/bundles/systemdnet.py:39
 msgid "Enable systemd network stack."
 msgstr "Activer la pile réseau de systemd."
 
@@ -398,15 +390,15 @@ msgstr "Activer la pile réseau de systemd."
 msgid "Install terminus console font."
 msgstr "Installer la police de console Terminus."
 
-#: archcraftsman/bundles/yay.py:25
+#: archcraftsman/bundles/yay.py:42
 msgid "Install YAY."
 msgstr "Installer YAY."
 
-#: archcraftsman/bundles/yay.py:29
+#: archcraftsman/bundles/yay.py:46
 msgid "You must not be root to install yay."
 msgstr "Vous devez ne pas être root pour installer yay."
 
-#: archcraftsman/bundles/zram.py:39
+#: archcraftsman/bundles/zram.py:38
 msgid "Install and enable ZRAM."
 msgstr "Installer et activer ZRAM."
 
@@ -414,111 +406,135 @@ msgstr "Installer et activer ZRAM."
 msgid "Swapfile size ? (%s, type '0' for none) : "
 msgstr "Taille du fichier d'échange ? (%s, tapez '0' pour aucun) : "
 
-#: archcraftsman/installer.py:58
+#: archcraftsman/imessages.py:6
+msgid "Install Cups ?"
+msgstr "Installer Cups ?"
+
+#: archcraftsman/imessages.py:7
+msgid "Install Cups."
+msgstr "Installer Cups."
+
+#: archcraftsman/imessages.py:8
+msgid "Install main file systems support ?"
+msgstr "Installer le support des systèmes de fichiers principaux ?"
+
+#: archcraftsman/imessages.py:9
+msgid "Install main file systems support."
+msgstr "Installer le support des systèmes de fichiers principaux."
+
+#: archcraftsman/imessages.py:10
+msgid ""
+"If yes, the following packages will be installed :\n"
+"{packages}"
+msgstr ""
+"Si oui, les paquets suivants seront installés :\n"
+"{packages}"
+
+#: archcraftsman/imessages.py:11
+msgid "Install a set of main fonts ?"
+msgstr "Installer un ensemble de polices principales ?"
+
+#: archcraftsman/imessages.py:12
+msgid "Install a set of main fonts."
+msgstr "Installer un ensemble de polices principales."
+
+#: archcraftsman/imessages.py:13
+msgid "Install PipeWire ?"
+msgstr "Installer PipeWire ?"
+
+#: archcraftsman/imessages.py:14
+msgid "Install PipeWire."
+msgstr "Installer PipeWire."
+
+#: archcraftsman/imessages.py:15
+msgid ""
+"If yes, the PipeWire multimedia framework will be installed to manage audio "
+"and video capture."
+msgstr ""
+"Si oui, le framework multimédia PipeWire sera installé pour gérer l'audio et "
+"la capture vidéo."
+
+#: archcraftsman/installer.py:52
 msgid "Partitioning :"
 msgstr "Partitionnement :"
 
-#: archcraftsman/installer.py:60
+#: archcraftsman/installer.py:54
 msgid "Do you want an automatic partitioning ?"
 msgstr "Voulez-vous un partitionnement automatique ?"
 
-#: archcraftsman/installer.py:69
+#: archcraftsman/installer.py:63
 msgid "Updating mirrors..."
 msgstr "Mise à jour des miroirs..."
 
-#: archcraftsman/installer.py:127
+#: archcraftsman/installer.py:109
 msgid "Installation of the base..."
 msgstr "Installation de la base..."
 
-#: archcraftsman/installer.py:130
+#: archcraftsman/installer.py:112
 msgid "System configuration..."
 msgstr "Configuration du système..."
 
-#: archcraftsman/installer.py:156
+#: archcraftsman/installer.py:140
 msgid "Locales configuration..."
 msgstr "Configuration des locales..."
 
-#: archcraftsman/installer.py:162
+#: archcraftsman/installer.py:144
 msgid "Installation of the remaining packages..."
 msgstr "Installation des paquets restants..."
 
-#: archcraftsman/installer.py:176
+#: archcraftsman/installer.py:158
 msgid "Creation and activation of the swapfile..."
 msgstr "Création et activation du fichier d'échange..."
 
-#: archcraftsman/installer.py:195
+#: archcraftsman/installer.py:180
 msgid "Generating fstab..."
 msgstr "Génération du fstab..."
 
-#: archcraftsman/installer.py:199
+#: archcraftsman/installer.py:184
 msgid "Desktop configuration..."
 msgstr "Configuration du bureau..."
 
-#: archcraftsman/installer.py:205
+#: archcraftsman/installer.py:187
 msgid "Network configuration..."
 msgstr "Configuration du réseau..."
 
-#: archcraftsman/installer.py:213
+#: archcraftsman/installer.py:192
 msgid "Installation and configuration of the grub..."
 msgstr "Installation et configuration du grub..."
 
-#: archcraftsman/installer.py:218
+#: archcraftsman/installer.py:195
 msgid "Users configuration..."
 msgstr "Configuration des utilisateurs..."
 
-#: archcraftsman/installer.py:219
+#: archcraftsman/installer.py:196
 msgid "Root account configuration..."
 msgstr "Configuration du compte Root..."
 
-#: archcraftsman/installer.py:225
+#: archcraftsman/installer.py:204
 msgid "%s account configuration..."
 msgstr "Configuration du compte %s..."
 
-#: archcraftsman/installer.py:244
+#: archcraftsman/installer.py:225
 msgid "Extra packages configuration if needed..."
 msgstr "Configuration de paquets supplémentaires si nécessaire..."
 
-#: archcraftsman/installer.py:251
+#: archcraftsman/installer.py:233
 msgid "Installation complete ! You can reboot your system."
 msgstr "L'installation est terminée ! Vous pouvez redémarrer votre système."
 
-#: archcraftsman/installer.py:255 archcraftsman/installer.py:293
-#: archcraftsman/shell.py:189
-msgid "Script execution interrupted by the user !"
-msgstr "Exécution du script interrompue par l'utilisateur !"
-
-#: archcraftsman/installer.py:260 archcraftsman/installer.py:297
-#: archcraftsman/shell.py:193
-msgid "A subprocess execution failed ! See the following error: %s"
-msgstr ""
-"L'exécution d'un sous-processus a échoué ! L'erreur suivante s'est "
-"produite : %s"
-
-#: archcraftsman/installer.py:276
-msgid "This script must be run as root."
-msgstr "Ce script doit être exécuté en tant que root."
-
-#: archcraftsman/installer.py:279
-msgid "Running pre-launch steps : "
-msgstr "Exécution des étapes de pré-lancement : "
-
-#: archcraftsman/installer.py:287
-msgid "Synchronising repositories..."
-msgstr "Synchronisation des dépôts..."
-
-#: archcraftsman/manualpart.py:49 archcraftsman/manualpart.py:58
+#: archcraftsman/manualpart.py:44 archcraftsman/manualpart.py:54
 msgid "Manual partitioning :"
 msgstr "Partitionnement manuel :"
 
-#: archcraftsman/manualpart.py:51 archcraftsman/manualpart.py:60
+#: archcraftsman/manualpart.py:46 archcraftsman/manualpart.py:56
 msgid "Partitioned drives so far : %s"
 msgstr "Disques partitionnés jusqu'à présent : %s"
 
-#: archcraftsman/manualpart.py:64
+#: archcraftsman/manualpart.py:60
 msgid "Do you want to partition an other drive ?"
 msgstr "Voulez-vous partitionner un autre disque ?"
 
-#: archcraftsman/manualpart.py:77
+#: archcraftsman/manualpart.py:73
 msgid "Detected target drive partitions : %s"
 msgstr "Partitions du disque cible détectées : %s"
 
@@ -538,23 +554,23 @@ msgstr "Le type de partition '%s' n'est pas supporté."
 msgid "Supported partition types : "
 msgstr "Types de partition supportés : "
 
-#: archcraftsman/manualpart.py:123
+#: archcraftsman/manualpart.py:122
 msgid "What is the mounting point of this partition ? : "
 msgstr "Quel est le point de montage de cette partition ? : "
 
-#: archcraftsman/manualpart.py:131
+#: archcraftsman/manualpart.py:130
 msgid "The EFI partition is required for system installation."
 msgstr "La partition EFI est nécessaire pour l'installation du système."
 
-#: archcraftsman/manualpart.py:138
+#: archcraftsman/manualpart.py:137
 msgid "The Root partition is required for system installation."
 msgstr "La partition Root est nécessaire pour l'installation du système."
 
-#: archcraftsman/manualpart.py:148
+#: archcraftsman/manualpart.py:147
 msgid "The Boot partition is required for system installation."
 msgstr "La partition Boot est nécessaire pour l'installation du système."
 
-#: archcraftsman/packages.py:93
+#: archcraftsman/packages.py:91
 msgid ""
 "Install more packages ? (type extra packages full names, example : 'htop "
 "neofetch', leave blank if none) : "
@@ -563,164 +579,152 @@ msgstr ""
 "supplémentaires, exemple : 'htop neofetch', laissez vide si vous n'en avez "
 "pas) : "
 
-#: archcraftsman/packages.py:103
+#: archcraftsman/packages.py:101
 msgid "Package %s doesn't exist."
 msgstr "Le paquet %s n'existe pas."
 
-#: archcraftsman/partition.py:146
+#: archcraftsman/partition.py:141
 msgid "Format the partition ?"
 msgstr "Formater la partition ?"
 
-#: archcraftsman/partition.py:179
+#: archcraftsman/partition.py:174
 msgid "Do you want to encrypt this partition ?"
 msgstr "Voulez-vous chiffrer cette partition ?"
 
-#: archcraftsman/partition.py:194 archcraftsman/utils.py:373
-#: archcraftsman/utils.py:375 archcraftsman/utils.py:380
+#: archcraftsman/partition.py:189 archcraftsman/utils.py:284
+#: archcraftsman/utils.py:286 archcraftsman/utils.py:291
 msgid "yes"
 msgstr "oui"
 
-#: archcraftsman/partition.py:196 archcraftsman/utils.py:373
-#: archcraftsman/utils.py:375 archcraftsman/utils.py:381
+#: archcraftsman/partition.py:191 archcraftsman/utils.py:284
+#: archcraftsman/utils.py:286 archcraftsman/utils.py:292
 msgid "no"
 msgstr "non"
 
-#: archcraftsman/partition.py:203
+#: archcraftsman/partition.py:196
 msgid "%s : %s"
 msgstr "%s : %s"
 
-#: archcraftsman/partition.py:204
+#: archcraftsman/partition.py:197
 msgid "%s : %s (mounting point : %s, format %s, format type %s)"
 msgstr "%s : %s (point de montage : %s, formater %s, type de formatage %s)"
 
-#: archcraftsman/partition.py:212
+#: archcraftsman/partition.py:205
 msgid "encrypted"
 msgstr "chiffrée"
 
-#: archcraftsman/partition.py:226
+#: archcraftsman/partition.py:219
 msgid "Formatting %s..."
 msgstr "Formatage de %s..."
 
-#: archcraftsman/partition.py:234
+#: archcraftsman/partition.py:227
 msgid "Opening %s..."
 msgstr "Ouverture de %s..."
 
-#: archcraftsman/partition.py:251
+#: archcraftsman/partition.py:257
 msgid "Mounting %s..."
 msgstr "Montage de %s..."
 
-#: archcraftsman/partition.py:268
+#: archcraftsman/partition.py:273
 msgid "Unmounting %s..."
 msgstr "Démontage de %s..."
 
-#: archcraftsman/partition.py:271
+#: archcraftsman/partition.py:276
 msgid "Closing %s..."
 msgstr "Fermeture de %s..."
 
-#: archcraftsman/partitioninginfo.info.py:50
+#: archcraftsman/partitioninginfo.py:60
 msgid "Formatting and mounting partitions..."
 msgstr "Formatage et montage des partitions..."
 
-#: archcraftsman/partitioninginfo.info.py:81
+#: archcraftsman/partitioninginfo.py:100
 msgid "Unmounting partitions..."
 msgstr "Démontage des partitions..."
 
-#: archcraftsman/prelaunchinfo.info.py:54
+#: archcraftsman/prelaunchinfo.py:59
 msgid "Configuring live environment..."
 msgstr "Configuration de l'environnement live..."
 
-#: archcraftsman/shell.py:89
+#: archcraftsman/shell.py:82
 msgid "Bundle '%s' is not supported."
 msgstr "Le bundle '%s' n'est pas supporté."
 
-#: archcraftsman/shell.py:91
+#: archcraftsman/shell.py:84
 msgid "Available bundles : "
 msgstr "Bundles disponibles : "
 
-#: archcraftsman/shell.py:107
+#: archcraftsman/shell.py:100
 msgid "Shell bundle '%s' is not supported."
 msgstr "Le bundle shell '%s' n'est pas supporté."
 
-#: archcraftsman/shell.py:109
+#: archcraftsman/shell.py:102
 msgid "Available shell bundles : "
 msgstr "Bundles shell disponibles : "
 
-#: archcraftsman/shell.py:140
+#: archcraftsman/shell.py:139
 msgid "ArchCraftsman interactive shell mode."
 msgstr "Mode shell interactif d'ArchCraftsman."
 
-#: archcraftsman/shell.py:141 archcraftsman/shell.py:164
+#: archcraftsman/shell.py:140 archcraftsman/shell.py:163
 msgid "Available commands :"
 msgstr "Commandes disponibles :"
 
-#: archcraftsman/shell.py:147
+#: archcraftsman/shell.py:146
 msgid "Command '%s' is not supported."
 msgstr "La commande '%s' n'est pas supporté."
 
-#: archcraftsman/shell.py:172
+#: archcraftsman/shell.py:180
 msgid "Sub-command '%s' is not supported."
 msgstr "La sous-commande '%s' n'est pas supporté."
 
-#: archcraftsman/shell.py:174
+#: archcraftsman/shell.py:182
 msgid "Available sub-commands : "
 msgstr "Sous-commandes disponibles : "
 
-#: archcraftsman/utils.py:206
-msgid "Press any key to continue..."
-msgstr "Appuyez sur n'importe quelle touche pour continuer..."
-
-#: archcraftsman/utils.py:252
-msgid "Help :"
-msgstr "Aide :"
-
-#: archcraftsman/utils.py:287
-msgid "The input must not be empty."
-msgstr "La saisie ne doit pas être vide."
-
-#: archcraftsman/utils.py:418
+#: archcraftsman/utils.py:171
 msgid ""
 "Type your installation's keymap, or 'help' to get the list of keymaps (%s) : "
 msgstr ""
 "Entrez la keymap de votre installation, ou 'help' pour obtenir la liste des "
 "keymaps (%s) : "
 
-#: archcraftsman/utils.py:430
+#: archcraftsman/utils.py:183
 msgid "Keymap '%s' doesn't exist."
 msgstr "La keymap '%s' n'existe pas."
 
-#: archcraftsman/utils.py:441
+#: archcraftsman/utils.py:194
 msgid "Which format type do you want ? (%s) : "
 msgstr "Quel type de formatage voulez-vous ? (%s) : "
 
-#: archcraftsman/utils.py:442
+#: archcraftsman/utils.py:195
 msgid "Format type '%s' is not supported."
 msgstr "Le type de formatage '%s' n'est pas supporté."
 
-#: archcraftsman/utils.py:444
+#: archcraftsman/utils.py:197
 msgid "Supported format types : "
 msgstr "Types de formatage supportés : "
 
-#: archcraftsman/utils.py:459
+#: archcraftsman/utils.py:213
 msgid "What will be the encrypted block name ? : "
 msgstr "Quel sera le nom de bloc chiffré ? : "
 
-#: archcraftsman/utils.py:462
+#: archcraftsman/utils.py:216
 msgid "Invalid encrypted block name."
 msgstr "Nom de bloc chiffré invalide."
 
-#: archcraftsman/utils.py:477
+#: archcraftsman/utils.py:231
 msgid "Enter it again to confirm : "
 msgstr "Saisissez le à nouveau pour confirmer : "
 
-#: archcraftsman/utils.py:480
+#: archcraftsman/utils.py:234
 msgid "Passwords entered don't match."
 msgstr "Les mots de passe saisis ne correspondent pas."
 
-#: archcraftsman/utils.py:503
+#: archcraftsman/utils.py:257
 msgid "Detected drives :"
 msgstr "Disques détectés :"
 
-#: archcraftsman/utils.py:507
+#: archcraftsman/utils.py:261
 msgid ""
 "On which drive should Archlinux be installed ? (type the entire name, for "
 "example '/dev/sda') : "
@@ -728,151 +732,6 @@ msgstr ""
 "Sur quel disque Archlinux doit-il être installé ? (tapez le nom complet, par "
 "exemple '/dev/sda') : "
 
-#: archcraftsman/utils.py:515
+#: archcraftsman/utils.py:269
 msgid "The target drive '%s' doesn't exist."
 msgstr "Le disque cible '%s' n'existe pas."
-
-#~ msgid "You need to choose a target drive."
-#~ msgstr "Vous devez choisir un disque cible."
-
-#~ msgid ""
-#~ "Which drive do you want to partition ? (type the entire name, for example "
-#~ "'/dev/sda') : "
-#~ msgstr ""
-#~ "Quel disque souhaitez-vous partitionner ? (tapez le nom complet, par "
-#~ "exemple '/dev/sda') : "
-
-#~ msgid "Install a minimal environment ? (y/N/?) : "
-#~ msgstr "Installer un environnement minimal ? (o/N/?) : "
-
-#~ msgid "Install Wayland support for the plasma session ? (y/N) : "
-#~ msgstr "Installer le support Wayland pour la session plasma ? (o/N) : "
-
-#~ msgid "Install proprietary Nvidia driver ? (y/N) : "
-#~ msgstr "Installer le pilote propriétaire Nvidia ? (o/N) : "
-
-#~ msgid "Install terminus console font ? (y/N) : "
-#~ msgstr "Installer la police de console terminus ? (o/N) : "
-
-#~ msgid "Install Cups ? (y/N) : "
-#~ msgstr "Installer Cups ? (o/N) : "
-
-#~ msgid "Install ZSH with GRML configuration ? (y/N/?) : "
-#~ msgstr "Installer ZSH avec la configuration GRML ? (o/N/?) : "
-
-#~ msgid "Install a set of main fonts ? (y/N/?) : "
-#~ msgstr "Installer un jeu de polices principales ? (o/N/?) : "
-
-#~ msgid "Install main file systems support ? (y/N/?) : "
-#~ msgstr ""
-#~ "Installer le support des systèmes de fichiers principaux ? (o/N/?) : "
-
-#~ msgid "Install and enable ZRAM ? (y/N/?) : "
-#~ msgstr "Installer et activer ZRAM ? (o/N/?) : "
-
-#~ msgid "Install PipeWire ? (y/N/?) : "
-#~ msgstr "Installer PipeWire ? (o/N/?) : "
-
-#~ msgid "Copy ArchCraftsman to the new system ? (y/N) : "
-#~ msgstr "Copier ArchCraftsman sur le nouveau système ? (o/N) : "
-
-#~ msgid "Install Iwd with systemd network stack."
-#~ msgstr "Installer Iwd avec la pile réseau de systemd."
-
-#~ msgid "Format the %s partition ? (Y/n) : "
-#~ msgstr "Formater la partition %s ? (O/n) : "
-
-#~ msgid ""
-#~ "Enter the encrypted block password (it will be asked at boot to decrypt "
-#~ "the partition) : "
-#~ msgstr ""
-#~ "Entrez le mot de passe du bloc chiffré (il sera demandé au démarrage pour "
-#~ "déchiffrer la partition) : "
-
-#~ msgid "ROOT partition : %s (mounting point : %s, format type %s)"
-#~ msgstr "Partition ROOT : %s (point de montage : %s, type de formatage %s)"
-
-#~ msgid "Home partition : %s (mounting point : %s, format %s, format type %s)"
-#~ msgstr ""
-#~ "Partition Home : %s (point de montage : %s, formater %s, type de "
-#~ "formatage %s)"
-
-#~ msgid "Swap partition : %s"
-#~ msgstr "Partition Swap : %s"
-
-#~ msgid ""
-#~ "Other partition : %s (mounting point : %s, format %s, format type %s)"
-#~ msgstr ""
-#~ "Autre partition : %s (point de montage : %s, formater %s, type de "
-#~ "formatage %s)"
-
-#~ msgid "Format the EFI partition ? (Y/n) : "
-#~ msgstr "Formater la partition EFI ? (O/n) : "
-
-#~ msgid "Format the Home partition ? (Y/n) : "
-#~ msgstr "Formater la partition Home ? (O/n) : "
-
-#~ msgid "%s"
-#~ msgstr "%s"
-
-#~ msgid ""
-#~ "What type of Swap do you want ? (1: Partition, 2: None, other: File) : "
-#~ msgstr ""
-#~ "Quel type de Swap voulez-vous ? (1: Partition, 2: Aucun, autre: "
-#~ "Fichier) : "
-
-#~ msgid ""
-#~ "What is the role of this partition ? (1: Root, 2: Home, 3: Swap, 4: Not "
-#~ "used, other: Other) : "
-#~ msgstr ""
-#~ "Quel est le rôle de cette partition ? (1: Root, 2: Home, 3: Swap, 4: Non "
-#~ "utilisé, autre: Autre) : "
-
-#~ msgid ""
-#~ "What is the role of this partition ? (0: EFI, 1: Root, 2: Home, 3: Swap, "
-#~ "4: Not used, other: Other) : "
-#~ msgstr ""
-#~ "Quel est le rôle de cette partition ? (0: EFI, 1: Root, 2: Home, 3: Swap, "
-#~ "4: Non utilisé, autre: Autre) : "
-
-#~ msgid "Downloading and formatting translations..."
-#~ msgstr "Téléchargement et formatage des traductions..."
-
-#~ msgid "Updating archlinux-keyring and system..."
-#~ msgstr "Mise à jour de archlinux-keyring et du système…"
-
-#~ msgid "Install LTS Linux kernel ? (y/N) : "
-#~ msgstr "Installer le noyau Linux LTS ? (o/N) : "
-
-#~ msgid ""
-#~ "Install a minimal environment (no extra packages, only base) ? (y/N) : "
-#~ msgstr ""
-#~ "Installer un environnement minimal (pas de paquets supplémentaires, "
-#~ "seulement la base) ? (o/N) : "
-
-#~ msgid "ROOT partition : %s (mounting point : %s)"
-#~ msgstr "Partition ROOT : %s (point de montage : %s)"
-
-#~ msgid "Install LightDM ? (y/N) : "
-#~ msgstr "Installer LightDM ? (o/N) : "
-
-#~ msgid "Install LightDM."
-#~ msgstr "Installer LightDM."
-
-#~ msgid ""
-#~ "Choose your installation's language (%s, type 'h' or 'help' to list "
-#~ "supported languages) : "
-#~ msgstr ""
-#~ "Choisissez la langue de votre installation (%s, tapez 'h' ou 'help' pour "
-#~ "obtenir la liste des langues prises en charge) : "
-
-#~ msgid ""
-#~ "Install a desktop environment ? (1: Gnome, 2: KDE Plasma, 3: XFCE, other: "
-#~ "None) : "
-#~ msgstr ""
-#~ "Installer un environnement de bureau ? (1 : Gnome, 2 : KDE Plasma, 3 : "
-#~ "XFCE, autre : Aucun) : "
-
-#~ msgid "Swapfile size ? (Example: 8G, leave empty if none) : "
-#~ msgstr ""
-#~ "Taille du fichier d'échange ? (Exemple : 8G, laissez vide si aucun) : "

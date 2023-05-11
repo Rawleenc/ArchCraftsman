@@ -40,8 +40,11 @@ def update_method(global_language: str):
         _I18N_METHOD = translation.gettext
 
 
-def _(message) -> str:
+def _t(message) -> str:
     """
     Translate the given text with the translation method.
     """
     return _I18N_METHOD(message)
+
+
+_ = _t

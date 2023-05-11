@@ -1,0 +1,14 @@
+prompt = "Install PipeWire ?"
+resume = "Install PipeWire."
+help = "If yes, the PipeWire multimedia framework will be installed to manage audio and video capture."
+packages = [
+    "pipewire",
+    "pipewire-alsa",
+    "pipewire-audio",
+    "pipewire-jack",
+    "pipewire-media-session",
+    "pipewire-pulse",
+    "pipewire-v4l2",
+    "pipewire-x11-bell",
+    "pipewire-zeroconf",
+]

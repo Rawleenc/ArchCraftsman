@@ -1,0 +1,27 @@
+prompt = "Install a set of main fonts ?"
+resume = "Install a set of main fonts."
+help = "If yes, the following packages will be installed :\n{packages}"
+packages = [
+    "gnu-free-fonts",
+    "noto-fonts",
+    "ttf-bitstream-vera",
+    "ttf-dejavu",
+    "ttf-hack",
+    "ttf-droid",
+    "ttf-fira-code",
+    "ttf-fira-mono",
+    "ttf-fira-sans",
+    "ttf-font-awesome",
+    "ttf-inconsolata",
+    "ttf-input",
+    "ttf-liberation",
+    "ttf-nerd-fonts-symbols",
+    "ttf-opensans",
+    "ttf-roboto",
+    "ttf-roboto-mono",
+    "ttf-ubuntu-font-family",
+    "ttf-jetbrains-mono",
+    "otf-font-awesome",
+    "noto-fonts-emoji",
+    "inter-font",
+]

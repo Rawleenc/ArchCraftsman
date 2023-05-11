@@ -1,0 +1,16 @@
+prompt = "Install main file systems support ?"
+resume = "Install main file systems support."
+help = "If yes, the following packages will be installed :\n{packages}"
+packages = [
+    "btrfs-progs",
+    "dosfstools",
+    "exfatprogs",
+    "f2fs-tools",
+    "e2fsprogs",
+    "jfsutils",
+    "nilfs-utils",
+    "ntfs-3g",
+    "reiserfsprogs",
+    "udftools",
+    "xfsprogs",
+]

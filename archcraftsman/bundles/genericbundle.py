@@ -24,7 +24,7 @@ from typing import Optional
 
 from archcraftsman.base import execute, print_sub_step
 from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import _
+from archcraftsman.i18n import _t
 
 
 class GenericBundle(Bundle):
@@ -55,17 +55,24 @@ class GenericBundle(Bundle):
             self._packages = data.get("packages", [])
             self._commands = data.get("commands", [])
 
+    def format_str(self, string: str) -> str:
+        """
+        Format a string with the bundle's data.
+        """
+        string = string.format(packages=",".join(self.packages()))
+        return string
+
     def prompt(self) -> str:
-        return _(self._prompt)
+        return self.format_str(_t(self._prompt))
 
     def help(self) -> str:
-        return _(self._help) if self._help else ""
+        return self.format_str(_t(self._help)) if self._help else ""
 
     def packages(self) -> list[str]:
         return [] if self._packages is None else self._packages
 
     def print_resume(self):
-        print_sub_step(_(self._resume))
+        print_sub_step(self.format_str(_t(self._resume)))
 
     def configure(self):
         if self._commands is None:

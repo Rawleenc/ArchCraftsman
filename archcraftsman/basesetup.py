@@ -38,11 +38,8 @@ from archcraftsman.bundles.copyacm import CopyACM
 from archcraftsman.bundles.genericbundle import GenericBundle
 from archcraftsman.bundles.grmlzsh import GrmlZsh
 from archcraftsman.bundles.grub import Grub
-from archcraftsman.bundles.mainfilesystems import MainFileSystems, get_main_file_systems
-from archcraftsman.bundles.mainfonts import MainFonts, get_main_fonts
 from archcraftsman.bundles.microcodes import Microcodes
 from archcraftsman.bundles.nvidia import NvidiaDriver
-from archcraftsman.bundles.pipewire import PipeWire
 from archcraftsman.bundles.terminus import TerminusFont
 from archcraftsman.bundles.utils import list_generic_bundles, prompt_bundle
 from archcraftsman.bundles.zram import Zram
@@ -220,22 +217,6 @@ def setup_system():
             info.ai.system_info.bundles.append(GrmlZsh())
 
         if prompt_bool(
-            _("Install a set of main fonts ?"),
-            default=False,
-            help_msg=_("If yes, the following packages will be installed :\n%s")
-            % " ".join(get_main_fonts()),
-        ):
-            info.ai.system_info.bundles.append(MainFonts())
-
-        if prompt_bool(
-            _("Install main file systems support ?"),
-            default=False,
-            help_msg=_("If yes, the following packages will be installed :\n%s")
-            % " ".join(get_main_file_systems()),
-        ):
-            info.ai.system_info.bundles.append(MainFileSystems())
-
-        if prompt_bool(
             _("Install and enable ZRAM ?"),
             default=False,
             help_msg=_(
@@ -246,16 +227,6 @@ def setup_system():
             ),
         ):
             info.ai.system_info.bundles.append(Zram())
-
-        if prompt_bool(
-            _("Install PipeWire ?"),
-            default=False,
-            help_msg=_(
-                "If yes, the PipeWire multimedia framework will be installed "
-                "to manage audio and video capture."
-            ),
-        ):
-            info.ai.system_info.bundles.append(PipeWire())
 
         if prompt_bool(_("Copy ArchCraftsman to the new system ?"), default=False):
             info.ai.system_info.bundles.append(CopyACM())
