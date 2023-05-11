@@ -64,5 +64,5 @@ class Gnome(Bundle):
         )
 
     def configure(self):
-        execute('arch-chroot /mnt bash -c "systemctl enable gdm"')
+        execute("systemctl enable gdm", chroot=True)
         info.ai.pre_launch_info.setup_chroot_keyboard()

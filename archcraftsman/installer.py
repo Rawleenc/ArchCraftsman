@@ -138,19 +138,17 @@ def install():
         execute("cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist")
 
         print_step(_("Locales configuration..."), clear=False)
-        execute(
-            f'arch-chroot /mnt bash -c "ln -sf {info.ai.system_info.timezone} /etc/localtime"'
-        )
-        execute('arch-chroot /mnt bash -c "locale-gen"')
+        execute(f"ln -sf {info.ai.system_info.timezone} /etc/localtime", chroot=True)
+        execute("locale-gen", chroot=True)
 
         print_step(_("Installation of the remaining packages..."), clear=False)
         execute('sed -i "s|#Color|Color|g" /mnt/etc/pacman.conf')
         execute(
             'sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /mnt/etc/pacman.conf'
         )
-        execute('arch-chroot /mnt bash -c "pacman --noconfirm -Sy archlinux-keyring"')
-        execute('arch-chroot /mnt bash -c "pacman --noconfirm -Su"')
-        execute(f'arch-chroot /mnt bash -c "pacman --noconfirm -S {" ".join(pkgs)}"')
+        execute("pacman --noconfirm -Sy archlinux-keyring", chroot=True)
+        execute("pacman --noconfirm -Su", chroot=True)
+        execute(f'pacman --noconfirm -S {" ".join(pkgs)}', chroot=True)
 
         if (
             PartTypes.SWAP
@@ -189,7 +187,7 @@ def install():
         print_step(_("Network configuration..."), clear=False)
         info.ai.system_info.network().configure()
 
-        execute('arch-chroot /mnt bash -c "systemctl enable systemd-timesyncd"')
+        execute("systemctl enable systemd-timesyncd", chroot=True)
 
         print_step(_("Installation and configuration of the grub..."), clear=False)
         info.ai.system_info.bootloader().configure()
@@ -198,7 +196,8 @@ def install():
         print_sub_step(_("Root account configuration..."))
         if info.ai.system_info.root_password:
             execute(
-                f"arch-chroot /mnt bash -c \"echo 'root:{info.ai.system_info.root_password}' | chpasswd\""
+                f"echo 'root:{info.ai.system_info.root_password}' | chpasswd",
+                chroot=True,
             )
         if info.ai.system_info.user_name:
             print_sub_step(
@@ -208,18 +207,19 @@ def install():
                 'sed -i "s|# %wheel ALL=(ALL:ALL) ALL|%wheel ALL=(ALL:ALL) ALL|g" /mnt/etc/sudoers'
             )
             execute(
-                f'arch-chroot /mnt bash -c "useradd --shell=/bin/bash --groups=wheel '
-                f'--create-home {info.ai.system_info.user_name}"'
+                f"useradd --shell=/bin/bash --groups=wheel "
+                f"--create-home {info.ai.system_info.user_name}",
+                chroot=True,
             )
             if info.ai.system_info.user_full_name:
                 execute(
-                    f"arch-chroot /mnt bash -c "
-                    f"\"chfn -f '{info.ai.system_info.user_full_name}' {info.ai.system_info.user_name}\""
+                    f"chfn -f '{info.ai.system_info.user_full_name}' {info.ai.system_info.user_name}",
+                    chroot=True,
                 )
             if info.ai.system_info.user_password:
                 execute(
-                    f"arch-chroot /mnt bash -c \"echo '{info.ai.system_info.user_name}:"
-                    f"{info.ai.system_info.user_password}' | chpasswd\""
+                    f"echo '{info.ai.system_info.user_name}:{info.ai.system_info.user_password}' | chpasswd",
+                    chroot=True,
                 )
 
         print_step(_("Extra packages configuration if needed..."), clear=False)

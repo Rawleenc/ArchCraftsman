@@ -58,5 +58,5 @@ class I3(Bundle):
         print_sub_step(_("Display manager : %s") % _("none"))
 
     def configure(self):
-        execute('arch-chroot /mnt bash -c "systemctl enable acpid"')
+        execute("systemctl enable acpid", chroot=True)
         info.ai.pre_launch_info.setup_chroot_keyboard()

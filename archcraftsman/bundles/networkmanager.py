@@ -51,4 +51,4 @@ class NetworkManager(Bundle):
         print_sub_step(_("Install NetworkManager."))
 
     def configure(self):
-        execute('arch-chroot /mnt bash -c "systemctl enable NetworkManager"')
+        execute("systemctl enable NetworkManager", chroot=True)

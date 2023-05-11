@@ -41,10 +41,8 @@ class CopyACM(Bundle):
             execute(f"mkdir -p /mnt{path}")
             execute(f"cp -r ~/archcraftsman /mnt{path}")
             execute(
-                (
-                    f'arch-chroot /mnt bash -c "chown -R {info.ai.system_info.user_name}:'
-                    f'{info.ai.system_info.user_name} {path}"'
-                )
+                f"chown -R {info.ai.system_info.user_name}:{info.ai.system_info.user_name} {path}",
+                chroot=True,
             )
         else:
             path = "/root"

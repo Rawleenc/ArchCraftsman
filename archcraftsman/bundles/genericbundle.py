@@ -71,4 +71,4 @@ class GenericBundle(Bundle):
         if self._commands is None:
             return
         for command in self._commands:
-            execute(f'arch-chroot /mnt bash -c "{command}"')
+            execute(command, chroot=True)

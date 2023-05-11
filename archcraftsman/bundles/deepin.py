@@ -65,7 +65,7 @@ class Deepin(Bundle):
         )
 
     def configure(self):
-        execute('arch-chroot /mnt bash -c "systemctl enable lightdm"')
+        execute("systemctl enable lightdm", chroot=True)
         execute(
             'sed -i "s|#logind-check-graphical=false|logind-check-graphical=true|g" /mnt/etc/lightdm/lightdm.conf'
         )

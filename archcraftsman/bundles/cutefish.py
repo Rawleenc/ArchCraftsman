@@ -63,5 +63,5 @@ class Cutefish(Bundle):
 
     def configure(self):
         if self.display_manager:
-            execute('arch-chroot /mnt bash -c "systemctl enable sddm"')
+            execute("systemctl enable sddm", chroot=True)
         info.ai.pre_launch_info.setup_chroot_keyboard()

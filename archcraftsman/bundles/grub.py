@@ -39,12 +39,13 @@ class Grub(Bundle):
     def configure(self):
         if is_bios():
             execute(
-                f'arch-chroot /mnt bash -c "grub-install --target=i386-pc {info.ai.partitioning_info.main_disk}"'
+                f"grub-install --target=i386-pc {info.ai.partitioning_info.main_disk}",
+                chroot=True,
             )
         else:
             execute(
-                'arch-chroot /mnt bash -c "grub-install --target=x86_64-efi --efi-directory=/boot/efi '
-                "--bootloader-id='Arch Linux'\""
+                "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id='Arch Linux'",
+                chroot=True,
             )
         execute(
             'sed -i "/^GRUB_CMDLINE_LINUX=.*/a GRUB_DISABLE_OS_PROBER=false" /mnt/etc/default/grub'
@@ -65,7 +66,7 @@ class Grub(Bundle):
                 extracted_hooks = ["encrypt"]
             processed_hooks = f"HOOKS=({' '.join(extracted_hooks)})"
             execute(f"sed -i 's|{hooks}|{processed_hooks}|g' /mnt/etc/mkinitcpio.conf")
-            execute('arch-chroot /mnt bash -c "mkinitcpio -P"')
+            execute("mkinitcpio -P", chroot=True)
 
             grub_cmdline = execute(
                 "grep -e '^GRUB_CMDLINE_LINUX_DEFAULT' /mnt/etc/default/grub",
@@ -107,4 +108,4 @@ class Grub(Bundle):
             execute(
                 'sed -i "/^GRUB_DEFAULT=.*/a GRUB_SAVEDEFAULT=true" /mnt/etc/default/grub'
             )
-        execute('arch-chroot /mnt bash -c "grub-mkconfig -o /boot/grub/grub.cfg"')
+        execute("grub-mkconfig -o /boot/grub/grub.cfg", chroot=True)

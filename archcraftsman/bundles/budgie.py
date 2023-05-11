@@ -73,5 +73,5 @@ class Budgie(Bundle):
 
     def configure(self):
         if self.display_manager:
-            execute('arch-chroot /mnt bash -c "systemctl enable lightdm"')
+            execute("systemctl enable lightdm", chroot=True)
         info.ai.pre_launch_info.setup_chroot_keyboard()

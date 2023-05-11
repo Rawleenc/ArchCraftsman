@@ -80,5 +80,5 @@ class Plasma(Bundle):
         )
 
     def configure(self):
-        execute('arch-chroot /mnt bash -c "systemctl enable sddm"')
+        execute("systemctl enable sddm", chroot=True)
         info.ai.pre_launch_info.setup_chroot_keyboard()

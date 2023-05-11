@@ -42,5 +42,5 @@ class Iwd(Bundle):
         SystemdNet().print_resume()
 
     def configure(self):
-        execute('arch-chroot /mnt bash -c "systemctl enable iwd.service"')
+        execute("systemctl enable iwd.service", chroot=True)
         SystemdNet().configure()

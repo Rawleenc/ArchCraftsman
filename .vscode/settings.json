@@ -3,6 +3,7 @@
     "python.formatting.provider": "black",
     "conventionalCommits.scopes": [
         "bundles",
-        "scripts"
+        "scripts",
+        "core"
     ]
 }

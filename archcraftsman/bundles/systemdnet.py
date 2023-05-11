@@ -41,5 +41,5 @@ class SystemdNet(Bundle):
     def configure(self):
         execute("ln -sf /run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf")
         execute("cp -r /etc/systemd/network /mnt/etc/systemd/")
-        execute('arch-chroot /mnt bash -c "systemctl enable systemd-networkd"')
-        execute('arch-chroot /mnt bash -c "systemctl enable systemd-resolved"')
+        execute("systemctl enable systemd-networkd", chroot=True)
+        execute("systemctl enable systemd-resolved", chroot=True)

@@ -124,24 +124,32 @@ def execute(
     check: bool = True,
     capture_output: bool = False,
     force: bool = False,
+    chroot: bool = False,
     sudo: bool = False,
 ) -> ExecutionResult:
     """
     A method to exec a command.
     """
     if force or not arguments.test():
-        log(f"Real execution of: {command}")
         if sudo and not sudo_exist() and not is_root():
             raise PermissionError("This script must be run as root.")
         if sudo and sudo_exist() and not is_root():
             command = f"sudo {command}"
+
+        if chroot:
+            command = f"arch-chroot /mnt /bin/bash <<END\n{command.strip()}\nEND"
+
         return ExecutionResult(
             command,
             subprocess.run(
                 command, shell=True, check=check, capture_output=capture_output
             ),
         )
-    log(f"Fake execution of: {command}")
+    log(
+        f"{'(chroot) ' if chroot else ''}"
+        f"{'(sudo) ' if sudo else ''}"
+        f"Fake execution of: {command}"
+    )
     return ExecutionResult(
         command, subprocess.CompletedProcess(args=command, returncode=0, stdout=b"")
     )

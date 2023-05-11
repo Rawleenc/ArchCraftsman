@@ -40,7 +40,8 @@ class GrmlZsh(Bundle):
         print_sub_step(_("Install ZSH with GRML configuration."))
 
     def configure(self):
-        execute('arch-chroot /mnt bash -c "chsh --shell /bin/zsh"')
-        execute(
-            f'arch-chroot /mnt bash -c "chsh --shell /bin/zsh {info.ai.system_info.user_name}"'
-        )
+        execute("chsh --shell /bin/zsh", chroot=True)
+        if info.ai.system_info.user_name:
+            execute(
+                f"chsh --shell /bin/zsh {info.ai.system_info.user_name}", chroot=True
+            )

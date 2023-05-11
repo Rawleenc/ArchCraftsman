@@ -74,7 +74,7 @@ class Sway(Bundle):
         print_sub_step(_("Display manager : %s") % _("none"))
 
     def configure(self):
-        execute('arch-chroot /mnt bash -c "systemctl enable acpid"')
+        execute("systemctl enable acpid", chroot=True)
         info.ai.pre_launch_info.setup_chroot_keyboard()
         if "fr" in info.ai.pre_launch_info.keymap:
             execute("echo 'XKB_DEFAULT_LAYOUT=fr' >> /mnt/etc/environment")
