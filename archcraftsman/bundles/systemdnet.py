@@ -18,28 +18,32 @@
 The systemd network bundle module
 """
 
-from archcraftsman.base import execute, print_sub_step
-from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import _
-from archcraftsman.options import Network
+import archcraftsman.base
+import archcraftsman.bundles.bundle
+import archcraftsman.i18n
+import archcraftsman.options
+
+_ = archcraftsman.i18n.translate
 
 
-class SystemdNet(Bundle):
+class SystemdNet(archcraftsman.bundles.bundle.Bundle):
     """
     Grml ZSH config class.
     """
 
     def __init__(self):
-        super().__init__(Network.SYSTEMD)
+        super().__init__(archcraftsman.options.Network.SYSTEMD)
 
     def packages(self) -> list[str]:
         return ["systemd-resolvconf"]
 
     def print_resume(self):
-        print_sub_step(_("Enable systemd network stack."))
+        archcraftsman.base.print_sub_step(_("Enable systemd network stack."))
 
     def configure(self):
-        execute("ln -sf /run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf")
-        execute("cp -r /etc/systemd/network /mnt/etc/systemd/")
-        execute("systemctl enable systemd-networkd", chroot=True)
-        execute("systemctl enable systemd-resolved", chroot=True)
+        archcraftsman.base.execute(
+            "ln -sf /run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf"
+        )
+        archcraftsman.base.execute("cp -r /etc/systemd/network /mnt/etc/systemd/")
+        archcraftsman.base.execute("systemctl enable systemd-networkd", chroot=True)
+        archcraftsman.base.execute("systemctl enable systemd-resolved", chroot=True)

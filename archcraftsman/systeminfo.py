@@ -18,8 +18,8 @@
 The module of SystemInfo class.
 """
 
-from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.options import BundleTypes, get_btype_by_name
+import archcraftsman.bundles.bundle
+import archcraftsman.options
 
 
 class SystemInfo:
@@ -37,7 +37,7 @@ class SystemInfo:
         user_password: str = "",
     ) -> None:
         self.hostname = hostname
-        self.bundles: list[Bundle] = []
+        self.bundles: list[archcraftsman.bundles.bundle.Bundle] = []
         self.timezone = timezone
         self.user_name = user_name
         self.user_full_name = user_full_name
@@ -45,62 +45,68 @@ class SystemInfo:
         self.root_password = root_password
         self.user_password = user_password
 
-    def kernel(self) -> Bundle:
+    def kernel(self) -> archcraftsman.bundles.bundle.Bundle:
         """
         The kernel bundle retrieving method.
         """
         return next(
             bundle
             for bundle in self.bundles
-            if get_btype_by_name(bundle.name) == BundleTypes.KERNEL
+            if archcraftsman.options.get_btype_by_name(bundle.name)
+            == archcraftsman.options.BundleTypes.KERNEL
         )
 
-    def microcode(self) -> Bundle:
+    def microcode(self) -> archcraftsman.bundles.bundle.Bundle:
         """
         The microcode bundle retrieving method.
         """
         return next(
             bundle
             for bundle in self.bundles
-            if get_btype_by_name(bundle.name) == BundleTypes.MICRO_CODES
+            if archcraftsman.options.get_btype_by_name(bundle.name)
+            == archcraftsman.options.BundleTypes.MICRO_CODES
         )
 
-    def bootloader(self) -> Bundle:
+    def bootloader(self) -> archcraftsman.bundles.bundle.Bundle:
         """
         The bootloader bundle retrieving method.
         """
         return next(
             bundle
             for bundle in self.bundles
-            if get_btype_by_name(bundle.name) == BundleTypes.BOOTLOADER
+            if archcraftsman.options.get_btype_by_name(bundle.name)
+            == archcraftsman.options.BundleTypes.BOOTLOADER
         )
 
-    def desktop(self) -> Bundle:
+    def desktop(self) -> archcraftsman.bundles.bundle.Bundle:
         """
         The desktop bundle retrieving method.
         """
         return next(
             bundle
             for bundle in self.bundles
-            if get_btype_by_name(bundle.name) == BundleTypes.DESKTOP
+            if archcraftsman.options.get_btype_by_name(bundle.name)
+            == archcraftsman.options.BundleTypes.DESKTOP
         )
 
-    def network(self) -> Bundle:
+    def network(self) -> archcraftsman.bundles.bundle.Bundle:
         """
         The network bundle retrieving method.
         """
         return next(
             bundle
             for bundle in self.bundles
-            if get_btype_by_name(bundle.name) == BundleTypes.NETWORK
+            if archcraftsman.options.get_btype_by_name(bundle.name)
+            == archcraftsman.options.BundleTypes.NETWORK
         )
 
-    def others(self) -> list[Bundle]:
+    def others(self) -> list[archcraftsman.bundles.bundle.Bundle]:
         """
         The other bundles retrieving method.
         """
         return [
             bundle
             for bundle in self.bundles
-            if get_btype_by_name(bundle.name) == BundleTypes.OTHER
+            if archcraftsman.options.get_btype_by_name(bundle.name)
+            == archcraftsman.options.BundleTypes.OTHER
         ]

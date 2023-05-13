@@ -18,29 +18,31 @@
 The network manager bundle module
 """
 
-from archcraftsman.base import execute, print_sub_step
-from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.bundles.systemdnet import SystemdNet
-from archcraftsman.i18n import _
-from archcraftsman.options import Network
+import archcraftsman.base
+import archcraftsman.bundles.bundle
+import archcraftsman.bundles.systemdnet
+import archcraftsman.i18n
+import archcraftsman.options
+
+_ = archcraftsman.i18n.translate
 
 
-class Iwd(Bundle):
+class Iwd(archcraftsman.bundles.bundle.Bundle):
     """
     Iwd config class.
     """
 
     def __init__(self):
-        super().__init__(Network.IWD)
+        super().__init__(archcraftsman.options.Network.IWD)
 
     def packages(self) -> list[str]:
         packages = ["iwd"]
         return packages
 
     def print_resume(self):
-        print_sub_step(_("Install Iwd."))
-        SystemdNet().print_resume()
+        archcraftsman.base.print_sub_step(_("Install Iwd."))
+        archcraftsman.bundles.systemdnet.SystemdNet().print_resume()
 
     def configure(self):
-        execute("systemctl enable iwd.service", chroot=True)
-        SystemdNet().configure()
+        archcraftsman.base.execute("systemctl enable iwd.service", chroot=True)
+        archcraftsman.bundles.systemdnet.SystemdNet().configure()

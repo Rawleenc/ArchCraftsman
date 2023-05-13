@@ -17,6 +17,6 @@
 """
 Archcraftsman's main entrypoint.
 """
-from archcraftsman import installer
+import archcraftsman.installer
 
-installer.main()
+archcraftsman.installer.main()

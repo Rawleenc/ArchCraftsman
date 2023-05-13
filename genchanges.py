@@ -18,11 +18,11 @@
 A Python script to generate a changelog from git commits.
 """
 import argparse
+import datetime
 import re
-from datetime import datetime
 
-from git import Commit
-from git.repo import Repo
+import git
+import git.repo
 
 TITLES = {
     "feat": "#### New features",
@@ -46,7 +46,7 @@ class ConventionalCommit:
     A class representing a conventional commit.
     """
 
-    def __init__(self, commit: Commit) -> None:
+    def __init__(self, commit: git.Commit) -> None:
         header = str(commit.message).split("\n", maxsplit=1)[0]
         type_scope = header.split(":", maxsplit=1)[0].strip()
 
@@ -96,7 +96,7 @@ def parse_commits(args) -> list[dict]:
     """
     Parse commits and build parts by type.
     """
-    repo = Repo(".")
+    repo = git.repo.Repo(".")
     parts: list[dict] = []
     for commit in repo.iter_commits():
         if "chore: :wrench: Prepare next version" in str(commit.message):
@@ -157,7 +157,7 @@ def main():
     parts = parse_commits(args)
 
     # Print the changelog
-    print(f"## Release {args.version} ({datetime.now().strftime('%Y-%m-%d')})")
+    print(f"## Release {args.version} ({datetime.datetime.now().strftime('%Y-%m-%d')})")
     for part in parts:
         title = part[TITLE]
         commits = part[COMMITS]

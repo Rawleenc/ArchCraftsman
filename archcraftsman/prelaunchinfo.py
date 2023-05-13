@@ -19,20 +19,22 @@ The module of PreLaunchInfo class.
 """
 import os
 
-from archcraftsman.base import execute, log, print_step
-from archcraftsman.i18n import _
-from archcraftsman.options import Languages
+import archcraftsman.base
+import archcraftsman.i18n
+import archcraftsman.options
+
+_ = archcraftsman.i18n.translate
 
 
-def parse_detected_language(detected_language: str) -> Languages:
+def parse_detected_language(detected_language: str) -> archcraftsman.options.Languages:
     """
     The function to parse the detected language.
     """
     match detected_language:
         case "fr-FR":
-            return Languages.FRENCH
+            return archcraftsman.options.Languages.FRENCH
         case _:
-            return Languages.ENGLISH
+            return archcraftsman.options.Languages.ENGLISH
 
 
 class PreLaunchInfo:
@@ -42,7 +44,7 @@ class PreLaunchInfo:
 
     def __init__(
         self,
-        global_language: Languages = Languages.ENGLISH,
+        global_language: archcraftsman.options.Languages = archcraftsman.options.Languages.ENGLISH,
         keymap: str = "en",
         detected_timezone: str = "Etc/UTC",
         live_console_font: str = "",
@@ -56,11 +58,11 @@ class PreLaunchInfo:
         """
         The method to set up environment locale.
         """
-        print_step(_("Configuring live environment..."), clear=False)
+        archcraftsman.base.print_step(_("Configuring live environment..."), clear=False)
         self.live_console_font = "ter-v16b"
-        execute(f'loadkeys "{self.keymap}"')
-        execute("setfont ter-v16b")
-        dimensions = execute("stty size", capture_output=True).output
+        archcraftsman.base.execute(f'loadkeys "{self.keymap}"')
+        archcraftsman.base.execute("setfont ter-v16b")
+        dimensions = archcraftsman.base.execute("stty size", capture_output=True).output
         if dimensions:
             split_dimensions = dimensions.split(" ")
             if (
@@ -69,10 +71,12 @@ class PreLaunchInfo:
                 and int(split_dimensions[0]) >= 80
             ):
                 self.live_console_font = "ter-v32b"
-                execute("setfont ter-v32b")
-        if self.global_language == Languages.FRENCH:
-            execute('sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /etc/locale.gen')
-            execute("locale-gen")
+                archcraftsman.base.execute("setfont ter-v32b")
+        if self.global_language == archcraftsman.options.Languages.FRENCH:
+            archcraftsman.base.execute(
+                'sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /etc/locale.gen'
+            )
+            archcraftsman.base.execute("locale-gen")
             os.putenv("LANG", "fr_FR.UTF-8")
             os.putenv("LANGUAGE", "fr_FR.UTF-8")
         else:
@@ -96,11 +100,11 @@ class PreLaunchInfo:
             f'    Option "XkbLayout" "{layout}"\n',
             "EndSection\n",
         ]
-        execute("mkdir --parents /mnt/etc/X11/xorg.conf.d/")
+        archcraftsman.base.execute("mkdir --parents /mnt/etc/X11/xorg.conf.d/")
         try:
             with open(
                 "/mnt/etc/X11/xorg.conf.d/00-keyboard.conf", "w", encoding="UTF-8"
             ) as keyboard_config_file:
                 keyboard_config_file.writelines(content)
         except FileNotFoundError as exception:
-            log(f"Exception: {exception}")
+            archcraftsman.base.log(f"Exception: {exception}")

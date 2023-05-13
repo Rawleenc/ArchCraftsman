@@ -18,11 +18,13 @@
 The packages management singleton module
 """
 import readline
-from threading import Lock
+import threading
 
-from archcraftsman import arguments
-from archcraftsman.base import execute, glob_completer, print_error, prompt_ln
-from archcraftsman.i18n import _
+import archcraftsman.arguments
+import archcraftsman.base
+import archcraftsman.i18n
+
+_ = archcraftsman.i18n.translate
 
 
 class PackagesMeta(type):
@@ -31,7 +33,7 @@ class PackagesMeta(type):
     """
 
     _instances = {}
-    _lock: Lock = Lock()
+    _lock: threading.Lock = threading.Lock()
 
     def __call__(cls, *args, **kwargs):
         """
@@ -54,7 +56,7 @@ class Packages(metaclass=PackagesMeta):
 
     def __init__(self) -> None:
         self.packages = (
-            execute(
+            archcraftsman.base.execute(
                 "pacman -Sl | awk '{print $2}'",
                 check=False,
                 capture_output=True,
@@ -67,7 +69,7 @@ class Packages(metaclass=PackagesMeta):
         """
         A method to check if a package exist.
         """
-        return arguments.test() or package in self.packages
+        return archcraftsman.arguments.test() or package in self.packages
 
     def ask_packages(self) -> list[str]:
         """
@@ -87,7 +89,7 @@ class Packages(metaclass=PackagesMeta):
         more_pkgs = []
         while not pkgs_select_ok:
             more_pkgs = []
-            more_pkgs_str = prompt_ln(
+            more_pkgs_str = archcraftsman.base.prompt_ln(
                 _(
                     "Install more packages ? (type extra packages full names, example : 'htop neofetch', "
                     "leave blank if none) : "
@@ -98,9 +100,11 @@ class Packages(metaclass=PackagesMeta):
                 for pkg in more_pkgs_str.split():
                     if not self.exist(pkg):
                         pkgs_select_ok = False
-                        print_error(_("Package %s doesn't exist.") % pkg)
+                        archcraftsman.base.print_error(
+                            _("Package %s doesn't exist.") % pkg
+                        )
                         break
                     more_pkgs.append(pkg)
 
-        readline.set_completer(glob_completer)
+        readline.set_completer(archcraftsman.base.glob_completer)
         return more_pkgs

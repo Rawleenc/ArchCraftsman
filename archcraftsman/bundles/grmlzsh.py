@@ -18,30 +18,33 @@
 The grml zsh bundle module
 """
 
-from archcraftsman import info
-from archcraftsman.base import execute, print_sub_step
-from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import _
-from archcraftsman.options import Bundles
+import archcraftsman.base
+import archcraftsman.bundles.bundle
+import archcraftsman.i18n
+import archcraftsman.info
+import archcraftsman.options
+
+_ = archcraftsman.i18n.translate
 
 
-class GrmlZsh(Bundle):
+class GrmlZsh(archcraftsman.bundles.bundle.Bundle):
     """
     Grml ZSH config class.
     """
 
     def __init__(self):
-        super().__init__(Bundles.GRML)
+        super().__init__(archcraftsman.options.Bundles.GRML)
 
     def packages(self) -> list[str]:
         return ["zsh", "zsh-completions", "grml-zsh-config"]
 
     def print_resume(self):
-        print_sub_step(_("Install ZSH with GRML configuration."))
+        archcraftsman.base.print_sub_step(_("Install ZSH with GRML configuration."))
 
     def configure(self):
-        execute("chsh --shell /bin/zsh", chroot=True)
-        if info.ai.system_info.user_name:
-            execute(
-                f"chsh --shell /bin/zsh {info.ai.system_info.user_name}", chroot=True
+        archcraftsman.base.execute("chsh --shell /bin/zsh", chroot=True)
+        if archcraftsman.info.ai.system_info.user_name:
+            archcraftsman.base.execute(
+                f"chsh --shell /bin/zsh {archcraftsman.info.ai.system_info.user_name}",
+                chroot=True,
             )

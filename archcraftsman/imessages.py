@@ -17,7 +17,9 @@
 """
 I18n messages translation keys.
 """
-from archcraftsman.i18n import _
+import archcraftsman.i18n
+
+_ = archcraftsman.i18n.translate
 
 CUPS_PROMPT = _("Install Cups ?")
 CUPS_RESUME = _("Install Cups.")

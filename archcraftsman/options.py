@@ -17,10 +17,10 @@
 """
 The all available options module.
 """
-from enum import Enum, auto
+import enum
 
 
-class OptionEnum(str, Enum):
+class OptionEnum(str, enum.Enum):
     """
     The Enum base method for options.
     """
@@ -40,8 +40,8 @@ class Languages(OptionEnum):
     All available languages.
     """
 
-    ENGLISH = auto()
-    FRENCH = auto()
+    ENGLISH = enum.auto()
+    FRENCH = enum.auto()
 
 
 class Commands(OptionEnum):
@@ -49,12 +49,12 @@ class Commands(OptionEnum):
     All available commands.
     """
 
-    KERNEL = auto()
-    DESKTOP = auto()
-    BUNDLE = auto()
-    SHELL_BUNDLE = auto()
-    HELP = auto()
-    EXIT = auto()
+    KERNEL = enum.auto()
+    DESKTOP = enum.auto()
+    BUNDLE = enum.auto()
+    SHELL_BUNDLE = enum.auto()
+    HELP = enum.auto()
+    EXIT = enum.auto()
 
 
 class SubCommands(OptionEnum):
@@ -62,9 +62,9 @@ class SubCommands(OptionEnum):
     All available sub-commands.
     """
 
-    INSTALL = auto()
-    UNINSTALL = auto()
-    CANCEL = auto()
+    INSTALL = enum.auto()
+    UNINSTALL = enum.auto()
+    CANCEL = enum.auto()
 
 
 class Kernels(OptionEnum):
@@ -72,10 +72,10 @@ class Kernels(OptionEnum):
     All kernel options.
     """
 
-    CURRENT = auto()
-    LTS = auto()
-    ZEN = auto()
-    HARDENED = auto()
+    CURRENT = enum.auto()
+    LTS = enum.auto()
+    ZEN = enum.auto()
+    HARDENED = enum.auto()
 
 
 class Desktops(OptionEnum):
@@ -83,19 +83,19 @@ class Desktops(OptionEnum):
     All desktop environment options.
     """
 
-    GNOME = auto()
-    PLASMA = auto()
-    XFCE = auto()
-    BUDGIE = auto()
-    CINNAMON = auto()
-    CUTEFISH = auto()
-    DEEPIN = auto()
-    LXQT = auto()
-    MATE = auto()
-    ENLIGHTENMENT = auto()
-    I3 = auto()
-    SWAY = auto()
-    NONE = auto()
+    GNOME = enum.auto()
+    PLASMA = enum.auto()
+    XFCE = enum.auto()
+    BUDGIE = enum.auto()
+    CINNAMON = enum.auto()
+    CUTEFISH = enum.auto()
+    DEEPIN = enum.auto()
+    LXQT = enum.auto()
+    MATE = enum.auto()
+    ENLIGHTENMENT = enum.auto()
+    I3 = enum.auto()
+    SWAY = enum.auto()
+    NONE = enum.auto()
 
 
 class Network(OptionEnum):
@@ -103,10 +103,10 @@ class Network(OptionEnum):
     All network options.
     """
 
-    NETWORK_MANAGER = auto()
-    IWD = auto()
-    SYSTEMD = auto()
-    NONE = auto()
+    NETWORK_MANAGER = enum.auto()
+    IWD = enum.auto()
+    SYSTEMD = enum.auto()
+    NONE = enum.auto()
 
 
 class BootLoaders(OptionEnum):
@@ -114,7 +114,7 @@ class BootLoaders(OptionEnum):
     All bootloader options.
     """
 
-    GRUB = auto()
+    GRUB = enum.auto()
 
 
 class Bundles(OptionEnum):
@@ -122,12 +122,12 @@ class Bundles(OptionEnum):
     All other options.
     """
 
-    GRML = auto()
-    MICROCODES = auto()
-    NVIDIA = auto()
-    TERMINUS = auto()
-    ZRAM = auto()
-    COPY_ACM = auto()
+    GRML = enum.auto()
+    MICROCODES = enum.auto()
+    NVIDIA = enum.auto()
+    TERMINUS = enum.auto()
+    ZRAM = enum.auto()
+    COPY_ACM = enum.auto()
 
 
 class ShellBundles(OptionEnum):
@@ -135,8 +135,8 @@ class ShellBundles(OptionEnum):
     All shell options.
     """
 
-    YAY = auto()
-    GENERATE_CONFIG = auto()
+    YAY = enum.auto()
+    GENERATE_CONFIG = enum.auto()
 
 
 class FSFormats(OptionEnum):
@@ -144,9 +144,9 @@ class FSFormats(OptionEnum):
     All file system format options.
     """
 
-    VFAT = auto()
-    EXT4 = auto()
-    BTRFS = auto()
+    VFAT = enum.auto()
+    EXT4 = enum.auto()
+    BTRFS = enum.auto()
 
 
 class SwapTypes(OptionEnum):
@@ -154,9 +154,9 @@ class SwapTypes(OptionEnum):
     All sway type options.
     """
 
-    PARTITION = auto()
-    FILE = auto()
-    NONE = auto()
+    PARTITION = enum.auto()
+    FILE = enum.auto()
+    NONE = enum.auto()
 
 
 class PartTypes(OptionEnum):
@@ -164,13 +164,13 @@ class PartTypes(OptionEnum):
     All partition type options.
     """
 
-    EFI = auto()
-    ROOT = auto()
-    BOOT = auto()
-    HOME = auto()
-    SWAP = auto()
-    NOT_USED = auto()
-    OTHER = auto()
+    EFI = enum.auto()
+    ROOT = enum.auto()
+    BOOT = enum.auto()
+    HOME = enum.auto()
+    SWAP = enum.auto()
+    NOT_USED = enum.auto()
+    OTHER = enum.auto()
 
 
 class BundleTypes(OptionEnum):
@@ -178,12 +178,12 @@ class BundleTypes(OptionEnum):
     All bundle type options.
     """
 
-    BOOTLOADER = auto()
-    DESKTOP = auto()
-    KERNEL = auto()
-    MICRO_CODES = auto()
-    NETWORK = auto()
-    OTHER = auto()
+    BOOTLOADER = enum.auto()
+    DESKTOP = enum.auto()
+    KERNEL = enum.auto()
+    MICRO_CODES = enum.auto()
+    NETWORK = enum.auto()
+    OTHER = enum.auto()
 
 
 def get_btype_by_name(name: str) -> BundleTypes:

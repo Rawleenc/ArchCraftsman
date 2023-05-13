@@ -19,7 +19,7 @@ The I18n management singleton module
 """
 import gettext
 
-from archcraftsman.options import Languages
+import archcraftsman.options
 
 _I18N_METHOD = gettext.gettext
 
@@ -29,7 +29,7 @@ def update_method(global_language: str):
     Update the translation method to use according to the global language.
     """
 
-    if global_language != Languages.ENGLISH:
+    if global_language != archcraftsman.options.Languages.ENGLISH:
         translation = gettext.translation(
             "archcraftsman",
             localedir="/usr/share/locale",
@@ -40,11 +40,8 @@ def update_method(global_language: str):
         _I18N_METHOD = translation.gettext
 
 
-def _t(message) -> str:
+def translate(message) -> str:
     """
     Translate the given text with the translation method.
     """
     return _I18N_METHOD(message)
-
-
-_ = _t

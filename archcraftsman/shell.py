@@ -17,36 +17,31 @@
 """
 The shell mode module
 """
-from subprocess import CalledProcessError
-from typing import Optional
+import subprocess
+import typing
 
-from archcraftsman import config
-from archcraftsman.base import execute, print_error, print_step
-from archcraftsman.basesetup import pre_launch, setup_system
-from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.bundles.utils import prompt_bundle
-from archcraftsman.i18n import _
-from archcraftsman.manualpart import manual_partitioning
-from archcraftsman.options import (
-    Bundles,
-    Commands,
-    Desktops,
-    Kernels,
-    ShellBundles,
-    SubCommands,
-)
-from archcraftsman.utils import print_supported, prompt_option
+import archcraftsman.base
+import archcraftsman.basesetup
+import archcraftsman.bundles.bundle
+import archcraftsman.bundles.utils
+import archcraftsman.config
+import archcraftsman.i18n
+import archcraftsman.manualpart
+import archcraftsman.options
+import archcraftsman.utils
+
+_ = archcraftsman.i18n.translate
 
 
-def ask_for_kernel() -> Optional[Bundle]:
+def ask_for_kernel() -> typing.Optional[archcraftsman.bundles.bundle.Bundle]:
     """
     A method to ask for a kernel.
     """
     try:
-        return prompt_bundle(
+        return archcraftsman.bundles.utils.prompt_bundle(
             "> ",
             _("Kernel '%s' is not supported."),
-            Kernels,
+            archcraftsman.options.Kernels,
             _("Supported kernels : "),
             None,
             new_line_prompt=False,
@@ -55,15 +50,15 @@ def ask_for_kernel() -> Optional[Bundle]:
         return None
 
 
-def ask_for_desktop() -> Optional[Bundle]:
+def ask_for_desktop() -> typing.Optional[archcraftsman.bundles.bundle.Bundle]:
     """
     A method to ask for a desktop environment.
     """
     try:
-        return prompt_bundle(
+        return archcraftsman.bundles.utils.prompt_bundle(
             "> ",
             _("Desktop environment '%s' is not supported."),
-            Desktops,
+            archcraftsman.options.Desktops,
             _("Supported desktop environments : "),
             None,
             new_line_prompt=False,
@@ -72,33 +67,33 @@ def ask_for_desktop() -> Optional[Bundle]:
         return None
 
 
-def ask_for_bundle() -> Optional[Bundle]:
+def ask_for_bundle() -> typing.Optional[archcraftsman.bundles.bundle.Bundle]:
     """
     A method to ask for a bundle.
     """
     try:
-        return prompt_bundle(
+        return archcraftsman.bundles.utils.prompt_bundle(
             "> ",
             _("Bundle '%s' is not supported."),
-            Bundles,
+            archcraftsman.options.Bundles,
             _("Available bundles : "),
             None,
-            Bundles.COPY_ACM,
+            archcraftsman.options.Bundles.COPY_ACM,
             new_line_prompt=False,
         )
     except ValueError:
         return None
 
 
-def ask_for_shell_bundle() -> Optional[Bundle]:
+def ask_for_shell_bundle() -> typing.Optional[archcraftsman.bundles.bundle.Bundle]:
     """
     A method to ask for a bundle.
     """
     try:
-        return prompt_bundle(
+        return archcraftsman.bundles.utils.prompt_bundle(
             "> ",
             _("Shell bundle '%s' is not supported."),
-            ShellBundles,
+            archcraftsman.options.ShellBundles,
             _("Available shell bundles : "),
             None,
             new_line_prompt=False,
@@ -107,7 +102,7 @@ def ask_for_shell_bundle() -> Optional[Bundle]:
         return None
 
 
-def install_bundle(bundle: Bundle):
+def install_bundle(bundle: archcraftsman.bundles.bundle.Bundle):
     """
     The method to install the bundle.
     """
@@ -115,7 +110,7 @@ def install_bundle(bundle: Bundle):
         bundle.configure()
     else:
         if len(bundle.packages()) > 0:
-            execute(
+            archcraftsman.base.execute(
                 f'pacman -S {" ".join(bundle.packages())}',
                 check=False,
             )
@@ -126,7 +121,7 @@ def uninstall_bundle(bundle):
     The method to uninstall the bundle.
     """
     if len(bundle.packages()) > 0:
-        execute(
+        archcraftsman.base.execute(
             f'pacman -Rsnc {" ".join(bundle.packages())}',
             check=False,
         )
@@ -136,75 +131,86 @@ def shell():
     """
     The shell mode method.
     """
-    print_step(_("ArchCraftsman interactive shell mode."))
-    print_supported(_("Available commands :"), list(Commands))
+    archcraftsman.base.print_step(_("ArchCraftsman interactive shell mode."))
+    archcraftsman.utils.print_supported(
+        _("Available commands :"), list(archcraftsman.options.Commands)
+    )
     want_exit = False
     while not want_exit:
         try:
-            command = prompt_option(
+            command = archcraftsman.utils.prompt_option(
                 "> ",
                 _("Command '%s' is not supported."),
-                Commands,
+                archcraftsman.options.Commands,
                 None,
                 None,
                 new_line_prompt=False,
             )
             bundle = None
             match command:
-                case Commands.KERNEL:
+                case archcraftsman.options.Commands.KERNEL:
                     bundle = ask_for_kernel()
-                case Commands.DESKTOP:
+                case archcraftsman.options.Commands.DESKTOP:
                     bundle = ask_for_desktop()
-                case Commands.BUNDLE:
+                case archcraftsman.options.Commands.BUNDLE:
                     bundle = ask_for_bundle()
-                case Commands.SHELL_BUNDLE:
+                case archcraftsman.options.Commands.SHELL_BUNDLE:
                     bundle = ask_for_shell_bundle()
-                case Commands.HELP:
-                    print_supported(_("Available commands :"), list(Commands))
+                case archcraftsman.options.Commands.HELP:
+                    archcraftsman.utils.print_supported(
+                        _("Available commands :"), list(archcraftsman.options.Commands)
+                    )
                     continue
-                case Commands.EXIT:
+                case archcraftsman.options.Commands.EXIT:
                     want_exit = True
-                    config.serialize()
+                    archcraftsman.config.serialize()
                     continue
 
-            if bundle and bundle.name == ShellBundles.GENERATE_CONFIG:
-                pre_launch()
-                setup_system()
+            if (
+                bundle
+                and bundle.name == archcraftsman.options.ShellBundles.GENERATE_CONFIG
+            ):
+                archcraftsman.basesetup.pre_launch()
+                archcraftsman.basesetup.setup_system()
                 partitioning_info_ok: bool = False
                 while not partitioning_info_ok:
-                    partitioning_info_ok = manual_partitioning(change_disks=False)
+                    partitioning_info_ok = archcraftsman.manualpart.manual_partitioning(
+                        change_disks=False
+                    )
                 continue
 
-            sub_command = prompt_option(
+            sub_command = archcraftsman.utils.prompt_option(
                 "> ",
                 _("Sub-command '%s' is not supported."),
-                SubCommands,
+                archcraftsman.options.SubCommands,
                 _("Available sub-commands : "),
                 None,
                 new_line_prompt=False,
             )
 
             match sub_command:
-                case SubCommands.INSTALL:
+                case archcraftsman.options.SubCommands.INSTALL:
                     if bundle:
                         install_bundle(bundle)
-                case SubCommands.UNINSTALL:
+                case archcraftsman.options.SubCommands.UNINSTALL:
                     if bundle:
                         uninstall_bundle(bundle)
-                case SubCommands.CANCEL:
+                case archcraftsman.options.SubCommands.CANCEL:
                     continue
         except KeyboardInterrupt:
-            config.serialize()
-            print_error(_("Script execution interrupted by the user !"), do_pause=False)
+            archcraftsman.config.serialize()
+            archcraftsman.base.print_error(
+                _("Script execution interrupted by the user !"), do_pause=False
+            )
             want_exit = True
-        except CalledProcessError as sub_process_exception:
-            config.serialize()
-            print_error(
+        except subprocess.CalledProcessError as sub_process_exception:
+            archcraftsman.config.serialize()
+            archcraftsman.base.print_error(
                 _("A subprocess execution failed ! See the following error: %s")
                 % sub_process_exception,
                 do_pause=False,
             )
             want_exit = True
         except EOFError:
-            config.serialize()
+            archcraftsman.config.serialize()
             want_exit = True

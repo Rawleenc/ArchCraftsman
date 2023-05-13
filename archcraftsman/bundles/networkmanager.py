@@ -18,37 +18,39 @@
 The network manager bundle module
 """
 
-from archcraftsman import info
-from archcraftsman.base import execute, print_sub_step
-from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import _
-from archcraftsman.options import Desktops, Network
+import archcraftsman.base
+import archcraftsman.bundles.bundle
+import archcraftsman.i18n
+import archcraftsman.info
+import archcraftsman.options
+
+_ = archcraftsman.i18n.translate
 
 
-class NetworkManager(Bundle):
+class NetworkManager(archcraftsman.bundles.bundle.Bundle):
     """
     Grml ZSH config class.
     """
 
     def __init__(self):
-        super().__init__(Network.NETWORK_MANAGER)
+        super().__init__(archcraftsman.options.Network.NETWORK_MANAGER)
 
     def packages(self) -> list[str]:
         packages = ["networkmanager"]
-        if info.ai.system_info.desktop().name in [
-            Desktops.BUDGIE,
-            Desktops.I3,
-            Desktops.LXQT,
-            Desktops.MATE,
-            Desktops.SWAY,
-            Desktops.ENLIGHTENMENT,
-            Desktops.XFCE,
+        if archcraftsman.info.ai.system_info.desktop().name in [
+            archcraftsman.options.Desktops.BUDGIE,
+            archcraftsman.options.Desktops.I3,
+            archcraftsman.options.Desktops.LXQT,
+            archcraftsman.options.Desktops.MATE,
+            archcraftsman.options.Desktops.SWAY,
+            archcraftsman.options.Desktops.ENLIGHTENMENT,
+            archcraftsman.options.Desktops.XFCE,
         ]:
             packages.append("network-manager-applet")
         return packages
 
     def print_resume(self):
-        print_sub_step(_("Install NetworkManager."))
+        archcraftsman.base.print_sub_step(_("Install NetworkManager."))
 
     def configure(self):
-        execute("systemctl enable NetworkManager", chroot=True)
+        archcraftsman.base.execute("systemctl enable NetworkManager", chroot=True)

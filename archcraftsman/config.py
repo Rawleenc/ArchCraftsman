@@ -23,15 +23,15 @@ import json
 import os
 import sys
 
-from archcraftsman import info
-from archcraftsman.arguments import shell, test
-from archcraftsman.base import print_error, print_step, print_sub_step
-from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.bundles.utils import get_bundle_type_by_name
-from archcraftsman.partition import Partition
-from archcraftsman.partitioninginfo import PartitioningInfo
-from archcraftsman.prelaunchinfo import PreLaunchInfo
-from archcraftsman.systeminfo import SystemInfo
+import archcraftsman.arguments
+import archcraftsman.base
+import archcraftsman.bundles.bundle
+import archcraftsman.bundles.utils
+import archcraftsman.info
+import archcraftsman.partition
+import archcraftsman.partitioninginfo
+import archcraftsman.prelaunchinfo
+import archcraftsman.systeminfo
 
 
 def serialize():
@@ -39,7 +39,7 @@ def serialize():
     Serialize the GlobalInfo object to a json file.
     """
     json_str = json.dumps(
-        info.ai,
+        archcraftsman.info.ai,
         default=lambda o: {
             k: v for (k, v) in o.__dict__.items() if not k.startswith("_")
         },
@@ -47,14 +47,14 @@ def serialize():
         indent=2,
     )
     file_path = (
-        f"/mnt/home/{info.ai.system_info.user_name}/{info.ai.system_info.hostname}.json"
-        if info.ai.system_info.user_name
-        else f"/mnt/root/{info.ai.system_info.hostname}.json"
+        f"/mnt/home/{archcraftsman.info.ai.system_info.user_name}/{archcraftsman.info.ai.system_info.hostname}.json"
+        if archcraftsman.info.ai.system_info.user_name
+        else f"/mnt/root/{archcraftsman.info.ai.system_info.hostname}.json"
     )
     file_path = (
         file_path
-        if not test() and not shell()
-        else f"{info.ai.system_info.hostname}.json"
+        if not archcraftsman.arguments.test() and not archcraftsman.arguments.shell()
+        else f"{archcraftsman.info.ai.system_info.hostname}.json"
     )
     if os.path.exists(file_path):
         with open(file_path, "w", encoding="UTF-8") as file:
@@ -74,22 +74,24 @@ def dict_to_obj(dict_obj, class_type):
     return obj
 
 
-def dict_to_bundle(dict_obj) -> Bundle:
+def dict_to_bundle(dict_obj) -> archcraftsman.bundles.bundle.Bundle:
     """
     Convert a dict to a bundle object.
     """
-    bundle = get_bundle_type_by_name(dict_obj["name"])(dict_obj["name"])
+    bundle = archcraftsman.bundles.utils.get_bundle_type_by_name(dict_obj["name"])(
+        dict_obj["name"]
+    )
     for key, value in dict_obj.items():
         if hasattr(bundle, key):
             setattr(bundle, key, value)
     return bundle
 
 
-def dict_to_partition(dict_obj) -> Partition:
+def dict_to_partition(dict_obj) -> archcraftsman.partition.Partition:
     """
     Convert a dict to a partition object.
     """
-    partition = Partition()
+    partition = archcraftsman.partition.Partition()
     for key, value in dict_obj.items():
         if hasattr(partition, key):
             setattr(partition, key, value)
@@ -101,9 +103,9 @@ def validate(data: dict, model_object):
     Validate a config file.
     """
     for key, value in data.items():
-        print_sub_step(f"Validating {key}...")
+        archcraftsman.base.print_sub_step(f"Validating {key}...")
         if not hasattr(model_object, key):
-            print_error(f"{key} is not a valid key.", do_pause=False)
+            archcraftsman.base.print_error(f"{key} is not a valid key.", do_pause=False)
             sys.exit(1)
         model_value = getattr(model_object, key)
         if isinstance(value, dict):
@@ -118,7 +120,7 @@ def validate(data: dict, model_object):
         if not isinstance(value, model_value_type) and not issubclass(
             model_value_type, type(value)
         ):
-            print_error(
+            archcraftsman.base.print_error(
                 f"{key} is not a valid key. {key} should be {model_value_type}",
                 do_pause=False,
             )
@@ -130,31 +132,37 @@ def deserialize(file_path: str):
     Deserialize a json config file.
     """
     if not file_path:
-        print_error("Config file path is empty.")
+        archcraftsman.base.print_error("Config file path is empty.")
         sys.exit(1)
     if not file_path.endswith(".json"):
-        print_error(f"{file_path} is not a json file.")
+        archcraftsman.base.print_error(f"{file_path} is not a json file.")
         sys.exit(1)
-    print_step("Deserializing config file...", clear=False)
+    archcraftsman.base.print_step("Deserializing config file...", clear=False)
     with open(file_path, "r", encoding="UTF-8") as file:
         data = json.loads(file.read())
-        info.ai.pre_launch_info = dict_to_obj(data["pre_launch_info"], PreLaunchInfo)
-
-        info.ai.partitioning_info = dict_to_obj(
-            data["partitioning_info"], PartitioningInfo
+        archcraftsman.info.ai.pre_launch_info = dict_to_obj(
+            data["pre_launch_info"], archcraftsman.prelaunchinfo.PreLaunchInfo
         )
-        info.ai.partitioning_info.partitions = []
-        for bundle in data["partitioning_info"]["partitions"]:
-            info.ai.partitioning_info.partitions.append(dict_to_partition(bundle))
 
-        info.ai.system_info = dict_to_obj(data["system_info"], SystemInfo)
-        info.ai.system_info.bundles = []
+        archcraftsman.info.ai.partitioning_info = dict_to_obj(
+            data["partitioning_info"], archcraftsman.partitioninginfo.PartitioningInfo
+        )
+        archcraftsman.info.ai.partitioning_info.partitions = []
+        for bundle in data["partitioning_info"]["partitions"]:
+            archcraftsman.info.ai.partitioning_info.partitions.append(
+                dict_to_partition(bundle)
+            )
+
+        archcraftsman.info.ai.system_info = dict_to_obj(
+            data["system_info"], archcraftsman.systeminfo.SystemInfo
+        )
+        archcraftsman.info.ai.system_info.bundles = []
         for bundle in data["system_info"]["bundles"]:
-            info.ai.system_info.bundles.append(dict_to_bundle(bundle))
-    print_step("Validating config file...", clear=False)
-    fake = info.AllInfo()
-    for partition in info.ai.partitioning_info.partitions:
+            archcraftsman.info.ai.system_info.bundles.append(dict_to_bundle(bundle))
+    archcraftsman.base.print_step("Validating config file...", clear=False)
+    fake = archcraftsman.info.AllInfo()
+    for partition in archcraftsman.info.ai.partitioning_info.partitions:
         fake.partitioning_info.partitions.append(type(partition)())
-    for bundle in info.ai.system_info.bundles:
+    for bundle in archcraftsman.info.ai.system_info.bundles:
         fake.system_info.bundles.append(type(bundle)())
     validate(data, fake)

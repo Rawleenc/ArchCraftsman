@@ -17,13 +17,13 @@
 """
 The I18n management singleton module
 """
-from argparse import Namespace
-from typing import Optional
+import argparse
+import typing
 
-_ARGS = Namespace()
+_ARGS = argparse.Namespace()
 
 
-def init(args: Optional[Namespace] = None) -> None:
+def init(args: typing.Optional[argparse.Namespace] = None) -> None:
     """
     Initialize the global arguments.
     """

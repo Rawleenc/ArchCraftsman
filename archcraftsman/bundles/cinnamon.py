@@ -18,21 +18,23 @@
 The cinnamon bundle module
 """
 
-from archcraftsman import info
-from archcraftsman.base import execute, print_sub_step
-from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import _
-from archcraftsman.options import Desktops
-from archcraftsman.utils import prompt_bool
+import archcraftsman.base
+import archcraftsman.bundles.bundle
+import archcraftsman.i18n
+import archcraftsman.info
+import archcraftsman.options
+import archcraftsman.utils
+
+_ = archcraftsman.i18n.translate
 
 
-class Cinnamon(Bundle):
+class Cinnamon(archcraftsman.bundles.bundle.Bundle):
     """
     Bundle class.
     """
 
     def __init__(self):
-        super().__init__(Desktops.CINNAMON)
+        super().__init__(archcraftsman.options.Desktops.CINNAMON)
         self.display_manager = True
 
     def packages(self) -> list[str]:
@@ -59,23 +61,23 @@ class Cinnamon(Bundle):
         return packages
 
     def prompt_extra(self):
-        self.display_manager = prompt_bool(
+        self.display_manager = archcraftsman.utils.prompt_bool(
             _("The display manager to install is '%s'. Do you want to install it ?")
             % "LightDM",
             default=True,
         )
 
     def print_resume(self):
-        print_sub_step(_("Desktop environment : %s") % self.name)
-        print_sub_step(
+        archcraftsman.base.print_sub_step(_("Desktop environment : %s") % self.name)
+        archcraftsman.base.print_sub_step(
             _("Display manager : %s")
             % ("LightDM" if self.display_manager else _("none"))
         )
 
     def configure(self):
         if self.display_manager:
-            execute("systemctl enable lightdm", chroot=True)
-        execute(
+            archcraftsman.base.execute("systemctl enable lightdm", chroot=True)
+        archcraftsman.base.execute(
             'sed -i "s|#logind-check-graphical=false|logind-check-graphical=true|g" /mnt/etc/lightdm/lightdm.conf'
         )
-        info.ai.pre_launch_info.setup_chroot_keyboard()
+        archcraftsman.info.ai.pre_launch_info.setup_chroot_keyboard()

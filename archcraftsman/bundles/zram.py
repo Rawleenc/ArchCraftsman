@@ -17,25 +17,27 @@
 """
 The zram bundle module
 """
-from archcraftsman.base import log, print_sub_step
-from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import _
-from archcraftsman.options import Bundles
+import archcraftsman.base
+import archcraftsman.bundles.bundle
+import archcraftsman.i18n
+import archcraftsman.options
+
+_ = archcraftsman.i18n.translate
 
 
-class Zram(Bundle):
+class Zram(archcraftsman.bundles.bundle.Bundle):
     """
     The ZRAM class.
     """
 
     def __init__(self):
-        super().__init__(Bundles.ZRAM)
+        super().__init__(archcraftsman.options.Bundles.ZRAM)
 
     def packages(self) -> list[str]:
         return ["zram-generator"]
 
     def print_resume(self):
-        print_sub_step(_("Install and enable ZRAM."))
+        archcraftsman.base.print_sub_step(_("Install and enable ZRAM."))
 
     def configure(self):
         content = ["[zram0]\n", "zram-size = ram / 2\n"]
@@ -45,4 +47,4 @@ class Zram(Bundle):
             ) as zram_config_file:
                 zram_config_file.writelines(content)
         except FileNotFoundError as exception:
-            log(f"Exception: {exception}")
+            archcraftsman.base.log(f"Exception: {exception}")

@@ -17,20 +17,15 @@
 """
 The automatic partitioning system module
 """
-from archcraftsman import info
-from archcraftsman.base import execute, is_bios, print_step, print_sub_step
-from archcraftsman.disk import Disk
-from archcraftsman.i18n import _
-from archcraftsman.options import FSFormats, PartTypes, SwapTypes
-from archcraftsman.partition import Partition
-from archcraftsman.utils import (
-    ask_drive,
-    ask_format_type,
-    from_iec,
-    prompt_bool,
-    prompt_option,
-    to_iec,
-)
+import archcraftsman.base
+import archcraftsman.disk
+import archcraftsman.i18n
+import archcraftsman.info
+import archcraftsman.options
+import archcraftsman.partition
+import archcraftsman.utils
+
+_ = archcraftsman.i18n.translate
 
 
 def auto_partitioning() -> bool:
@@ -39,72 +34,76 @@ def auto_partitioning() -> bool:
     """
     user_answer = False
     while not user_answer:
-        print_step(_("Automatic partitioning :"))
-        execute("fdisk -l", force=True, sudo=True)
-        target_disk = ask_drive()
-        info.ai.partitioning_info.main_disk = target_disk
-        disk = Disk(target_disk)
+        archcraftsman.base.print_step(_("Automatic partitioning :"))
+        archcraftsman.base.execute("fdisk -l", force=True, sudo=True)
+        target_disk = archcraftsman.utils.ask_drive()
+        archcraftsman.info.ai.partitioning_info.main_disk = target_disk
+        disk = archcraftsman.disk.Disk(target_disk)
         efi_partition = disk.get_efi_partition()
         if (
-            not is_bios()
+            not archcraftsman.base.is_bios()
             and len(disk.partitions) > 0
             and efi_partition.path
             and efi_partition.fs_type() == "vfat"
-            and disk.free_space > from_iec("32G")
+            and disk.free_space > archcraftsman.utils.from_iec("32G")
         ):
-            want_dual_boot = prompt_bool(
+            want_dual_boot = archcraftsman.utils.prompt_bool(
                 _("Do you want to install Arch Linux next to other systems ?")
             )
         else:
             want_dual_boot = False
 
-        swap_type = prompt_option(
+        swap_type = archcraftsman.utils.prompt_option(
             _("What type of Swap do you want ? (%s) : "),
             _("Swap type '%s' is not supported."),
-            SwapTypes,
+            archcraftsman.options.SwapTypes,
             supported_msg=_("Supported Swap types : "),
-            default=SwapTypes.FILE,
+            default=archcraftsman.options.SwapTypes.FILE,
         )
 
-        want_home = prompt_bool(_("Do you want a separated Home ?"))
-        part_format_type = ask_format_type()
+        want_home = archcraftsman.utils.prompt_bool(_("Do you want a separated Home ?"))
+        part_format_type = archcraftsman.utils.ask_format_type()
         root_block_name = None
-        if prompt_bool(
+        if archcraftsman.utils.prompt_bool(
             _("Do you want to encrypt the %s partition ?") % "Root", default=False
         ):
             root_block_name = "root"
         home_block_name = None
         if want_home:
-            if prompt_bool(
+            if archcraftsman.utils.prompt_bool(
                 _("Do you want to encrypt the %s partition ?") % "Home", default=False
             ):
                 home_block_name = "home"
 
         if want_dual_boot:
-            root_size = to_iec(int(disk.free_space / 4))
-            swap_size = to_iec(int(disk.free_space / 32))
+            root_size = archcraftsman.utils.to_iec(int(disk.free_space / 4))
+            swap_size = archcraftsman.utils.to_iec(int(disk.free_space / 32))
         else:
-            root_size = to_iec(int(disk.total / 4))
-            swap_size = to_iec(int(disk.total / 32))
-        if swap_type == SwapTypes.NONE:
+            root_size = archcraftsman.utils.to_iec(int(disk.total / 4))
+            swap_size = archcraftsman.utils.to_iec(int(disk.total / 32))
+        if swap_type == archcraftsman.options.SwapTypes.NONE:
             swap_size = ""
-        info.ai.partitioning_info.swapfile_size = swap_size
+        archcraftsman.info.ai.partitioning_info.swapfile_size = swap_size
         auto_part_str = ""
         index = 0
-        if is_bios():
+        if archcraftsman.base.is_bios():
             # DOS LABEL
             auto_part_str += "o\n"  # Create a new empty DOS partition table
             # BOOT
             auto_part_str += "n\n"  # Add a new partition
-            auto_part_str += "p\n"  # Partition primary (Accept default: primary)
-            auto_part_str += " \n"  # Partition number (Accept default: auto)
+            auto_part_str += (
+                "p\n"  # archcraftsman.disk.Partition primary (Accept default: primary)
+            )
+            auto_part_str += (
+                " \n"  # archcraftsman.disk.Partition number (Accept default: auto)
+            )
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += "+2G\n"  # Last sector (Accept default: varies)
             auto_part_str += "a\n"  # Toggle bootable flag
-            info.ai.partitioning_info.partitions.append(
-                Partition(
+            archcraftsman.info.ai.partitioning_info.partitions.append(
+                archcraftsman.partition.Partition(
                     index=index,
-                    part_type=PartTypes.BOOT,
+                    part_type=archcraftsman.options.PartTypes.BOOT,
                     part_mount_point="/boot",
                     part_format=True,
                     part_format_type=part_format_type,
@@ -117,64 +116,77 @@ def auto_partitioning() -> bool:
                 auto_part_str += "g\n"  # Create a new empty GPT partition table
                 # EFI
                 auto_part_str += "n\n"  # Add a new partition
-                auto_part_str += " \n"  # Partition number (Accept default: auto)
+                auto_part_str += (
+                    " \n"  # archcraftsman.disk.Partition number (Accept default: auto)
+                )
                 auto_part_str += " \n"  # First sector (Accept default: 1)
                 auto_part_str += "+512M\n"  # Last sector (Accept default: varies)
                 auto_part_str += "t\n"  # Change partition type
-                auto_part_str += " \n"  # Partition number (Accept default: auto)
+                auto_part_str += (
+                    " \n"  # archcraftsman.disk.Partition number (Accept default: auto)
+                )
                 auto_part_str += "1\n"  # Type EFI System
-                info.ai.partitioning_info.partitions.append(
-                    Partition(
+                archcraftsman.info.ai.partitioning_info.partitions.append(
+                    archcraftsman.partition.Partition(
                         index=index,
-                        part_type=PartTypes.EFI,
+                        part_type=archcraftsman.options.PartTypes.EFI,
                         part_mount_point="/boot/efi",
                         part_format=True,
-                        part_format_type=FSFormats.VFAT,
+                        part_format_type=archcraftsman.options.FSFormats.VFAT,
                     )
                 )
                 index += 1
             else:
-                info.ai.partitioning_info.partitions.append(
-                    Partition(
+                archcraftsman.info.ai.partitioning_info.partitions.append(
+                    archcraftsman.partition.Partition(
                         index=index,
-                        part_type=PartTypes.EFI,
+                        part_type=archcraftsman.options.PartTypes.EFI,
                         part_mount_point="/boot/efi",
                         part_format=False,
                     )
                 )
                 index += len(disk.partitions)
-        if swap_type == SwapTypes.PARTITION:
+        if swap_type == archcraftsman.options.SwapTypes.PARTITION:
             # SWAP
             auto_part_str += "n\n"  # Add a new partition
-            if is_bios():
-                auto_part_str += "p\n"  # Partition primary (Accept default: primary)
-            auto_part_str += " \n"  # Partition number (Accept default: auto)
+            if archcraftsman.base.is_bios():
+                auto_part_str += "p\n"  # archcraftsman.disk.Partition primary (Accept default: primary)
+            auto_part_str += (
+                " \n"  # archcraftsman.disk.Partition number (Accept default: auto)
+            )
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += f"+{swap_size}\n"  # Last sector (Accept default: varies)
             auto_part_str += "t\n"  # Change partition type
-            auto_part_str += " \n"  # Partition number (Accept default: auto)
-            if is_bios():
+            auto_part_str += (
+                " \n"  # archcraftsman.disk.Partition number (Accept default: auto)
+            )
+            if archcraftsman.base.is_bios():
                 auto_part_str += "82\n"  # Type Linux Swap
             else:
                 auto_part_str += "19\n"  # Type Linux Swap
-            info.ai.partitioning_info.partitions.append(
-                Partition(index=index, part_type=PartTypes.SWAP)
+            archcraftsman.info.ai.partitioning_info.partitions.append(
+                archcraftsman.partition.Partition(
+                    index=index, part_type=archcraftsman.options.PartTypes.SWAP
+                )
             )
             index += 1
         if root_block_name and not any(
-            p.part_type == PartTypes.BOOT for p in info.ai.partitioning_info.partitions
+            p.part_type == archcraftsman.options.PartTypes.BOOT
+            for p in archcraftsman.info.ai.partitioning_info.partitions
         ):
             # BOOT
             auto_part_str += "n\n"  # Add a new partition
-            if is_bios():
-                auto_part_str += "p\n"  # Partition primary (Accept default: primary)
-            auto_part_str += " \n"  # Partition number (Accept default: auto)
+            if archcraftsman.base.is_bios():
+                auto_part_str += "p\n"  # archcraftsman.disk.Partition primary (Accept default: primary)
+            auto_part_str += (
+                " \n"  # archcraftsman.disk.Partition number (Accept default: auto)
+            )
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += "+2G\n"  # Last sector (Accept default: varies)
-            info.ai.partitioning_info.partitions.append(
-                Partition(
+            archcraftsman.info.ai.partitioning_info.partitions.append(
+                archcraftsman.partition.Partition(
                     index=index,
-                    part_type=PartTypes.BOOT,
+                    part_type=archcraftsman.options.PartTypes.BOOT,
                     part_mount_point="/boot",
                     part_format=True,
                     part_format_type=part_format_type,
@@ -184,15 +196,17 @@ def auto_partitioning() -> bool:
         if want_home:
             # ROOT
             auto_part_str += "n\n"  # Add a new partition
-            if is_bios():
-                auto_part_str += "p\n"  # Partition primary (Accept default: primary)
-            auto_part_str += " \n"  # Partition number (Accept default: auto)
+            if archcraftsman.base.is_bios():
+                auto_part_str += "p\n"  # archcraftsman.disk.Partition primary (Accept default: primary)
+            auto_part_str += (
+                " \n"  # archcraftsman.disk.Partition number (Accept default: auto)
+            )
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += f"+{root_size}\n"  # Last sector (Accept default: varies)
-            info.ai.partitioning_info.partitions.append(
-                Partition(
+            archcraftsman.info.ai.partitioning_info.partitions.append(
+                archcraftsman.partition.Partition(
                     index=index,
-                    part_type=PartTypes.ROOT,
+                    part_type=archcraftsman.options.PartTypes.ROOT,
                     part_mount_point="/",
                     part_format=True,
                     part_format_type=part_format_type,
@@ -201,15 +215,17 @@ def auto_partitioning() -> bool:
             index += 1
             # HOME
             auto_part_str += "n\n"  # Add a new partition
-            if is_bios():
-                auto_part_str += "p\n"  # Partition primary (Accept default: primary)
-            auto_part_str += " \n"  # Partition number (Accept default: auto)
+            if archcraftsman.base.is_bios():
+                auto_part_str += "p\n"  # archcraftsman.disk.Partition primary (Accept default: primary)
+            auto_part_str += (
+                " \n"  # archcraftsman.disk.Partition number (Accept default: auto)
+            )
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += " \n"  # Last sector (Accept default: varies)
-            info.ai.partitioning_info.partitions.append(
-                Partition(
+            archcraftsman.info.ai.partitioning_info.partitions.append(
+                archcraftsman.partition.Partition(
                     index=index,
-                    part_type=PartTypes.HOME,
+                    part_type=archcraftsman.options.PartTypes.HOME,
                     part_mount_point="/home",
                     part_format=True,
                     part_format_type=part_format_type,
@@ -219,15 +235,17 @@ def auto_partitioning() -> bool:
         else:
             # ROOT
             auto_part_str += "n\n"  # Add a new partition
-            if is_bios():
-                auto_part_str += "p\n"  # Partition primary (Accept default: primary)
-            auto_part_str += " \n"  # Partition number (Accept default: auto)
+            if archcraftsman.base.is_bios():
+                auto_part_str += "p\n"  # archcraftsman.disk.Partition primary (Accept default: primary)
+            auto_part_str += (
+                " \n"  # archcraftsman.disk.Partition number (Accept default: auto)
+            )
             auto_part_str += " \n"  # First sector (Accept default: 1)
             auto_part_str += " \n"  # Last sector (Accept default: varies)
-            info.ai.partitioning_info.partitions.append(
-                Partition(
+            archcraftsman.info.ai.partitioning_info.partitions.append(
+                archcraftsman.partition.Partition(
                     index=index,
-                    part_type=PartTypes.ROOT,
+                    part_type=archcraftsman.options.PartTypes.ROOT,
                     part_mount_point="/",
                     part_format=True,
                     part_format_type=part_format_type,
@@ -237,34 +255,44 @@ def auto_partitioning() -> bool:
         # WRITE
         auto_part_str += "w\n"
 
-        for partition in info.ai.partitioning_info.partitions:
-            if partition.part_type == PartTypes.ROOT and root_block_name is not None:
+        for partition in archcraftsman.info.ai.partitioning_info.partitions:
+            if (
+                partition.part_type == archcraftsman.options.PartTypes.ROOT
+                and root_block_name is not None
+            ):
                 partition.encrypted = True
                 partition.block_name = root_block_name
-            if partition.part_type == PartTypes.HOME and home_block_name is not None:
+            if (
+                partition.part_type == archcraftsman.options.PartTypes.HOME
+                and home_block_name is not None
+            ):
                 partition.encrypted = True
                 partition.block_name = home_block_name
 
-        print_step(_("Summary of choices :"))
-        for partition in info.ai.partitioning_info.partitions:
-            print_sub_step(partition.summary())
-        if swap_type == SwapTypes.FILE and swap_size is not None:
-            print_sub_step(_("Swapfile size : %s") % swap_size)
-        user_answer = prompt_bool(_("Is the information correct ?"), default=False)
+        archcraftsman.base.print_step(_("Summary of choices :"))
+        for partition in archcraftsman.info.ai.partitioning_info.partitions:
+            archcraftsman.base.print_sub_step(partition.summary())
+        if swap_type == archcraftsman.options.SwapTypes.FILE and swap_size is not None:
+            archcraftsman.base.print_sub_step(_("Swapfile size : %s") % swap_size)
+        user_answer = archcraftsman.utils.prompt_bool(
+            _("Is the information correct ?"), default=False
+        )
         if not user_answer:
-            want_to_change = prompt_bool(
+            want_to_change = archcraftsman.utils.prompt_bool(
                 _("Do you want to change the partitioning mode ?"), default=False
             )
             if want_to_change:
                 return False
-            info.ai.partitioning_info.partitions.clear()
+            archcraftsman.info.ai.partitioning_info.partitions.clear()
         else:
-            execute(f'echo -e "{auto_part_str}" | fdisk "{target_disk}" &>/dev/null')
+            archcraftsman.base.execute(
+                f'echo -e "{auto_part_str}" | fdisk "{target_disk}" &>/dev/null'
+            )
 
-            for partition in info.ai.partitioning_info.partitions:
+            for partition in archcraftsman.info.ai.partitioning_info.partitions:
                 partition.build_partition_name(target_disk)
 
-                if partition not in info.ai.partitioning_info.partitions:
-                    info.ai.partitioning_info.partitions.append(partition)
+                if partition not in archcraftsman.info.ai.partitioning_info.partitions:
+                    archcraftsman.info.ai.partitioning_info.partitions.append(partition)
 
     return True

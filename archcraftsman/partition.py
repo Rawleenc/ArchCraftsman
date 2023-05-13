@@ -19,19 +19,15 @@ The partition class module
 """
 import json
 import os
-from subprocess import CalledProcessError
-from typing import Optional
+import subprocess
+import typing
 
-from archcraftsman.base import execute, print_sub_step
-from archcraftsman.i18n import _
-from archcraftsman.options import FSFormats, PartTypes
-from archcraftsman.utils import (
-    ask_encryption_block_name,
-    ask_format_type,
-    from_iec,
-    prompt_bool,
-    to_iec,
-)
+import archcraftsman.base
+import archcraftsman.i18n
+import archcraftsman.options
+import archcraftsman.utils
+
+_ = archcraftsman.i18n.translate
 
 
 class Partition:
@@ -43,9 +39,9 @@ class Partition:
         self,
         index: int = 0,
         path: str = "",
-        part_type: PartTypes = PartTypes.OTHER,
+        part_type: archcraftsman.options.PartTypes = archcraftsman.options.PartTypes.OTHER,
         part_mount_point: str = "",
-        part_format_type: FSFormats = FSFormats.EXT4,
+        part_format_type: archcraftsman.options.FSFormats = archcraftsman.options.FSFormats.EXT4,
         part_format: bool = True,
         encrypted: bool = False,
         block_name: str = "",
@@ -66,17 +62,15 @@ class Partition:
         """
         Partition str formatting.
         """
-        formatted_str = (
-            f"'{self.path}' - '{self.part_type_name()}' - '{to_iec(int(self.size()))}'"
-        )
+        formatted_str = f"'{self.path}' - '{self.part_type_name()}' - '{archcraftsman.utils.to_iec(int(self.size()))}'"
         return formatted_str
 
     def size(self) -> int:
         """
         A method to get the partition size.
         """
-        return from_iec(
-            execute(
+        return archcraftsman.utils.from_iec(
+            archcraftsman.base.execute(
                 f'lsblk -nld "{self.path}" -o SIZE', force=True, capture_output=True
             ).output.strip()
         )
@@ -85,7 +79,7 @@ class Partition:
         """
         A method to get the partition type name.
         """
-        return execute(
+        return archcraftsman.base.execute(
             f'lsblk -nld "{self.path}" -o PARTTYPENAME',
             force=True,
             capture_output=True,
@@ -95,7 +89,7 @@ class Partition:
         """
         A method to get the disk name.
         """
-        return execute(
+        return archcraftsman.base.execute(
             f'lsblk -nld "{self.path}" -o PKNAME', force=True, capture_output=True
         ).output.strip()
 
@@ -103,7 +97,7 @@ class Partition:
         """
         A method to get the filesystem type.
         """
-        return execute(
+        return archcraftsman.base.execute(
             f'lsblk -nld "{self.path}" -o FSTYPE', force=True, capture_output=True
         ).output.strip()
 
@@ -111,7 +105,7 @@ class Partition:
         """
         A method to get the partition uuid.
         """
-        return execute(
+        return archcraftsman.base.execute(
             f'lsblk -nld "{self.path}" -o UUID', force=True, capture_output=True
         ).output.strip()
 
@@ -119,13 +113,16 @@ class Partition:
         """
         Method to know if the partition need to be formatted
         """
-        return self.part_type in {PartTypes.ROOT}
+        return self.part_type in {archcraftsman.options.PartTypes.ROOT}
 
     def no_format(self):
         """
         Method to know if the partition doesn't have to be formatted
         """
-        return self.part_type in {PartTypes.SWAP, PartTypes.NOT_USED}
+        return self.part_type in {
+            archcraftsman.options.PartTypes.SWAP,
+            archcraftsman.options.PartTypes.NOT_USED,
+        }
 
     def ask_for_format(self):
         """
@@ -136,21 +133,21 @@ class Partition:
             return
         if self.need_format() or self.encrypted:
             self.part_format = True
-            self.part_format_type = ask_format_type()
+            self.part_format_type = archcraftsman.utils.ask_format_type()
             return
-        self.part_format = prompt_bool(_("Format the partition ?"))
+        self.part_format = archcraftsman.utils.prompt_bool(_("Format the partition ?"))
         if self.part_format:
-            if self.part_type == PartTypes.EFI:
-                self.part_format_type = FSFormats.VFAT
+            if self.part_type == archcraftsman.options.PartTypes.EFI:
+                self.part_format_type = archcraftsman.options.FSFormats.VFAT
             else:
-                self.part_format_type = ask_format_type()
+                self.part_format_type = archcraftsman.utils.ask_format_type()
 
     def is_encrypted(self) -> bool:
         """
         A method to detect if the partition is an existing-encrypted partition.
         """
         return bool(
-            execute(
+            archcraftsman.base.execute(
                 f"cryptsetup isLuks {self.path}", check=False, force=True, sudo=True
             )
         )
@@ -159,7 +156,11 @@ class Partition:
         """
         Method to know if the partition is encryptable.
         """
-        return self.part_type in {PartTypes.ROOT, PartTypes.HOME, PartTypes.OTHER}
+        return self.part_type in {
+            archcraftsman.options.PartTypes.ROOT,
+            archcraftsman.options.PartTypes.HOME,
+            archcraftsman.options.PartTypes.OTHER,
+        }
 
     def ask_for_encryption(self):
         """
@@ -170,16 +171,16 @@ class Partition:
         elif not self.is_encryptable():
             return
         else:
-            self.encrypted = prompt_bool(
+            self.encrypted = archcraftsman.utils.prompt_bool(
                 _("Do you want to encrypt this partition ?"), default=False
             )
         if self.encrypted:
-            if self.part_type == PartTypes.ROOT:
+            if self.part_type == archcraftsman.options.PartTypes.ROOT:
                 self.block_name = "root"
-            elif self.part_type == PartTypes.HOME:
+            elif self.part_type == archcraftsman.options.PartTypes.HOME:
                 self.block_name = "home"
             else:
-                self.block_name = ask_encryption_block_name()
+                self.block_name = archcraftsman.utils.ask_encryption_block_name()
 
     def summary(self):
         """
@@ -192,7 +193,7 @@ class Partition:
         name = str(self.index + 1)
         if self.path:
             name = self.path
-        if self.part_type == PartTypes.SWAP:
+        if self.part_type == archcraftsman.options.PartTypes.SWAP:
             return _("%s : %s") % (self.part_type, name)
         summary = _("%s : %s (mounting point : %s, format %s, format type %s)") % (
             self.part_type,
@@ -205,7 +206,7 @@ class Partition:
             summary += f" - {_('encrypted')} ('/dev/mapper/{self.block_name}')"
         return summary
 
-    def real_path(self) -> Optional[str]:
+    def real_path(self) -> typing.Optional[str]:
         """
         A method to get the partition path.
         """
@@ -213,36 +214,38 @@ class Partition:
 
     def format_partition(self):
         """
-        A method to execute formatting commands for the partition.
+        A method to archcraftsman.base.execute formatting commands for the partition.
         """
         if self.part_format:
-            print_sub_step(_("Formatting %s...") % (self.real_path()))
-        if self.part_type == PartTypes.SWAP:
-            execute(f'mkswap "{self.path}"')
-            execute(f'swapon "{self.path}"')
+            archcraftsman.base.print_sub_step(
+                _("Formatting %s...") % (self.real_path())
+            )
+        if self.part_type == archcraftsman.options.PartTypes.SWAP:
+            archcraftsman.base.execute(f'mkswap "{self.path}"')
+            archcraftsman.base.execute(f'swapon "{self.path}"')
             return
         if self.encrypted:
             if self.part_format:
-                execute(f"cryptsetup -y -v luksFormat {self.path}")
-            print_sub_step(_("Opening %s...") % (self.real_path()))
-            execute(f"cryptsetup open {self.path} {self.block_name}")
+                archcraftsman.base.execute(f"cryptsetup -y -v luksFormat {self.path}")
+            archcraftsman.base.print_sub_step(_("Opening %s...") % (self.real_path()))
+            archcraftsman.base.execute(f"cryptsetup open {self.path} {self.block_name}")
         match self.part_format_type:
-            case FSFormats.VFAT:
+            case archcraftsman.options.FSFormats.VFAT:
                 if self.part_format:
-                    execute(f'mkfs.vfat "{self.real_path()}"')
-            case FSFormats.BTRFS:
+                    archcraftsman.base.execute(f'mkfs.vfat "{self.real_path()}"')
+            case archcraftsman.options.FSFormats.BTRFS:
                 if self.part_format:
-                    execute(f'mkfs.btrfs -f "{self.real_path()}"')
+                    archcraftsman.base.execute(f'mkfs.btrfs -f "{self.real_path()}"')
             case _:
                 if self.part_format:
-                    execute(f'mkfs.ext4 "{self.real_path()}"')
+                    archcraftsman.base.execute(f'mkfs.ext4 "{self.real_path()}"')
 
     def is_mounted(self) -> bool:
         """
         A method to detect if the partition is mounted.
         """
         return bool(
-            execute(
+            archcraftsman.base.execute(
                 f"cat /proc/mounts | grep {self.real_path()}",
                 check=False,
                 capture_output=True,
@@ -254,14 +257,14 @@ class Partition:
         """
         A method to mount the partition.
         """
-        print_sub_step(_("Mounting %s...") % (self.real_path()))
+        archcraftsman.base.print_sub_step(_("Mounting %s...") % (self.real_path()))
         match self.part_format_type:
-            case FSFormats.BTRFS:
-                execute(
+            case archcraftsman.options.FSFormats.BTRFS:
+                archcraftsman.base.execute(
                     f'mount --mkdir -o compress=zstd "{self.real_path()}" "/mnt{self.part_mount_point}"'
                 )
             case _:
-                execute(
+                archcraftsman.base.execute(
                     f'mount --mkdir "{self.real_path()}" "/mnt{self.part_mount_point}"'
                 )
 
@@ -270,12 +273,16 @@ class Partition:
         A method to unmount the partition.
         """
         try:
-            print_sub_step(_("Unmounting %s...") % (self.real_path()))
-            execute(f'umount "/mnt{self.part_mount_point}"')
+            archcraftsman.base.print_sub_step(
+                _("Unmounting %s...") % (self.real_path())
+            )
+            archcraftsman.base.execute(f'umount "/mnt{self.part_mount_point}"')
             if self.encrypted:
-                print_sub_step(_("Closing %s...") % (self.real_path()))
-                execute(f"cryptsetup close {self.block_name}")
-        except CalledProcessError:
+                archcraftsman.base.print_sub_step(
+                    _("Closing %s...") % (self.real_path())
+                )
+                archcraftsman.base.execute(f"cryptsetup close {self.block_name}")
+        except subprocess.CalledProcessError:
             return False
         return True
 
@@ -283,7 +290,9 @@ class Partition:
         """
         A method to build a partition name with a disk and an index.
         """
-        block_devices_str = execute("lsblk -J", force=True, capture_output=True).output
+        block_devices_str = archcraftsman.base.execute(
+            "lsblk -J", force=True, capture_output=True
+        ).output
         if not block_devices_str:
             return
         block_devices_json = json.loads(block_devices_str)

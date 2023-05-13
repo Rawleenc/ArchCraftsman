@@ -17,36 +17,11 @@
 """
 Tests for the base module.
 """
+import io
 import subprocess
-import unittest
-from io import StringIO
-from unittest.mock import patch
+import unittest.mock
 
-from archcraftsman.base import (
-    CYAN,
-    GRAY,
-    GREEN,
-    NOCOLOR,
-    ORANGE,
-    RED,
-    ExecutionResult,
-    elevate,
-    execute,
-    glob_completer,
-    input_str,
-    is_bios,
-    is_root,
-    log,
-    pause,
-    print_error,
-    print_help,
-    print_step,
-    print_sub_step,
-    prompt,
-    prompt_ln,
-    prompt_passwd,
-    sudo_exist,
-)
+import archcraftsman.base
 
 
 class TestBase(unittest.TestCase):
@@ -54,50 +29,50 @@ class TestBase(unittest.TestCase):
     Tests for the base module.
     """
 
-    @patch("glob.glob", return_value=["toto", "tata", "titi"])
-    @patch("os.path.isdir", return_value=False)
+    @unittest.mock.patch("glob.glob", return_value=["toto", "tata", "titi"])
+    @unittest.mock.patch("os.path.isdir", return_value=False)
     def test_glob_completer_first(self, _mock_glob, _mock_isdir):
         """
         Test the glob completer.
         """
-        self.assertEqual(glob_completer("t", 0), "toto")
+        self.assertEqual(archcraftsman.base.glob_completer("t", 0), "toto")
 
-    @patch("glob.glob", return_value=["toto", "tata", "titi"])
-    @patch("os.path.isdir", return_value=False)
+    @unittest.mock.patch("glob.glob", return_value=["toto", "tata", "titi"])
+    @unittest.mock.patch("os.path.isdir", return_value=False)
     def test_glob_completer_second(self, _mock_glob, _mock_isdir):
         """
         Test the glob completer.
         """
-        self.assertEqual(glob_completer("t", 1), "tata")
+        self.assertEqual(archcraftsman.base.glob_completer("t", 1), "tata")
 
-    @patch("glob.glob", return_value=["toto", "tata", "titi"])
-    @patch("os.path.isdir", return_value=False)
+    @unittest.mock.patch("glob.glob", return_value=["toto", "tata", "titi"])
+    @unittest.mock.patch("os.path.isdir", return_value=False)
     def test_glob_completer_third(self, _mock_glob, _mock_isdir):
         """
         Test the glob completer.
         """
-        self.assertEqual(glob_completer("t", 2), "titi")
+        self.assertEqual(archcraftsman.base.glob_completer("t", 2), "titi")
 
-    @patch("os.path.exists", return_value=False)
+    @unittest.mock.patch("os.path.exists", return_value=False)
     def test_is_bios(self, _mock_is_bios):
         """
         Test the is_bios function.
         """
-        self.assertTrue(is_bios())
+        self.assertTrue(archcraftsman.base.is_bios())
 
     def test_execute(self):
         """
         Test the execute function.
         """
-        with patch("subprocess.run") as mock_subprocess_run:
+        with unittest.mock.patch("subprocess.run") as mock_subprocess_run:
             mock_subprocess_run.side_effect = [
                 subprocess.CompletedProcess(args="echo A", returncode=0, stdout=b"A"),
                 subprocess.CompletedProcess(args="echo B", returncode=0, stdout=b"B"),
                 subprocess.CompletedProcess(args="echo C", returncode=0, stdout=b"C"),
                 subprocess.CompletedProcess(args="echo D", returncode=0, stdout=b"D"),
             ]
-            result1 = execute("echo A")
-            result2 = execute("echo B")
+            result1 = archcraftsman.base.execute("echo A")
+            result2 = archcraftsman.base.execute("echo B")
             self.assertEqual(result1.command, "echo A")
             self.assertEqual(result1.returncode, 0)
             self.assertEqual(result1.output, "A")
@@ -111,25 +86,34 @@ class TestBase(unittest.TestCase):
                 hash(result1.command) ^ hash(result1.returncode) ^ hash(result1.output),
             )
             with (
-                patch("sys.stdout", new_callable=StringIO) as mock_stdout,
-                patch("archcraftsman.arguments.test", return_value=True),
+                unittest.mock.patch(
+                    "sys.stdout", new_callable=io.StringIO
+                ) as mock_stdout,
+                unittest.mock.patch("archcraftsman.arguments.test", return_value=True),
             ):
-                execute("echo C")
+                archcraftsman.base.execute("echo C")
                 self.assertTrue(mock_stdout.getvalue())
             with (
-                patch("archcraftsman.base.sudo_exist", return_value=False),
-                patch("archcraftsman.base.is_root", return_value=False),
+                unittest.mock.patch(
+                    "archcraftsman.base.sudo_exist", return_value=False
+                ),
+                unittest.mock.patch("archcraftsman.base.is_root", return_value=False),
             ):
-                self.assertRaises(PermissionError, lambda: execute("echo D", sudo=True))
+                self.assertRaises(
+                    PermissionError,
+                    lambda: archcraftsman.base.execute("echo D", sudo=True),
+                )
             with (
-                patch("archcraftsman.base.sudo_exist", return_value=True),
-                patch("archcraftsman.base.is_root", return_value=False),
+                unittest.mock.patch("archcraftsman.base.sudo_exist", return_value=True),
+                unittest.mock.patch("archcraftsman.base.is_root", return_value=False),
             ):
-                self.assertTrue("sudo" in execute("echo D", sudo=True).command)
+                self.assertTrue(
+                    "sudo" in archcraftsman.base.execute("echo D", sudo=True).command
+                )
 
-    @patch(
+    @unittest.mock.patch(
         "archcraftsman.base.execute",
-        return_value=ExecutionResult(
+        return_value=archcraftsman.base.ExecutionResult(
             "whoami",
             subprocess.CompletedProcess(args="whoami", returncode=0, stdout=b"root"),
         ),
@@ -138,11 +122,11 @@ class TestBase(unittest.TestCase):
         """
         Test the is_root function.
         """
-        self.assertTrue(is_root())
+        self.assertTrue(archcraftsman.base.is_root())
 
-    @patch(
+    @unittest.mock.patch(
         "archcraftsman.base.execute",
-        return_value=ExecutionResult(
+        return_value=archcraftsman.base.ExecutionResult(
             "which sudo",
             subprocess.CompletedProcess(
                 args="which sudo", returncode=0, stdout=b"/usr/bin/sudo"
@@ -153,24 +137,24 @@ class TestBase(unittest.TestCase):
         """
         Test the sudo_exist function.
         """
-        self.assertTrue(sudo_exist())
+        self.assertTrue(archcraftsman.base.sudo_exist())
 
-    @patch("archcraftsman.base.execute")
+    @unittest.mock.patch("archcraftsman.base.execute")
     def test_evelate(self, _mock_execute):
         """
         Test the elevate function.
         """
-        with patch("archcraftsman.base.is_root", return_value=True):
-            self.assertTrue(elevate())
-        with patch("archcraftsman.base.sudo_exist", return_value=True):
-            self.assertTrue(elevate())
+        with unittest.mock.patch("archcraftsman.base.is_root", return_value=True):
+            self.assertTrue(archcraftsman.base.elevate())
+        with unittest.mock.patch("archcraftsman.base.sudo_exist", return_value=True):
+            self.assertTrue(archcraftsman.base.elevate())
         with (
-            patch("archcraftsman.base.is_root", return_value=False),
-            patch("archcraftsman.base.sudo_exist", return_value=False),
+            unittest.mock.patch("archcraftsman.base.is_root", return_value=False),
+            unittest.mock.patch("archcraftsman.base.sudo_exist", return_value=False),
         ):
-            self.assertFalse(elevate())
+            self.assertFalse(archcraftsman.base.elevate())
 
-    @patch("archcraftsman.base.execute")
+    @unittest.mock.patch("archcraftsman.base.execute")
     def test_pause(
         self,
         _mock_execute,
@@ -178,124 +162,145 @@ class TestBase(unittest.TestCase):
         """
         Test the pause function.
         """
-        with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
-            pause()
+        with unittest.mock.patch("sys.stdout", new_callable=io.StringIO) as mock_stdout:
+            archcraftsman.base.pause()
             self.assertEqual(
                 mock_stdout.getvalue(),
-                f"{ORANGE}Press any key to continue...{NOCOLOR}\n",
+                f"{archcraftsman.base.ORANGE}Press any key to continue...{archcraftsman.base.NOCOLOR}\n",
             )
 
-        with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
-            pause(start_newline=True)
+        with unittest.mock.patch("sys.stdout", new_callable=io.StringIO) as mock_stdout:
+            archcraftsman.base.pause(start_newline=True)
             self.assertEqual(
                 mock_stdout.getvalue(),
-                f"\n{ORANGE}Press any key to continue...{NOCOLOR}\n",
+                f"\n{archcraftsman.base.ORANGE}Press any key to continue...{archcraftsman.base.NOCOLOR}\n",
             )
 
-        with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
-            pause(end_newline=True)
+        with unittest.mock.patch("sys.stdout", new_callable=io.StringIO) as mock_stdout:
+            archcraftsman.base.pause(end_newline=True)
             self.assertEqual(
                 mock_stdout.getvalue(),
-                f"{ORANGE}Press any key to continue...{NOCOLOR}\n\n",
+                f"{archcraftsman.base.ORANGE}Press any key to continue...{archcraftsman.base.NOCOLOR}\n\n",
             )
 
-    @patch("archcraftsman.base.pause")
+    @unittest.mock.patch("archcraftsman.base.pause")
     def test_print_error(self, _mock_pause):
         """
         Test the print_error function.
         """
-        with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
-            print_error("Error")
+        with unittest.mock.patch("sys.stdout", new_callable=io.StringIO) as mock_stdout:
+            archcraftsman.base.print_error("Error")
             self.assertEqual(
                 mock_stdout.getvalue(),
-                f"\n{RED}  /!\\ Error{NOCOLOR}\n\n",
+                f"\n{archcraftsman.base.RED}  /!\\ Error{archcraftsman.base.NOCOLOR}\n\n",
             )
 
-    @patch("archcraftsman.base.execute")
+    @unittest.mock.patch("archcraftsman.base.execute")
     def test_print_step(self, _mock_execute):
         """
         Test the print_step function.
         """
-        with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
-            print_step("Step")
+        with unittest.mock.patch("sys.stdout", new_callable=io.StringIO) as mock_stdout:
+            archcraftsman.base.print_step("Step")
             self.assertEqual(
                 mock_stdout.getvalue(),
-                f"\n{GREEN}Step{NOCOLOR}\n",
+                f"\n{archcraftsman.base.GREEN}Step{archcraftsman.base.NOCOLOR}\n",
             )
 
-    @patch("archcraftsman.base.execute")
+    @unittest.mock.patch("archcraftsman.base.execute")
     def test_print_sub_step(self, _mock_execute):
         """
         Test the print_sub_step function.
         """
-        with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
-            print_sub_step("Sub step")
+        with unittest.mock.patch("sys.stdout", new_callable=io.StringIO) as mock_stdout:
+            archcraftsman.base.print_sub_step("Sub step")
             self.assertEqual(
                 mock_stdout.getvalue(),
-                f"{CYAN}  * Sub step{NOCOLOR}\n",
+                f"{archcraftsman.base.CYAN}  * Sub step{archcraftsman.base.NOCOLOR}\n",
             )
 
-    @patch("archcraftsman.arguments.test", return_value=True)
+    @unittest.mock.patch("archcraftsman.arguments.test", return_value=True)
     def test_log(self, _mock_test):
         """
         Test the log function.
         """
-        with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
-            log("Log")
-            self.assertEqual(mock_stdout.getvalue(), f"{GRAY}> Log{NOCOLOR}\n")
+        with unittest.mock.patch("sys.stdout", new_callable=io.StringIO) as mock_stdout:
+            archcraftsman.base.log("Log")
+            self.assertEqual(
+                mock_stdout.getvalue(),
+                f"{archcraftsman.base.GRAY}> Log{archcraftsman.base.NOCOLOR}\n",
+            )
 
-    @patch("archcraftsman.base.pause")
+    @unittest.mock.patch("archcraftsman.base.pause")
     def test_print_help(self, _mock_pause):
         """
         Test the print_help function.
         """
-        with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
-            print_help("Test message", do_pause=True)
+        with unittest.mock.patch("sys.stdout", new_callable=io.StringIO) as mock_stdout:
+            archcraftsman.base.print_help("Test message", do_pause=True)
             self.assertEqual(
                 mock_stdout.getvalue(),
-                f"\n{GREEN}Help :{NOCOLOR}\n{CYAN}  * Test message{NOCOLOR}\n",
+                f"\n{archcraftsman.base.GREEN}Help :{archcraftsman.base.NOCOLOR}\n{archcraftsman.base.CYAN}  "
+                f"* Test message{archcraftsman.base.NOCOLOR}\n",
             )
 
     def test_input_str(self):
         """
         Test the input_str function.
         """
-        with patch("archcraftsman.base.input", return_value="toto"):
-            self.assertEqual(input_str("Enter:"), "toto")
-        with patch("archcraftsman.base.getpass.getpass", return_value="titi"):
-            self.assertEqual(input_str("Enter:", password=True), "titi")
+        with unittest.mock.patch("archcraftsman.base.input", return_value="toto"):
+            self.assertEqual(archcraftsman.base.input_str("Enter:"), "toto")
+        with unittest.mock.patch(
+            "archcraftsman.base.getpass.getpass", return_value="titi"
+        ):
+            self.assertEqual(
+                archcraftsman.base.input_str("Enter:", password=True), "titi"
+            )
 
-    @patch("sys.stdout", new_callable=StringIO)
-    @patch("archcraftsman.base.pause")
+    @unittest.mock.patch("sys.stdout", new_callable=io.StringIO)
+    @unittest.mock.patch("archcraftsman.base.pause")
     def test_prompt(self, _mock_pause, _mock_stdout):
         """
         Test the prompt function.
         """
-        with patch("archcraftsman.base.input_str") as mock_input:
+        with unittest.mock.patch("archcraftsman.base.input_str") as mock_input:
             mock_input.return_value = "Titi"
-            self.assertEqual(prompt("Enter:", default="Toto", help_msg="Help"), "Titi")
-        with patch("archcraftsman.base.input_str") as mock_input:
+            self.assertEqual(
+                archcraftsman.base.prompt("Enter:", default="Toto", help_msg="Help"),
+                "Titi",
+            )
+        with unittest.mock.patch("archcraftsman.base.input_str") as mock_input:
             mock_input.return_value = ""
-            self.assertEqual(prompt("Enter:", default="Toto", help_msg="Help"), "Toto")
-        with patch("archcraftsman.base.input_str") as mock_input:
+            self.assertEqual(
+                archcraftsman.base.prompt("Enter:", default="Toto", help_msg="Help"),
+                "Toto",
+            )
+        with unittest.mock.patch("archcraftsman.base.input_str") as mock_input:
             mock_input.side_effect = ["?", ""]
-            self.assertEqual(prompt("Enter:", default="Toto", help_msg="Help"), "Toto")
-        with patch("archcraftsman.base.input_str") as mock_input:
+            self.assertEqual(
+                archcraftsman.base.prompt("Enter:", default="Toto", help_msg="Help"),
+                "Toto",
+            )
+        with unittest.mock.patch("archcraftsman.base.input_str") as mock_input:
             mock_input.side_effect = ["", "Tata"]
-            self.assertEqual(prompt("Enter:", help_msg="Help", required=True), "Tata")
+            self.assertEqual(
+                archcraftsman.base.prompt("Enter:", help_msg="Help", required=True),
+                "Tata",
+            )
 
     def test_prompt_ln(self):
         """
         Test the prompt_ln function.
         """
-        with patch("archcraftsman.base.prompt", return_value="Titi"):
+        with unittest.mock.patch("archcraftsman.base.prompt", return_value="Titi"):
             self.assertEqual(
-                prompt_ln("Enter:", default="Toto", help_msg="Help"), "Titi"
+                archcraftsman.base.prompt_ln("Enter:", default="Toto", help_msg="Help"),
+                "Titi",
             )
 
     def test_prompt_password(self):
         """
         Test the prompt_password function.
         """
-        with patch("archcraftsman.base.prompt", return_value="Titi"):
-            self.assertEqual(prompt_passwd("Enter:"), "Titi")
+        with unittest.mock.patch("archcraftsman.base.prompt", return_value="Titi"):
+            self.assertEqual(archcraftsman.base.prompt_passwd("Enter:"), "Titi")

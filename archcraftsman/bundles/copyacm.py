@@ -17,34 +17,37 @@
 """
 The copy ArchCraftsman bundle module
 """
-from archcraftsman import info
-from archcraftsman.base import execute, print_sub_step
-from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import _
-from archcraftsman.options import Bundles
+import archcraftsman.base
+import archcraftsman.bundles.bundle
+import archcraftsman.i18n
+import archcraftsman.info
+import archcraftsman.options
+
+_ = archcraftsman.i18n.translate
 
 
-class CopyACM(Bundle):
+class CopyACM(archcraftsman.bundles.bundle.Bundle):
     """
     The CopyACM class.
     """
 
     def __init__(self):
-        super().__init__(Bundles.COPY_ACM)
+        super().__init__(archcraftsman.options.Bundles.COPY_ACM)
 
     def print_resume(self):
-        print_sub_step(_("Copy ArchCraftsman to the new system."))
+        archcraftsman.base.print_sub_step(_("Copy ArchCraftsman to the new system."))
 
     def configure(self):
-        if info.ai.system_info.user_name:
-            path = f"/home/{info.ai.system_info.user_name}"
-            execute(f"mkdir -p /mnt{path}")
-            execute(f"cp -r ~/archcraftsman /mnt{path}")
-            execute(
-                f"chown -R {info.ai.system_info.user_name}:{info.ai.system_info.user_name} {path}",
+        if archcraftsman.info.ai.system_info.user_name:
+            path = f"/home/{archcraftsman.info.ai.system_info.user_name}"
+            archcraftsman.base.execute(f"mkdir -p /mnt{path}")
+            archcraftsman.base.execute(f"cp -r ~/archcraftsman /mnt{path}")
+            archcraftsman.base.execute(
+                f"chown -R {archcraftsman.info.ai.system_info.user_name}:"
+                f"{archcraftsman.info.ai.system_info.user_name} {path}",
                 chroot=True,
             )
         else:
             path = "/root"
-            execute(f"mkdir -p /mnt{path}")
-            execute(f"cp -r ~/archcraftsman /mnt{path}")
+            archcraftsman.base.execute(f"mkdir -p /mnt{path}")
+            archcraftsman.base.execute(f"cp -r ~/archcraftsman /mnt{path}")

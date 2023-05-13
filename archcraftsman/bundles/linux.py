@@ -17,68 +17,69 @@
 """
 All supported linux kernel bundles module
 """
-from archcraftsman.base import print_sub_step
-from archcraftsman.bundles import bundle
-from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import _
-from archcraftsman.options import Kernels
+import archcraftsman.base
+import archcraftsman.bundles.bundle
+import archcraftsman.i18n
+import archcraftsman.options
+
+_ = archcraftsman.i18n.translate
 
 
-class LinuxCurrent(bundle.Bundle):
+class LinuxCurrent(archcraftsman.bundles.bundle.Bundle):
     """
     The Linux current kernel class.
     """
 
     def __init__(self):
-        super().__init__(Kernels.CURRENT)
+        super().__init__(archcraftsman.options.Kernels.CURRENT)
 
     def packages(self) -> list[str]:
         return ["linux", "linux-headers"]
 
     def print_resume(self):
-        print_sub_step(_("Install Linux current kernel."))
+        archcraftsman.base.print_sub_step(_("Install Linux current kernel."))
 
 
-class LinuxHardened(Bundle):
+class LinuxHardened(archcraftsman.bundles.bundle.Bundle):
     """
     The Linux hardened kernel class.
     """
 
     def __init__(self):
-        super().__init__(Kernels.HARDENED)
+        super().__init__(archcraftsman.options.Kernels.HARDENED)
 
     def packages(self) -> list[str]:
         return ["linux-hardened", "linux-hardened-headers"]
 
     def print_resume(self):
-        print_sub_step(_("Install Linux hardened kernel."))
+        archcraftsman.base.print_sub_step(_("Install Linux hardened kernel."))
 
 
-class LinuxLts(bundle.Bundle):
+class LinuxLts(archcraftsman.bundles.bundle.Bundle):
     """
     The Linux LTS kernel class.
     """
 
     def __init__(self):
-        super().__init__(Kernels.LTS)
+        super().__init__(archcraftsman.options.Kernels.LTS)
 
     def packages(self) -> list[str]:
         return ["linux-lts", "linux-lts-headers"]
 
     def print_resume(self):
-        print_sub_step(_("Install Linux LTS kernel."))
+        archcraftsman.base.print_sub_step(_("Install Linux LTS kernel."))
 
 
-class LinuxZen(bundle.Bundle):
+class LinuxZen(archcraftsman.bundles.bundle.Bundle):
     """
     The Linux zen kernel class.
     """
 
     def __init__(self):
-        super().__init__(Kernels.ZEN)
+        super().__init__(archcraftsman.options.Kernels.ZEN)
 
     def packages(self) -> list[str]:
         return ["linux-zen", "linux-zen-headers"]
 
     def print_resume(self):
-        print_sub_step(_("Install Linux zen kernel."))
+        archcraftsman.base.print_sub_step(_("Install Linux zen kernel."))

@@ -20,11 +20,13 @@ The module of PartitioningInfo class.
 import re
 import subprocess
 
-from archcraftsman import arguments
-from archcraftsman.base import execute, print_error, print_step
-from archcraftsman.i18n import _
-from archcraftsman.options import FSFormats, PartTypes
-from archcraftsman.partition import Partition
+import archcraftsman.arguments
+import archcraftsman.base
+import archcraftsman.i18n
+import archcraftsman.options
+import archcraftsman.partition
+
+_ = archcraftsman.i18n.translate
 
 
 class PartitioningInfo:
@@ -38,38 +40,43 @@ class PartitioningInfo:
         main_disk: str = "",
         btrfs_in_use: bool = False,
     ) -> None:
-        self.partitions: list[Partition] = []
+        self.partitions: list[archcraftsman.partition.Partition] = []
         self.swapfile_size = swapfile_size
         self.main_disk = main_disk
         self.btrfs_in_use = btrfs_in_use
 
-    def root_partition(self) -> Partition:
+    def root_partition(self) -> archcraftsman.partition.Partition:
         """
         The root partition retrieving method.
         """
         return next(
             partition
             for partition in self.partitions
-            if partition.part_type == PartTypes.ROOT
+            if partition.part_type == archcraftsman.options.PartTypes.ROOT
         )
 
     def format_and_mount_partitions(self):
         """
         A method to format and mount all partitions.
         """
-        print_step(_("Formatting and mounting partitions..."), clear=False)
+        archcraftsman.base.print_step(
+            _("Formatting and mounting partitions..."), clear=False
+        )
 
         formatting_ok = False
         while not formatting_ok:
             try:
                 for partition in self.partitions:
-                    if partition.part_format_type == FSFormats.BTRFS:
+                    if (
+                        partition.part_format_type
+                        == archcraftsman.options.FSFormats.BTRFS
+                    ):
                         self.btrfs_in_use = True
                     partition.format_partition()
                 formatting_ok = True
             except subprocess.CalledProcessError as exception:
                 self.umount_partitions()
-                print_error(
+                archcraftsman.base.print_error(
                     _("A subprocess execution failed ! See the following error: %s")
                     % exception
                 )
@@ -85,11 +92,11 @@ class PartitioningInfo:
             else len(part.part_mount_point)
         )
 
-        while not arguments.test() and False in [
+        while not archcraftsman.arguments.test() and False in [
             partition.is_mounted() for partition in not_mounted_partitions
         ]:
             for partition in not_mounted_partitions:
-                if partition.part_format_type == FSFormats.BTRFS:
+                if partition.part_format_type == archcraftsman.options.FSFormats.BTRFS:
                     self.btrfs_in_use = True
                 partition.mount()
 
@@ -97,18 +104,18 @@ class PartitioningInfo:
         """
         A method to unmount all mounted partitions.
         """
-        print_step(_("Unmounting partitions..."), clear=False)
+        archcraftsman.base.print_step(_("Unmounting partitions..."), clear=False)
         swap = re.sub(
             "\\s",
             "",
-            execute(
+            archcraftsman.base.execute(
                 "swapon --noheadings | awk '{print $1}'",
                 check=False,
                 capture_output=True,
             ).output,
         )
         if swap:
-            execute(f"swapoff {swap} &>/dev/null", check=False)
+            archcraftsman.base.execute(f"swapoff {swap} &>/dev/null", check=False)
 
         mounted_partitions = [
             partition for partition in self.partitions if partition.is_mounted()
@@ -120,7 +127,7 @@ class PartitioningInfo:
             reverse=True,
         )
 
-        while not arguments.test() and True in [
+        while not archcraftsman.arguments.test() and True in [
             partition.is_mounted() for partition in mounted_partitions
         ]:
             for partition in [

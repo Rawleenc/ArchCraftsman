@@ -18,10 +18,10 @@
 Test the utils module.
 """
 import unittest
-from unittest.mock import patch
+import unittest.mock
 
-from archcraftsman.options import Languages
-from archcraftsman.utils import from_iec, generate_translations, print_supported, to_iec
+import archcraftsman.options
+import archcraftsman.utils
 
 
 class TestUtils(unittest.TestCase):
@@ -33,56 +33,60 @@ class TestUtils(unittest.TestCase):
         """
         Test the generate_translations function.
         """
-        with patch("archcraftsman.utils.execute") as mock_execute:
-            generate_translations(Languages.FRENCH)
+        with unittest.mock.patch("archcraftsman.base.execute") as mock_execute:
+            archcraftsman.utils.generate_translations(
+                archcraftsman.options.Languages.FRENCH
+            )
             mock_execute.assert_called()
 
     def test_generate_translations_with_invalid_language(self):
         """
         Test the generate_translations function with an invalid language.
         """
-        with patch("archcraftsman.utils.execute") as mock_execute:
-            generate_translations("invalid")
+        with unittest.mock.patch("archcraftsman.base.execute") as mock_execute:
+            archcraftsman.utils.generate_translations("invalid")
             mock_execute.assert_not_called()
 
     def test_to_iec(self):
         """
         Test the to_iec function.
         """
-        self.assertEqual(to_iec(10240), "10K")
+        self.assertEqual(archcraftsman.utils.to_iec(10240), "10K")
 
     def test_to_iec_with_negative_value(self):
         """
         Test the to_iec function with a negative value.
         """
-        self.assertEqual(to_iec(-1), "")
+        self.assertEqual(archcraftsman.utils.to_iec(-1), "")
 
     def test_from_iec(self):
         """
         Test the from_iec function.
         """
-        self.assertEqual(from_iec("1K"), 1024)
+        self.assertEqual(archcraftsman.utils.from_iec("1K"), 1024)
 
     def test_from_iec_with_invalid_value(self):
         """
         Test the from_iec function with an invalid value.
         """
-        self.assertEqual(from_iec("invalid"), 0)
+        self.assertEqual(archcraftsman.utils.from_iec("invalid"), 0)
 
     def test_from_iec_with_negative_value(self):
         """
         Test the from_iec function with a negative value.
         """
-        self.assertEqual(from_iec("-1K"), 0)
+        self.assertEqual(archcraftsman.utils.from_iec("-1K"), 0)
 
     def test_print_supported(self):
         """
         Test the print_supported function.
         """
         with (
-            patch("archcraftsman.utils.print_step") as mock_print_step,
-            patch("archcraftsman.utils.print_sub_step") as mock_print_sub_step,
+            unittest.mock.patch("archcraftsman.base.print_step") as mock_print_step,
+            unittest.mock.patch(
+                "archcraftsman.base.print_sub_step"
+            ) as mock_print_sub_step,
         ):
-            print_supported("test", ["test1", "test2"], "test1")
+            archcraftsman.utils.print_supported("test", ["test1", "test2"], "test1")
             mock_print_step.assert_called()
             mock_print_sub_step.assert_called()

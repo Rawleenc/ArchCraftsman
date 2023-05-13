@@ -19,11 +19,13 @@ The disk class module
 """
 import re
 
-from archcraftsman.base import execute, print_error, prompt
-from archcraftsman.i18n import _
-from archcraftsman.options import FSFormats, PartTypes
-from archcraftsman.partition import Partition
-from archcraftsman.utils import to_iec
+import archcraftsman.base
+import archcraftsman.i18n
+import archcraftsman.options
+import archcraftsman.partition
+import archcraftsman.utils
+
+_ = archcraftsman.i18n.translate
 
 
 class Disk:
@@ -32,7 +34,7 @@ class Disk:
     """
 
     path: str
-    partitions: list[Partition]
+    partitions: list[archcraftsman.partition.Partition]
     total: int
     free_space: int
 
@@ -41,7 +43,7 @@ class Disk:
         Disk initialisation.
         """
         self.path = path
-        detected_partitions = execute(
+        detected_partitions = archcraftsman.base.execute(
             f'lsblk -nl "{path}" -o PATH,TYPE,PARTTYPENAME | grep part | grep -iE "linux|efi|swap"',
             force=True,
             check=False,
@@ -50,10 +52,12 @@ class Disk:
         self.partitions = []
         index = 0
         for partition_info in detected_partitions.splitlines():
-            self.partitions.append(Partition(index, partition_info.split(" ")[0]))
+            self.partitions.append(
+                archcraftsman.partition.Partition(index, partition_info.split(" ")[0])
+            )
             index += 1
         self.total = int(
-            execute(
+            archcraftsman.base.execute(
                 f'lsblk -b --output SIZE -n -d "{self.path}"',
                 force=True,
                 capture_output=True,
@@ -64,7 +68,7 @@ class Disk:
                 re.sub(
                     "\\s",
                     "",
-                    execute(
+                    archcraftsman.base.execute(
                         f"lsblk {path} -o PATH,TYPE,PHY-SEC | grep disk | awk '{{print $3}}'",
                         force=True,
                         capture_output=True,
@@ -78,7 +82,7 @@ class Disk:
                 re.sub(
                     "\\s",
                     "",
-                    execute(
+                    archcraftsman.base.execute(
                         f"fdisk -l | grep {last_partition_path} | awk '{{print $3}}'",
                         force=True,
                         capture_output=True,
@@ -90,16 +94,20 @@ class Disk:
         else:
             self.free_space = self.total
 
-    def get_efi_partition(self) -> Partition:
+    def get_efi_partition(self) -> archcraftsman.partition.Partition:
         """
         The Disk method to get the EFI partition if it exist. Else return an empty partition object.
         """
         try:
-            return [p for p in self.partitions if p.part_type == PartTypes.EFI].pop()
+            return [
+                p
+                for p in self.partitions
+                if p.part_type == archcraftsman.options.PartTypes.EFI
+            ].pop()
         except IndexError:
-            return Partition(
-                part_type=PartTypes.EFI,
-                part_format_type=FSFormats.VFAT,
+            return archcraftsman.partition.Partition(
+                part_type=archcraftsman.options.PartTypes.EFI,
+                part_format_type=archcraftsman.options.FSFormats.VFAT,
                 part_mount_point="/boot/efi",
             )
 
@@ -110,9 +118,9 @@ class Disk:
         swapfile_ok = False
         swapfile_size = ""
         swapfile_size_pattern = re.compile("^(\\d*[.,]\\d+|\\d+)([GMk])$")
-        default_swapfile_size = to_iec(int(self.total / 32))
+        default_swapfile_size = archcraftsman.utils.to_iec(int(self.total / 32))
         while not swapfile_ok:
-            swapfile_size = prompt(
+            swapfile_size = archcraftsman.base.prompt(
                 _("Swapfile size ? (%s, type '0' for none) : ") % default_swapfile_size,
                 default=default_swapfile_size,
             )
@@ -122,7 +130,7 @@ class Disk:
             elif swapfile_size_pattern.match(swapfile_size):
                 swapfile_ok = True
             else:
-                print_error("Invalid swapfile size.")
+                archcraftsman.base.print_error("Invalid swapfile size.")
         return swapfile_size
 
     def __str__(self) -> str:

@@ -17,28 +17,31 @@
 """
 The nvidia proprietary driver bundle module
 """
-from archcraftsman import info
-from archcraftsman.base import print_sub_step
-from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import _
-from archcraftsman.options import Bundles, Kernels
+import archcraftsman.base
+import archcraftsman.bundles.bundle
+import archcraftsman.i18n
+import archcraftsman.info
+import archcraftsman.options
+
+_ = archcraftsman.i18n.translate
 
 
-class NvidiaDriver(Bundle):
+class NvidiaDriver(archcraftsman.bundles.bundle.Bundle):
     """
     The Nvidia driver class.
     """
 
     def __init__(self):
-        super().__init__(Bundles.NVIDIA)
+        super().__init__(archcraftsman.options.Bundles.NVIDIA)
 
     def packages(self) -> list[str]:
         if (
-            info.ai.system_info.kernel()
-            and info.ai.system_info.kernel().name == Kernels.LTS
+            archcraftsman.info.ai.system_info.kernel()
+            and archcraftsman.info.ai.system_info.kernel().name
+            == archcraftsman.options.Kernels.LTS
         ):
             return ["nvidia-lts"]
         return ["nvidia"]
 
     def print_resume(self):
-        print_sub_step(_("Install proprietary Nvidia driver."))
+        archcraftsman.base.print_sub_step(_("Install proprietary Nvidia driver."))

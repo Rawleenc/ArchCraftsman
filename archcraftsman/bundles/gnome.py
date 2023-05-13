@@ -18,21 +18,23 @@
 The gnome bundle module
 """
 
-from archcraftsman import info
-from archcraftsman.base import execute, print_sub_step
-from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import _
-from archcraftsman.options import Desktops
-from archcraftsman.utils import prompt_bool
+import archcraftsman.base
+import archcraftsman.bundles.bundle
+import archcraftsman.i18n
+import archcraftsman.info
+import archcraftsman.options
+import archcraftsman.utils
+
+_ = archcraftsman.i18n.translate
 
 
-class Gnome(Bundle):
+class Gnome(archcraftsman.bundles.bundle.Bundle):
     """
     Bundle class.
     """
 
     def __init__(self):
-        super().__init__(Desktops.GNOME)
+        super().__init__(archcraftsman.options.Desktops.GNOME)
         self.minimal = False
 
     def packages(self) -> list[str]:
@@ -51,11 +53,11 @@ class Gnome(Bundle):
         return packages
 
     def print_resume(self):
-        print_sub_step(_("Desktop environment : %s") % self.name)
-        print_sub_step(_("Display manager : %s") % "GDM")
+        archcraftsman.base.print_sub_step(_("Desktop environment : %s") % self.name)
+        archcraftsman.base.print_sub_step(_("Display manager : %s") % "GDM")
 
     def prompt_extra(self):
-        self.minimal = prompt_bool(
+        self.minimal = archcraftsman.utils.prompt_bool(
             _("Install a minimal environment ?"),
             default=False,
             help_msg=_(
@@ -64,5 +66,5 @@ class Gnome(Bundle):
         )
 
     def configure(self):
-        execute("systemctl enable gdm", chroot=True)
-        info.ai.pre_launch_info.setup_chroot_keyboard()
+        archcraftsman.base.execute("systemctl enable gdm", chroot=True)
+        archcraftsman.info.ai.pre_launch_info.setup_chroot_keyboard()

@@ -19,9 +19,9 @@ The config related methods module
 """
 
 
-from archcraftsman.partitioninginfo import PartitioningInfo
-from archcraftsman.prelaunchinfo import PreLaunchInfo
-from archcraftsman.systeminfo import SystemInfo
+import archcraftsman.partitioninginfo
+import archcraftsman.prelaunchinfo
+import archcraftsman.systeminfo
 
 
 class AllInfo:
@@ -30,9 +30,15 @@ class AllInfo:
     """
 
     def __init__(self) -> None:
-        self.pre_launch_info: PreLaunchInfo = PreLaunchInfo()
-        self.partitioning_info: PartitioningInfo = PartitioningInfo()
-        self.system_info: SystemInfo = SystemInfo()
+        self.pre_launch_info: archcraftsman.prelaunchinfo.PreLaunchInfo = (
+            archcraftsman.prelaunchinfo.PreLaunchInfo()
+        )
+        self.partitioning_info: archcraftsman.partitioninginfo.PartitioningInfo = (
+            archcraftsman.partitioninginfo.PartitioningInfo()
+        )
+        self.system_info: archcraftsman.systeminfo.SystemInfo = (
+            archcraftsman.systeminfo.SystemInfo()
+        )
 
 
 ai = AllInfo()

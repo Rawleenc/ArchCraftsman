@@ -18,21 +18,23 @@
 The plasma bundle module
 """
 
-from archcraftsman import info
-from archcraftsman.base import execute, print_sub_step
-from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import _
-from archcraftsman.options import Bundles, Desktops
-from archcraftsman.utils import prompt_bool
+import archcraftsman.base
+import archcraftsman.bundles.bundle
+import archcraftsman.i18n
+import archcraftsman.info
+import archcraftsman.options
+import archcraftsman.utils
+
+_ = archcraftsman.i18n.translate
 
 
-class Plasma(Bundle):
+class Plasma(archcraftsman.bundles.bundle.Bundle):
     """
     Bundle class.
     """
 
     def __init__(self):
-        super().__init__(Desktops.PLASMA)
+        super().__init__(archcraftsman.options.Desktops.PLASMA)
         self.minimal = False
         self.plasma_wayland = False
 
@@ -48,9 +50,13 @@ class Plasma(Bundle):
         ]
         if self.plasma_wayland:
             packages.extend(["plasma-wayland-session", "qt5-wayland"])
-            if info.ai.system_info.others() and Bundles.NVIDIA in [
-                bundle.name for bundle in info.ai.system_info.others()
-            ]:
+            if (
+                archcraftsman.info.ai.system_info.others()
+                and archcraftsman.options.Bundles.NVIDIA
+                in [
+                    bundle.name for bundle in archcraftsman.info.ai.system_info.others()
+                ]
+            ):
                 packages.append("egl-wayland")
             if self.minimal is not True:
                 packages.append("kde-applications")
@@ -60,25 +66,27 @@ class Plasma(Bundle):
         return packages
 
     def print_resume(self):
-        print_sub_step(_("Desktop environment : %s") % self.name)
-        print_sub_step(_("Display manager : %s") % "SDDM")
+        archcraftsman.base.print_sub_step(_("Desktop environment : %s") % self.name)
+        archcraftsman.base.print_sub_step(_("Display manager : %s") % "SDDM")
         if self.minimal:
-            print_sub_step(_("Install a minimal environment."))
+            archcraftsman.base.print_sub_step(_("Install a minimal environment."))
         if self.plasma_wayland:
-            print_sub_step(_("Install Wayland support for the plasma session."))
+            archcraftsman.base.print_sub_step(
+                _("Install Wayland support for the plasma session.")
+            )
 
     def prompt_extra(self):
-        self.minimal = prompt_bool(
+        self.minimal = archcraftsman.utils.prompt_bool(
             _("Install a minimal environment ?"),
             default=False,
             help_msg=_(
                 "If yes, the script will not install any extra packages, only base packages."
             ),
         )
-        self.plasma_wayland = prompt_bool(
+        self.plasma_wayland = archcraftsman.utils.prompt_bool(
             _("Install Wayland support for the plasma session ?"), default=False
         )
 
     def configure(self):
-        execute("systemctl enable sddm", chroot=True)
-        info.ai.pre_launch_info.setup_chroot_keyboard()
+        archcraftsman.base.execute("systemctl enable sddm", chroot=True)
+        archcraftsman.info.ai.pre_launch_info.setup_chroot_keyboard()

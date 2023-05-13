@@ -19,24 +19,22 @@ The ArchCraftsman installer.
 """
 import argparse
 import readline
+import subprocess
 import sys
-from subprocess import CalledProcessError
 
-from archcraftsman import arguments, config, i18n, info
-from archcraftsman.autopart import auto_partitioning
-from archcraftsman.base import (
-    execute,
-    glob_completer,
-    print_error,
-    print_step,
-    print_sub_step,
-)
-from archcraftsman.basesetup import pre_launch, setup_system
-from archcraftsman.i18n import _
-from archcraftsman.manualpart import manual_partitioning
-from archcraftsman.options import Desktops, FSFormats, Languages, PartTypes
-from archcraftsman.shell import shell
-from archcraftsman.utils import prompt_bool
+import archcraftsman.arguments
+import archcraftsman.autopart
+import archcraftsman.base
+import archcraftsman.basesetup
+import archcraftsman.config
+import archcraftsman.i18n
+import archcraftsman.info
+import archcraftsman.manualpart
+import archcraftsman.options
+import archcraftsman.shell
+import archcraftsman.utils
+
+_ = archcraftsman.i18n.translate
 
 
 def install():
@@ -44,31 +42,31 @@ def install():
     The main installation method.
     """
     try:
-        if not arguments.config():
-            setup_system()
+        if not archcraftsman.arguments.config():
+            archcraftsman.basesetup.setup_system()
 
-        partitioning_info_ok: bool = bool(arguments.config())
+        partitioning_info_ok: bool = bool(archcraftsman.arguments.config())
         while not partitioning_info_ok:
-            print_step(_("Partitioning :"))
-            want_auto_part = prompt_bool(
+            archcraftsman.base.print_step(_("Partitioning :"))
+            want_auto_part = archcraftsman.utils.prompt_bool(
                 _("Do you want an automatic partitioning ?"), default=False
             )
             if want_auto_part:
-                partitioning_info_ok = auto_partitioning()
+                partitioning_info_ok = archcraftsman.autopart.auto_partitioning()
             else:
-                partitioning_info_ok = manual_partitioning()
+                partitioning_info_ok = archcraftsman.manualpart.manual_partitioning()
 
-        info.ai.partitioning_info.format_and_mount_partitions()
+        archcraftsman.info.ai.partitioning_info.format_and_mount_partitions()
 
-        print_step(_("Updating mirrors..."), clear=False)
-        execute(
+        archcraftsman.base.print_step(_("Updating mirrors..."), clear=False)
+        archcraftsman.base.execute(
             "reflector --verbose -phttps -f10 -l10 --sort rate -a2 --save /etc/pacman.d/mirrorlist"
         )
 
         base_pkgs = set()
         base_pkgs.update(["base", "base-devel", "linux-firmware"])
 
-        base_pkgs.update(info.ai.system_info.kernel().packages())
+        base_pkgs.update(archcraftsman.info.ai.system_info.kernel().packages())
 
         pkgs = set()
         pkgs.update(
@@ -91,76 +89,104 @@ def install():
             ]
         )
 
-        if info.ai.pre_launch_info.global_language.lower() != "en" and execute(
-            f"pacman -Si man-pages-{info.ai.pre_launch_info.global_language.lower()} &>/dev/null",
+        if archcraftsman.info.ai.pre_launch_info.global_language.lower() != "en" and archcraftsman.base.execute(
+            f"pacman -Si man-pages-{archcraftsman.info.ai.pre_launch_info.global_language.lower()} &>/dev/null",
             check=False,
         ):
-            pkgs.add(f"man-pages-{info.ai.pre_launch_info.global_language.lower()}")
+            pkgs.add(
+                f"man-pages-{archcraftsman.info.ai.pre_launch_info.global_language.lower()}"
+            )
 
-        if info.ai.partitioning_info.btrfs_in_use:
+        if archcraftsman.info.ai.partitioning_info.btrfs_in_use:
             pkgs.add("btrfs-progs")
 
-        for bundle in info.ai.system_info.bundles:
+        for bundle in archcraftsman.info.ai.system_info.bundles:
             pkgs.update(bundle.packages())
 
-        if len(info.ai.system_info.more_pkgs) > 0:
-            pkgs.update(info.ai.system_info.more_pkgs)
+        if len(archcraftsman.info.ai.system_info.more_pkgs) > 0:
+            pkgs.update(archcraftsman.info.ai.system_info.more_pkgs)
 
-        print_step(_("Installation of the base..."), clear=False)
-        execute(f'pacstrap -K /mnt {" ".join(base_pkgs)}')
+        archcraftsman.base.print_step(_("Installation of the base..."), clear=False)
+        archcraftsman.base.execute(f'pacstrap -K /mnt {" ".join(base_pkgs)}')
 
-        print_step(_("System configuration..."), clear=False)
-        execute('sed -i "s|#en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|g" /mnt/etc/locale.gen')
-        execute('sed -i "s|#en_US ISO-8859-1|en_US ISO-8859-1|g" /mnt/etc/locale.gen')
-        if info.ai.pre_launch_info.global_language == Languages.FRENCH:
-            execute(
+        archcraftsman.base.print_step(_("System configuration..."), clear=False)
+        archcraftsman.base.execute(
+            'sed -i "s|#en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|g" /mnt/etc/locale.gen'
+        )
+        archcraftsman.base.execute(
+            'sed -i "s|#en_US ISO-8859-1|en_US ISO-8859-1|g" /mnt/etc/locale.gen'
+        )
+        if (
+            archcraftsman.info.ai.pre_launch_info.global_language
+            == archcraftsman.options.Languages.FRENCH
+        ):
+            archcraftsman.base.execute(
                 'sed -i "s|#fr_FR.UTF-8 UTF-8|fr_FR.UTF-8 UTF-8|g" /mnt/etc/locale.gen'
             )
-            execute(
+            archcraftsman.base.execute(
                 'sed -i "s|#fr_FR ISO-8859-1|fr_FR ISO-8859-1|g" /mnt/etc/locale.gen'
             )
-            execute('echo "LANG=fr_FR.UTF-8" >/mnt/etc/locale.conf')
+            archcraftsman.base.execute('echo "LANG=fr_FR.UTF-8" >/mnt/etc/locale.conf')
         else:
-            execute('echo "LANG=en_US.UTF-8" >/mnt/etc/locale.conf')
-        execute(
-            f'echo "KEYMAP={info.ai.pre_launch_info.keymap}" >/mnt/etc/vconsole.conf'
+            archcraftsman.base.execute('echo "LANG=en_US.UTF-8" >/mnt/etc/locale.conf')
+        archcraftsman.base.execute(
+            f'echo "KEYMAP={archcraftsman.info.ai.pre_launch_info.keymap}" >/mnt/etc/vconsole.conf'
         )
-        execute(f'echo "{info.ai.system_info.hostname}" >/mnt/etc/hostname')
-        execute(
+        archcraftsman.base.execute(
+            f'echo "{archcraftsman.info.ai.system_info.hostname}" >/mnt/etc/hostname'
+        )
+        archcraftsman.base.execute(
             f"""
             {{
                 echo "127.0.0.1 localhost"
                 echo "::1 localhost"
-                echo "127.0.1.1 {info.ai.system_info.hostname}.localdomain {info.ai.system_info.hostname}"
+                echo "127.0.1.1 {archcraftsman.info.ai.system_info.hostname}.localdomain "
+                "{archcraftsman.info.ai.system_info.hostname}"
             }} >>/mnt/etc/hosts
-        """
+            """
         )
-        execute("cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist")
+        archcraftsman.base.execute(
+            "cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist"
+        )
 
-        print_step(_("Locales configuration..."), clear=False)
-        execute(f"ln -sf {info.ai.system_info.timezone} /etc/localtime", chroot=True)
-        execute("locale-gen", chroot=True)
+        archcraftsman.base.print_step(_("Locales configuration..."), clear=False)
+        archcraftsman.base.execute(
+            f"ln -sf {archcraftsman.info.ai.system_info.timezone} /etc/localtime",
+            chroot=True,
+        )
+        archcraftsman.base.execute("locale-gen", chroot=True)
 
-        print_step(_("Installation of the remaining packages..."), clear=False)
-        execute('sed -i "s|#Color|Color|g" /mnt/etc/pacman.conf')
-        execute(
+        archcraftsman.base.print_step(
+            _("Installation of the remaining packages..."), clear=False
+        )
+        archcraftsman.base.execute('sed -i "s|#Color|Color|g" /mnt/etc/pacman.conf')
+        archcraftsman.base.execute(
             'sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /mnt/etc/pacman.conf'
         )
-        execute("pacman --noconfirm -Sy archlinux-keyring", chroot=True)
-        execute("pacman --noconfirm -Su", chroot=True)
-        execute(f'pacman --noconfirm -S {" ".join(pkgs)}', chroot=True)
+        archcraftsman.base.execute(
+            "pacman --noconfirm -Sy archlinux-keyring", chroot=True
+        )
+        archcraftsman.base.execute("pacman --noconfirm -Su", chroot=True)
+        archcraftsman.base.execute(
+            f'pacman --noconfirm -S {" ".join(pkgs)}', chroot=True
+        )
 
         if (
-            PartTypes.SWAP
-            not in [part.part_type for part in info.ai.partitioning_info.partitions]
-            and info.ai.partitioning_info.swapfile_size
+            archcraftsman.options.PartTypes.SWAP
+            not in [
+                part.part_type
+                for part in archcraftsman.info.ai.partitioning_info.partitions
+            ]
+            and archcraftsman.info.ai.partitioning_info.swapfile_size
         ):
-            print_step(_("Creation and activation of the swapfile..."), clear=False)
+            archcraftsman.base.print_step(
+                _("Creation and activation of the swapfile..."), clear=False
+            )
             if (
-                info.ai.partitioning_info.root_partition().part_format_type
-                == FSFormats.BTRFS
+                archcraftsman.info.ai.partitioning_info.root_partition().part_format_type
+                == archcraftsman.options.FSFormats.BTRFS
             ):
-                execute(
+                archcraftsman.base.execute(
                     "btrfs subvolume create /mnt/swap && "
                     "cd /mnt/swap && "
                     "truncate -s 0 ./swapfile && "
@@ -169,83 +195,95 @@ def install():
                     "cd -"
                 )
             else:
-                execute("mkdir -p /mnt/swap")
-            execute(
-                f'fallocate -l "{info.ai.partitioning_info.swapfile_size}" /mnt/swap/swapfile'
+                archcraftsman.base.execute("mkdir -p /mnt/swap")
+            archcraftsman.base.execute(
+                f'fallocate -l "{archcraftsman.info.ai.partitioning_info.swapfile_size}" /mnt/swap/swapfile'
             )
-            execute("chmod 600 /mnt/swap/swapfile")
-            execute("mkswap /mnt/swap/swapfile")
-            execute("swapon /mnt/swap/swapfile")
+            archcraftsman.base.execute("chmod 600 /mnt/swap/swapfile")
+            archcraftsman.base.execute("mkswap /mnt/swap/swapfile")
+            archcraftsman.base.execute("swapon /mnt/swap/swapfile")
 
-        print_step(_("Generating fstab..."), clear=False)
-        execute("genfstab -U /mnt >>/mnt/etc/fstab")
+        archcraftsman.base.print_step(_("Generating fstab..."), clear=False)
+        archcraftsman.base.execute("genfstab -U /mnt >>/mnt/etc/fstab")
 
-        if info.ai.system_info.desktop().name != Desktops.NONE:
-            print_step(_("Desktop configuration..."), clear=False)
-            info.ai.system_info.desktop().configure()
+        if (
+            archcraftsman.info.ai.system_info.desktop().name
+            != archcraftsman.options.Desktops.NONE
+        ):
+            archcraftsman.base.print_step(_("Desktop configuration..."), clear=False)
+            archcraftsman.info.ai.system_info.desktop().configure()
 
-        print_step(_("Network configuration..."), clear=False)
-        info.ai.system_info.network().configure()
+        archcraftsman.base.print_step(_("Network configuration..."), clear=False)
+        archcraftsman.info.ai.system_info.network().configure()
 
-        execute("systemctl enable systemd-timesyncd", chroot=True)
+        archcraftsman.base.execute("systemctl enable systemd-timesyncd", chroot=True)
 
-        print_step(_("Installation and configuration of the grub..."), clear=False)
-        info.ai.system_info.bootloader().configure()
+        archcraftsman.base.print_step(
+            _("Installation and configuration of the grub..."), clear=False
+        )
+        archcraftsman.info.ai.system_info.bootloader().configure()
 
-        print_step(_("Users configuration..."), clear=False)
-        print_sub_step(_("Root account configuration..."))
-        if info.ai.system_info.root_password:
-            execute(
-                f"echo 'root:{info.ai.system_info.root_password}' | chpasswd",
+        archcraftsman.base.print_step(_("Users configuration..."), clear=False)
+        archcraftsman.base.print_sub_step(_("Root account configuration..."))
+        if archcraftsman.info.ai.system_info.root_password:
+            archcraftsman.base.execute(
+                f"echo 'root:{archcraftsman.info.ai.system_info.root_password}' | chpasswd",
                 chroot=True,
             )
-        if info.ai.system_info.user_name:
-            print_sub_step(
-                _("%s account configuration...") % info.ai.system_info.user_name
+        if archcraftsman.info.ai.system_info.user_name:
+            archcraftsman.base.print_sub_step(
+                _("%s account configuration...")
+                % archcraftsman.info.ai.system_info.user_name
             )
-            execute(
+            archcraftsman.base.execute(
                 'sed -i "s|# %wheel ALL=(ALL:ALL) ALL|%wheel ALL=(ALL:ALL) ALL|g" /mnt/etc/sudoers'
             )
-            execute(
+            archcraftsman.base.execute(
                 f"useradd --shell=/bin/bash --groups=wheel "
-                f"--create-home {info.ai.system_info.user_name}",
+                f"--create-home {archcraftsman.info.ai.system_info.user_name}",
                 chroot=True,
             )
-            if info.ai.system_info.user_full_name:
-                execute(
-                    f"chfn -f '{info.ai.system_info.user_full_name}' {info.ai.system_info.user_name}",
+            if archcraftsman.info.ai.system_info.user_full_name:
+                archcraftsman.base.execute(
+                    f"chfn -f '{archcraftsman.info.ai.system_info.user_full_name}' "
+                    f"{archcraftsman.info.ai.system_info.user_name}",
                     chroot=True,
                 )
-            if info.ai.system_info.user_password:
-                execute(
-                    f"echo '{info.ai.system_info.user_name}:{info.ai.system_info.user_password}' | chpasswd",
+            if archcraftsman.info.ai.system_info.user_password:
+                archcraftsman.base.execute(
+                    f"echo '{archcraftsman.info.ai.system_info.user_name}:"
+                    f"{archcraftsman.info.ai.system_info.user_password}' | chpasswd",
                     chroot=True,
                 )
 
-        print_step(_("Extra packages configuration if needed..."), clear=False)
-        for bundle in info.ai.system_info.others():
+        archcraftsman.base.print_step(
+            _("Extra packages configuration if needed..."), clear=False
+        )
+        for bundle in archcraftsman.info.ai.system_info.others():
             bundle.configure()
 
-        config.serialize()
-        info.ai.partitioning_info.umount_partitions()
+        archcraftsman.config.serialize()
+        archcraftsman.info.ai.partitioning_info.umount_partitions()
 
-        print_step(
+        archcraftsman.base.print_step(
             _("Installation complete ! You can reboot your system."), clear=False
         )
 
     except KeyboardInterrupt:
-        print_error(_("Script execution interrupted by the user !"), do_pause=False)
-        config.serialize()
-        info.ai.partitioning_info.umount_partitions()
+        archcraftsman.base.print_error(
+            _("Script execution interrupted by the user !"), do_pause=False
+        )
+        archcraftsman.config.serialize()
+        archcraftsman.info.ai.partitioning_info.umount_partitions()
         sys.exit(1)
-    except CalledProcessError as exception:
-        print_error(
+    except subprocess.CalledProcessError as exception:
+        archcraftsman.base.print_error(
             _("A subprocess execution failed ! See the following error: %s")
             % exception,
             do_pause=False,
         )
-        config.serialize()
-        info.ai.partitioning_info.umount_partitions()
+        archcraftsman.config.serialize()
+        archcraftsman.info.ai.partitioning_info.umount_partitions()
         sys.exit(1)
     except EOFError:
         sys.exit(1)
@@ -286,26 +324,30 @@ def main():
         default=False,
         help="Used to test the installer. No destructive commands will be executed.",
     )
-    arguments.init(parser.parse_args())
+    archcraftsman.arguments.init(parser.parse_args())
 
     readline.set_completer_delims(" \t\n;")
     readline.parse_and_bind("tab: complete")
-    readline.set_completer(glob_completer)
+    readline.set_completer(archcraftsman.base.glob_completer)
 
-    if not arguments.is_call_ok():
+    if not archcraftsman.arguments.is_call_ok():
         parser.print_help()
         sys.exit(1)
 
-    if arguments.install():
-        pre_launch()
-        i18n.update_method(info.ai.pre_launch_info.global_language)
+    if archcraftsman.arguments.install():
+        archcraftsman.basesetup.pre_launch()
+        archcraftsman.i18n.update_method(
+            archcraftsman.info.ai.pre_launch_info.global_language
+        )
         install()
         sys.exit(0)
 
-    if arguments.shell():
-        pre_launch(shell_mode=True)
-        i18n.update_method(info.ai.pre_launch_info.global_language)
-        shell()
+    if archcraftsman.arguments.shell():
+        archcraftsman.basesetup.pre_launch(shell_mode=True)
+        archcraftsman.i18n.update_method(
+            archcraftsman.info.ai.pre_launch_info.global_language
+        )
+        archcraftsman.arguments.shell()
         sys.exit(0)
 
 

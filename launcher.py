@@ -17,6 +17,7 @@
 """
 The ArchCraftsman entry point. A launcher to download all ArchCraftsman's modules and run it.
 """
+import concurrent.futures
 import glob
 import json
 import multiprocessing
@@ -27,7 +28,6 @@ import subprocess
 import sys
 import urllib.error
 import urllib.request
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 OWNER = "Rawleenc"
 REPO = "ArchCraftsman"
@@ -164,11 +164,11 @@ def main(cmd: str):
         files.append(file)
 
     cpus = multiprocessing.cpu_count()
-    with ThreadPoolExecutor(max_workers=cpus) as exe:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=cpus) as exe:
         futures = []
         for module_file in files:
             exe.submit(download, module_file["download_url"], module_file["path"], True)
-        for future in as_completed(futures):
+        for future in concurrent.futures.as_completed(futures):
             future.result()
 
     config_file = input_str(

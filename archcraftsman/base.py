@@ -22,10 +22,12 @@ import getpass
 import glob
 import os
 import subprocess
-from typing import Optional
+import typing
 
-from archcraftsman import arguments
-from archcraftsman.i18n import _
+import archcraftsman.arguments
+import archcraftsman.i18n
+
+_ = archcraftsman.i18n.translate
 
 RED = "\033[0;31m"
 GREEN = "\033[0;32m"
@@ -130,7 +132,7 @@ def execute(
     """
     A method to exec a command.
     """
-    if force or not arguments.test():
+    if force or not archcraftsman.arguments.test():
         if sudo and not sudo_exist() and not is_root():
             raise PermissionError("This script must be run as root.")
         if sudo and sudo_exist() and not is_root():
@@ -197,7 +199,7 @@ def log(message: str):
     """
     A method to print a log message.
     """
-    if arguments.test():
+    if archcraftsman.arguments.test():
         print(f"{GRAY}> {message}{NOCOLOR}")
 
 
@@ -222,8 +224,8 @@ def input_str(message: str, password: bool = False) -> str:
 
 def prompt(
     message: str,
-    default: Optional[str] = None,
-    help_msg: Optional[str] = None,
+    default: typing.Optional[str] = None,
+    help_msg: typing.Optional[str] = None,
     required: bool = False,
     password: bool = False,
 ) -> str:
@@ -248,8 +250,8 @@ def prompt(
 
 def prompt_ln(
     message: str,
-    default: Optional[str] = None,
-    help_msg: Optional[str] = None,
+    default: typing.Optional[str] = None,
+    help_msg: typing.Optional[str] = None,
     required: bool = False,
 ) -> str:
     """

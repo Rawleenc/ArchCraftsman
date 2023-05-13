@@ -18,19 +18,21 @@
 The yay bundle module
 """
 
-from archcraftsman.base import print_sub_step
-from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import _
-from archcraftsman.options import ShellBundles
+import archcraftsman.base
+import archcraftsman.bundles.bundle
+import archcraftsman.i18n
+import archcraftsman.options
+
+_ = archcraftsman.i18n.translate
 
 
-class GenerateConfig(Bundle):
+class GenerateConfig(archcraftsman.bundles.bundle.Bundle):
     """
     The generate configuration shell bundle.
     """
 
     def __init__(self):
-        super().__init__(ShellBundles.GENERATE_CONFIG)
+        super().__init__(archcraftsman.options.ShellBundles.GENERATE_CONFIG)
 
     def print_resume(self):
-        print_sub_step(_("Generate configuration."))
+        archcraftsman.base.print_sub_step(_("Generate configuration."))

@@ -18,19 +18,21 @@
 The yay bundle module
 """
 
-from archcraftsman.base import execute, is_root, print_error, print_sub_step
-from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import _
-from archcraftsman.options import ShellBundles
+import archcraftsman.base
+import archcraftsman.bundles.bundle
+import archcraftsman.i18n
+import archcraftsman.options
+
+_ = archcraftsman.i18n.translate
 
 
-class Yay(Bundle):
+class Yay(archcraftsman.bundles.bundle.Bundle):
     """
     The Yay class.
     """
 
     def __init__(self):
-        super().__init__(ShellBundles.YAY)
+        super().__init__(archcraftsman.options.ShellBundles.YAY)
 
     def packages(self) -> list[str]:
         return ["yay"]
@@ -39,11 +41,13 @@ class Yay(Bundle):
         return True
 
     def print_resume(self):
-        print_sub_step(_("Install YAY."))
+        archcraftsman.base.print_sub_step(_("Install YAY."))
 
     def configure(self):
-        if is_root():
-            print_error(_("You must not be root to install yay."), do_pause=False)
+        if archcraftsman.base.is_root():
+            archcraftsman.base.print_error(
+                _("You must not be root to install yay."), do_pause=False
+            )
             return
-        execute("git clone https://aur.archlinux.org/yay")
-        execute("cd yay; makepkg -si; cd -; rm -rf yay")
+        archcraftsman.base.execute("git clone https://aur.archlinux.org/yay")
+        archcraftsman.base.execute("cd yay; makepkg -si; cd -; rm -rf yay")

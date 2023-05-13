@@ -17,34 +17,28 @@
 """
 The general utility methods and tools module
 """
+import importlib.resources
 import re
 import readline
 import subprocess
-from importlib.resources import files
-from typing import Optional, TypeVar
+import typing
 
-from archcraftsman.base import (
-    execute,
-    glob_completer,
-    print_error,
-    print_help,
-    print_step,
-    print_sub_step,
-    prompt,
-    prompt_ln,
-    prompt_passwd,
-)
-from archcraftsman.i18n import _
-from archcraftsman.options import FSFormats, OptionEnum
+import archcraftsman.base
+import archcraftsman.i18n
+import archcraftsman.options
+
+_ = archcraftsman.i18n.translate
 
 
 def generate_translations(global_language: str):
     """
     Generate translations for ArchCraftsman.
     """
-    locale_file_path = files("archcraftsman.locales").joinpath(f"{global_language}.po")
+    locale_file_path = importlib.resources.files("archcraftsman.locales").joinpath(
+        f"{global_language}.po"
+    )
     if locale_file_path.is_file():
-        execute(
+        archcraftsman.base.execute(
             f"msgfmt -o /usr/share/locale/fr/LC_MESSAGES/archcraftsman.mo {locale_file_path} &>/dev/null",
             force=True,
             sudo=True,
@@ -58,7 +52,7 @@ def to_iec(size: int) -> str:
     return re.sub(
         "\\s",
         "",
-        execute(
+        archcraftsman.base.execute(
             f'printf "{size}" | numfmt --to=iec', capture_output=True, force=True
         ).output,
     )
@@ -72,7 +66,7 @@ def from_iec(size: str) -> int:
         value = re.sub(
             "\\s",
             "",
-            execute(
+            archcraftsman.base.execute(
                 f'printf "{size}" | numfmt --from=iec',
                 capture_output=True,
                 force=True,
@@ -88,23 +82,23 @@ def print_supported(supported_msg: str, options: list[str], *ignores: str):
     A method to print all supported options.
     """
     supported_options = [option for option in options if option not in ignores]
-    print_step(supported_msg, clear=False)
-    print_sub_step(" ".join(supported_options))
+    archcraftsman.base.print_step(supported_msg, clear=False)
+    archcraftsman.base.print_sub_step(" ".join(supported_options))
     print("")
 
 
-T = TypeVar("T", bound=OptionEnum)
+T = typing.TypeVar("T", bound=archcraftsman.options.OptionEnum)
 
 
 def prompt_option(
     message: str,
     error_msg: str,
     options: type[T],
-    supported_msg: Optional[str],
-    default: Optional[T],
+    supported_msg: typing.Optional[str],
+    default: typing.Optional[T],
     *ignores: T,
     new_line_prompt: bool = True,
-) -> Optional[T]:
+) -> typing.Optional[T]:
     """
     A method to prompt for a bundle.
     """
@@ -128,16 +122,20 @@ def prompt_option(
         if default:
             prompt_message = message % default.value
         if new_line_prompt:
-            option_name = prompt_ln(prompt_message, default=default).lower()
+            option_name = archcraftsman.base.prompt_ln(
+                prompt_message, default=default
+            ).lower()
         else:
-            option_name = prompt(prompt_message, default=default).lower()
+            option_name = archcraftsman.base.prompt(
+                prompt_message, default=default
+            ).lower()
         if option_name in supported_options:
             option_ok = True
             option = options(option_name)
         else:
-            print_error(error_msg % option_name, do_pause=False)
+            archcraftsman.base.print_error(error_msg % option_name, do_pause=False)
             continue
-    readline.set_completer(glob_completer)
+    readline.set_completer(archcraftsman.base.glob_completer)
     return option
 
 
@@ -146,7 +144,7 @@ def ask_keymap(default: str) -> str:
     A method to prompt for a keymap.
     """
     keymaps = (
-        execute(
+        archcraftsman.base.execute(
             "localectl list-keymaps",
             capture_output=True,
             force=True,
@@ -173,32 +171,34 @@ def ask_keymap(default: str) -> str:
             )
             % default
         )
-        keymap = prompt_ln(prompt_message, default=default).lower()
+        keymap = archcraftsman.base.prompt_ln(prompt_message, default=default).lower()
         if keymap == "help":
-            print_help(" ".join(keymaps))
+            archcraftsman.base.print_help(" ".join(keymaps))
             continue
         if keymap in keymaps:
             keymap_ok = True
         else:
-            print_error(_("Keymap '%s' doesn't exist.") % keymap, do_pause=False)
+            archcraftsman.base.print_error(
+                _("Keymap '%s' doesn't exist.") % keymap, do_pause=False
+            )
             continue
-    readline.set_completer(glob_completer)
+    readline.set_completer(archcraftsman.base.glob_completer)
     return keymap
 
 
-def ask_format_type() -> FSFormats:
+def ask_format_type() -> archcraftsman.options.FSFormats:
     """
     The method to ask the user for the format type.
     """
     format_type = prompt_option(
         _("Which format type do you want ? (%s) : "),
         _("Format type '%s' is not supported."),
-        FSFormats,
+        archcraftsman.options.FSFormats,
         _("Supported format types : "),
-        FSFormats.EXT4,
-        FSFormats.VFAT,
+        archcraftsman.options.FSFormats.EXT4,
+        archcraftsman.options.FSFormats.VFAT,
     )
-    return format_type if format_type else FSFormats.EXT4
+    return format_type if format_type else archcraftsman.options.FSFormats.EXT4
 
 
 def ask_encryption_block_name() -> str:
@@ -209,11 +209,11 @@ def ask_encryption_block_name() -> str:
     block_name_ok = False
     block_name = ""
     while not block_name_ok:
-        block_name = prompt_ln(
+        block_name = archcraftsman.base.prompt_ln(
             _("What will be the encrypted block name ? : "), required=True
         )
         if block_name and not block_name_pattern.match(block_name):
-            print_error(_("Invalid encrypted block name."))
+            archcraftsman.base.print_error(_("Invalid encrypted block name."))
             continue
         block_name_ok = True
     return block_name
@@ -226,12 +226,12 @@ def ask_password(prompt_message: str, required: bool = False) -> str:
     password_confirm = None
     password = None
     while password is None or password != password_confirm:
-        password = prompt_passwd(prompt_message, required=required)
-        password_confirm = prompt_passwd(
+        password = archcraftsman.base.prompt_passwd(prompt_message, required=required)
+        password_confirm = archcraftsman.base.prompt_passwd(
             _("Enter it again to confirm : "), required=required
         )
         if password != password_confirm:
-            print_error(_("Passwords entered don't match."))
+            archcraftsman.base.print_error(_("Passwords entered don't match."))
     return password
 
 
@@ -240,7 +240,7 @@ def ask_drive() -> str:
     A method to prompt for a drive to partition.
     """
     drives = (
-        execute(
+        archcraftsman.base.execute(
             "lsblk -lpdno NAME,TYPE | grep disk | awk '{print $1}'",
             capture_output=True,
             force=True,
@@ -261,20 +261,20 @@ def ask_drive() -> str:
         prompt_message = _(
             "On which drive should Archlinux be installed ? (type the entire name, for example '/dev/sda') : "
         )
-        drive = prompt_ln(prompt_message).lower()
+        drive = archcraftsman.base.prompt_ln(prompt_message).lower()
         if drive in drives:
             drive_ok = True
         else:
-            print_error(
+            archcraftsman.base.print_error(
                 _("The target drive '%s' doesn't exist.") % drive, do_pause=False
             )
             continue
-    readline.set_completer(glob_completer)
+    readline.set_completer(archcraftsman.base.glob_completer)
     return drive
 
 
 def prompt_bool(
-    message: str, default: bool = True, help_msg: Optional[str] = None
+    message: str, default: bool = True, help_msg: typing.Optional[str] = None
 ) -> bool:
     """
     A method to prompt for a boolean choice.
@@ -288,5 +288,11 @@ def prompt_bool(
         message += "/?"
     message += ") : "
     if not default:
-        return prompt(f"{message}", help_msg=help_msg).upper() == _("yes").upper()[0]
-    return prompt(f"{message}", help_msg=help_msg).upper() != _("no").upper()[0]
+        return (
+            archcraftsman.base.prompt(f"{message}", help_msg=help_msg).upper()
+            == _("yes").upper()[0]
+        )
+    return (
+        archcraftsman.base.prompt(f"{message}", help_msg=help_msg).upper()
+        != _("no").upper()[0]
+    )

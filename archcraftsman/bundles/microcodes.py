@@ -18,22 +18,24 @@
 The microcodes auto-installation bundle module
 """
 import re
-from typing import Optional
+import typing
 
-from archcraftsman.base import execute, print_sub_step
-from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import _
-from archcraftsman.options import Bundles
+import archcraftsman.base
+import archcraftsman.bundles.bundle
+import archcraftsman.i18n
+import archcraftsman.options
+
+_ = archcraftsman.i18n.translate
 
 
-class Microcodes(Bundle):
+class Microcodes(archcraftsman.bundles.bundle.Bundle):
     """
     The Microcodes class.
     """
 
     def __init__(self):
-        super().__init__(Bundles.MICROCODES)
-        self._cpu_info_vendor = execute(
+        super().__init__(archcraftsman.options.Bundles.MICROCODES)
+        self._cpu_info_vendor = archcraftsman.base.execute(
             'grep </proc/cpuinfo "vendor" | uniq', force=True, capture_output=True
         ).output
         self._microcode_name = (
@@ -49,7 +51,7 @@ class Microcodes(Bundle):
             return ["amd-ucode"]
         return []
 
-    def microcode_img(self) -> Optional[str]:
+    def microcode_img(self) -> typing.Optional[str]:
         """
         The microcode img file name retrieving method.
         """
@@ -61,4 +63,6 @@ class Microcodes(Bundle):
 
     def print_resume(self):
         if self._microcode_name in {"GenuineIntel", "AuthenticAMD"}:
-            print_sub_step(_("Microcodes to install : %s") % self._microcode_name)
+            archcraftsman.base.print_sub_step(
+                _("Microcodes to install : %s") % self._microcode_name
+            )

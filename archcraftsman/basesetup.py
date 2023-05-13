@@ -19,103 +19,101 @@ The system setup module
 """
 import json
 import re
+import subprocess
 import sys
-from subprocess import CalledProcessError
-from urllib.request import urlopen
+import urllib.request
 
-from archcraftsman import arguments, info
-from archcraftsman.base import (
-    elevate,
-    execute,
-    is_bios,
-    print_error,
-    print_step,
-    print_sub_step,
-    prompt_ln,
-)
-from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.bundles.copyacm import CopyACM
-from archcraftsman.bundles.genericbundle import GenericBundle
-from archcraftsman.bundles.grmlzsh import GrmlZsh
-from archcraftsman.bundles.grub import Grub
-from archcraftsman.bundles.microcodes import Microcodes
-from archcraftsman.bundles.nvidia import NvidiaDriver
-from archcraftsman.bundles.terminus import TerminusFont
-from archcraftsman.bundles.utils import list_generic_bundles, prompt_bundle
-from archcraftsman.bundles.zram import Zram
-from archcraftsman.config import deserialize
-from archcraftsman.i18n import _
-from archcraftsman.options import Desktops, Kernels, Languages, Network
-from archcraftsman.packages import Packages
-from archcraftsman.prelaunchinfo import parse_detected_language
-from archcraftsman.utils import (
-    ask_keymap,
-    ask_password,
-    generate_translations,
-    prompt_bool,
-    prompt_option,
-)
+import archcraftsman.arguments
+import archcraftsman.base
+import archcraftsman.bundles.bundle
+import archcraftsman.bundles.copyacm
+import archcraftsman.bundles.genericbundle
+import archcraftsman.bundles.grmlzsh
+import archcraftsman.bundles.grub
+import archcraftsman.bundles.microcodes
+import archcraftsman.bundles.nvidia
+import archcraftsman.bundles.terminus
+import archcraftsman.bundles.utils
+import archcraftsman.bundles.zram
+import archcraftsman.config
+import archcraftsman.i18n
+import archcraftsman.info
+import archcraftsman.options
+import archcraftsman.packages
+import archcraftsman.prelaunchinfo
+import archcraftsman.utils
+
+_ = archcraftsman.i18n.translate
 
 
 def initial_setup(shell_mode: bool = False):
     """
     The method to get environment configurations from the user.
     """
-    print_sub_step(_("Querying IP geolocation information..."))
-    with urlopen("https://ipapi.co/json") as response:
+    archcraftsman.base.print_sub_step(_("Querying IP geolocation information..."))
+    with urllib.request.urlopen("https://ipapi.co/json") as response:
         geoip_info = json.loads(response.read())
     detected_language = str(geoip_info["languages"]).split(",", maxsplit=1)[0]
     detected_timezone = geoip_info["timezone"]
 
-    default_language = parse_detected_language(detected_language)
+    default_language = archcraftsman.prelaunchinfo.parse_detected_language(
+        detected_language
+    )
 
     if detected_language == "fr-FR":
         default_keymap = "fr-latin9"
     else:
         default_keymap = "de-latin1"
 
-    if not arguments.config():
-        info.ai.pre_launch_info.detected_timezone = detected_timezone
-        info.ai.pre_launch_info.global_language = default_language
-        info.ai.pre_launch_info.keymap = default_keymap
+    if not archcraftsman.arguments.config():
+        archcraftsman.info.ai.pre_launch_info.detected_timezone = detected_timezone
+        archcraftsman.info.ai.pre_launch_info.global_language = default_language
+        archcraftsman.info.ai.pre_launch_info.keymap = default_keymap
 
-    user_answer = shell_mode or arguments.config()
+    user_answer = shell_mode or archcraftsman.arguments.config()
     while not user_answer:
-        print_step(_("Welcome to ArchCraftsman !"))
-        if is_bios():
-            print_error(
+        archcraftsman.base.print_step(_("Welcome to ArchCraftsman !"))
+        if archcraftsman.base.is_bios():
+            archcraftsman.base.print_error(
                 _(
                     "BIOS detected ! The script will act accordingly. Don't forget to select a DOS label type before "
                     "partitioning."
                 )
             )
 
-        print_step(_("Environment configuration : "), clear=False)
+        archcraftsman.base.print_step(_("Environment configuration : "), clear=False)
 
-        global_language = prompt_option(
+        global_language = archcraftsman.utils.prompt_option(
             _("Choose your installation's language (%s) : "),
             _("Global language '%s' is not supported."),
-            Languages,
+            archcraftsman.options.Languages,
             supported_msg=_("Supported languages : "),
             default=default_language,
         )
         if global_language:
-            info.ai.pre_launch_info.global_language = global_language
+            archcraftsman.info.ai.pre_launch_info.global_language = global_language
 
-        info.ai.pre_launch_info.keymap = ask_keymap(default_keymap)
+        archcraftsman.info.ai.pre_launch_info.keymap = archcraftsman.utils.ask_keymap(
+            default_keymap
+        )
 
-        print_step(_("Summary of choices :"), clear=False)
-        print_sub_step(
+        archcraftsman.base.print_step(_("Summary of choices :"), clear=False)
+        archcraftsman.base.print_sub_step(
             _("Your installation's language : %s")
-            % info.ai.pre_launch_info.global_language
+            % archcraftsman.info.ai.pre_launch_info.global_language
         )
-        print_sub_step(
-            _("Your installation's keymap : %s") % info.ai.pre_launch_info.keymap
+        archcraftsman.base.print_sub_step(
+            _("Your installation's keymap : %s")
+            % archcraftsman.info.ai.pre_launch_info.keymap
         )
-        user_answer = prompt_bool(_("Is the information correct ?"), default=False)
-    generate_translations(info.ai.pre_launch_info.global_language)
+        user_answer = archcraftsman.utils.prompt_bool(
+            _("Is the information correct ?"), default=False
+        )
+    archcraftsman.utils.generate_translations(
+        archcraftsman.info.ai.pre_launch_info.global_language
+    )
     if not shell_mode:
-        info.ai.pre_launch_info.setup_locale()
+        archcraftsman.info.ai.pre_launch_info.setup_locale()
 
 
 def pre_launch(shell_mode: bool = False):
@@ -123,31 +121,35 @@ def pre_launch(shell_mode: bool = False):
     A pre-launch steps method.
     """
     try:
-        if not elevate():
-            print_error(_("This script must be run as root."), do_pause=False)
+        if not archcraftsman.base.elevate():
+            archcraftsman.base.print_error(
+                _("This script must be run as root."), do_pause=False
+            )
             sys.exit(1)
 
-        if arguments.config():
-            deserialize(arguments.config())
+        if archcraftsman.arguments.config():
+            archcraftsman.config.deserialize(archcraftsman.arguments.config())
 
-        print_step(_("Running pre-launch steps : "), clear=False)
+        archcraftsman.base.print_step(_("Running pre-launch steps : "), clear=False)
 
         if not shell_mode:
-            execute('sed -i "s|#Color|Color|g" /etc/pacman.conf')
-            execute(
+            archcraftsman.base.execute('sed -i "s|#Color|Color|g" /etc/pacman.conf')
+            archcraftsman.base.execute(
                 'sed -i "s|#ParallelDownloads = 5|ParallelDownloads = 5\\nDisableDownloadTimeout|g" /etc/pacman.conf'
             )
 
-            print_sub_step(_("Synchronising repositories..."))
-            execute("pacman -Sy &>/dev/null")
-            Packages()
+            archcraftsman.base.print_sub_step(_("Synchronising repositories..."))
+            archcraftsman.base.execute("pacman -Sy &>/dev/null")
+            archcraftsman.packages.Packages()
 
         initial_setup(shell_mode)
     except KeyboardInterrupt:
-        print_error(_("Script execution interrupted by the user !"), do_pause=False)
+        archcraftsman.base.print_error(
+            _("Script execution interrupted by the user !"), do_pause=False
+        )
         sys.exit(1)
-    except CalledProcessError as exception:
-        print_error(
+    except subprocess.CalledProcessError as exception:
+        archcraftsman.base.print_error(
             _("A subprocess execution failed ! See the following error: %s")
             % exception,
             do_pause=False,
@@ -163,49 +165,57 @@ def setup_system():
     """
     user_answer = False
     while not user_answer:
-        print_step(_("System configuration : "))
-        info.ai.system_info.hostname = prompt_ln(
+        archcraftsman.base.print_step(_("System configuration : "))
+        archcraftsman.info.ai.system_info.hostname = archcraftsman.base.prompt_ln(
             _("What will be your hostname (archlinux) : "), default="archlinux"
         )
-        info.ai.system_info.bundles = []
+        archcraftsman.info.ai.system_info.bundles = []
 
-        info.ai.system_info.bundles.append(
-            prompt_bundle(
+        archcraftsman.info.ai.system_info.bundles.append(
+            archcraftsman.bundles.utils.prompt_bundle(
                 _("Choose your kernel (%s) : "),
                 _("Kernel '%s' is not supported."),
-                Kernels,
+                archcraftsman.options.Kernels,
                 _("Supported kernels : "),
-                Kernels.CURRENT,
+                archcraftsman.options.Kernels.CURRENT,
             )
         )
 
-        info.ai.system_info.bundles.append(
-            prompt_bundle(
+        archcraftsman.info.ai.system_info.bundles.append(
+            archcraftsman.bundles.utils.prompt_bundle(
                 _("Install a desktop environment ? (%s) : "),
                 _("Desktop environment '%s' is not supported."),
-                Desktops,
+                archcraftsman.options.Desktops,
                 _("Supported desktop environments : "),
-                Desktops.NONE,
+                archcraftsman.options.Desktops.NONE,
             )
         )
 
-        info.ai.system_info.bundles.append(
-            prompt_bundle(
+        archcraftsman.info.ai.system_info.bundles.append(
+            archcraftsman.bundles.utils.prompt_bundle(
                 _("Choose your network stack (%s) : "),
                 _("Network stack '%s' is not supported."),
-                Network,
+                archcraftsman.options.Network,
                 _("Supported network stacks : "),
-                Network.NETWORK_MANAGER,
+                archcraftsman.options.Network.NETWORK_MANAGER,
             )
         )
 
-        if prompt_bool(_("Install proprietary Nvidia driver ?"), default=False):
-            info.ai.system_info.bundles.append(NvidiaDriver())
+        if archcraftsman.utils.prompt_bool(
+            _("Install proprietary Nvidia driver ?"), default=False
+        ):
+            archcraftsman.info.ai.system_info.bundles.append(
+                archcraftsman.bundles.nvidia.NvidiaDriver()
+            )
 
-        if prompt_bool(_("Install terminus console font ?"), default=False):
-            info.ai.system_info.bundles.append(TerminusFont())
+        if archcraftsman.utils.prompt_bool(
+            _("Install terminus console font ?"), default=False
+        ):
+            archcraftsman.info.ai.system_info.bundles.append(
+                archcraftsman.bundles.terminus.TerminusFont()
+            )
 
-        if prompt_bool(
+        if archcraftsman.utils.prompt_bool(
             _("Install ZSH with GRML configuration ?"),
             default=False,
             help_msg=_(
@@ -214,9 +224,11 @@ def setup_system():
                 "live environment."
             ),
         ):
-            info.ai.system_info.bundles.append(GrmlZsh())
+            archcraftsman.info.ai.system_info.bundles.append(
+                archcraftsman.bundles.grmlzsh.GrmlZsh()
+            )
 
-        if prompt_bool(
+        if archcraftsman.utils.prompt_bool(
             _("Install and enable ZRAM ?"),
             default=False,
             help_msg=_(
@@ -226,83 +238,112 @@ def setup_system():
                 "ZRAM is fully compatible with a swap, it just has a higher priority."
             ),
         ):
-            info.ai.system_info.bundles.append(Zram())
+            archcraftsman.info.ai.system_info.bundles.append(
+                archcraftsman.bundles.zram.Zram()
+            )
 
-        if prompt_bool(_("Copy ArchCraftsman to the new system ?"), default=False):
-            info.ai.system_info.bundles.append(CopyACM())
+        if archcraftsman.utils.prompt_bool(
+            _("Copy ArchCraftsman to the new system ?"), default=False
+        ):
+            archcraftsman.info.ai.system_info.bundles.append(
+                archcraftsman.bundles.copyacm.CopyACM()
+            )
 
-        for generic_bundle_name in list_generic_bundles():
-            generic_bundle = GenericBundle(generic_bundle_name)
-            if prompt_bool(
+        for generic_bundle_name in archcraftsman.bundles.utils.list_generic_bundles():
+            generic_bundle = archcraftsman.bundles.genericbundle.GenericBundle(
+                generic_bundle_name
+            )
+            if archcraftsman.utils.prompt_bool(
                 generic_bundle.prompt(), default=False, help_msg=generic_bundle.help()
             ):
-                info.ai.system_info.bundles.append(generic_bundle)
+                archcraftsman.info.ai.system_info.bundles.append(generic_bundle)
 
-        default_timezone_file = (
-            f"/usr/share/zoneinfo/{info.ai.pre_launch_info.detected_timezone}"
-        )
-        info.ai.system_info.timezone = prompt_ln(
+        default_timezone_file = f"/usr/share/zoneinfo/{archcraftsman.info.ai.pre_launch_info.detected_timezone}"
+        archcraftsman.info.ai.system_info.timezone = archcraftsman.base.prompt_ln(
             _("Your timezone (%s) : ") % default_timezone_file,
             default=default_timezone_file,
         )
         user_name_pattern = re.compile("^[a-z][-a-z\\d_]*$")
         user_name_ok = False
         while not user_name_ok:
-            info.ai.system_info.user_name = prompt_ln(
+            archcraftsman.info.ai.system_info.user_name = archcraftsman.base.prompt_ln(
                 _(
                     "Would you like to add a user? (type username, leave blank if "
                     "none) : "
                 )
             )
-            if info.ai.system_info.user_name and not user_name_pattern.match(
-                info.ai.system_info.user_name
+            if (
+                archcraftsman.info.ai.system_info.user_name
+                and not user_name_pattern.match(
+                    archcraftsman.info.ai.system_info.user_name
+                )
             ):
-                print_error(_("Invalid user name."))
+                archcraftsman.base.print_error(_("Invalid user name."))
                 continue
             user_name_ok = True
-        info.ai.system_info.user_full_name = ""
-        if info.ai.system_info.user_name:
-            info.ai.system_info.user_full_name = prompt_ln(
+        archcraftsman.info.ai.system_info.user_full_name = ""
+        if archcraftsman.info.ai.system_info.user_name:
+            archcraftsman.info.ai.system_info.user_full_name = archcraftsman.base.prompt_ln(
                 _(
                     "What is the %s's full name (type the entire full name, leave blank if none) : "
                 )
-                % info.ai.system_info.user_name
+                % archcraftsman.info.ai.system_info.user_name
             )
 
-        info.ai.system_info.more_pkgs = Packages().ask_packages()
-
-        print_sub_step(_("%s password configuration : ") % "root")
-        info.ai.system_info.root_password = ask_password(
-            _("Enter the %s password : ") % "root"
+        archcraftsman.info.ai.system_info.more_pkgs = (
+            archcraftsman.packages.Packages().ask_packages()
         )
-        if info.ai.system_info.user_name:
-            print_sub_step(
-                _("%s password configuration : ") % info.ai.system_info.user_name
-            )
-            info.ai.system_info.user_password = ask_password(
-                _("Enter the %s password : ") % info.ai.system_info.user_name
-            )
 
-        info.ai.system_info.bundles.append(Grub())
-        info.ai.system_info.bundles.append(Microcodes())
-
-        print_step(_("Summary of choices :"))
-        print_sub_step(_("Your hostname : %s") % info.ai.system_info.hostname)
-        for bundle in info.ai.system_info.bundles:
-            if bundle is not None and isinstance(bundle, Bundle):
-                bundle.print_resume()
-        print_sub_step(_("Your timezone : %s") % info.ai.system_info.timezone)
-        if info.ai.system_info.user_name:
-            print_sub_step(
-                _("Additional user name : %s") % info.ai.system_info.user_name
+        archcraftsman.base.print_sub_step(_("%s password configuration : ") % "root")
+        archcraftsman.info.ai.system_info.root_password = (
+            archcraftsman.utils.ask_password(_("Enter the %s password : ") % "root")
+        )
+        if archcraftsman.info.ai.system_info.user_name:
+            archcraftsman.base.print_sub_step(
+                _("%s password configuration : ")
+                % archcraftsman.info.ai.system_info.user_name
             )
-            if info.ai.system_info.user_full_name:
-                print_sub_step(
-                    _("User's full name : %s") % info.ai.system_info.user_full_name
+            archcraftsman.info.ai.system_info.user_password = (
+                archcraftsman.utils.ask_password(
+                    _("Enter the %s password : ")
+                    % archcraftsman.info.ai.system_info.user_name
                 )
-        if info.ai.system_info.more_pkgs:
-            print_sub_step(
-                _("More packages to install : %s")
-                % " ".join(info.ai.system_info.more_pkgs)
             )
-        user_answer = prompt_bool(_("Is the information correct ?"), default=False)
+
+        archcraftsman.info.ai.system_info.bundles.append(
+            archcraftsman.bundles.grub.Grub()
+        )
+        archcraftsman.info.ai.system_info.bundles.append(
+            archcraftsman.bundles.microcodes.Microcodes()
+        )
+
+        archcraftsman.base.print_step(_("Summary of choices :"))
+        archcraftsman.base.print_sub_step(
+            _("Your hostname : %s") % archcraftsman.info.ai.system_info.hostname
+        )
+        for bundle in archcraftsman.info.ai.system_info.bundles:
+            if bundle is not None and isinstance(
+                bundle, archcraftsman.bundles.bundle.Bundle
+            ):
+                bundle.print_resume()
+        archcraftsman.base.print_sub_step(
+            _("Your timezone : %s") % archcraftsman.info.ai.system_info.timezone
+        )
+        if archcraftsman.info.ai.system_info.user_name:
+            archcraftsman.base.print_sub_step(
+                _("Additional user name : %s")
+                % archcraftsman.info.ai.system_info.user_name
+            )
+            if archcraftsman.info.ai.system_info.user_full_name:
+                archcraftsman.base.print_sub_step(
+                    _("User's full name : %s")
+                    % archcraftsman.info.ai.system_info.user_full_name
+                )
+        if archcraftsman.info.ai.system_info.more_pkgs:
+            archcraftsman.base.print_sub_step(
+                _("More packages to install : %s")
+                % " ".join(archcraftsman.info.ai.system_info.more_pkgs)
+            )
+        user_answer = archcraftsman.utils.prompt_bool(
+            _("Is the information correct ?"), default=False
+        )

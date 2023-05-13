@@ -18,31 +18,34 @@
 The TOML valued generic bundle module
 """
 
+import importlib.resources
 import tomllib
-from importlib.resources import files
-from typing import Optional
+import typing
 
-from archcraftsman.base import execute, print_sub_step
-from archcraftsman.bundles.bundle import Bundle
-from archcraftsman.i18n import _t
+import archcraftsman.base
+import archcraftsman.bundles.bundle
+import archcraftsman.i18n
+
+_t = archcraftsman.i18n.translate
+_ = _t
 
 
-class GenericBundle(Bundle):
+class GenericBundle(archcraftsman.bundles.bundle.Bundle):
     """
     GenericBundle class.
     """
 
     _prompt: str
     _resume: str
-    _help: Optional[str]
+    _help: typing.Optional[str]
     _packages: list[str]
     _commands: list[str]
 
     def __init__(self, name: str = ""):
         super().__init__(name)
-        generic_bundle_config = files("archcraftsman.bundles.configs").joinpath(
-            f"{name}.toml"
-        )
+        generic_bundle_config = importlib.resources.files(
+            "archcraftsman.bundles.configs"
+        ).joinpath(f"{name}.toml")
         if not generic_bundle_config.is_file():
             data = None
         else:
@@ -72,10 +75,10 @@ class GenericBundle(Bundle):
         return [] if self._packages is None else self._packages
 
     def print_resume(self):
-        print_sub_step(self.format_str(_t(self._resume)))
+        archcraftsman.base.print_sub_step(self.format_str(_t(self._resume)))
 
     def configure(self):
         if self._commands is None:
             return
         for command in self._commands:
-            execute(command, chroot=True)
+            archcraftsman.base.execute(command, chroot=True)
