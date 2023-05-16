@@ -68,11 +68,17 @@ class TestBase(unittest.TestCase):
             mock_subprocess_run.side_effect = [
                 subprocess.CompletedProcess(args="echo A", returncode=0, stdout=b"A"),
                 subprocess.CompletedProcess(args="echo B", returncode=0, stdout=b"B"),
-                subprocess.CompletedProcess(args="echo C", returncode=0, stdout=b"C"),
+                subprocess.CompletedProcess(
+                    args="arch-chroot /mnt /bin/bash <<END\necho C\nEND",
+                    returncode=0,
+                    stdout=b"C",
+                ),
                 subprocess.CompletedProcess(args="echo D", returncode=0, stdout=b"D"),
+                subprocess.CompletedProcess(args="echo E", returncode=0, stdout=b"E"),
             ]
             result1 = archcraftsman.base.execute("echo A")
             result2 = archcraftsman.base.execute("echo B")
+            result3 = archcraftsman.base.execute("echo C", chroot=True)
             self.assertEqual(result1.command, "echo A")
             self.assertEqual(result1.returncode, 0)
             self.assertEqual(result1.output, "A")
@@ -85,13 +91,19 @@ class TestBase(unittest.TestCase):
                 hash(result1),
                 hash(result1.command) ^ hash(result1.returncode) ^ hash(result1.output),
             )
+            self.assertEqual(result3.output, "C")
+            self.assertEqual(result3.returncode, 0)
+            self.assertEqual(
+                result3.command,
+                "arch-chroot /mnt /bin/bash <<END\necho C\nEND",
+            )
             with (
                 unittest.mock.patch(
                     "sys.stdout", new_callable=io.StringIO
                 ) as mock_stdout,
                 unittest.mock.patch("archcraftsman.arguments.test", return_value=True),
             ):
-                archcraftsman.base.execute("echo C")
+                archcraftsman.base.execute("echo D")
                 self.assertTrue(mock_stdout.getvalue())
             with (
                 unittest.mock.patch(
@@ -101,14 +113,14 @@ class TestBase(unittest.TestCase):
             ):
                 self.assertRaises(
                     PermissionError,
-                    lambda: archcraftsman.base.execute("echo D", sudo=True),
+                    lambda: archcraftsman.base.execute("echo E", sudo=True),
                 )
             with (
                 unittest.mock.patch("archcraftsman.base.sudo_exist", return_value=True),
                 unittest.mock.patch("archcraftsman.base.is_root", return_value=False),
             ):
                 self.assertTrue(
-                    "sudo" in archcraftsman.base.execute("echo D", sudo=True).command
+                    "sudo" in archcraftsman.base.execute("echo E", sudo=True).command
                 )
 
     @unittest.mock.patch(
