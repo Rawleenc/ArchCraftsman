@@ -132,10 +132,8 @@ def install():
         archcraftsman.base.execute(
             f'echo "KEYMAP={archcraftsman.info.ai.pre_launch_info.keymap}" >/mnt/etc/vconsole.conf'
         )
-        archcraftsman.base.execute(
-            f'echo "{archcraftsman.info.ai.system_info.hostname}" >/mnt/etc/hostname'
-        )
         _hostname = archcraftsman.info.ai.system_info.hostname
+        archcraftsman.base.execute(f'echo "{_hostname}" >/mnt/etc/hostname')
         archcraftsman.base.execute(
             f"""
             {{
