@@ -29,7 +29,7 @@ python -m archcraftsman --install --test
 ```
 It will simulate the execution of the script without changing anything to your system.
 
-**Python 3.10 minimum is required.**
+**Python 3.11 minimum is required.**
 
 _Executing with root privilege or sudo installed is still required to gather disks information._
 
