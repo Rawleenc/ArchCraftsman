@@ -135,12 +135,13 @@ def install():
         archcraftsman.base.execute(
             f'echo "{archcraftsman.info.ai.system_info.hostname}" >/mnt/etc/hostname'
         )
+        _hostname = archcraftsman.info.ai.system_info.hostname
         archcraftsman.base.execute(
             f"""
             {{
                 echo "127.0.0.1 localhost"
                 echo "::1 localhost"
-                echo "127.0.1.1 {archcraftsman.info.ai.system_info.hostname}.localdomain {archcraftsman.info.ai.system_info.hostname}"
+                echo "127.0.1.1 {_hostname}.localdomain {_hostname}"
             }} >>/mnt/etc/hosts
             """
         )
