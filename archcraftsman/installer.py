@@ -140,8 +140,7 @@ def install():
             {{
                 echo "127.0.0.1 localhost"
                 echo "::1 localhost"
-                echo "127.0.1.1 {archcraftsman.info.ai.system_info.hostname}.localdomain "
-                "{archcraftsman.info.ai.system_info.hostname}"
+                echo "127.0.1.1 {archcraftsman.info.ai.system_info.hostname}.localdomain {archcraftsman.info.ai.system_info.hostname}"
             }} >>/mnt/etc/hosts
             """
         )
@@ -347,7 +346,7 @@ def main():
         archcraftsman.i18n.update_method(
             archcraftsman.info.ai.pre_launch_info.global_language
         )
-        archcraftsman.arguments.shell()
+        archcraftsman.shell.shell()
         sys.exit(0)
 
 
