@@ -157,7 +157,7 @@ def main():
     parts = parse_commits(args)
 
     # Print the changelog
-    print(f"## Release {args.version} ({datetime.datetime.now().strftime('%Y-%m-%d')})")
+    print(f"## {args.version} ({datetime.datetime.now().strftime('%Y-%m-%d')})")
     for part in parts:
         title = part[TITLE]
         commits = part[COMMITS]
