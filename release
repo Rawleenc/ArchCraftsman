@@ -122,7 +122,7 @@ release() {
   print_step "Releasing $tag..."
 
   print_sub_step "  * Generate changelog"
-  python genchanges.py $tag --types feat fix refactor tests --others >$tag.md
+  python genchanges.py $tag --types feat fix refactor test --others >$tag.md
 
   if [ "$current_branch" = "$dev_branch" ]; then
     print_sub_step "  * Merge dev on main branch"
