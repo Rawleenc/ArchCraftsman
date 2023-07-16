@@ -9,24 +9,29 @@
 # Usage
 
 ### On the Arch Linux live iso :
+
 ```bash
-python <(curl -L rotf.lol/acmain)
+python <(curl -L rawleenc.dev/acmain)
 ```
 
 If you wish to test the latest development version, you can run it with this command :
+
 ```bash
-python <(curl -L rotf.lol/acdev)
+python <(curl -L rawleenc.dev/acdev)
 ```
-*However, this is absolutely not recommended for any other purpose than tests.*
+
+_However, this is absolutely not recommended for any other purpose than tests._
 
 Answer the questions and let the magic happen ;)
 
 # Test
 
 If you want to only test the script, you can clone it and then run it with this command :
+
 ```bash
 python -m archcraftsman --install --test
 ```
+
 It will simulate the execution of the script without changing anything to your system.
 
 **Python 3.11 minimum is required.**
@@ -37,17 +42,21 @@ _Executing with root privilege or sudo installed is still required to gather dis
 
 ArchCraftsman can run in an interactive shell mode to manage bundles.  
 The shell mode can be executed with this command :
+
 ```bash
 python -m archcraftsman --shell
 ```
+
 The shell mode is compatible with the test mode.
 
 # Translations
 
 To create new translations or update existing ones, first run the following command :
+
 ```bash
 python /usr/lib/pythonX.Y/Tools/i18n/pygettext.py -d base -o base.pot archcraftsman
 ```
+
 Then use [Poedit](https://archlinux.org/packages/community/x86_64/poedit/) to create or update translations based on the newly generated `base.pot`
 
 # Requirements
@@ -59,11 +68,12 @@ The requirements.txt file is only used for linting, formating, licensing, buildi
 # Operation details and purpose
 
 The purpose of this script is to propose a very fast and straightforward Arch Linux installation while bringing all the care I put on my own installations. The customization options are therefore not countless. However, some flexibility is still proposed.  
-This script supports both UEFI and BIOS.  
+This script supports both UEFI and BIOS.
 
 ## Installation startup
 
-At the very beginning, some information will be gathered using your IP address with [ipapi.co](https://ipapi.co/) API in order to propose more relevant default values :  
+At the very beginning, some information will be gathered using your IP address with [ipapi.co](https://ipapi.co/) API in order to propose more relevant default values :
+
 - Language, to propose an adapted default global language and keymap
 - Timezone, to propose an adapted default value for the timezone
 
@@ -71,26 +81,31 @@ At the very beginning, some information will be gathered using your IP address w
 
 Then, a few questions will be asked to you to customize your installation.  
 During this step, you'll be able to answer two types of questions :
+
 - Yes/No questions.
 - Choice questions.
 
 In choice questions, you'll benefit from a smart and situation adapated auto-completion system to allow you to quickly get the option you want by pressing `tab`.
 
-Packages included in the base :  
+Packages included in the base :
+
 ```
 base base-devel linux-firmware {linux kernel and headers}
 ```
 
 Extra packages included :
+
 ```
 intel-ucode/amd-ucode man-db man-pages (man-pages-{locale}) texinfo nano vim git curl os-prober efibootmgr xdg-user-dirs reflector numlockx net-tools polkit pacman-contrib
 ```
 
 Required bundles :
+
 - Kernel (linux, linux-lts, linux-zen or linux-hardened)
 - Network stack (networkmanager, iwd and systemd or systemd only)
 
 Optional packages bundles are also available :
+
 - Desktop environment (Gnome, KDE Plasma, XFCE, Budgie, Cinnamon, CuteFish, Deepin, LxQT, Mate, Enlightenment, i3 or Sway)
 - Nvidia proprietary driver
 - Terminus tty font
@@ -108,7 +123,7 @@ Time will be synchronized using systemd timesyncd.
 
 Optionally an additional user, added to the wheel group and sudo configured to allow members of the wheel group.
 
-Finally, you'll have two differents partitioning options. An automatic one and a manual one.  
+Finally, you'll have two differents partitioning options. An automatic one and a manual one.
 
 ## The automatic partitioning
 
@@ -119,6 +134,7 @@ You'll have to choose the drive where you want to install Arch Linux, you'll be 
 If you don't want the dualboot or if you are in **BIOS** mode, the automatic partitioning will wipe the entire target drive to install Arch Linux.
 
 Partitions sizes are determined as follows :
+
 - EFI : 512M (In UEFI mode only)
 - Boot : 1G (In BIOS mode only)
 - Swap : 1/32 of the total drive size or 1/32 of the remaining free space in case of dualboot
@@ -130,13 +146,14 @@ Partitions sizes are determined as follows :
 It is the default most flexible and powerful option :  
 The cfdisk tool will be proposed to you to partition your drives. You can create as many partitions as you want on as many drive as you want. Main partitions are the EFI partition, the Root partition, the Swap partition and the Home partition.
 
-You will then have the possibility to choose to format or not the EFI and Home partitions, and for all other partitions, you will be able to choose the mount point and if you wish to format or not.  
+You will then have the possibility to choose to format or not the EFI and Home partitions, and for all other partitions, you will be able to choose the mount point and if you wish to format or not.
 
 Normally, only Linux related partitions should be detected. However, if the detected partitions contain one that you don't want to use, you'll be able to tell the script that a partition will not be used.
 
 ## Partitions formats
 
 For both partitioning options you will have the possibility to choose the partition format you want between the following ones :
+
 - ext4
 - btrfs
 
@@ -145,7 +162,7 @@ In manual partitioning you will be able to choose the format type to use for eac
 
 If the EFI partition has to be formatted it will be formatted in vfat, otherwise the script expects the EFI partition to be already formatted in vfat (this is the case for Windows 10 for example).
 
-All other partitions will be formatted in the format you want. 
+All other partitions will be formatted in the format you want.
 
 If you choose to not create a Swap partition, you will be proposed a swapfile of the size you want, called swapfile. It will be created and placed at the base of the Root partition. If you specify 0 for the swapfile size, no swap will be created.
 
