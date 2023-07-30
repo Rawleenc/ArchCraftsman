@@ -134,7 +134,6 @@ def prompt_option(
             option = options(option_name)
         else:
             archcraftsman.base.print_error(error_msg % option_name, do_pause=False)
-            continue
     readline.set_completer(archcraftsman.base.glob_completer)
     return option
 
@@ -181,7 +180,6 @@ def ask_keymap(default: str) -> str:
             archcraftsman.base.print_error(
                 _("Keymap '%s' doesn't exist.") % keymap, do_pause=False
             )
-            continue
     readline.set_completer(archcraftsman.base.glob_completer)
     return keymap
 
@@ -268,7 +266,6 @@ def ask_drive() -> str:
             archcraftsman.base.print_error(
                 _("The target drive '%s' doesn't exist.") % drive, do_pause=False
             )
-            continue
     readline.set_completer(archcraftsman.base.glob_completer)
     return drive
 

@@ -46,15 +46,23 @@ _BUNDLES_MAP: dict[str, type[archcraftsman.bundles.bundle.Bundle]] = {
 }
 
 
+def get_opt_bundle_type_by_name(
+    name: str,
+) -> typing.Optional[type[archcraftsman.bundles.bundle.Bundle]]:
+    """
+    A function to get the bundle type by its name.
+    """
+    return _BUNDLES_MAP[name] if name in _BUNDLES_MAP else None
+
+
 def get_bundle_type_by_name(name: str) -> type[archcraftsman.bundles.bundle.Bundle]:
     """
     A function to get the bundle type by its name.
     """
-    return (
-        _BUNDLES_MAP[name]
-        if name in _BUNDLES_MAP
-        else archcraftsman.bundles.bundle.Bundle
-    )
+    bundle_type = get_opt_bundle_type_by_name(name)
+    if bundle_type is None:
+        return archcraftsman.bundles.bundle.Bundle
+    return bundle_type
 
 
 def list_generic_bundles() -> list[str]:
@@ -76,7 +84,10 @@ def process_bundle(
     """
     Process a bundle name into a Bundle object.
     """
-    return get_bundle_type_by_name(name.value)()
+    bundle_type = get_opt_bundle_type_by_name(name.value)
+    if bundle_type is None:
+        return archcraftsman.bundles.bundle.Bundle(name=name.value)
+    return bundle_type()
 
 
 T = typing.TypeVar("T", bound=archcraftsman.options.OptionEnum)

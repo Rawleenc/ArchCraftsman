@@ -83,10 +83,13 @@ class SystemInfo:
         The desktop bundle retrieving method.
         """
         return next(
-            bundle
-            for bundle in self.bundles
-            if archcraftsman.options.get_btype_by_name(bundle.name)
-            == archcraftsman.options.BundleTypes.DESKTOP
+            (
+                bundle
+                for bundle in self.bundles
+                if archcraftsman.options.get_btype_by_name(bundle.name)
+                == archcraftsman.options.BundleTypes.DESKTOP
+            ),
+            archcraftsman.bundles.bundle.Bundle(archcraftsman.options.Desktops.NONE),
         )
 
     def network(self) -> archcraftsman.bundles.bundle.Bundle:
