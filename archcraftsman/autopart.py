@@ -170,7 +170,14 @@ def auto_partitioning() -> bool:
                 )
             )
             index += 1
-        if root_block_name and not any(
+        if (
+            root_block_name
+            or part_format_type
+            in (
+                archcraftsman.options.FSFormats.BTRFS,
+                archcraftsman.options.FSFormats.XFS,
+            )
+        ) and not any(
             p.part_type == archcraftsman.options.PartTypes.BOOT
             for p in archcraftsman.info.ai.partitioning_info.partitions
         ):
@@ -189,7 +196,7 @@ def auto_partitioning() -> bool:
                     part_type=archcraftsman.options.PartTypes.BOOT,
                     part_mount_point="/boot",
                     part_format=True,
-                    part_format_type=part_format_type,
+                    part_format_type=archcraftsman.options.FSFormats.EXT4,
                 )
             )
             index += 1
@@ -281,9 +288,9 @@ def auto_partitioning() -> bool:
             want_to_change = archcraftsman.utils.prompt_bool(
                 _("Do you want to change the partitioning mode ?"), default=False
             )
+            archcraftsman.info.ai.partitioning_info.partitions.clear()
             if want_to_change:
                 return False
-            archcraftsman.info.ai.partitioning_info.partitions.clear()
         else:
             archcraftsman.base.execute(
                 f'echo -e "{auto_part_str}" | fdisk "{target_disk}" &>/dev/null'

@@ -146,6 +146,7 @@ class FSFormats(OptionEnum):
 
     VFAT = enum.auto()
     EXT4 = enum.auto()
+    XFS = enum.auto()
     BTRFS = enum.auto()
 
 

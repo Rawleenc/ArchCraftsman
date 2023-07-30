@@ -100,6 +100,9 @@ def install():
         if archcraftsman.info.ai.partitioning_info.btrfs_in_use:
             pkgs.add("btrfs-progs")
 
+        if archcraftsman.info.ai.partitioning_info.xfs_in_use:
+            pkgs.add("xfsprogs")
+
         for bundle in archcraftsman.info.ai.system_info.bundles:
             pkgs.update(bundle.packages())
 

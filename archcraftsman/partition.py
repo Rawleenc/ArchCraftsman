@@ -236,6 +236,9 @@ class Partition:
             case archcraftsman.options.FSFormats.BTRFS:
                 if self.part_format:
                     archcraftsman.base.execute(f'mkfs.btrfs -f "{self.real_path()}"')
+            case archcraftsman.options.FSFormats.XFS:
+                if self.part_format:
+                    archcraftsman.base.execute(f'mkfs.xfs -f "{self.real_path()}"')
             case _:
                 if self.part_format:
                     archcraftsman.base.execute(f'mkfs.ext4 "{self.real_path()}"')
