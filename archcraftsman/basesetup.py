@@ -46,6 +46,26 @@ import archcraftsman.utils
 _ = archcraftsman.i18n.translate
 
 
+def initial_setup_summary(ask: bool = True) -> bool:
+    """
+    The method to print a summary of the pre-launch steps.
+    """
+    archcraftsman.base.print_step(_("Summary of choices :"), clear=False)
+    archcraftsman.base.print_sub_step(
+        _("Your installation's language : %s")
+        % archcraftsman.info.ai.pre_launch_info.global_language
+    )
+    archcraftsman.base.print_sub_step(
+        _("Your installation's keymap : %s")
+        % archcraftsman.info.ai.pre_launch_info.keymap
+    )
+    if ask:
+        return archcraftsman.utils.prompt_bool(
+            _("Is the information correct ?"), default=False
+        )
+    return True
+
+
 def initial_setup(shell_mode: bool = False):
     """
     The method to get environment configurations from the user.
@@ -97,18 +117,7 @@ def initial_setup(shell_mode: bool = False):
             default_keymap
         )
 
-        archcraftsman.base.print_step(_("Summary of choices :"), clear=False)
-        archcraftsman.base.print_sub_step(
-            _("Your installation's language : %s")
-            % archcraftsman.info.ai.pre_launch_info.global_language
-        )
-        archcraftsman.base.print_sub_step(
-            _("Your installation's keymap : %s")
-            % archcraftsman.info.ai.pre_launch_info.keymap
-        )
-        user_answer = archcraftsman.utils.prompt_bool(
-            _("Is the information correct ?"), default=False
-        )
+        user_answer = initial_setup_summary()
     archcraftsman.utils.generate_translations(
         archcraftsman.info.ai.pre_launch_info.global_language
     )
@@ -157,6 +166,43 @@ def pre_launch(shell_mode: bool = False):
         sys.exit(1)
     except EOFError:
         sys.exit(1)
+
+
+def setup_system_summary(ask: bool = True) -> bool:
+    """
+    The method to print a summary of the system setup.
+    """
+    archcraftsman.base.print_step(_("Summary of choices :"))
+    archcraftsman.base.print_sub_step(
+        _("Your hostname : %s") % archcraftsman.info.ai.system_info.hostname
+    )
+    for bundle in archcraftsman.info.ai.system_info.bundles:
+        if bundle is not None and isinstance(
+            bundle, archcraftsman.bundles.bundle.Bundle
+        ):
+            bundle.print_resume()
+    archcraftsman.base.print_sub_step(
+        _("Your timezone : %s") % archcraftsman.info.ai.system_info.timezone
+    )
+    if archcraftsman.info.ai.system_info.user_name:
+        archcraftsman.base.print_sub_step(
+            _("Additional user name : %s") % archcraftsman.info.ai.system_info.user_name
+        )
+        if archcraftsman.info.ai.system_info.user_full_name:
+            archcraftsman.base.print_sub_step(
+                _("User's full name : %s")
+                % archcraftsman.info.ai.system_info.user_full_name
+            )
+    if archcraftsman.info.ai.system_info.more_pkgs:
+        archcraftsman.base.print_sub_step(
+            _("More packages to install : %s")
+            % " ".join(archcraftsman.info.ai.system_info.more_pkgs)
+        )
+    if ask:
+        return archcraftsman.utils.prompt_bool(
+            _("Is the information correct ?"), default=False
+        )
+    return True
 
 
 def setup_system():
@@ -317,33 +363,4 @@ def setup_system():
             archcraftsman.bundles.microcodes.Microcodes()
         )
 
-        archcraftsman.base.print_step(_("Summary of choices :"))
-        archcraftsman.base.print_sub_step(
-            _("Your hostname : %s") % archcraftsman.info.ai.system_info.hostname
-        )
-        for bundle in archcraftsman.info.ai.system_info.bundles:
-            if bundle is not None and isinstance(
-                bundle, archcraftsman.bundles.bundle.Bundle
-            ):
-                bundle.print_resume()
-        archcraftsman.base.print_sub_step(
-            _("Your timezone : %s") % archcraftsman.info.ai.system_info.timezone
-        )
-        if archcraftsman.info.ai.system_info.user_name:
-            archcraftsman.base.print_sub_step(
-                _("Additional user name : %s")
-                % archcraftsman.info.ai.system_info.user_name
-            )
-            if archcraftsman.info.ai.system_info.user_full_name:
-                archcraftsman.base.print_sub_step(
-                    _("User's full name : %s")
-                    % archcraftsman.info.ai.system_info.user_full_name
-                )
-        if archcraftsman.info.ai.system_info.more_pkgs:
-            archcraftsman.base.print_sub_step(
-                _("More packages to install : %s")
-                % " ".join(archcraftsman.info.ai.system_info.more_pkgs)
-            )
-        user_answer = archcraftsman.utils.prompt_bool(
-            _("Is the information correct ?"), default=False
-        )
+        user_answer = setup_system_summary()
