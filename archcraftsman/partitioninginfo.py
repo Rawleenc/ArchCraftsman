@@ -34,18 +34,12 @@ class PartitioningInfo:
     The class to contain all partitioning information.
     """
 
-    def __init__(
-        self,
-        swapfile_size: str = "",
-        main_disk: str = "",
-        btrfs_in_use: bool = False,
-        xfs_in_use: bool = False,
-    ) -> None:
+    def __init__(self, swapfile_size: str = "", main_disk: str = "") -> None:
         self.partitions: list[archcraftsman.partition.Partition] = []
         self.swapfile_size = swapfile_size
         self.main_disk = main_disk
-        self.btrfs_in_use = btrfs_in_use
-        self.xfs_in_use = xfs_in_use
+        self._btrfs_in_use = False
+        self._xfs_in_use = False
 
     def root_partition(self) -> archcraftsman.partition.Partition:
         """
@@ -73,12 +67,12 @@ class PartitioningInfo:
                         partition.part_format_type
                         == archcraftsman.options.FSFormats.BTRFS
                     ):
-                        self.btrfs_in_use = True
+                        self._btrfs_in_use = True
                     elif (
                         partition.part_format_type
                         == archcraftsman.options.FSFormats.XFS
                     ):
-                        self.xfs_in_use = True
+                        self._xfs_in_use = True
                     partition.format_partition()
                 formatting_ok = True
             except subprocess.CalledProcessError as exception:
@@ -104,9 +98,9 @@ class PartitioningInfo:
         ]:
             for partition in not_mounted_partitions:
                 if partition.part_format_type == archcraftsman.options.FSFormats.BTRFS:
-                    self.btrfs_in_use = True
+                    self._btrfs_in_use = True
                 elif partition.part_format_type == archcraftsman.options.FSFormats.XFS:
-                    self.xfs_in_use = True
+                    self._xfs_in_use = True
                 partition.mount()
 
     def umount_partitions(self):

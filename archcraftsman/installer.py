@@ -37,6 +37,37 @@ import archcraftsman.utils
 _ = archcraftsman.i18n.translate
 
 
+def update_mirrorlist():
+    """
+    Update the mirrorlist.
+    """
+    config: bool = bool(archcraftsman.arguments.config())
+    user_answer = False
+    manual_change = False
+    while not user_answer:
+        if not manual_change:
+            archcraftsman.base.print_step(_("Updating mirrors..."), clear=not config)
+            archcraftsman.base.execute(
+                "reflector --verbose -phttps -f10 -l10 --sort rate -a2 --save /etc/pacman.d/mirrorlist"
+            )
+        else:
+            manual_change = False
+        if config:
+            user_answer = True
+            break
+        archcraftsman.base.print_step(_("Current mirrorlist :"))
+        archcraftsman.base.execute("cat /etc/pacman.d/mirrorlist")
+        user_answer = archcraftsman.utils.prompt_bool(
+            _("Are you satisfied with the mirrors ?"), default=True
+        )
+        if not user_answer:
+            if archcraftsman.utils.prompt_bool(
+                _("Do you want to manually edit the mirrorlist ?"), default=True
+            ):
+                archcraftsman.base.execute("nano /etc/pacman.d/mirrorlist")
+                manual_change = True
+
+
 def install():
     """
     The main installation method.
@@ -58,10 +89,7 @@ def install():
 
         archcraftsman.info.ai.partitioning_info.format_and_mount_partitions()
 
-        archcraftsman.base.print_step(_("Updating mirrors..."), clear=False)
-        archcraftsman.base.execute(
-            "reflector --verbose -phttps -f10 -l10 --sort rate -a2 --save /etc/pacman.d/mirrorlist"
-        )
+        update_mirrorlist()
 
         base_pkgs = set()
         base_pkgs.update(["base", "base-devel", "linux-firmware"])
@@ -97,10 +125,10 @@ def install():
                 f"man-pages-{archcraftsman.info.ai.pre_launch_info.global_language.lower()}"
             )
 
-        if archcraftsman.info.ai.partitioning_info.btrfs_in_use:
+        if archcraftsman.info.ai.partitioning_info._btrfs_in_use:
             pkgs.add("btrfs-progs")
 
-        if archcraftsman.info.ai.partitioning_info.xfs_in_use:
+        if archcraftsman.info.ai.partitioning_info._xfs_in_use:
             pkgs.add("xfsprogs")
 
         for bundle in archcraftsman.info.ai.system_info.bundles:
