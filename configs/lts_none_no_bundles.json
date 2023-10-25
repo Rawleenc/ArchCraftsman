@@ -56,7 +56,6 @@
         "name": "grub"
       },
       {
-        "microcode_name": "GenuineIntel",
         "name": "microcodes"
       }
     ],

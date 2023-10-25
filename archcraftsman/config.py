@@ -58,6 +58,8 @@ def serialize():
     )
     if os.path.exists(file_path):
         os.remove(file_path)
+    else:
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
     with open(file_path, "w", encoding="UTF-8") as file:
         file.write(json_str)
 
@@ -79,9 +81,7 @@ def dict_to_bundle(dict_obj) -> archcraftsman.bundles.bundle.Bundle:
     """
     Convert a dict to a bundle object.
     """
-    bundle = archcraftsman.bundles.utils.get_bundle_type_by_name(dict_obj["name"])(
-        dict_obj["name"]
-    )
+    bundle = archcraftsman.bundles.utils.get_bundle_type_by_name(dict_obj["name"])()
     for key, value in dict_obj.items():
         if hasattr(bundle, key):
             setattr(bundle, key, value)
