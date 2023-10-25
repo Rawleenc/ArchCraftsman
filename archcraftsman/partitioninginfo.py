@@ -41,6 +41,16 @@ class PartitioningInfo:
         self._btrfs_in_use = False
         self._xfs_in_use = False
 
+    def filesystems_in_use(self) -> archcraftsman.options.FSFormats:
+        """
+        The filesystems in use retrieving method.
+        """
+        if self._btrfs_in_use:
+            return archcraftsman.options.FSFormats.BTRFS
+        elif self._xfs_in_use:
+            return archcraftsman.options.FSFormats.XFS
+        return archcraftsman.options.FSFormats.EXT4
+
     def root_partition(self) -> archcraftsman.partition.Partition:
         """
         The root partition retrieving method.

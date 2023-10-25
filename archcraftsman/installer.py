@@ -125,10 +125,16 @@ def install():
                 f"man-pages-{archcraftsman.info.ai.pre_launch_info.global_language.lower()}"
             )
 
-        if archcraftsman.info.ai.partitioning_info._btrfs_in_use:
+        if (
+            archcraftsman.info.ai.partitioning_info.filesystems_in_use()
+            == archcraftsman.options.FSFormats.BTRFS
+        ):
             pkgs.add("btrfs-progs")
 
-        if archcraftsman.info.ai.partitioning_info._xfs_in_use:
+        if (
+            archcraftsman.info.ai.partitioning_info.filesystems_in_use()
+            == archcraftsman.options.FSFormats.XFS
+        ):
             pkgs.add("xfsprogs")
 
         for bundle in archcraftsman.info.ai.system_info.bundles:
