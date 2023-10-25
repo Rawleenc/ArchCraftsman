@@ -31,7 +31,7 @@ import urllib.request
 
 OWNER = "Rawleenc"
 REPO = "ArchCraftsman"
-BRANCH = "dev"
+BRANCH = "main"
 CMD = "python -m archcraftsman.installer --install"
 GREEN = "\033[0;32m"
 CYAN = "\033[0;36m"
