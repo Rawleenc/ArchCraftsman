@@ -3,6 +3,8 @@ resume = "Install Cups."
 packages = [
     "cups",
     "cups-pdf",
+    "cups-browsed",
+    "cups-filters",
     "avahi",
     "samba",
     "foomatic-db-engine",
