@@ -126,13 +126,13 @@ def install():
             )
 
         if (
-            archcraftsman.info.ai.partitioning_info.filesystems_in_use()
+            archcraftsman.info.ai.partitioning_info.filesystem_in_use()
             == archcraftsman.options.FSFormats.BTRFS
         ):
             pkgs.add("btrfs-progs")
 
         if (
-            archcraftsman.info.ai.partitioning_info.filesystems_in_use()
+            archcraftsman.info.ai.partitioning_info.filesystem_in_use()
             == archcraftsman.options.FSFormats.XFS
         ):
             pkgs.add("xfsprogs")

@@ -41,13 +41,14 @@ class PartitioningInfo:
         self._btrfs_in_use = False
         self._xfs_in_use = False
 
-    def filesystems_in_use(self) -> archcraftsman.options.FSFormats:
+    def filesystem_in_use(self) -> archcraftsman.options.FSFormats:
         """
-        The filesystems in use retrieving method.
+        A method to retrieve the main filesystem in use in this partitioning.
+        Falls back to ext4 if no particular filesystem is in use.
         """
         if self._btrfs_in_use:
             return archcraftsman.options.FSFormats.BTRFS
-        elif self._xfs_in_use:
+        if self._xfs_in_use:
             return archcraftsman.options.FSFormats.XFS
         return archcraftsman.options.FSFormats.EXT4
 
