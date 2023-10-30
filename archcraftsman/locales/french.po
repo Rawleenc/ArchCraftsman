@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2023-10-25 21:16+0200\n"
-"PO-Revision-Date: 2023-10-25 21:18+0200\n"
+"POT-Creation-Date: 2023-10-30 20:54+0100\n"
+"PO-Revision-Date: 2023-10-30 20:56+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -127,13 +127,13 @@ msgstr "Exécution des étapes de pré-lancement : "
 msgid "Synchronising repositories..."
 msgstr "Synchronisation des dépôts..."
 
-#: archcraftsman/basesetup.py:157 archcraftsman/installer.py:299
+#: archcraftsman/basesetup.py:157 archcraftsman/installer.py:309
 #: archcraftsman/shell.py:203
 msgid "Script execution interrupted by the user !"
 msgstr "Exécution du script interrompue par l'utilisateur !"
 
-#: archcraftsman/basesetup.py:162 archcraftsman/installer.py:306
-#: archcraftsman/partitioninginfo.py:87 archcraftsman/shell.py:209
+#: archcraftsman/basesetup.py:162 archcraftsman/installer.py:316
+#: archcraftsman/partitioninginfo.py:92 archcraftsman/shell.py:209
 msgid "A subprocess execution failed ! See the following error: %s"
 msgstr ""
 "L'exécution d'un sous-processus a échoué ! L'erreur suivante s'est "
@@ -454,83 +454,91 @@ msgstr ""
 "Si oui, le framework multimédia PipeWire sera installé pour gérer l'audio et "
 "la capture vidéo."
 
-#: archcraftsman/installer.py:48
+#: archcraftsman/imessages.py:36
+msgid "Enable Multilib repository ?"
+msgstr "Activer le dépôt Multilib ?"
+
+#: archcraftsman/imessages.py:37
+msgid "Enable Multilib repository."
+msgstr "Activer le dépôt Multilib."
+
+#: archcraftsman/installer.py:49
 msgid "Updating mirrors..."
 msgstr "Mise à jour des miroirs..."
 
-#: archcraftsman/installer.py:54
+#: archcraftsman/installer.py:58
 msgid "Current mirrorlist :"
 msgstr "Liste actuelle des miroirs :"
 
-#: archcraftsman/installer.py:57
+#: archcraftsman/installer.py:61
 msgid "Are you satisfied with the mirrors ?"
 msgstr "Êtes-vous satisfait des miroirs ?"
 
-#: archcraftsman/installer.py:61
+#: archcraftsman/installer.py:65
 msgid "Do you want to manually edit the mirrorlist ?"
 msgstr "Voulez-vous éditer manuellement la liste des miroirs ?"
 
-#: archcraftsman/installer.py:77
+#: archcraftsman/installer.py:81
 msgid "Partitioning :"
 msgstr "Partitionnement :"
 
-#: archcraftsman/installer.py:79
+#: archcraftsman/installer.py:83
 msgid "Do you want an automatic partitioning ?"
 msgstr "Voulez-vous un partitionnement automatique ?"
 
-#: archcraftsman/installer.py:136
+#: archcraftsman/installer.py:146
 msgid "Installation of the base..."
 msgstr "Installation de la base..."
 
-#: archcraftsman/installer.py:139
+#: archcraftsman/installer.py:149
 msgid "System configuration..."
 msgstr "Configuration du système..."
 
-#: archcraftsman/installer.py:177
+#: archcraftsman/installer.py:187
 msgid "Locales configuration..."
 msgstr "Configuration des locales..."
 
-#: archcraftsman/installer.py:185
+#: archcraftsman/installer.py:195
 msgid "Installation of the remaining packages..."
 msgstr "Installation des paquets restants..."
 
-#: archcraftsman/installer.py:208
+#: archcraftsman/installer.py:218
 msgid "Creation and activation of the swapfile..."
 msgstr "Création et activation du fichier d'échange..."
 
-#: archcraftsman/installer.py:231
+#: archcraftsman/installer.py:241
 msgid "Generating fstab..."
 msgstr "Génération du fstab..."
 
-#: archcraftsman/installer.py:238
+#: archcraftsman/installer.py:248
 msgid "Desktop configuration..."
 msgstr "Configuration du bureau..."
 
-#: archcraftsman/installer.py:241
+#: archcraftsman/installer.py:251
 msgid "Network configuration..."
 msgstr "Configuration du réseau..."
 
-#: archcraftsman/installer.py:247
+#: archcraftsman/installer.py:257
 msgid "Installation and configuration of the grub..."
 msgstr "Installation et configuration du grub..."
 
-#: archcraftsman/installer.py:251
+#: archcraftsman/installer.py:261
 msgid "Users configuration..."
 msgstr "Configuration des utilisateurs..."
 
-#: archcraftsman/installer.py:252
+#: archcraftsman/installer.py:262
 msgid "Root account configuration..."
 msgstr "Configuration du compte Root..."
 
-#: archcraftsman/installer.py:260
+#: archcraftsman/installer.py:270
 msgid "%s account configuration..."
 msgstr "Configuration du compte %s..."
 
-#: archcraftsman/installer.py:285
+#: archcraftsman/installer.py:295
 msgid "Extra packages configuration if needed..."
 msgstr "Configuration de paquets supplémentaires si nécessaire..."
 
-#: archcraftsman/installer.py:294
+#: archcraftsman/installer.py:304
 msgid "Installation complete ! You can reboot your system."
 msgstr "L'installation est terminée ! Vous pouvez redémarrer votre système."
 
@@ -645,11 +653,11 @@ msgstr "Démontage de %s..."
 msgid "Closing %s..."
 msgstr "Fermeture de %s..."
 
-#: archcraftsman/partitioninginfo.py:65
+#: archcraftsman/partitioninginfo.py:70
 msgid "Formatting and mounting partitions..."
 msgstr "Formatage et montage des partitions..."
 
-#: archcraftsman/partitioninginfo.py:116
+#: archcraftsman/partitioninginfo.py:121
 msgid "Unmounting partitions..."
 msgstr "Démontage des partitions..."
 

@@ -1,0 +1,6 @@
+prompt = "Enable Multilib repository ?"
+resume = "Enable Multilib repository."
+commands = [
+    "sed -i '/^#\\[multilib]/{N;s/\\n#/\\n/}' /etc/pacman.conf",
+    "sed -i 's/^#\\[multilib]/\\[multilib]/' /etc/pacman.conf",
+]

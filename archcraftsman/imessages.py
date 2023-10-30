@@ -33,3 +33,5 @@ PIPEWIRE_RESUME = _("Install PipeWire.")
 PIPEWIRE_HELP = _(
     "If yes, the PipeWire multimedia framework will be installed to manage audio and video capture."
 )
+MULTILIB_PROMPT = _("Enable Multilib repository ?")
+MULTILIB_RESUME = _("Enable Multilib repository.")
