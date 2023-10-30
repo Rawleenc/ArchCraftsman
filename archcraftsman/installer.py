@@ -47,9 +47,7 @@ def update_mirrorlist():
     while not user_answer:
         if not manual_change:
             archcraftsman.base.print_step(_("Updating mirrors..."), clear=not config)
-            archcraftsman.base.execute(
-                "reflector --verbose -phttps -f10 -l10 --sort rate -a2 --save /etc/pacman.d/mirrorlist"
-            )
+            archcraftsman.base.update_mirrors()
         else:
             manual_change = False
         if config:

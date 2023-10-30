@@ -267,3 +267,16 @@ def prompt_passwd(message: str, required: bool = False):
     A method to prompt for a password without displaying an echo.
     """
     return prompt(f"{ORANGE}{message}{NOCOLOR}", required=required, password=True)
+
+
+def update_mirrors():
+    """
+    A method to update the mirrors.
+    """
+    ipv6_state: str = execute(
+        "cat /sys/module/ipv6/parameters/disable", capture_output=True
+    ).output
+    options = ["--verbose", "-phttps", "--score 30", "--sort rate", "-a48"]
+    if ipv6_state and ipv6_state.strip() == "0":
+        options.append("--ipv6")
+    execute(f"reflector {' '.join(options)} --save /etc/pacman.d/mirrorlist")
