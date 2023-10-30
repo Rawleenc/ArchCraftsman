@@ -156,6 +156,7 @@ For both partitioning options you will have the possibility to choose the partit
 
 - ext4
 - btrfs
+- xfs
 
 In automatic partitioning, the chosen format type will be applied for all partitions except the EFI partition.  
 In manual partitioning you will be able to choose the format type to use for each partition individually except for the EFI partition.
