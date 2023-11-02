@@ -46,6 +46,7 @@ def serialize():
         sort_keys=True,
         indent=2,
     )
+    file_name = f"{archcraftsman.info.ai.system_info.hostname}.json"
     file_path = (
         f"/mnt/home/{archcraftsman.info.ai.system_info.user_name}/{archcraftsman.info.ai.system_info.hostname}.json"
         if archcraftsman.info.ai.system_info.user_name
@@ -54,7 +55,7 @@ def serialize():
     file_path = (
         file_path
         if not archcraftsman.arguments.test() and not archcraftsman.arguments.shell()
-        else f"{archcraftsman.info.ai.system_info.hostname}.json"
+        else file_name
     )
     if os.path.exists(file_path):
         os.remove(file_path)
@@ -62,7 +63,8 @@ def serialize():
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
     with open(file_path, "w", encoding="UTF-8") as file:
         file.write(json_str)
-
+    with open(file_name, "w", encoding="UTF-8") as file:
+        file.write(json_str)
 
 def dict_to_obj(dict_obj, class_type):
     """
