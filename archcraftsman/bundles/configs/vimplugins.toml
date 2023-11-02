@@ -1,0 +1,5 @@
+prompt = "Install vim-plugins package group ?"
+resume = "Install vim-plugins package group."
+packages = [
+    "vim-plugins",
+]

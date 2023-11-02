@@ -35,3 +35,5 @@ PIPEWIRE_HELP = _(
 )
 MULTILIB_PROMPT = _("Enable Multilib repository ?")
 MULTILIB_RESUME = _("Enable Multilib repository.")
+VIM_PLUGINS_PROMPT = _("Install vim-plugins package group ?")
+VIM_PLUGINS_RESUME = _("Install vim-plugins package group.")
