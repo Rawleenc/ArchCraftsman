@@ -66,6 +66,7 @@ def serialize():
     with open(file_name, "w", encoding="UTF-8") as file:
         file.write(json_str)
 
+
 def dict_to_obj(dict_obj, class_type):
     """
     Convert a dict to an object of a specific class.
