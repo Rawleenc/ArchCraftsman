@@ -36,6 +36,17 @@ class Zram(archcraftsman.bundles.bundle.Bundle):
     def packages(self) -> list[str]:
         return ["zram-generator"]
 
+    def prompt(self) -> str:
+        return _("Install and enable ZRAM ?")
+
+    def help(self) -> str:
+        return _(
+            "ZRAM is a process to compress datas directly in the RAM instead of moving them in a swap. "
+            "Enabled ZRAM will allow you to compress up to half of your RAM before having to swap. "
+            "This method is more efficient than the swap and do not use your disk but is more CPU demanding. "
+            "ZRAM is fully compatible with a swap, it just has a higher priority."
+        )
+
     def print_resume(self):
         archcraftsman.base.print_sub_step(_("Install and enable ZRAM."))
 

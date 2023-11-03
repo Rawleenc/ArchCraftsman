@@ -15,7 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-The terminus console font bundle module
+The grml zsh bundle module
 """
 
 import archcraftsman.base
@@ -27,21 +27,34 @@ import archcraftsman.options
 _ = archcraftsman.i18n.translate
 
 
-class TerminusFont(archcraftsman.bundles.bundle.Bundle):
+class GrmlZsh(archcraftsman.bundles.bundle.Bundle):
     """
-    The Terminus console font class.
+    Grml ZSH config class.
     """
 
     def __init__(self):
-        super().__init__(archcraftsman.options.Bundles.TERMINUS)
+        super().__init__(archcraftsman.options.Bundles.GRML)
 
     def packages(self) -> list[str]:
-        return ["terminus-font"]
+        return ["zsh", "zsh-completions", "grml-zsh-config"]
+
+    def prompt(self) -> str:
+        return _("Install ZSH with GRML configuration ?")
+
+    def help(self) -> str:
+        return _(
+            "If yes, the script will install the ZSH shell with GRML "
+            "configuration. GRML is a ZSH pre-configuration used by Archlinux's "
+            "live environment."
+        )
 
     def print_resume(self):
-        archcraftsman.base.print_sub_step(_("Install terminus console font."))
+        archcraftsman.base.print_sub_step(_("Install ZSH with GRML configuration."))
 
     def configure(self):
-        archcraftsman.base.execute(
-            f'echo "FONT={archcraftsman.info.ai.pre_launch_info.live_console_font}" >>/mnt/etc/vconsole.conf'
-        )
+        archcraftsman.base.execute("chsh --shell /bin/zsh", chroot=True)
+        if archcraftsman.info.ai.system_info.user_name:
+            archcraftsman.base.execute(
+                f"chsh --shell /bin/zsh {archcraftsman.info.ai.system_info.user_name}",
+                chroot=True,
+            )

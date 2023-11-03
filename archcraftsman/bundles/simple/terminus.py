@@ -15,8 +15,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-The copy ArchCraftsman bundle module
+The terminus console font bundle module
 """
+
 import archcraftsman.base
 import archcraftsman.bundles.bundle
 import archcraftsman.i18n
@@ -26,28 +27,24 @@ import archcraftsman.options
 _ = archcraftsman.i18n.translate
 
 
-class CopyACM(archcraftsman.bundles.bundle.Bundle):
+class TerminusFont(archcraftsman.bundles.bundle.Bundle):
     """
-    The CopyACM class.
+    The Terminus console font class.
     """
 
     def __init__(self):
-        super().__init__(archcraftsman.options.Bundles.COPY_ACM)
+        super().__init__(archcraftsman.options.Bundles.TERMINUS)
+
+    def packages(self) -> list[str]:
+        return ["terminus-font"]
+
+    def prompt(self) -> str:
+        return _("Install terminus console font ?")
 
     def print_resume(self):
-        archcraftsman.base.print_sub_step(_("Copy ArchCraftsman to the new system."))
+        archcraftsman.base.print_sub_step(_("Install terminus console font."))
 
     def configure(self):
-        if archcraftsman.info.ai.system_info.user_name:
-            path = f"/home/{archcraftsman.info.ai.system_info.user_name}"
-            archcraftsman.base.execute(f"mkdir -p /mnt{path}")
-            archcraftsman.base.execute(f"cp -r ~/archcraftsman /mnt{path}")
-            archcraftsman.base.execute(
-                f"chown -R {archcraftsman.info.ai.system_info.user_name}:"
-                f"{archcraftsman.info.ai.system_info.user_name} {path}",
-                chroot=True,
-            )
-        else:
-            path = "/root"
-            archcraftsman.base.execute(f"mkdir -p /mnt{path}")
-            archcraftsman.base.execute(f"cp -r ~/archcraftsman /mnt{path}")
+        archcraftsman.base.execute(
+            f'echo "FONT={archcraftsman.info.ai.pre_launch_info.live_console_font}" >>/mnt/etc/vconsole.conf'
+        )

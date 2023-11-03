@@ -26,15 +26,15 @@ import urllib.request
 import archcraftsman.arguments
 import archcraftsman.base
 import archcraftsman.bundles.bundle
-import archcraftsman.bundles.copyacm
 import archcraftsman.bundles.genericbundle
-import archcraftsman.bundles.grmlzsh
 import archcraftsman.bundles.grub
 import archcraftsman.bundles.microcodes
-import archcraftsman.bundles.nvidia
-import archcraftsman.bundles.terminus
+import archcraftsman.bundles.simple.copyacm
+import archcraftsman.bundles.simple.grmlzsh
+import archcraftsman.bundles.simple.nvidia
+import archcraftsman.bundles.simple.terminus
+import archcraftsman.bundles.simple.zram
 import archcraftsman.bundles.utils
-import archcraftsman.bundles.zram
 import archcraftsman.config
 import archcraftsman.i18n
 import archcraftsman.info
@@ -247,53 +247,12 @@ def setup_system():
             )
         )
 
-        if archcraftsman.utils.prompt_bool(
-            _("Install proprietary Nvidia driver ?"), default=False
-        ):
-            archcraftsman.info.ai.system_info.bundles.append(
-                archcraftsman.bundles.nvidia.NvidiaDriver()
-            )
-
-        if archcraftsman.utils.prompt_bool(
-            _("Install terminus console font ?"), default=False
-        ):
-            archcraftsman.info.ai.system_info.bundles.append(
-                archcraftsman.bundles.terminus.TerminusFont()
-            )
-
-        if archcraftsman.utils.prompt_bool(
-            _("Install ZSH with GRML configuration ?"),
-            default=False,
-            help_msg=_(
-                "If yes, the script will install the ZSH shell with GRML "
-                "configuration. GRML is a ZSH pre-configuration used by Archlinux's "
-                "live environment."
-            ),
-        ):
-            archcraftsman.info.ai.system_info.bundles.append(
-                archcraftsman.bundles.grmlzsh.GrmlZsh()
-            )
-
-        if archcraftsman.utils.prompt_bool(
-            _("Install and enable ZRAM ?"),
-            default=False,
-            help_msg=_(
-                "ZRAM is a process to compress datas directly in the RAM instead of moving them in a swap. "
-                "Enabled ZRAM will allow you to compress up to half of your RAM before having to swap. "
-                "This method is more efficient than the swap and do not use your disk but is more CPU demanding. "
-                "ZRAM is fully compatible with a swap, it just has a higher priority."
-            ),
-        ):
-            archcraftsman.info.ai.system_info.bundles.append(
-                archcraftsman.bundles.zram.Zram()
-            )
-
-        if archcraftsman.utils.prompt_bool(
-            _("Copy ArchCraftsman to the new system ?"), default=False
-        ):
-            archcraftsman.info.ai.system_info.bundles.append(
-                archcraftsman.bundles.copyacm.CopyACM()
-            )
+        for simple_bundle_type in archcraftsman.bundles.utils.list_simple_bundles():
+            simple_bundle = simple_bundle_type()
+            if archcraftsman.utils.prompt_bool(
+                simple_bundle.prompt(), default=False, help_msg=simple_bundle.help()
+            ):
+                archcraftsman.info.ai.system_info.bundles.append(simple_bundle)
 
         for generic_bundle_name in archcraftsman.bundles.utils.list_generic_bundles():
             generic_bundle = archcraftsman.bundles.genericbundle.GenericBundle(

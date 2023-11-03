@@ -21,22 +21,31 @@ import importlib
 import importlib.resources
 import typing
 
+import archcraftsman.base
 import archcraftsman.bundles.bundle
 import archcraftsman.options
 import archcraftsman.utils
+
+
+def get_bundle_files(base_package: str) -> list[str]:
+    return list(
+        f'{base_package}.{resource.name.replace(".py", "")}'
+        for resource in importlib.resources.files(base_package).iterdir()
+        if resource.is_file()
+        and resource.name.endswith(".py")
+        and resource.name != "__init__.py"
+    )
 
 
 def get_all_bundle_types() -> list[type[archcraftsman.bundles.bundle.Bundle]]:
     """
     A function to get all available bundles.
     """
-    for name in list(
-        f'archcraftsman.bundles.{resource.name.replace(".py", "")}'
-        for resource in importlib.resources.files("archcraftsman.bundles").iterdir()
-        if resource.is_file()
-        and resource.name.endswith(".py")
-        and resource.name != "__init__.py"
-    ):
+    for name in get_bundle_files("archcraftsman.bundles"):
+        importlib.import_module(name)
+    for name in get_bundle_files("archcraftsman.bundles.simple"):
+        importlib.import_module(name)
+    for name in get_bundle_files("archcraftsman.bundles.shell"):
         importlib.import_module(name)
     return archcraftsman.bundles.bundle.Bundle.__subclasses__()
 
@@ -65,6 +74,17 @@ def get_bundle_type_by_name(name: str) -> type[archcraftsman.bundles.bundle.Bund
     return bundle_type
 
 
+def list_simple_bundles() -> list[type[archcraftsman.bundles.bundle.Bundle]]:
+    """
+    List all available simple bundles.
+    """
+    return [
+        bundle_type
+        for bundle_type in _BUNDLES_MAP.values()
+        if "archcraftsman.bundles.simple" in str(bundle_type)
+    ]
+
+
 def list_generic_bundles() -> list[str]:
     """
     List all available generic bundles.
@@ -72,7 +92,7 @@ def list_generic_bundles() -> list[str]:
     return list(
         resource.name.replace(".toml", "")
         for resource in importlib.resources.files(
-            "archcraftsman.bundles.configs"
+            "archcraftsman.bundles.generic"
         ).iterdir()
         if resource.is_file() and resource.name.endswith(".toml")
     )

@@ -15,9 +15,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-The grml zsh bundle module
+The copy ArchCraftsman bundle module
 """
-
 import archcraftsman.base
 import archcraftsman.bundles.bundle
 import archcraftsman.i18n
@@ -27,24 +26,31 @@ import archcraftsman.options
 _ = archcraftsman.i18n.translate
 
 
-class GrmlZsh(archcraftsman.bundles.bundle.Bundle):
+class CopyACM(archcraftsman.bundles.bundle.Bundle):
     """
-    Grml ZSH config class.
+    The CopyACM class.
     """
 
     def __init__(self):
-        super().__init__(archcraftsman.options.Bundles.GRML)
+        super().__init__(archcraftsman.options.Bundles.COPY_ACM)
 
-    def packages(self) -> list[str]:
-        return ["zsh", "zsh-completions", "grml-zsh-config"]
+    def prompt(self) -> str:
+        return _("Copy ArchCraftsman to the new system ?")
 
     def print_resume(self):
-        archcraftsman.base.print_sub_step(_("Install ZSH with GRML configuration."))
+        archcraftsman.base.print_sub_step(_("Copy ArchCraftsman to the new system."))
 
     def configure(self):
-        archcraftsman.base.execute("chsh --shell /bin/zsh", chroot=True)
         if archcraftsman.info.ai.system_info.user_name:
+            path = f"/home/{archcraftsman.info.ai.system_info.user_name}"
+            archcraftsman.base.execute(f"mkdir -p /mnt{path}")
+            archcraftsman.base.execute(f"cp -r ~/archcraftsman /mnt{path}")
             archcraftsman.base.execute(
-                f"chsh --shell /bin/zsh {archcraftsman.info.ai.system_info.user_name}",
+                f"chown -R {archcraftsman.info.ai.system_info.user_name}:"
+                f"{archcraftsman.info.ai.system_info.user_name} {path}",
                 chroot=True,
             )
+        else:
+            path = "/root"
+            archcraftsman.base.execute(f"mkdir -p /mnt{path}")
+            archcraftsman.base.execute(f"cp -r ~/archcraftsman /mnt{path}")

@@ -43,5 +43,8 @@ class NvidiaDriver(archcraftsman.bundles.bundle.Bundle):
             return ["nvidia-lts"]
         return ["nvidia"]
 
+    def prompt(self) -> str:
+        return _("Install proprietary Nvidia driver ?")
+
     def print_resume(self):
         archcraftsman.base.print_sub_step(_("Install proprietary Nvidia driver."))
