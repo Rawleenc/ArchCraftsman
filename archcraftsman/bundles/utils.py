@@ -28,6 +28,9 @@ import archcraftsman.utils
 
 
 def get_bundle_files(base_package: str) -> list[str]:
+    """
+    A function to get all available bundle python files inside a package using importlib.resources.
+    """
     return list(
         f'{base_package}.{resource.name.replace(".py", "")}'
         for resource in importlib.resources.files(base_package).iterdir()
