@@ -67,6 +67,12 @@ class PartitioningInfo:
             _("Formatting and mounting partitions..."), clear=False
         )
 
+        part_mount_points = [
+            partition.part_mount_point
+            for partition in self.partitions
+            if partition.part_mount_point
+        ]
+
         formatting_ok = False
         while not formatting_ok:
             try:
@@ -76,7 +82,7 @@ class PartitioningInfo:
                         == archcraftsman.options.FSFormats.BTRFS
                     ):
                         self._btrfs_in_use = True
-                    partition.format_partition()
+                    partition.format(part_mount_points)
                 formatting_ok = True
             except subprocess.CalledProcessError as exception:
                 self.umount_partitions()
@@ -102,7 +108,7 @@ class PartitioningInfo:
             for partition in not_mounted_partitions:
                 if partition.part_format_type == archcraftsman.options.FSFormats.BTRFS:
                     self._btrfs_in_use = True
-                partition.mount()
+                partition.mount(part_mount_points)
 
     def umount_partitions(self):
         """

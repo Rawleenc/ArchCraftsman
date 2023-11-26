@@ -20,9 +20,9 @@ The partition class module
 import json
 import os
 import subprocess
-import typing
 
 import archcraftsman.base
+import archcraftsman.btrfs
 import archcraftsman.i18n
 import archcraftsman.options
 import archcraftsman.utils
@@ -206,13 +206,13 @@ class Partition:
             summary += f" - {_('encrypted')} ('/dev/mapper/{self.block_name}')"
         return summary
 
-    def real_path(self) -> typing.Optional[str]:
+    def real_path(self) -> str:
         """
         A method to get the partition path.
         """
         return f"/dev/mapper/{self.block_name}" if self.encrypted else self.path
 
-    def format_partition(self):
+    def format(self, part_mount_points: list[str]):
         """
         A method to archcraftsman.base.execute formatting commands for the partition.
         """
@@ -235,7 +235,9 @@ class Partition:
                     archcraftsman.base.execute(f'mkfs.vfat "{self.real_path()}"')
             case archcraftsman.options.FSFormats.BTRFS:
                 if self.part_format:
-                    archcraftsman.base.execute(f'mkfs.btrfs -f "{self.real_path()}"')
+                    archcraftsman.btrfs.format(
+                        self.real_path(), self.part_mount_point, part_mount_points
+                    )
             case _:
                 if self.part_format:
                     archcraftsman.base.execute(f'mkfs.ext4 "{self.real_path()}"')
@@ -253,15 +255,15 @@ class Partition:
             )
         )
 
-    def mount(self):
+    def mount(self, part_mount_points: list[str]):
         """
         A method to mount the partition.
         """
         archcraftsman.base.print_sub_step(_("Mounting %s...") % (self.real_path()))
         match self.part_format_type:
             case archcraftsman.options.FSFormats.BTRFS:
-                archcraftsman.base.execute(
-                    f'mount --mkdir -o compress=zstd "{self.real_path()}" "/mnt{self.part_mount_point}"'
+                archcraftsman.btrfs.mount(
+                    self.real_path(), self.part_mount_point, part_mount_points
                 )
             case _:
                 archcraftsman.base.execute(
@@ -276,7 +278,7 @@ class Partition:
             archcraftsman.base.print_sub_step(
                 _("Unmounting %s...") % (self.real_path())
             )
-            archcraftsman.base.execute(f'umount "/mnt{self.part_mount_point}"')
+            archcraftsman.base.execute(f'umount -R "/mnt{self.part_mount_point}"')
             if self.encrypted:
                 archcraftsman.base.print_sub_step(
                     _("Closing %s...") % (self.real_path())

@@ -26,6 +26,7 @@ import archcraftsman.arguments
 import archcraftsman.autopart
 import archcraftsman.base
 import archcraftsman.basesetup
+import archcraftsman.btrfs
 import archcraftsman.config
 import archcraftsman.i18n
 import archcraftsman.info
@@ -127,7 +128,7 @@ def install():
             archcraftsman.info.ai.partitioning_info.filesystem_in_use()
             == archcraftsman.options.FSFormats.BTRFS
         ):
-            pkgs.update(["btrfs-progs", "grub-btrfs", "snapper"])
+            pkgs.update(archcraftsman.btrfs.get_packages())
 
         for bundle in archcraftsman.info.ai.system_info.bundles:
             pkgs.update(bundle.packages())
@@ -231,6 +232,13 @@ def install():
         archcraftsman.info.ai.system_info.network().configure()
 
         archcraftsman.base.execute("systemctl enable systemd-timesyncd", chroot=True)
+
+        if (
+            archcraftsman.info.ai.partitioning_info.filesystem_in_use()
+            == archcraftsman.options.FSFormats.BTRFS
+        ):
+            archcraftsman.base.print_step(_("BTRFS configuration..."), clear=False)
+            archcraftsman.btrfs.configure()
 
         archcraftsman.base.print_step(
             _("Installation and configuration of the grub..."), clear=False
