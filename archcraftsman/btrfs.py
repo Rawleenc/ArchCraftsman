@@ -20,7 +20,18 @@ All BTRFS related functions
 
 import archcraftsman.base
 
-subvolumes = ["/var", "/opt", "/srv", "/tmp", "/root", "/usr/local", "/home"]
+SNAPSHOTS_SUBVOLUME = "@snapshots"
+
+subvolumes = {
+    "@var": "/var",
+    "@opt": "/opt",
+    "@srv": "/srv",
+    "@tmp": "/tmp",
+    "@root": "/root",
+    "@usr_local": "/usr/local",
+    "@home": "/home",
+    SNAPSHOTS_SUBVOLUME: "/.snapshots",
+}
 
 
 def get_packages():
@@ -63,10 +74,10 @@ def formatting(path: str, mount_point: str, part_mount_points: list[str]):
     if mount_point == "/":
         _mount(path, "/")
         archcraftsman.base.execute("btrfs subvolume create /mnt/@")
-        for subvolume in subvolumes:
-            if subvolume not in part_mount_points:
+        for subvolume_name, subvolume_path in subvolumes.items():
+            if subvolume_path not in part_mount_points:
                 archcraftsman.base.execute(
-                    f"btrfs subvolume create -p /mnt/@{subvolume}"
+                    f"btrfs subvolume create -p /mnt/{subvolume_name}"
                 )
         archcraftsman.base.execute("umount -R /mnt")
 
@@ -77,14 +88,16 @@ def mount(path: str, mount_point: str, part_mount_points: list[str]):
     """
     if mount_point == "/":
         _mount_subvolume(path, "/", "@")
-        for subvolume in subvolumes:
-            if subvolume not in part_mount_points:
-                _mount_subvolume(path, subvolume, f"@{subvolume}")
+        for subvolume_name, subvolume_path in subvolumes.items():
+            if subvolume_name == "@snapshots":
+                continue
+            if subvolume_path not in part_mount_points:
+                _mount_subvolume(path, subvolume_path, subvolume_name)
     else:
         _mount(path, mount_point)
 
 
-def configure():
+def configure(path: str):
     """
     A function to configure snapshots.
     """
@@ -92,9 +105,30 @@ def configure():
     archcraftsman.base.execute(
         "snapper --no-dbus -c root set-config TIMELINE_CREATE=no", chroot=True
     )
+
     archcraftsman.base.execute("systemctl enable snapper-cleanup.timer", chroot=True)
     archcraftsman.base.execute("systemctl enable grub-btrfsd.service", chroot=True)
+
     archcraftsman.base.execute(
-        'snapper --no-dbus create --description "Initialization snapshot. Do not boot on it."',
+        f"btrfs subvolume delete /mnt{subvolumes[SNAPSHOTS_SUBVOLUME]}"
+    )
+    archcraftsman.base.execute(f"mkdir /mnt{subvolumes[SNAPSHOTS_SUBVOLUME]}")
+    _mount_subvolume(path, subvolumes[SNAPSHOTS_SUBVOLUME], SNAPSHOTS_SUBVOLUME)
+    archcraftsman.base.execute(f"chmod 750 /mnt{subvolumes[SNAPSHOTS_SUBVOLUME]}")
+
+    archcraftsman.base.execute(
+        'snapper --no-dbus create --read-write --description "Installation finished."',
         chroot=True,
+    )
+
+    archcraftsman.base.execute("grub-mkconfig -o /boot/grub/grub.cfg", chroot=True)
+    archcraftsman.base.execute("genfstab -U /mnt >>/mnt/etc/fstab")
+    # Remove ,subvolid=\d+,subvol=/@ from fstab
+    archcraftsman.base.execute(
+        "sed -E 's|,subvolid=[0-9]+,subvol=/@\t|\t|g' -i /mnt/etc/fstab"
+    )
+
+    # Set the first snapshot as the default subvolume
+    archcraftsman.base.execute(
+        f"btrfs subvolume set-default /mnt{subvolumes[SNAPSHOTS_SUBVOLUME]}/1/snapshot"
     )
