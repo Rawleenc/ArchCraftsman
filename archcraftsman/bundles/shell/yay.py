@@ -50,4 +50,5 @@ class Yay(archcraftsman.bundles.bundle.Bundle):
             )
             return
         archcraftsman.base.execute("git clone https://aur.archlinux.org/yay")
+        archcraftsman.base.execute("pacman -Syy", sudo=True)
         archcraftsman.base.execute("cd yay; makepkg -si; cd -; rm -rf yay")
