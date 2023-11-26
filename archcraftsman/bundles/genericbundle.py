@@ -26,7 +26,8 @@ import archcraftsman.base
 import archcraftsman.bundles.bundle
 import archcraftsman.i18n
 
-_ = archcraftsman.i18n.translate
+_t = archcraftsman.i18n.translate
+_ = _t
 
 
 class GenericBundle(archcraftsman.bundles.bundle.Bundle):
@@ -65,16 +66,16 @@ class GenericBundle(archcraftsman.bundles.bundle.Bundle):
         return string
 
     def prompt(self) -> str:
-        return self.format_str(_(self._prompt))
+        return self.format_str(_t(self._prompt))
 
     def help(self) -> str:
-        return self.format_str(_(self._help)) if self._help else ""
+        return self.format_str(_t(self._help)) if self._help else ""
 
     def packages(self) -> list[str]:
         return [] if self._packages is None else self._packages
 
     def print_resume(self):
-        archcraftsman.base.print_sub_step(self.format_str(_(self._resume)))
+        archcraftsman.base.print_sub_step(self.format_str(_t(self._resume)))
 
     def configure(self):
         if self._commands is None:

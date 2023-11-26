@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2023-11-02 23:54+0100\n"
-"PO-Revision-Date: 2023-11-02 23:55+0100\n"
+"POT-Creation-Date: 2023-11-26 17:36+0100\n"
+"PO-Revision-Date: 2023-11-26 17:40+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "Generated-By: pygettext.py 1.5\n"
-"X-Generator: Poedit 3.3.2\n"
+"X-Generator: Poedit 3.4.1\n"
 
 #: archcraftsman/autopart.py:37
 msgid "Automatic partitioning :"
@@ -25,41 +25,29 @@ msgstr "Partitionnement automatique :"
 msgid "Do you want to install Arch Linux next to other systems ?"
 msgstr "Voulez-vous installer Arch Linux à côté des autres systèmes ?"
 
-#: archcraftsman/autopart.py:57
-msgid "What type of Swap do you want ? (%s) : "
-msgstr "Quel type de swap voulez-vous ? (%s) : "
-
-#: archcraftsman/autopart.py:58
-msgid "Swap type '%s' is not supported."
-msgstr "Le type de swap '%s' n'est pas supporté."
-
 #: archcraftsman/autopart.py:60
-msgid "Supported Swap types : "
-msgstr "Types de swap supportés : "
-
-#: archcraftsman/autopart.py:64
 msgid "Do you want a separated Home ?"
 msgstr "Voulez-vous un Home séparé ?"
 
-#: archcraftsman/autopart.py:68 archcraftsman/autopart.py:74
+#: archcraftsman/autopart.py:64 archcraftsman/autopart.py:70
 msgid "Do you want to encrypt the %s partition ?"
 msgstr "Voulez-vous chiffrer la partition %s ?"
 
-#: archcraftsman/autopart.py:279 archcraftsman/basesetup.py:53
-#: archcraftsman/basesetup.py:175 archcraftsman/manualpart.py:175
+#: archcraftsman/autopart.py:245 archcraftsman/basesetup.py:53
+#: archcraftsman/basesetup.py:175 archcraftsman/manualpart.py:179
 msgid "Summary of choices :"
 msgstr "Résumé des choix :"
 
-#: archcraftsman/autopart.py:283 archcraftsman/manualpart.py:187
+#: archcraftsman/autopart.py:249 archcraftsman/manualpart.py:191
 msgid "Swapfile size : %s"
 msgstr "Taille du fichier d'échange : %s"
 
-#: archcraftsman/autopart.py:285 archcraftsman/basesetup.py:64
-#: archcraftsman/basesetup.py:203 archcraftsman/manualpart.py:191
+#: archcraftsman/autopart.py:251 archcraftsman/basesetup.py:64
+#: archcraftsman/basesetup.py:203 archcraftsman/manualpart.py:195
 msgid "Is the information correct ?"
 msgstr "Les informations sont-elles correctes ?"
 
-#: archcraftsman/autopart.py:289 archcraftsman/manualpart.py:195
+#: archcraftsman/autopart.py:255 archcraftsman/manualpart.py:199
 msgid "Do you want to change the partitioning mode ?"
 msgstr "Voulez-vous changer de mode de partitionnement ?"
 
@@ -127,13 +115,13 @@ msgstr "Exécution des étapes de pré-lancement : "
 msgid "Synchronising repositories..."
 msgstr "Synchronisation des dépôts..."
 
-#: archcraftsman/basesetup.py:157 archcraftsman/installer.py:307
+#: archcraftsman/basesetup.py:157 archcraftsman/installer.py:296
 #: archcraftsman/shell.py:203
 msgid "Script execution interrupted by the user !"
 msgstr "Exécution du script interrompue par l'utilisateur !"
 
-#: archcraftsman/basesetup.py:162 archcraftsman/installer.py:314
-#: archcraftsman/partitioninginfo.py:92 archcraftsman/shell.py:209
+#: archcraftsman/basesetup.py:162 archcraftsman/installer.py:303
+#: archcraftsman/partitioninginfo.py:90 archcraftsman/shell.py:209
 msgid "A subprocess execution failed ! See the following error: %s"
 msgstr ""
 "L'exécution d'un sous-processus a échoué ! L'erreur suivante s'est "
@@ -203,65 +191,21 @@ msgstr "La pile réseau '%s' n'est pas supporté."
 msgid "Supported network stacks : "
 msgstr "Pile réseau supportés : "
 
-#: archcraftsman/basesetup.py:251
-msgid "Install proprietary Nvidia driver ?"
-msgstr "Installer le pilote propriétaire Nvidia ?"
-
-#: archcraftsman/basesetup.py:258
-msgid "Install terminus console font ?"
-msgstr "Installer la police de console Terminus ?"
-
-#: archcraftsman/basesetup.py:265
-msgid "Install ZSH with GRML configuration ?"
-msgstr "Installer ZSH avec la configuration GRML ?"
-
-#: archcraftsman/basesetup.py:267
-msgid ""
-"If yes, the script will install the ZSH shell with GRML configuration. GRML "
-"is a ZSH pre-configuration used by Archlinux's live environment."
-msgstr ""
-"Si oui, le script installera le shell ZSH avec la configuration GRML. GRML "
-"est une pré-configuration de ZSH utilisée par l'environnement live "
-"d'Archlinux."
-
-#: archcraftsman/basesetup.py:278
-msgid "Install and enable ZRAM ?"
-msgstr "Installer et activer ZRAM ?"
-
-#: archcraftsman/basesetup.py:280
-msgid ""
-"ZRAM is a process to compress datas directly in the RAM instead of moving "
-"them in a swap. Enabled ZRAM will allow you to compress up to half of your "
-"RAM before having to swap. This method is more efficient than the swap and "
-"do not use your disk but is more CPU demanding. ZRAM is fully compatible "
-"with a swap, it just has a higher priority."
-msgstr ""
-"ZRAM est un procédé permettant de compresser les données directement dans la "
-"RAM au lieu de les déplacer dans un swap. L'activation de ZRAM vous "
-"permettra de compresser jusqu'à la moitié de votre RAM avant de devoir swap. "
-"Cette méthode est plus efficace que le swap et n'utilise pas votre disque "
-"mais est plus gourmande en ressources CPU. ZRAM est entièrement compatible "
-"avec un swap, il a juste une priorité plus élevée."
-
-#: archcraftsman/basesetup.py:292
-msgid "Copy ArchCraftsman to the new system ?"
-msgstr "Copier ArchCraftsman sur le nouveau système ?"
-
-#: archcraftsman/basesetup.py:309
+#: archcraftsman/basesetup.py:268
 msgid "Your timezone (%s) : "
 msgstr "Votre fuseau horaire (%s) : "
 
-#: archcraftsman/basesetup.py:316
+#: archcraftsman/basesetup.py:275
 msgid "Would you like to add a user? (type username, leave blank if none) : "
 msgstr ""
 "Voulez-vous ajouter un utilisateur ? (tapez le nom d'utilisateur, laissez "
 "vide si vous n'en avez pas) : "
 
-#: archcraftsman/basesetup.py:327
+#: archcraftsman/basesetup.py:286
 msgid "Invalid user name."
 msgstr "Nom d'utilisateur invalide."
 
-#: archcraftsman/basesetup.py:333
+#: archcraftsman/basesetup.py:292
 msgid ""
 "What is the %s's full name (type the entire full name, leave blank if "
 "none) : "
@@ -269,78 +213,36 @@ msgstr ""
 "Quel est le nom complet de %s (tapez le nom complet, laissez un blanc si "
 "vous n'en avez pas) : "
 
-#: archcraftsman/basesetup.py:343 archcraftsman/basesetup.py:349
+#: archcraftsman/basesetup.py:302 archcraftsman/basesetup.py:308
 msgid "%s password configuration : "
 msgstr "Configuration du mot de passe de %s : "
 
-#: archcraftsman/basesetup.py:345 archcraftsman/basesetup.py:354
+#: archcraftsman/basesetup.py:304 archcraftsman/basesetup.py:313
 msgid "Enter the %s password : "
 msgstr "Entrez le mot de passe de %s : "
 
-#: archcraftsman/bundles/budgie.py:64 archcraftsman/bundles/cinnamon.py:65
-#: archcraftsman/bundles/cutefish.py:55 archcraftsman/bundles/lxqt.py:65
-#: archcraftsman/bundles/mate.py:70 archcraftsman/bundles/xfce.py:69
-msgid "The display manager to install is '%s'. Do you want to install it ?"
-msgstr ""
-"Le gestionnaire d'affichage à installer est '%s'. Voulez-vous l'installer ?"
-
-#: archcraftsman/bundles/budgie.py:70 archcraftsman/bundles/cinnamon.py:71
-#: archcraftsman/bundles/cutefish.py:61 archcraftsman/bundles/deepin.py:55
-#: archcraftsman/bundles/enlightenment.py:54 archcraftsman/bundles/gnome.py:56
-#: archcraftsman/bundles/i3.py:59 archcraftsman/bundles/lxqt.py:71
-#: archcraftsman/bundles/mate.py:60 archcraftsman/bundles/plasma.py:69
-#: archcraftsman/bundles/sway.py:75 archcraftsman/bundles/xfce.py:59
+#: archcraftsman/bundles/gnome.py:56 archcraftsman/bundles/plasma.py:69
+#: archcraftsman/bundles/xfce.py:59
 msgid "Desktop environment : %s"
 msgstr "Environnement de bureau : %s"
 
-#: archcraftsman/bundles/budgie.py:72 archcraftsman/bundles/cinnamon.py:73
-#: archcraftsman/bundles/cutefish.py:63 archcraftsman/bundles/deepin.py:56
-#: archcraftsman/bundles/enlightenment.py:55 archcraftsman/bundles/gnome.py:57
-#: archcraftsman/bundles/i3.py:60 archcraftsman/bundles/lxqt.py:73
-#: archcraftsman/bundles/mate.py:62 archcraftsman/bundles/plasma.py:70
-#: archcraftsman/bundles/sway.py:76 archcraftsman/bundles/xfce.py:61
+#: archcraftsman/bundles/gnome.py:57 archcraftsman/bundles/plasma.py:70
+#: archcraftsman/bundles/xfce.py:61
 msgid "Display manager : %s"
 msgstr "Gestionnaire d'affichage : %s"
 
-#: archcraftsman/bundles/budgie.py:73 archcraftsman/bundles/cinnamon.py:74
-#: archcraftsman/bundles/cutefish.py:63
-#: archcraftsman/bundles/enlightenment.py:55 archcraftsman/bundles/i3.py:60
-#: archcraftsman/bundles/lxqt.py:73 archcraftsman/bundles/mate.py:63
-#: archcraftsman/bundles/sway.py:76 archcraftsman/bundles/xfce.py:62
-msgid "none"
-msgstr "aucun"
-
-#: archcraftsman/bundles/copyacm.py:38
-msgid "Copy ArchCraftsman to the new system."
-msgstr "Copier ArchCraftsman sur le nouveau système."
-
-#: archcraftsman/bundles/deepin.py:58 archcraftsman/bundles/mate.py:66
-#: archcraftsman/bundles/plasma.py:72 archcraftsman/bundles/xfce.py:65
-msgid "Install a minimal environment."
-msgstr "Installer un environnement minimal."
-
-#: archcraftsman/bundles/deepin.py:62 archcraftsman/bundles/gnome.py:61
-#: archcraftsman/bundles/mate.py:75 archcraftsman/bundles/plasma.py:80
+#: archcraftsman/bundles/gnome.py:61 archcraftsman/bundles/plasma.py:80
 #: archcraftsman/bundles/xfce.py:74
 msgid "Install a minimal environment ?"
 msgstr "Installer un environnement minimal ?"
 
-#: archcraftsman/bundles/deepin.py:64 archcraftsman/bundles/gnome.py:63
-#: archcraftsman/bundles/mate.py:77 archcraftsman/bundles/plasma.py:82
+#: archcraftsman/bundles/gnome.py:63 archcraftsman/bundles/plasma.py:82
 #: archcraftsman/bundles/xfce.py:76
 msgid ""
 "If yes, the script will not install any extra packages, only base packages."
 msgstr ""
 "Si oui, le script n'installera pas de paquets supplémentaires, seulement les "
 "paquets de base."
-
-#: archcraftsman/bundles/generateconfig.py:38
-msgid "Generate configuration."
-msgstr "Générer la configuration."
-
-#: archcraftsman/bundles/grmlzsh.py:42
-msgid "Install ZSH with GRML configuration."
-msgstr "Installer ZSH avec la configuration GRML."
 
 #: archcraftsman/bundles/iwd.py:43
 msgid "Install Iwd."
@@ -366,13 +268,13 @@ msgstr "Installer le noyau Linux zen."
 msgid "Microcodes to install : %s"
 msgstr "Microcodes à installer : %s"
 
-#: archcraftsman/bundles/networkmanager.py:53
+#: archcraftsman/bundles/networkmanager.py:47
 msgid "Install NetworkManager."
 msgstr "Installer NetworkManager."
 
-#: archcraftsman/bundles/nvidia.py:47
-msgid "Install proprietary Nvidia driver."
-msgstr "Installer le pilote propriétaire Nvidia."
+#: archcraftsman/bundles/plasma.py:72 archcraftsman/bundles/xfce.py:65
+msgid "Install a minimal environment."
+msgstr "Installer un environnement minimal."
 
 #: archcraftsman/bundles/plasma.py:75
 msgid "Install Wayland support for the plasma session."
@@ -382,25 +284,94 @@ msgstr "Installer le support Wayland pour la session plasma."
 msgid "Install Wayland support for the plasma session ?"
 msgstr "Installer le support Wayland pour la session plasma ?"
 
+#: archcraftsman/bundles/shell/generateconfig.py:38
+msgid "Generate configuration."
+msgstr "Générer la configuration."
+
+#: archcraftsman/bundles/shell/yay.py:44
+msgid "Install YAY."
+msgstr "Installer YAY."
+
+#: archcraftsman/bundles/shell/yay.py:49
+msgid "You must not be root to install yay."
+msgstr "Vous devez ne pas être root pour installer yay."
+
+#: archcraftsman/bundles/simple/copyacm.py:38
+msgid "Copy ArchCraftsman to the new system ?"
+msgstr "Copier ArchCraftsman sur le nouveau système ?"
+
+#: archcraftsman/bundles/simple/copyacm.py:41
+msgid "Copy ArchCraftsman to the new system."
+msgstr "Copier ArchCraftsman sur le nouveau système."
+
+#: archcraftsman/bundles/simple/grmlzsh.py:42
+msgid "Install ZSH with GRML configuration ?"
+msgstr "Installer ZSH avec la configuration GRML ?"
+
+#: archcraftsman/bundles/simple/grmlzsh.py:45
+msgid ""
+"If yes, the script will install the ZSH shell with GRML configuration. GRML "
+"is a ZSH pre-configuration used by Archlinux's live environment."
+msgstr ""
+"Si oui, le script installera le shell ZSH avec la configuration GRML. GRML "
+"est une pré-configuration de ZSH utilisée par l'environnement live "
+"d'Archlinux."
+
+#: archcraftsman/bundles/simple/grmlzsh.py:52
+msgid "Install ZSH with GRML configuration."
+msgstr "Installer ZSH avec la configuration GRML."
+
+#: archcraftsman/bundles/simple/nvidia.py:47
+msgid "Install proprietary Nvidia driver ?"
+msgstr "Installer le pilote propriétaire Nvidia ?"
+
+#: archcraftsman/bundles/simple/nvidia.py:50
+msgid "Install proprietary Nvidia driver."
+msgstr "Installer le pilote propriétaire Nvidia."
+
+#: archcraftsman/bundles/simple/terminus.py:42
+msgid "Install terminus console font ?"
+msgstr "Installer la police de console Terminus ?"
+
+#: archcraftsman/bundles/simple/terminus.py:45
+msgid "Install terminus console font."
+msgstr "Installer la police de console Terminus."
+
+#: archcraftsman/bundles/simple/zram.py:40
+msgid "Install and enable ZRAM ?"
+msgstr "Installer et activer ZRAM ?"
+
+#: archcraftsman/bundles/simple/zram.py:43
+msgid ""
+"ZRAM is a process to compress datas directly in the RAM instead of moving "
+"them in a swap. Enabled ZRAM will allow you to compress up to half of your "
+"RAM before having to swap. This method is more efficient than the swap and "
+"do not use your disk but is more CPU demanding. ZRAM is fully compatible "
+"with a swap, it just has a higher priority."
+msgstr ""
+"ZRAM est un procédé permettant de compresser les données directement dans la "
+"RAM au lieu de les déplacer dans un swap. L'activation de ZRAM vous "
+"permettra de compresser jusqu'à la moitié de votre RAM avant de devoir swap. "
+"Cette méthode est plus efficace que le swap et n'utilise pas votre disque "
+"mais est plus gourmande en ressources CPU. ZRAM est entièrement compatible "
+"avec un swap, il a juste une priorité plus élevée."
+
+#: archcraftsman/bundles/simple/zram.py:51
+msgid "Install and enable ZRAM."
+msgstr "Installer et activer ZRAM."
+
 #: archcraftsman/bundles/systemdnet.py:41
 msgid "Enable systemd network stack."
 msgstr "Activer la pile réseau de systemd."
 
-#: archcraftsman/bundles/terminus.py:42
-msgid "Install terminus console font."
-msgstr "Installer la police de console Terminus."
+#: archcraftsman/bundles/xfce.py:62
+msgid "none"
+msgstr "aucun"
 
-#: archcraftsman/bundles/yay.py:44
-msgid "Install YAY."
-msgstr "Installer YAY."
-
-#: archcraftsman/bundles/yay.py:49
-msgid "You must not be root to install yay."
-msgstr "Vous devez ne pas être root pour installer yay."
-
-#: archcraftsman/bundles/zram.py:40
-msgid "Install and enable ZRAM."
-msgstr "Installer et activer ZRAM."
+#: archcraftsman/bundles/xfce.py:69
+msgid "The display manager to install is '%s'. Do you want to install it ?"
+msgstr ""
+"Le gestionnaire d'affichage à installer est '%s'. Voulez-vous l'installer ?"
 
 #: archcraftsman/disk.py:124
 msgid "Swapfile size ? (%s, type '0' for none) : "
@@ -470,83 +441,87 @@ msgstr "Installer le groupe de paquets vim-plugins ?"
 msgid "Install vim-plugins package group."
 msgstr "Installer le groupe de paquets vim-plugins."
 
-#: archcraftsman/installer.py:49
+#: archcraftsman/installer.py:50
 msgid "Updating mirrors..."
 msgstr "Mise à jour des miroirs..."
 
-#: archcraftsman/installer.py:56
+#: archcraftsman/installer.py:57
 msgid "Current mirrorlist :"
 msgstr "Liste actuelle des miroirs :"
 
-#: archcraftsman/installer.py:59
+#: archcraftsman/installer.py:60
 msgid "Are you satisfied with the mirrors ?"
 msgstr "Êtes-vous satisfait des miroirs ?"
 
-#: archcraftsman/installer.py:63
+#: archcraftsman/installer.py:64
 msgid "Do you want to manually edit the mirrorlist ?"
 msgstr "Voulez-vous éditer manuellement la liste des miroirs ?"
 
-#: archcraftsman/installer.py:79
+#: archcraftsman/installer.py:80
 msgid "Partitioning :"
 msgstr "Partitionnement :"
 
-#: archcraftsman/installer.py:81
+#: archcraftsman/installer.py:82
 msgid "Do you want an automatic partitioning ?"
 msgstr "Voulez-vous un partitionnement automatique ?"
 
-#: archcraftsman/installer.py:144
+#: archcraftsman/installer.py:139
 msgid "Installation of the base..."
 msgstr "Installation de la base..."
 
-#: archcraftsman/installer.py:147
+#: archcraftsman/installer.py:142
 msgid "System configuration..."
 msgstr "Configuration du système..."
 
-#: archcraftsman/installer.py:185
+#: archcraftsman/installer.py:180
 msgid "Locales configuration..."
 msgstr "Configuration des locales..."
 
-#: archcraftsman/installer.py:193
+#: archcraftsman/installer.py:188
 msgid "Installation of the remaining packages..."
 msgstr "Installation des paquets restants..."
 
-#: archcraftsman/installer.py:216
+#: archcraftsman/installer.py:211
 msgid "Creation and activation of the swapfile..."
 msgstr "Création et activation du fichier d'échange..."
 
-#: archcraftsman/installer.py:239
+#: archcraftsman/installer.py:221
 msgid "Generating fstab..."
 msgstr "Génération du fstab..."
 
-#: archcraftsman/installer.py:246
+#: archcraftsman/installer.py:228
 msgid "Desktop configuration..."
 msgstr "Configuration du bureau..."
 
-#: archcraftsman/installer.py:249
+#: archcraftsman/installer.py:231
 msgid "Network configuration..."
 msgstr "Configuration du réseau..."
 
-#: archcraftsman/installer.py:255
+#: archcraftsman/installer.py:240
+msgid "BTRFS configuration..."
+msgstr "Configuration de BTRFS..."
+
+#: archcraftsman/installer.py:244
 msgid "Installation and configuration of the grub..."
 msgstr "Installation et configuration du grub..."
 
-#: archcraftsman/installer.py:259
+#: archcraftsman/installer.py:248
 msgid "Users configuration..."
 msgstr "Configuration des utilisateurs..."
 
-#: archcraftsman/installer.py:260
+#: archcraftsman/installer.py:249
 msgid "Root account configuration..."
 msgstr "Configuration du compte Root..."
 
-#: archcraftsman/installer.py:268
+#: archcraftsman/installer.py:257
 msgid "%s account configuration..."
 msgstr "Configuration du compte %s..."
 
-#: archcraftsman/installer.py:293
+#: archcraftsman/installer.py:282
 msgid "Extra packages configuration if needed..."
 msgstr "Configuration de paquets supplémentaires si nécessaire..."
 
-#: archcraftsman/installer.py:302
+#: archcraftsman/installer.py:291
 msgid "Installation complete ! You can reboot your system."
 msgstr "L'installation est terminée ! Vous pouvez redémarrer votre système."
 
@@ -619,13 +594,13 @@ msgstr "Formater la partition ?"
 msgid "Do you want to encrypt this partition ?"
 msgstr "Voulez-vous chiffrer cette partition ?"
 
-#: archcraftsman/partition.py:190 archcraftsman/utils.py:281
-#: archcraftsman/utils.py:283 archcraftsman/utils.py:290
+#: archcraftsman/partition.py:190 archcraftsman/utils.py:303
+#: archcraftsman/utils.py:305 archcraftsman/utils.py:312
 msgid "yes"
 msgstr "oui"
 
-#: archcraftsman/partition.py:192 archcraftsman/utils.py:281
-#: archcraftsman/utils.py:283 archcraftsman/utils.py:294
+#: archcraftsman/partition.py:192 archcraftsman/utils.py:303
+#: archcraftsman/utils.py:305 archcraftsman/utils.py:316
 msgid "no"
 msgstr "non"
 
@@ -649,23 +624,23 @@ msgstr "Formatage de %s..."
 msgid "Opening %s..."
 msgstr "Ouverture de %s..."
 
-#: archcraftsman/partition.py:263
+#: archcraftsman/partition.py:262
 msgid "Mounting %s..."
 msgstr "Montage de %s..."
 
-#: archcraftsman/partition.py:280
+#: archcraftsman/partition.py:279
 msgid "Unmounting %s..."
 msgstr "Démontage de %s..."
 
-#: archcraftsman/partition.py:285
+#: archcraftsman/partition.py:284
 msgid "Closing %s..."
 msgstr "Fermeture de %s..."
 
-#: archcraftsman/partitioninginfo.py:70
+#: archcraftsman/partitioninginfo.py:67
 msgid "Formatting and mounting partitions..."
 msgstr "Formatage et montage des partitions..."
 
-#: archcraftsman/partitioninginfo.py:121
+#: archcraftsman/partitioninginfo.py:117
 msgid "Unmounting partitions..."
 msgstr "Démontage des partitions..."
 
@@ -732,27 +707,39 @@ msgstr "Le type de formatage '%s' n'est pas supporté."
 msgid "Supported format types : "
 msgstr "Types de formatage supportés : "
 
-#: archcraftsman/utils.py:211
+#: archcraftsman/utils.py:214
+msgid "What type of Swap do you want ? (%s) : "
+msgstr "Quel type de swap voulez-vous ? (%s) : "
+
+#: archcraftsman/utils.py:215
+msgid "Swap type '%s' is not supported."
+msgstr "Le type de swap '%s' n'est pas supporté."
+
+#: archcraftsman/utils.py:217
+msgid "Supported Swap types : "
+msgstr "Types de swap supportés : "
+
+#: archcraftsman/utils.py:233
 msgid "What will be the encrypted block name ? : "
 msgstr "Quel sera le nom de bloc chiffré ? : "
 
-#: archcraftsman/utils.py:214
+#: archcraftsman/utils.py:236
 msgid "Invalid encrypted block name."
 msgstr "Nom de bloc chiffré invalide."
 
-#: archcraftsman/utils.py:229
+#: archcraftsman/utils.py:251
 msgid "Enter it again to confirm : "
 msgstr "Saisissez le à nouveau pour confirmer : "
 
-#: archcraftsman/utils.py:232
+#: archcraftsman/utils.py:254
 msgid "Passwords entered don't match."
 msgstr "Les mots de passe saisis ne correspondent pas."
 
-#: archcraftsman/utils.py:255
+#: archcraftsman/utils.py:277
 msgid "Detected drives :"
 msgstr "Disques détectés :"
 
-#: archcraftsman/utils.py:259
+#: archcraftsman/utils.py:281
 msgid ""
 "On which drive should Archlinux be installed ? (type the entire name, for "
 "example '/dev/sda') : "
@@ -760,6 +747,6 @@ msgstr ""
 "Sur quel disque Archlinux doit-il être installé ? (tapez le nom complet, par "
 "exemple '/dev/sda') : "
 
-#: archcraftsman/utils.py:267
+#: archcraftsman/utils.py:289
 msgid "The target drive '%s' doesn't exist."
 msgstr "Le disque cible '%s' n'existe pas."

@@ -142,7 +142,7 @@ class FSFormats(OptionEnum):
 
 class SwapTypes(OptionEnum):
     """
-    All sway type options.
+    All swap type options.
     """
 
     PARTITION = enum.auto()
