@@ -82,7 +82,7 @@ class PartitioningInfo:
                         == archcraftsman.options.FSFormats.BTRFS
                     ):
                         self._btrfs_in_use = True
-                    partition.format(part_mount_points)
+                    partition.formatting(part_mount_points)
                 formatting_ok = True
             except subprocess.CalledProcessError as exception:
                 self.umount_partitions()
