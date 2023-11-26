@@ -104,20 +104,16 @@ Required bundles :
 - Kernel (linux, linux-lts, linux-zen or linux-hardened)
 - Network stack (networkmanager, iwd and systemd or systemd only)
 
-Optional packages bundles are also available :
+Optional packages bundles are also available, like for example :
 
-- Desktop environment (Gnome, KDE Plasma, XFCE, Budgie, Cinnamon, CuteFish, Deepin, LxQT, Mate, Enlightenment, i3 or Sway)
+- Desktop environment (Gnome, KDE Plasma or XFCE)
 - Nvidia proprietary driver
-- Terminus tty font
 - Cups
 - Zsh with GRML config
 - Main fonts
 - Main file systems support
 - ZRAM
 - Pipewire
-- Copy ArchCraftsman to the new system
-
-**WARNING :** Sway doesn't start in a virtual machine nor with the Nvidia proprietary driver, but it works in a physical installation with an Intel or AMD GPU.
 
 Time will be synchronized using systemd timesyncd.
 
@@ -154,8 +150,10 @@ Normally, only Linux related partitions should be detected. However, if the dete
 
 For both partitioning options you will have the possibility to choose the partition format you want between the following ones :
 
-- ext4
 - btrfs
+- ext4
+
+The BTRFS format is the default format and is completely integrated. By default you'll have subvolumes, snapshots configured and enabled to be created upon each pacman transactions, automatic cleaning of old snapshots and integration into grub to easily rollback on an existing snapshot.
 
 In automatic partitioning, the chosen format type will be applied for all partitions except the EFI partition.  
 In manual partitioning you will be able to choose the format type to use for each partition individually except for the EFI partition.
@@ -165,6 +163,8 @@ If the EFI partition has to be formatted it will be formatted in vfat, otherwise
 All other partitions will be formatted in the format you want.
 
 If you choose to not create a Swap partition, you will be proposed a swapfile of the size you want, called swapfile. It will be created and placed at the base of the Root partition. If you specify 0 for the swapfile size, no swap will be created.
+
+Swapfile is not supported on a BTRFS root partition.
 
 ## Encryption
 
