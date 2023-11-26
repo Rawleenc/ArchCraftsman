@@ -95,5 +95,6 @@ def configure():
     archcraftsman.base.execute("systemctl enable snapper-cleanup.timer", chroot=True)
     archcraftsman.base.execute("systemctl enable grub-btrfsd.service", chroot=True)
     archcraftsman.base.execute(
-        "snapper --no-dbus create --description init", chroot=True
+        'snapper --no-dbus create --description "Initialization snapshot. Do not boot on it."',
+        chroot=True,
     )
