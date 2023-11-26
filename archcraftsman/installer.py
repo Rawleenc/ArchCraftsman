@@ -129,12 +129,6 @@ def install():
         ):
             pkgs.update(["btrfs-progs", "grub-btrfs", "snapper"])
 
-        if (
-            archcraftsman.info.ai.partitioning_info.filesystem_in_use()
-            == archcraftsman.options.FSFormats.XFS
-        ):
-            pkgs.add("xfsprogs")
-
         for bundle in archcraftsman.info.ai.system_info.bundles:
             pkgs.update(bundle.packages())
 

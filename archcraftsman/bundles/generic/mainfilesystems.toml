@@ -12,5 +12,4 @@ packages = [
     "ntfs-3g",
     "reiserfsprogs",
     "udftools",
-    "xfsprogs",
 ]
