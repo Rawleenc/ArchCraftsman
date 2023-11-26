@@ -27,7 +27,7 @@ def get_packages():
     """
     A function to get the packages needed to install BTRFS.
     """
-    return ["btrfs-progs", "grub-btrfs", "snapper", "snap-pac"]
+    return ["btrfs-progs", "grub-btrfs", "snapper", "snap-pac", "inotify-tools"]
 
 
 def _formatting(path: str):
@@ -84,6 +84,7 @@ def configure():
         "snapper --no-dbus -c root set-config TIMELINE_CREATE=no", chroot=True
     )
     archcraftsman.base.execute("systemctl enable snapper-cleanup.timer", chroot=True)
+    archcraftsman.base.execute("systemctl enable grub-btrfsd.service", chroot=True)
     archcraftsman.base.execute(
         "snapper --no-dbus create --description init", chroot=True
     )
