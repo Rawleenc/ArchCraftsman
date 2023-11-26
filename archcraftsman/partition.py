@@ -212,7 +212,7 @@ class Partition:
         """
         return f"/dev/mapper/{self.block_name}" if self.encrypted else self.path
 
-    def format(self, part_mount_points: list[str]):
+    def formatting(self, part_mount_points: list[str]):
         """
         A method to archcraftsman.base.execute formatting commands for the partition.
         """
@@ -235,7 +235,7 @@ class Partition:
                     archcraftsman.base.execute(f'mkfs.vfat "{self.real_path()}"')
             case archcraftsman.options.FSFormats.BTRFS:
                 if self.part_format:
-                    archcraftsman.btrfs.format(
+                    archcraftsman.btrfs.formatting(
                         self.real_path(), self.part_mount_point, part_mount_points
                     )
             case _:

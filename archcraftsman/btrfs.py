@@ -30,7 +30,7 @@ def get_packages():
     return ["btrfs-progs", "grub-btrfs", "snapper", "snap-pac"]
 
 
-def _format(path: str):
+def _formatting(path: str):
     """
     A function to format a partition.
     """
@@ -46,11 +46,11 @@ def _mount(path: str, mount_point: str):
     )
 
 
-def format(path: str, mount_point: str, part_mount_points: list[str]):
+def formatting(path: str, mount_point: str, part_mount_points: list[str]):
     """
     A function to format a partition.
     """
-    _format(path)
+    _formatting(path)
     if mount_point == "/":
         _mount(path, mount_point)
         archcraftsman.base.execute("btrfs subvolume create /mnt/@")
