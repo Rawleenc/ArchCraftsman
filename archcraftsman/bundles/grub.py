@@ -102,11 +102,7 @@ class Grub(archcraftsman.bundles.bundle.Bundle):
 
         if (
             archcraftsman.info.ai.partitioning_info.root_partition().part_format_type
-            in (
-                archcraftsman.options.FSFormats.EXT4,
-                archcraftsman.options.FSFormats.BTRFS,
-                archcraftsman.options.FSFormats.XFS,
-            )
+            == archcraftsman.options.FSFormats.EXT4
         ):
             archcraftsman.base.execute(
                 'sed -i "s|GRUB_DEFAULT=.*|GRUB_DEFAULT=saved|g" /mnt/etc/default/grub'

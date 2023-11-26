@@ -53,16 +53,12 @@ def auto_partitioning() -> bool:
         else:
             want_dual_boot = False
 
-        swap_type = archcraftsman.utils.prompt_option(
-            _("What type of Swap do you want ? (%s) : "),
-            _("Swap type '%s' is not supported."),
-            archcraftsman.options.SwapTypes,
-            supported_msg=_("Supported Swap types : "),
-            default=archcraftsman.options.SwapTypes.FILE,
-        )
-
-        want_home = archcraftsman.utils.prompt_bool(_("Do you want a separated Home ?"))
         part_format_type = archcraftsman.utils.ask_format_type()
+        swap_type = archcraftsman.utils.ask_swap_type(part_format_type)
+
+        want_home = archcraftsman.utils.prompt_bool(
+            _("Do you want a separated Home ?"), default=False
+        )
         root_block_name = None
         if archcraftsman.utils.prompt_bool(
             _("Do you want to encrypt the %s partition ?") % "Root", default=False
@@ -167,36 +163,6 @@ def auto_partitioning() -> bool:
             archcraftsman.info.ai.partitioning_info.partitions.append(
                 archcraftsman.partition.Partition(
                     index=index, part_type=archcraftsman.options.PartTypes.SWAP
-                )
-            )
-            index += 1
-        if (
-            root_block_name
-            or part_format_type
-            in (
-                archcraftsman.options.FSFormats.BTRFS,
-                archcraftsman.options.FSFormats.XFS,
-            )
-        ) and not any(
-            p.part_type == archcraftsman.options.PartTypes.BOOT
-            for p in archcraftsman.info.ai.partitioning_info.partitions
-        ):
-            # BOOT
-            auto_part_str += "n\n"  # Add a new partition
-            if archcraftsman.base.is_bios():
-                auto_part_str += "p\n"  # archcraftsman.disk.Partition primary (Accept default: primary)
-            auto_part_str += (
-                " \n"  # archcraftsman.disk.Partition number (Accept default: auto)
-            )
-            auto_part_str += " \n"  # First sector (Accept default: 1)
-            auto_part_str += "+2G\n"  # Last sector (Accept default: varies)
-            archcraftsman.info.ai.partitioning_info.partitions.append(
-                archcraftsman.partition.Partition(
-                    index=index,
-                    part_type=archcraftsman.options.PartTypes.BOOT,
-                    part_mount_point="/boot",
-                    part_format=True,
-                    part_format_type=archcraftsman.options.FSFormats.EXT4,
                 )
             )
             index += 1

@@ -86,15 +86,6 @@ class Desktops(OptionEnum):
     GNOME = enum.auto()
     PLASMA = enum.auto()
     XFCE = enum.auto()
-    BUDGIE = enum.auto()
-    CINNAMON = enum.auto()
-    CUTEFISH = enum.auto()
-    DEEPIN = enum.auto()
-    LXQT = enum.auto()
-    MATE = enum.auto()
-    ENLIGHTENMENT = enum.auto()
-    I3 = enum.auto()
-    SWAY = enum.auto()
     NONE = enum.auto()
 
 

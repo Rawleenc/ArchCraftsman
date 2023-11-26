@@ -193,10 +193,32 @@ def ask_format_type() -> archcraftsman.options.FSFormats:
         _("Format type '%s' is not supported."),
         archcraftsman.options.FSFormats,
         _("Supported format types : "),
-        archcraftsman.options.FSFormats.EXT4,
+        archcraftsman.options.FSFormats.BTRFS,
         archcraftsman.options.FSFormats.VFAT,
     )
-    return format_type if format_type else archcraftsman.options.FSFormats.EXT4
+    return format_type if format_type else archcraftsman.options.FSFormats.BTRFS
+
+
+def ask_swap_type(
+    format_type: archcraftsman.options.FSFormats,
+) -> archcraftsman.options.SwapTypes:
+    """
+    The method to ask the user for the swap type.
+    """
+    default = archcraftsman.options.SwapTypes.FILE
+    ignores = []
+    if format_type == archcraftsman.options.FSFormats.BTRFS:
+        default = archcraftsman.options.SwapTypes.PARTITION
+        ignores.append(archcraftsman.options.SwapTypes.FILE)
+    swap_type = prompt_option(
+        _("What type of Swap do you want ? (%s) : "),
+        _("Swap type '%s' is not supported."),
+        archcraftsman.options.SwapTypes,
+        _("Supported Swap types : "),
+        default,
+        *ignores,
+    )
+    return swap_type if swap_type else archcraftsman.options.SwapTypes.NONE
 
 
 def ask_encryption_block_name() -> str:

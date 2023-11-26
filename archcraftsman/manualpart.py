@@ -165,6 +165,10 @@ def manual_partitioning(change_disks: bool = True) -> bool:
         if archcraftsman.options.PartTypes.SWAP not in [
             part.part_type
             for part in archcraftsman.info.ai.partitioning_info.partitions
+        ] and archcraftsman.options.FSFormats.BTRFS not in [
+            part.part_format
+            for part in archcraftsman.info.ai.partitioning_info.partitions
+            if part.part_type == archcraftsman.options.PartTypes.ROOT
         ]:
             archcraftsman.info.ai.partitioning_info.swapfile_size = (
                 archcraftsman.disk.Disk(

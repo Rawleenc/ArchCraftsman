@@ -127,7 +127,7 @@ def install():
             archcraftsman.info.ai.partitioning_info.filesystem_in_use()
             == archcraftsman.options.FSFormats.BTRFS
         ):
-            pkgs.add("btrfs-progs")
+            pkgs.update(["btrfs-progs", "grub-btrfs", "snapper"])
 
         if (
             archcraftsman.info.ai.partitioning_info.filesystem_in_use()
@@ -215,20 +215,7 @@ def install():
             archcraftsman.base.print_step(
                 _("Creation and activation of the swapfile..."), clear=False
             )
-            if (
-                archcraftsman.info.ai.partitioning_info.root_partition().part_format_type
-                == archcraftsman.options.FSFormats.BTRFS
-            ):
-                archcraftsman.base.execute(
-                    "btrfs subvolume create /mnt/swap && "
-                    "cd /mnt/swap && "
-                    "truncate -s 0 ./swapfile && "
-                    "chattr +C ./swapfile && "
-                    "btrfs property set ./swapfile compression none && "
-                    "cd -"
-                )
-            else:
-                archcraftsman.base.execute("mkdir -p /mnt/swap")
+            archcraftsman.base.execute("mkdir -p /mnt/swap")
             archcraftsman.base.execute(
                 f'fallocate -l "{archcraftsman.info.ai.partitioning_info.swapfile_size}" /mnt/swap/swapfile'
             )

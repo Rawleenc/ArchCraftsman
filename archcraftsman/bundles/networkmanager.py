@@ -38,12 +38,6 @@ class NetworkManager(archcraftsman.bundles.bundle.Bundle):
     def packages(self) -> list[str]:
         packages = ["networkmanager"]
         if archcraftsman.info.ai.system_info.desktop().name in [
-            archcraftsman.options.Desktops.BUDGIE,
-            archcraftsman.options.Desktops.I3,
-            archcraftsman.options.Desktops.LXQT,
-            archcraftsman.options.Desktops.MATE,
-            archcraftsman.options.Desktops.SWAY,
-            archcraftsman.options.Desktops.ENLIGHTENMENT,
             archcraftsman.options.Desktops.XFCE,
         ]:
             packages.append("network-manager-applet")
