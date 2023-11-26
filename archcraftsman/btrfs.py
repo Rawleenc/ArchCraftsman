@@ -42,7 +42,16 @@ def _mount(path: str, mount_point: str):
     A function to mount a partition.
     """
     archcraftsman.base.execute(
-        f'mount --mkdir -o compress=zstd "{path}" "/mnt{mount_point}"'
+        f"mount --mkdir -o compress=zstd {path} /mnt{mount_point}"
+    )
+
+
+def _mount_subvolume(path: str, mount_point: str, subvolume: str):
+    """
+    A function to mount a subvolume.
+    """
+    archcraftsman.base.execute(
+        f"mount --mkdir -o compress=zstd,subvol={subvolume} {path} /mnt{mount_point}"
     )
 
 
@@ -52,7 +61,7 @@ def formatting(path: str, mount_point: str, part_mount_points: list[str]):
     """
     _formatting(path)
     if mount_point == "/":
-        _mount(path, mount_point)
+        _mount(path, "/")
         archcraftsman.base.execute("btrfs subvolume create /mnt/@")
         for subvolume in subvolumes:
             if subvolume not in part_mount_points:
@@ -66,13 +75,13 @@ def mount(path: str, mount_point: str, part_mount_points: list[str]):
     """
     A function to mount the root partition.
     """
-    _mount(path, mount_point)
     if mount_point == "/":
+        _mount_subvolume(path, "/", "@")
         for subvolume in subvolumes:
             if subvolume not in part_mount_points:
-                archcraftsman.base.execute(
-                    f"mount -o compress=zstd,subvol=@{subvolume} {path} /mnt{subvolume}"
-                )
+                _mount_subvolume(path, subvolume, f"@{subvolume}")
+    else:
+        _mount(path, mount_point)
 
 
 def configure():

@@ -73,6 +73,7 @@ class PartitioningInfo:
             if partition.part_mount_point
         ]
 
+        count = 0
         formatting_ok = False
         while not formatting_ok:
             try:
@@ -90,6 +91,12 @@ class PartitioningInfo:
                     _("A subprocess execution failed ! See the following error: %s")
                     % exception
                 )
+                if count >= 5:
+                    archcraftsman.base.print_error(
+                        _("Too many subprocess execution failures, aborting...")
+                    )
+                    raise exception
+                count += 1
 
         not_mounted_partitions = [
             partition
@@ -102,6 +109,7 @@ class PartitioningInfo:
             else len(part.part_mount_point)
         )
 
+        count = 0
         while not archcraftsman.arguments.test() and False in [
             partition.is_mounted() for partition in not_mounted_partitions
         ]:
@@ -109,6 +117,12 @@ class PartitioningInfo:
                 if partition.part_format_type == archcraftsman.options.FSFormats.BTRFS:
                     self._btrfs_in_use = True
                 partition.mount(part_mount_points)
+            if count >= 5:
+                archcraftsman.base.print_error(
+                    _("Too many subprocess execution failures, aborting...")
+                )
+                raise subprocess.CalledProcessError(1, "mount")
+            count += 1
 
     def umount_partitions(self):
         """
@@ -137,6 +151,7 @@ class PartitioningInfo:
             reverse=True,
         )
 
+        count = 0
         while not archcraftsman.arguments.test() and True in [
             partition.is_mounted() for partition in mounted_partitions
         ]:
@@ -144,3 +159,9 @@ class PartitioningInfo:
                 partition for partition in mounted_partitions if partition.is_mounted()
             ]:
                 partition.umount()
+            if count >= 5:
+                archcraftsman.base.print_error(
+                    _("Too many subprocess execution failures, aborting...")
+                )
+                raise subprocess.CalledProcessError(1, "umount")
+            count += 1
