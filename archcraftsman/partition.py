@@ -138,6 +138,9 @@ class Partition:
         }
 
     def configure(self, partition_type: archcraftsman.options.PartTypes):
+        """
+        Method to configure basic information of the partition.
+        """
         part_type_info = archcraftsman.options.get_type_info(partition_type)
         self.part_type = partition_type
 

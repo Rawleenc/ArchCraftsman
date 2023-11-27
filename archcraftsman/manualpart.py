@@ -132,6 +132,9 @@ def manual_partitioning(change_disks: bool = True) -> bool:
 
 
 def ask_swapfile_size():
+    """
+    The method to ask the user for the swapfile size if needed.
+    """
     if archcraftsman.options.PartTypes.SWAP not in [
         part.part_type for part in archcraftsman.info.ai.partitioning_info.partitions
     ] and archcraftsman.options.FSFormats.BTRFS not in [
@@ -145,6 +148,9 @@ def ask_swapfile_size():
 
 
 def print_swapfile_size():
+    """
+    The method to print the swapfile size if it exist.
+    """
     if (
         archcraftsman.options.PartTypes.SWAP
         not in [
@@ -160,6 +166,9 @@ def print_swapfile_size():
 
 
 def check_required_partitions(partitioned_disks: list[str]) -> bool:
+    """
+    The method to check if the required partitions are present.
+    """
     if (
         not archcraftsman.base.is_bios()
         and archcraftsman.options.PartTypes.EFI
