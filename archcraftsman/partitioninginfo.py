@@ -22,6 +22,7 @@ import subprocess
 
 import archcraftsman.arguments
 import archcraftsman.base
+import archcraftsman.disk
 import archcraftsman.i18n
 import archcraftsman.options
 import archcraftsman.partition
@@ -57,6 +58,32 @@ class PartitioningInfo:
             partition
             for partition in self.partitions
             if partition.part_type == archcraftsman.options.PartTypes.ROOT
+        )
+
+    def efi_partition(self) -> archcraftsman.partition.Partition:
+        """
+        The Disk method to get the EFI partition if it exist. Else return an empty partition object.
+        """
+        return next(
+            (
+                partition
+                for partition in self.partitions
+                if partition.part_type == archcraftsman.options.PartTypes.EFI
+            ),
+            next(
+                (
+                    partition
+                    for partition in self.partitions
+                    if partition.part_type == archcraftsman.options.PartTypes.BOOT
+                    and partition.part_format_type
+                    == archcraftsman.options.FSFormats.VFAT
+                ),
+                archcraftsman.partition.Partition(
+                    part_type=archcraftsman.options.PartTypes.EFI,
+                    part_format_type=archcraftsman.options.FSFormats.VFAT,
+                    part_mount_point="/boot/efi",
+                ),
+            ),
         )
 
     def format_and_mount_partitions(self):

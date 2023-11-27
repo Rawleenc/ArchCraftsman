@@ -36,9 +36,16 @@ subvolumes = {
 
 def get_packages():
     """
-    A function to get the packages needed to install BTRFS.
+    A function to get the packages needed to support BTRFS format.
     """
-    return ["btrfs-progs", "grub-btrfs", "snapper", "snap-pac", "inotify-tools"]
+    return ["btrfs-progs"]
+
+
+def get_management_packages():
+    """
+    A function to get the packages needed to manage a BTRFS root filesystem.
+    """
+    return ["grub-btrfs", "snapper", "snap-pac", "inotify-tools"]
 
 
 def _formatting(path: str):
@@ -74,6 +81,7 @@ def formatting(path: str, mount_point: str, part_mount_points: list[str]):
     if mount_point == "/":
         _mount(path, "/")
         archcraftsman.base.execute("btrfs subvolume create /mnt/@")
+        archcraftsman.base.execute("btrfs subvolume set-default /mnt/@")
         for subvolume_name, subvolume_path in subvolumes.items():
             if subvolume_path not in part_mount_points:
                 archcraftsman.base.execute(
@@ -87,7 +95,7 @@ def mount(path: str, mount_point: str, part_mount_points: list[str]):
     A function to mount the root partition.
     """
     if mount_point == "/":
-        _mount_subvolume(path, "/", "@")
+        _mount(path, "/")
         for subvolume_name, subvolume_path in subvolumes.items():
             if subvolume_name == "@snapshots":
                 continue
@@ -122,13 +130,3 @@ def configure(path: str):
     )
 
     archcraftsman.base.execute("grub-mkconfig -o /boot/grub/grub.cfg", chroot=True)
-    archcraftsman.base.execute("genfstab -U /mnt >>/mnt/etc/fstab")
-    # Remove ,subvolid=\d+,subvol=/@ from fstab
-    archcraftsman.base.execute(
-        "sed -E 's|,subvolid=[0-9]+,subvol=/@\t|\t|g' -i /mnt/etc/fstab"
-    )
-
-    # Set the first snapshot as the default subvolume
-    archcraftsman.base.execute(
-        f"btrfs subvolume set-default /mnt{subvolumes[SNAPSHOTS_SUBVOLUME]}/1/snapshot"
-    )

@@ -60,8 +60,10 @@ class Disk:
             archcraftsman.base.execute(
                 f'lsblk -b --output SIZE -n -d "{self.path}"',
                 force=True,
+                check=False,
                 capture_output=True,
             ).output
+            or 0
         )
         if len(self.partitions) > 0:
             sector_size = int(
@@ -94,22 +96,22 @@ class Disk:
         else:
             self.free_space = self.total
 
-    def get_efi_partition(self) -> archcraftsman.partition.Partition:
+    def efi_partition(self) -> archcraftsman.partition.Partition:
         """
         The Disk method to get the EFI partition if it exist. Else return an empty partition object.
         """
-        try:
-            return [
-                p
-                for p in self.partitions
-                if p.part_type == archcraftsman.options.PartTypes.EFI
-            ].pop()
-        except IndexError:
-            return archcraftsman.partition.Partition(
+        return next(
+            (
+                partition
+                for partition in self.partitions
+                if partition.part_type == archcraftsman.options.PartTypes.EFI
+            ),
+            archcraftsman.partition.Partition(
                 part_type=archcraftsman.options.PartTypes.EFI,
                 part_format_type=archcraftsman.options.FSFormats.VFAT,
                 part_mount_point="/boot/efi",
-            )
+            ),
+        )
 
     def ask_swapfile_size(self) -> str:
         """

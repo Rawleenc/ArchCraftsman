@@ -39,7 +39,7 @@ def auto_partitioning() -> bool:
         target_disk = archcraftsman.utils.ask_drive()
         archcraftsman.info.ai.partitioning_info.main_disk = target_disk
         disk = archcraftsman.disk.Disk(target_disk)
-        efi_partition = disk.get_efi_partition()
+        efi_partition = disk.efi_partition()
         if (
             not archcraftsman.base.is_bios()
             and len(disk.partitions) > 0

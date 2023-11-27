@@ -18,6 +18,7 @@
 The all available options module.
 """
 import enum
+import typing
 
 
 class OptionEnum(str, enum.Enum):
@@ -175,6 +176,56 @@ class BundleTypes(OptionEnum):
     MICRO_CODES = enum.auto()
     NETWORK = enum.auto()
     OTHER = enum.auto()
+
+
+class PartTypeInformations:
+    """
+    The partition type informations.
+    """
+
+    def __init__(
+        self,
+        part_type: PartTypes,
+        part_mount_point: str,
+        supported_formats: list[FSFormats],
+    ) -> None:
+        self.part_type = part_type
+        self.part_mount_point = part_mount_point
+        self.supported_formats = supported_formats
+
+    def __str__(self) -> str:
+        return f"Type : {self.part_type}, Mount point : {self.part_mount_point}"
+
+
+def get_type_info(
+    part_type: PartTypes = PartTypes.OTHER,
+) -> typing.Optional[PartTypeInformations]:
+    """
+    Get the supported formats for a partition type.
+    """
+    base_formats = [FSFormats.BTRFS, FSFormats.EXT4]
+    return {
+        PartTypes.EFI: PartTypeInformations(
+            part_type=PartTypes.EFI,
+            part_mount_point="/boot/efi",
+            supported_formats=[FSFormats.VFAT],
+        ),
+        PartTypes.ROOT: PartTypeInformations(
+            part_type=PartTypes.ROOT,
+            part_mount_point="/",
+            supported_formats=base_formats,
+        ),
+        PartTypes.BOOT: PartTypeInformations(
+            part_type=PartTypes.BOOT,
+            part_mount_point="/boot",
+            supported_formats=base_formats + [FSFormats.VFAT],
+        ),
+        PartTypes.HOME: PartTypeInformations(
+            part_type=PartTypes.HOME,
+            part_mount_point="/home",
+            supported_formats=base_formats,
+        ),
+    }.get(part_type)
 
 
 def get_btype_by_name(name: str) -> BundleTypes:

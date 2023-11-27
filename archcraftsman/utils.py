@@ -184,17 +184,27 @@ def ask_keymap(default: str) -> str:
     return keymap
 
 
-def ask_format_type() -> archcraftsman.options.FSFormats:
+def ask_format_type(
+    part_type: archcraftsman.options.PartTypes = archcraftsman.options.PartTypes.OTHER,
+) -> archcraftsman.options.FSFormats:
     """
     The method to ask the user for the format type.
     """
+    part_type_info = archcraftsman.options.get_type_info(part_type)
+    if part_type_info and len(part_type_info.supported_formats) == 1:
+        return part_type_info.supported_formats[0]
+    ignores = [
+        format_type
+        for format_type in archcraftsman.options.FSFormats
+        if part_type_info and format_type not in part_type_info.supported_formats
+    ]
     format_type = prompt_option(
         _("Which format type do you want ? (%s) : "),
         _("Format type '%s' is not supported."),
         archcraftsman.options.FSFormats,
         _("Supported format types : "),
         archcraftsman.options.FSFormats.BTRFS,
-        archcraftsman.options.FSFormats.VFAT,
+        *ignores,
     )
     return format_type if format_type else archcraftsman.options.FSFormats.BTRFS
 

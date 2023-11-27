@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2023-11-26 17:36+0100\n"
-"PO-Revision-Date: 2023-11-26 17:40+0100\n"
+"POT-Creation-Date: 2023-11-27 22:29+0100\n"
+"PO-Revision-Date: 2023-11-27 22:34+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -34,20 +34,20 @@ msgid "Do you want to encrypt the %s partition ?"
 msgstr "Voulez-vous chiffrer la partition %s ?"
 
 #: archcraftsman/autopart.py:245 archcraftsman/basesetup.py:53
-#: archcraftsman/basesetup.py:175 archcraftsman/manualpart.py:179
+#: archcraftsman/basesetup.py:175 archcraftsman/manualpart.py:114
 msgid "Summary of choices :"
 msgstr "Résumé des choix :"
 
-#: archcraftsman/autopart.py:249 archcraftsman/manualpart.py:191
+#: archcraftsman/autopart.py:249 archcraftsman/manualpart.py:156
 msgid "Swapfile size : %s"
 msgstr "Taille du fichier d'échange : %s"
 
 #: archcraftsman/autopart.py:251 archcraftsman/basesetup.py:64
-#: archcraftsman/basesetup.py:203 archcraftsman/manualpart.py:195
+#: archcraftsman/basesetup.py:203 archcraftsman/manualpart.py:120
 msgid "Is the information correct ?"
 msgstr "Les informations sont-elles correctes ?"
 
-#: archcraftsman/autopart.py:255 archcraftsman/manualpart.py:199
+#: archcraftsman/autopart.py:255 archcraftsman/manualpart.py:124
 msgid "Do you want to change the partitioning mode ?"
 msgstr "Voulez-vous changer de mode de partitionnement ?"
 
@@ -115,13 +115,13 @@ msgstr "Exécution des étapes de pré-lancement : "
 msgid "Synchronising repositories..."
 msgstr "Synchronisation des dépôts..."
 
-#: archcraftsman/basesetup.py:157 archcraftsman/installer.py:296
+#: archcraftsman/basesetup.py:157 archcraftsman/installer.py:303
 #: archcraftsman/shell.py:203
 msgid "Script execution interrupted by the user !"
 msgstr "Exécution du script interrompue par l'utilisateur !"
 
-#: archcraftsman/basesetup.py:162 archcraftsman/installer.py:303
-#: archcraftsman/partitioninginfo.py:90 archcraftsman/shell.py:209
+#: archcraftsman/basesetup.py:162 archcraftsman/installer.py:310
+#: archcraftsman/partitioninginfo.py:91 archcraftsman/shell.py:209
 msgid "A subprocess execution failed ! See the following error: %s"
 msgstr ""
 "L'exécution d'un sous-processus a échoué ! L'erreur suivante s'est "
@@ -465,63 +465,63 @@ msgstr "Partitionnement :"
 msgid "Do you want an automatic partitioning ?"
 msgstr "Voulez-vous un partitionnement automatique ?"
 
-#: archcraftsman/installer.py:139
+#: archcraftsman/installer.py:144
 msgid "Installation of the base..."
 msgstr "Installation de la base..."
 
-#: archcraftsman/installer.py:142
+#: archcraftsman/installer.py:147
 msgid "System configuration..."
 msgstr "Configuration du système..."
 
-#: archcraftsman/installer.py:180
+#: archcraftsman/installer.py:185
 msgid "Locales configuration..."
 msgstr "Configuration des locales..."
 
-#: archcraftsman/installer.py:188
+#: archcraftsman/installer.py:193
 msgid "Installation of the remaining packages..."
 msgstr "Installation des paquets restants..."
 
-#: archcraftsman/installer.py:211
+#: archcraftsman/installer.py:216
 msgid "Creation and activation of the swapfile..."
 msgstr "Création et activation du fichier d'échange..."
 
-#: archcraftsman/installer.py:221
-msgid "Generating fstab..."
-msgstr "Génération du fstab..."
-
-#: archcraftsman/installer.py:228
+#: archcraftsman/installer.py:230
 msgid "Desktop configuration..."
 msgstr "Configuration du bureau..."
 
-#: archcraftsman/installer.py:231
+#: archcraftsman/installer.py:233
 msgid "Network configuration..."
 msgstr "Configuration du réseau..."
 
-#: archcraftsman/installer.py:240
-msgid "BTRFS configuration..."
-msgstr "Configuration de BTRFS..."
-
-#: archcraftsman/installer.py:244
+#: archcraftsman/installer.py:239
 msgid "Installation and configuration of the grub..."
 msgstr "Installation et configuration du grub..."
 
-#: archcraftsman/installer.py:248
+#: archcraftsman/installer.py:243
 msgid "Users configuration..."
 msgstr "Configuration des utilisateurs..."
 
-#: archcraftsman/installer.py:249
+#: archcraftsman/installer.py:244
 msgid "Root account configuration..."
 msgstr "Configuration du compte Root..."
 
-#: archcraftsman/installer.py:257
+#: archcraftsman/installer.py:252
 msgid "%s account configuration..."
 msgstr "Configuration du compte %s..."
 
-#: archcraftsman/installer.py:282
+#: archcraftsman/installer.py:277
 msgid "Extra packages configuration if needed..."
 msgstr "Configuration de paquets supplémentaires si nécessaire..."
 
+#: archcraftsman/installer.py:286
+msgid "BTRFS configuration..."
+msgstr "Configuration de BTRFS..."
+
 #: archcraftsman/installer.py:291
+msgid "Generating fstab..."
+msgstr "Génération du fstab..."
+
+#: archcraftsman/installer.py:298
 msgid "Installation complete ! You can reboot your system."
 msgstr "L'installation est terminée ! Vous pouvez redémarrer votre système."
 
@@ -545,31 +545,31 @@ msgstr "Partitions du disque cible détectées : %s"
 msgid "Partition :"
 msgstr "Partition :"
 
-#: archcraftsman/manualpart.py:83 archcraftsman/manualpart.py:92
+#: archcraftsman/manualpart.py:87
 msgid "What is the role of this partition ? (%s) : "
 msgstr "Quel est le rôle de cette partition ? (%s) : "
 
-#: archcraftsman/manualpart.py:84 archcraftsman/manualpart.py:93
+#: archcraftsman/manualpart.py:88
 msgid "Partition type '%s' is not supported."
 msgstr "Le type de partition '%s' n'est pas supporté."
 
-#: archcraftsman/manualpart.py:86 archcraftsman/manualpart.py:95
+#: archcraftsman/manualpart.py:90
 msgid "Supported partition types : "
 msgstr "Types de partition supportés : "
 
-#: archcraftsman/manualpart.py:123
-msgid "What is the mounting point of this partition ? : "
-msgstr "Quel est le point de montage de cette partition ? : "
+#: archcraftsman/manualpart.py:177
+msgid ""
+"An EFI partition or a VFAT formatted Boot partition is required for system "
+"installation."
+msgstr ""
+"Une partition EFI ou une partition Boot formatée en VFAT est nécessaire pour "
+"l'installation du système."
 
-#: archcraftsman/manualpart.py:137
-msgid "The EFI partition is required for system installation."
-msgstr "La partition EFI est nécessaire pour l'installation du système."
-
-#: archcraftsman/manualpart.py:147
+#: archcraftsman/manualpart.py:189
 msgid "The Root partition is required for system installation."
 msgstr "La partition Root est nécessaire pour l'installation du système."
 
-#: archcraftsman/manualpart.py:160
+#: archcraftsman/manualpart.py:202
 msgid "The Boot partition is required for system installation."
 msgstr "La partition Boot est nécessaire pour l'installation du système."
 
@@ -586,53 +586,57 @@ msgstr ""
 msgid "Package %s doesn't exist."
 msgstr "Le paquet %s n'existe pas."
 
-#: archcraftsman/partition.py:138
+#: archcraftsman/partition.py:135
+msgid "What is the mounting point of this partition ? : "
+msgstr "Quel est le point de montage de cette partition ? : "
+
+#: archcraftsman/partition.py:149
 msgid "Format the partition ?"
 msgstr "Formater la partition ?"
 
-#: archcraftsman/partition.py:175
+#: archcraftsman/partition.py:183
 msgid "Do you want to encrypt this partition ?"
 msgstr "Voulez-vous chiffrer cette partition ?"
 
-#: archcraftsman/partition.py:190 archcraftsman/utils.py:303
-#: archcraftsman/utils.py:305 archcraftsman/utils.py:312
+#: archcraftsman/partition.py:198 archcraftsman/utils.py:313
+#: archcraftsman/utils.py:315 archcraftsman/utils.py:322
 msgid "yes"
 msgstr "oui"
 
-#: archcraftsman/partition.py:192 archcraftsman/utils.py:303
-#: archcraftsman/utils.py:305 archcraftsman/utils.py:316
+#: archcraftsman/partition.py:200 archcraftsman/utils.py:313
+#: archcraftsman/utils.py:315 archcraftsman/utils.py:326
 msgid "no"
 msgstr "non"
 
-#: archcraftsman/partition.py:197
+#: archcraftsman/partition.py:205
 msgid "%s : %s"
 msgstr "%s : %s"
 
-#: archcraftsman/partition.py:198
+#: archcraftsman/partition.py:206
 msgid "%s : %s (mounting point : %s, format %s, format type %s)"
 msgstr "%s : %s (point de montage : %s, formater %s, type de formatage %s)"
 
-#: archcraftsman/partition.py:206
+#: archcraftsman/partition.py:214
 msgid "encrypted"
 msgstr "chiffrée"
 
-#: archcraftsman/partition.py:221
+#: archcraftsman/partition.py:229
 msgid "Formatting %s..."
 msgstr "Formatage de %s..."
 
-#: archcraftsman/partition.py:230
+#: archcraftsman/partition.py:238
 msgid "Opening %s..."
 msgstr "Ouverture de %s..."
 
-#: archcraftsman/partition.py:262
+#: archcraftsman/partition.py:270
 msgid "Mounting %s..."
 msgstr "Montage de %s..."
 
-#: archcraftsman/partition.py:279
+#: archcraftsman/partition.py:287
 msgid "Unmounting %s..."
 msgstr "Démontage de %s..."
 
-#: archcraftsman/partition.py:284
+#: archcraftsman/partition.py:292
 msgid "Closing %s..."
 msgstr "Fermeture de %s..."
 
@@ -640,7 +644,12 @@ msgstr "Fermeture de %s..."
 msgid "Formatting and mounting partitions..."
 msgstr "Formatage et montage des partitions..."
 
-#: archcraftsman/partitioninginfo.py:117
+#: archcraftsman/partitioninginfo.py:96 archcraftsman/partitioninginfo.py:122
+#: archcraftsman/partitioninginfo.py:164
+msgid "Too many subprocess execution failures, aborting..."
+msgstr "Trop d'échecs d'exécution de sous-processus, interruption..."
+
+#: archcraftsman/partitioninginfo.py:131
 msgid "Unmounting partitions..."
 msgstr "Démontage des partitions..."
 
@@ -695,51 +704,51 @@ msgstr ""
 msgid "Keymap '%s' doesn't exist."
 msgstr "La keymap '%s' n'existe pas."
 
-#: archcraftsman/utils.py:192
+#: archcraftsman/utils.py:202
 msgid "Which format type do you want ? (%s) : "
 msgstr "Quel type de formatage voulez-vous ? (%s) : "
 
-#: archcraftsman/utils.py:193
+#: archcraftsman/utils.py:203
 msgid "Format type '%s' is not supported."
 msgstr "Le type de formatage '%s' n'est pas supporté."
 
-#: archcraftsman/utils.py:195
+#: archcraftsman/utils.py:205
 msgid "Supported format types : "
 msgstr "Types de formatage supportés : "
 
-#: archcraftsman/utils.py:214
+#: archcraftsman/utils.py:224
 msgid "What type of Swap do you want ? (%s) : "
 msgstr "Quel type de swap voulez-vous ? (%s) : "
 
-#: archcraftsman/utils.py:215
+#: archcraftsman/utils.py:225
 msgid "Swap type '%s' is not supported."
 msgstr "Le type de swap '%s' n'est pas supporté."
 
-#: archcraftsman/utils.py:217
+#: archcraftsman/utils.py:227
 msgid "Supported Swap types : "
 msgstr "Types de swap supportés : "
 
-#: archcraftsman/utils.py:233
+#: archcraftsman/utils.py:243
 msgid "What will be the encrypted block name ? : "
 msgstr "Quel sera le nom de bloc chiffré ? : "
 
-#: archcraftsman/utils.py:236
+#: archcraftsman/utils.py:246
 msgid "Invalid encrypted block name."
 msgstr "Nom de bloc chiffré invalide."
 
-#: archcraftsman/utils.py:251
+#: archcraftsman/utils.py:261
 msgid "Enter it again to confirm : "
 msgstr "Saisissez le à nouveau pour confirmer : "
 
-#: archcraftsman/utils.py:254
+#: archcraftsman/utils.py:264
 msgid "Passwords entered don't match."
 msgstr "Les mots de passe saisis ne correspondent pas."
 
-#: archcraftsman/utils.py:277
+#: archcraftsman/utils.py:287
 msgid "Detected drives :"
 msgstr "Disques détectés :"
 
-#: archcraftsman/utils.py:281
+#: archcraftsman/utils.py:291
 msgid ""
 "On which drive should Archlinux be installed ? (type the entire name, for "
 "example '/dev/sda') : "
@@ -747,6 +756,9 @@ msgstr ""
 "Sur quel disque Archlinux doit-il être installé ? (tapez le nom complet, par "
 "exemple '/dev/sda') : "
 
-#: archcraftsman/utils.py:289
+#: archcraftsman/utils.py:299
 msgid "The target drive '%s' doesn't exist."
 msgstr "Le disque cible '%s' n'existe pas."
+
+#~ msgid "The EFI partition is required for system installation."
+#~ msgstr "La partition EFI est nécessaire pour l'installation du système."

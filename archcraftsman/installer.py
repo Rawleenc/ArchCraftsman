@@ -125,6 +125,11 @@ def install():
             )
 
         if (
+            archcraftsman.info.ai.partitioning_info.root_partition().part_format
+            == archcraftsman.options.FSFormats.BTRFS
+        ):
+            pkgs.update(archcraftsman.btrfs.get_management_packages())
+        elif (
             archcraftsman.info.ai.partitioning_info.filesystem_in_use()
             == archcraftsman.options.FSFormats.BTRFS
         ):
@@ -218,8 +223,6 @@ def install():
             archcraftsman.base.execute("mkswap /mnt/swap/swapfile")
             archcraftsman.base.execute("swapon /mnt/swap/swapfile")
 
-        archcraftsman.base.print_step(_("Generating fstab..."), clear=False)
-
         if (
             archcraftsman.info.ai.system_info.desktop().name
             != archcraftsman.options.Desktops.NONE
@@ -277,15 +280,16 @@ def install():
             bundle.configure()
 
         if (
-            archcraftsman.info.ai.partitioning_info.filesystem_in_use()
+            archcraftsman.info.ai.partitioning_info.root_partition().part_format_type
             == archcraftsman.options.FSFormats.BTRFS
         ):
             archcraftsman.base.print_step(_("BTRFS configuration..."), clear=False)
             archcraftsman.btrfs.configure(
                 archcraftsman.info.ai.partitioning_info.root_partition().real_path()
             )
-        else:
-            archcraftsman.base.execute("genfstab -U /mnt >>/mnt/etc/fstab")
+
+        archcraftsman.base.print_step(_("Generating fstab..."), clear=False)
+        archcraftsman.base.execute("genfstab -U /mnt >>/mnt/etc/fstab")
 
         archcraftsman.config.serialize()
         archcraftsman.info.ai.partitioning_info.umount_partitions()

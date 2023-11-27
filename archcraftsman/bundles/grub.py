@@ -44,7 +44,7 @@ class Grub(archcraftsman.bundles.bundle.Bundle):
             )
         else:
             archcraftsman.base.execute(
-                "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id='Arch Linux'",
+                f"grub-install --target=x86_64-efi --efi-directory={archcraftsman.info.ai.partitioning_info.efi_partition().part_mount_point} --bootloader-id='Arch Linux'",
                 chroot=True,
             )
         archcraftsman.base.execute(

@@ -71,7 +71,10 @@ class Partition:
         """
         return archcraftsman.utils.from_iec(
             archcraftsman.base.execute(
-                f'lsblk -nld "{self.path}" -o SIZE', force=True, capture_output=True
+                f'lsblk -nld "{self.path}" -o SIZE',
+                force=True,
+                check=False,
+                capture_output=True,
             ).output.strip()
         )
 
@@ -82,6 +85,7 @@ class Partition:
         return archcraftsman.base.execute(
             f'lsblk -nld "{self.path}" -o PARTTYPENAME',
             force=True,
+            check=False,
             capture_output=True,
         ).output.strip()
 
@@ -90,7 +94,10 @@ class Partition:
         A method to get the disk name.
         """
         return archcraftsman.base.execute(
-            f'lsblk -nld "{self.path}" -o PKNAME', force=True, capture_output=True
+            f'lsblk -nld "{self.path}" -o PKNAME',
+            force=True,
+            check=False,
+            capture_output=True,
         ).output.strip()
 
     def fs_type(self) -> str:
@@ -98,7 +105,10 @@ class Partition:
         A method to get the filesystem type.
         """
         return archcraftsman.base.execute(
-            f'lsblk -nld "{self.path}" -o FSTYPE', force=True, capture_output=True
+            f'lsblk -nld "{self.path}" -o FSTYPE',
+            force=True,
+            check=False,
+            capture_output=True,
         ).output.strip()
 
     def uuid(self) -> str:
@@ -106,7 +116,10 @@ class Partition:
         A method to get the partition uuid.
         """
         return archcraftsman.base.execute(
-            f'lsblk -nld "{self.path}" -o UUID', force=True, capture_output=True
+            f'lsblk -nld "{self.path}" -o UUID',
+            force=True,
+            check=False,
+            capture_output=True,
         ).output.strip()
 
     def need_format(self):
@@ -124,6 +137,17 @@ class Partition:
             archcraftsman.options.PartTypes.NOT_USED,
         }
 
+    def configure(self, partition_type: archcraftsman.options.PartTypes):
+        part_type_info = archcraftsman.options.get_type_info(partition_type)
+        self.part_type = partition_type
+
+        if part_type_info:
+            self.part_mount_point = part_type_info.part_mount_point
+        else:
+            self.part_mount_point = archcraftsman.base.prompt(
+                _("What is the mounting point of this partition ? : ")
+            )
+
     def ask_for_format(self):
         """
         Method to ask if the partition have to be formatted and in which format.
@@ -133,14 +157,11 @@ class Partition:
             return
         if self.need_format() or self.encrypted:
             self.part_format = True
-            self.part_format_type = archcraftsman.utils.ask_format_type()
+            self.part_format_type = archcraftsman.utils.ask_format_type(self.part_type)
             return
         self.part_format = archcraftsman.utils.prompt_bool(_("Format the partition ?"))
         if self.part_format:
-            if self.part_type == archcraftsman.options.PartTypes.EFI:
-                self.part_format_type = archcraftsman.options.FSFormats.VFAT
-            else:
-                self.part_format_type = archcraftsman.utils.ask_format_type()
+            self.part_format_type = archcraftsman.utils.ask_format_type(self.part_type)
 
     def is_encrypted(self) -> bool:
         """
@@ -148,7 +169,7 @@ class Partition:
         """
         return bool(
             archcraftsman.base.execute(
-                f"cryptsetup isLuks {self.path}", check=False, force=True, sudo=True
+                f"cryptsetup isLuks {self.path}", force=True, check=False, sudo=True
             )
         )
 

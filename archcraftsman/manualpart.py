@@ -33,7 +33,7 @@ def manual_partitioning(change_disks: bool = True) -> bool:
     The method to proceed to the manual partitioning.
     """
     user_answer = False
-    partitioned_disks = []
+    partitioned_disks: list[str] = []
     while not user_answer:
         archcraftsman.base.print_step(_("Manual partitioning :"))
         archcraftsman.base.print_sub_step(
@@ -78,119 +78,42 @@ def manual_partitioning(change_disks: bool = True) -> bool:
         for partition in archcraftsman.info.ai.partitioning_info.partitions:
             archcraftsman.base.print_step(_("Partition :"), clear=False)
             archcraftsman.base.print_sub_step(str(partition))
+
+            ignored_part_types = []
             if archcraftsman.base.is_bios():
-                partition_type = archcraftsman.utils.prompt_option(
-                    _("What is the role of this partition ? (%s) : "),
-                    _("Partition type '%s' is not supported."),
-                    archcraftsman.options.PartTypes,
-                    _("Supported partition types : "),
-                    archcraftsman.options.PartTypes.OTHER,
-                    archcraftsman.options.PartTypes.EFI,
-                )
-            else:
-                partition_type = archcraftsman.utils.prompt_option(
-                    _("What is the role of this partition ? (%s) : "),
-                    _("Partition type '%s' is not supported."),
-                    archcraftsman.options.PartTypes,
-                    _("Supported partition types : "),
-                    archcraftsman.options.PartTypes.OTHER,
-                )
+                ignored_part_types.append(archcraftsman.options.PartTypes.EFI)
+
+            partition_type = archcraftsman.utils.prompt_option(
+                _("What is the role of this partition ? (%s) : "),
+                _("Partition type '%s' is not supported."),
+                archcraftsman.options.PartTypes,
+                _("Supported partition types : "),
+                archcraftsman.options.PartTypes.OTHER,
+                *ignored_part_types,
+            )
+
             if (
-                not archcraftsman.base.is_bios()
-                and partition_type == archcraftsman.options.PartTypes.EFI
+                not partition_type
+                or partition_type == archcraftsman.options.PartTypes.NOT_USED
             ):
-                partition.part_type = archcraftsman.options.PartTypes.EFI
-                partition.part_mount_point = "/boot/efi"
-            elif partition_type == archcraftsman.options.PartTypes.ROOT:
-                partition.part_type = archcraftsman.options.PartTypes.ROOT
-                partition.part_mount_point = "/"
-                archcraftsman.info.ai.partitioning_info.main_disk = (
-                    f"/dev/{partition.disk_name()}"
-                )
-            elif partition_type == archcraftsman.options.PartTypes.BOOT:
-                partition.part_type = archcraftsman.options.PartTypes.BOOT
-                partition.part_mount_point = "/boot"
-            elif partition_type == archcraftsman.options.PartTypes.HOME:
-                partition.part_type = archcraftsman.options.PartTypes.HOME
-                partition.part_mount_point = "/home"
-            elif partition_type == archcraftsman.options.PartTypes.SWAP:
-                partition.part_type = archcraftsman.options.PartTypes.SWAP
-            elif partition_type == archcraftsman.options.PartTypes.NOT_USED:
                 continue
-            elif partition_type == archcraftsman.options.PartTypes.OTHER:
-                partition.part_type = archcraftsman.options.PartTypes.OTHER
-                partition.part_mount_point = archcraftsman.base.prompt(
-                    _("What is the mounting point of this partition ? : ")
-                )
+
+            partition.configure(partition_type)
             partition.ask_for_format()
             partition.ask_for_encryption()
 
-        if (
-            not archcraftsman.base.is_bios()
-            and archcraftsman.options.PartTypes.EFI
-            not in [
-                part.part_type
-                for part in archcraftsman.info.ai.partitioning_info.partitions
-            ]
-        ):
-            archcraftsman.base.print_error(
-                _("The EFI partition is required for system installation.")
-            )
-            archcraftsman.info.ai.partitioning_info.partitions.clear()
-            partitioned_disks.clear()
+        archcraftsman.info.ai.partitioning_info.main_disk = f"/dev/{archcraftsman.info.ai.partitioning_info.root_partition().disk_name()}"
+
+        if not check_required_partitions(partitioned_disks):
             continue
-        if archcraftsman.options.PartTypes.ROOT not in [
-            part.part_type
-            for part in archcraftsman.info.ai.partitioning_info.partitions
-        ]:
-            archcraftsman.base.print_error(
-                _("The Root partition is required for system installation.")
-            )
-            archcraftsman.info.ai.partitioning_info.partitions.clear()
-            partitioned_disks.clear()
-            continue
-        if True in [
-            part.encrypted and part.part_type == archcraftsman.options.PartTypes.ROOT
-            for part in archcraftsman.info.ai.partitioning_info.partitions
-        ] and archcraftsman.options.PartTypes.BOOT not in [
-            part.part_type
-            for part in archcraftsman.info.ai.partitioning_info.partitions
-        ]:
-            archcraftsman.base.print_error(
-                _("The Boot partition is required for system installation.")
-            )
-            archcraftsman.info.ai.partitioning_info.partitions.clear()
-            partitioned_disks.clear()
-            continue
-        if archcraftsman.options.PartTypes.SWAP not in [
-            part.part_type
-            for part in archcraftsman.info.ai.partitioning_info.partitions
-        ] and archcraftsman.options.FSFormats.BTRFS not in [
-            part.part_format
-            for part in archcraftsman.info.ai.partitioning_info.partitions
-            if part.part_type == archcraftsman.options.PartTypes.ROOT
-        ]:
-            archcraftsman.info.ai.partitioning_info.swapfile_size = (
-                archcraftsman.disk.Disk(
-                    archcraftsman.info.ai.partitioning_info.main_disk
-                ).ask_swapfile_size()
-            )
+
+        ask_swapfile_size()
 
         archcraftsman.base.print_step(_("Summary of choices :"))
         for partition in archcraftsman.info.ai.partitioning_info.partitions:
             archcraftsman.base.print_sub_step(partition.summary())
-        if (
-            archcraftsman.options.PartTypes.SWAP
-            not in [
-                part.part_type
-                for part in archcraftsman.info.ai.partitioning_info.partitions
-            ]
-            and archcraftsman.info.ai.partitioning_info.swapfile_size
-        ):
-            archcraftsman.base.print_sub_step(
-                _("Swapfile size : %s")
-                % archcraftsman.info.ai.partitioning_info.swapfile_size
-            )
+        print_swapfile_size()
+
         user_answer = archcraftsman.utils.prompt_bool(
             _("Is the information correct ?"), default=False
         )
@@ -202,4 +125,82 @@ def manual_partitioning(change_disks: bool = True) -> bool:
                 return False
             archcraftsman.info.ai.partitioning_info.partitions.clear()
             partitioned_disks.clear()
+    return True
+
+
+def ask_swapfile_size():
+    if archcraftsman.options.PartTypes.SWAP not in [
+        part.part_type for part in archcraftsman.info.ai.partitioning_info.partitions
+    ] and archcraftsman.options.FSFormats.BTRFS not in [
+        part.part_format
+        for part in archcraftsman.info.ai.partitioning_info.partitions
+        if part.part_type == archcraftsman.options.PartTypes.ROOT
+    ]:
+        archcraftsman.info.ai.partitioning_info.swapfile_size = archcraftsman.disk.Disk(
+            archcraftsman.info.ai.partitioning_info.main_disk
+        ).ask_swapfile_size()
+
+
+def print_swapfile_size():
+    if (
+        archcraftsman.options.PartTypes.SWAP
+        not in [
+            part.part_type
+            for part in archcraftsman.info.ai.partitioning_info.partitions
+        ]
+        and archcraftsman.info.ai.partitioning_info.swapfile_size
+    ):
+        archcraftsman.base.print_sub_step(
+            _("Swapfile size : %s")
+            % archcraftsman.info.ai.partitioning_info.swapfile_size
+        )
+
+
+def check_required_partitions(partitioned_disks: list[str]) -> bool:
+    if (
+        not archcraftsman.base.is_bios()
+        and archcraftsman.options.PartTypes.EFI
+        not in [
+            part.part_type
+            for part in archcraftsman.info.ai.partitioning_info.partitions
+        ]
+        and archcraftsman.options.PartTypes.BOOT
+        not in [
+            part.part_type
+            for part in archcraftsman.info.ai.partitioning_info.partitions
+            if part.part_format_type == archcraftsman.options.FSFormats.VFAT
+        ]
+    ):
+        archcraftsman.base.print_error(
+            _(
+                "An EFI partition or a VFAT formatted Boot partition is required for system installation."
+            )
+        )
+        archcraftsman.info.ai.partitioning_info.partitions.clear()
+        partitioned_disks.clear()
+        return False
+
+    if archcraftsman.options.PartTypes.ROOT not in [
+        part.part_type for part in archcraftsman.info.ai.partitioning_info.partitions
+    ]:
+        archcraftsman.base.print_error(
+            _("The Root partition is required for system installation.")
+        )
+        archcraftsman.info.ai.partitioning_info.partitions.clear()
+        partitioned_disks.clear()
+        return False
+
+    if True in [
+        part.encrypted and part.part_type == archcraftsman.options.PartTypes.ROOT
+        for part in archcraftsman.info.ai.partitioning_info.partitions
+    ] and archcraftsman.options.PartTypes.BOOT not in [
+        part.part_type for part in archcraftsman.info.ai.partitioning_info.partitions
+    ]:
+        archcraftsman.base.print_error(
+            _("The Boot partition is required for system installation.")
+        )
+        archcraftsman.info.ai.partitioning_info.partitions.clear()
+        partitioned_disks.clear()
+        return False
+
     return True
