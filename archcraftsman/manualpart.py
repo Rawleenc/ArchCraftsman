@@ -102,7 +102,10 @@ def manual_partitioning(change_disks: bool = True) -> bool:
             partition.ask_for_format()
             partition.ask_for_encryption()
 
-        archcraftsman.info.ai.partitioning_info.main_disk = f"/dev/{archcraftsman.info.ai.partitioning_info.root_partition().disk_name()}"
+        root_disk_name = (
+            archcraftsman.info.ai.partitioning_info.root_partition().disk_name()
+        )
+        archcraftsman.info.ai.partitioning_info.main_disk = f"/dev/{root_disk_name}"
 
         if not check_required_partitions(partitioned_disks):
             continue
