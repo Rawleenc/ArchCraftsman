@@ -105,7 +105,8 @@ class PreLaunchInfo:
 
     def init(self) -> tuple[archcraftsman.options.Languages, str]:
         """
-        The method to initialize the pre-launch information with fetched geoip data and return the default language and keymap.
+        The method to initialize the pre-launch information
+        with fetched geoip data and return the default language and keymap.
         """
         with urllib.request.urlopen("https://ipapi.co/json") as response:
             geoip_info = json.loads(response.read())
