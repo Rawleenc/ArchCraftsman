@@ -66,9 +66,9 @@ def shell() -> bool:
 
 def config() -> str:
     """
-    Check if the installer is in shell mode.
+    Get the config file path.
     """
-    return _ARGS and _ARGS.config
+    return _ARGS.config or ""
 
 
 def test() -> bool:

@@ -138,7 +138,7 @@ def ask_swapfile_size():
     if archcraftsman.options.PartTypes.SWAP not in [
         part.part_type for part in archcraftsman.info.ai.partitioning_info.partitions
     ] and archcraftsman.options.FSFormats.BTRFS not in [
-        part.part_format
+        part.part_format_type
         for part in archcraftsman.info.ai.partitioning_info.partitions
         if part.part_type == archcraftsman.options.PartTypes.ROOT
     ]:

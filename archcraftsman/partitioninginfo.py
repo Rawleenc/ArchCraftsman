@@ -128,7 +128,9 @@ class PartitioningInfo:
         not_mounted_partitions = [
             partition
             for partition in self.partitions
-            if not partition.is_mounted() and partition.part_mount_point
+            if not partition.is_mounted()
+            and partition.part_type != archcraftsman.options.PartTypes.SWAP
+            and partition.part_mount_point
         ]
         not_mounted_partitions.sort(
             key=lambda part: 0

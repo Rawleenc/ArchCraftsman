@@ -17,11 +17,9 @@
 """
 The system setup module
 """
-import json
 import re
 import subprocess
 import sys
-import urllib.request
 
 import archcraftsman.arguments
 import archcraftsman.base
@@ -71,24 +69,7 @@ def initial_setup(shell_mode: bool = False):
     The method to get environment configurations from the user.
     """
     archcraftsman.base.print_sub_step(_("Querying IP geolocation information..."))
-    with urllib.request.urlopen("https://ipapi.co/json") as response:
-        geoip_info = json.loads(response.read())
-    detected_language = str(geoip_info["languages"]).split(",", maxsplit=1)[0]
-    detected_timezone = geoip_info["timezone"]
-
-    default_language = archcraftsman.prelaunchinfo.parse_detected_language(
-        detected_language
-    )
-
-    if detected_language == "fr-FR":
-        default_keymap = "fr-latin9"
-    else:
-        default_keymap = "de-latin1"
-
-    if not archcraftsman.arguments.config():
-        archcraftsman.info.ai.pre_launch_info.detected_timezone = detected_timezone
-        archcraftsman.info.ai.pre_launch_info.global_language = default_language
-        archcraftsman.info.ai.pre_launch_info.keymap = default_keymap
+    default_language, default_keymap = archcraftsman.info.ai.pre_launch_info.init()
 
     user_answer = shell_mode or archcraftsman.arguments.config()
     while not user_answer:
@@ -114,7 +95,7 @@ def initial_setup(shell_mode: bool = False):
             archcraftsman.info.ai.pre_launch_info.global_language = global_language
 
         archcraftsman.info.ai.pre_launch_info.keymap = archcraftsman.utils.ask_keymap(
-            default_keymap
+            default_keymap,
         )
 
         user_answer = initial_setup_summary()
@@ -263,7 +244,7 @@ def setup_system():
             ):
                 archcraftsman.info.ai.system_info.bundles.append(generic_bundle)
 
-        default_timezone_file = f"/usr/share/zoneinfo/{archcraftsman.info.ai.pre_launch_info.detected_timezone}"
+        default_timezone_file = f"/usr/share/zoneinfo/{archcraftsman.info.ai.pre_launch_info._detected_timezone}"
         archcraftsman.info.ai.system_info.timezone = archcraftsman.base.prompt_ln(
             _("Your timezone (%s) : ") % default_timezone_file,
             default=default_timezone_file,

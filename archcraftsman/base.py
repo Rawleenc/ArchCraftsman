@@ -69,7 +69,10 @@ def sudo_exist() -> bool:
     """
     A method to check if sudo is installed.
     """
-    return execute("which sudo", force=True, capture_output=True).returncode == 0
+    return (
+        execute("which sudo", check=False, force=True, capture_output=True).returncode
+        == 0
+    )
 
 
 def is_root() -> bool:
@@ -269,14 +272,24 @@ def prompt_passwd(message: str, required: bool = False):
     return prompt(f"{ORANGE}{message}{NOCOLOR}", required=required, password=True)
 
 
-def update_mirrors():
+def update_mirrors(country_code: str):
     """
     A method to update the mirrors.
     """
-    ipv6_state: str = execute(
-        "cat /sys/module/ipv6/parameters/disable", capture_output=True
-    ).output
-    options = ["--verbose", "-phttps", "--score 30", "--sort rate", "-a48"]
-    if ipv6_state and ipv6_state.strip() == "0":
-        options.append("--ipv6")
+    options = [
+        "--verbose",
+        "--score 100",
+        "--latest 20",
+        "--fastest 10",
+        "--sort rate",
+    ]
+    if (
+        execute(
+            f"reflector --list-countries | grep {country_code}",
+            check=False,
+            capture_output=True,
+        ).returncode
+        == 0
+    ):
+        options.append(f"--country {country_code}")
     execute(f"reflector {' '.join(options)} --save /etc/pacman.d/mirrorlist")

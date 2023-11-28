@@ -48,7 +48,9 @@ def update_mirrorlist():
     while not user_answer:
         if not manual_change:
             archcraftsman.base.print_step(_("Updating mirrors..."), clear=not config)
-            archcraftsman.base.update_mirrors()
+            archcraftsman.base.update_mirrors(
+                archcraftsman.info.ai.pre_launch_info._detected_country_code
+            )
         else:
             manual_change = False
         if config:
@@ -125,15 +127,16 @@ def install():
             )
 
         if (
-            archcraftsman.info.ai.partitioning_info.root_partition().part_format
-            == archcraftsman.options.FSFormats.BTRFS
-        ):
-            pkgs.update(archcraftsman.btrfs.get_management_packages())
-        elif (
             archcraftsman.info.ai.partitioning_info.filesystem_in_use()
             == archcraftsman.options.FSFormats.BTRFS
         ):
             pkgs.update(archcraftsman.btrfs.get_packages())
+
+        if (
+            archcraftsman.info.ai.partitioning_info.root_partition().part_format_type
+            == archcraftsman.options.FSFormats.BTRFS
+        ):
+            pkgs.update(archcraftsman.btrfs.get_management_packages())
 
         for bundle in archcraftsman.info.ai.system_info.bundles:
             pkgs.update(bundle.packages())
