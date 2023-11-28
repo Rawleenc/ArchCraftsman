@@ -244,7 +244,7 @@ def setup_system():
             ):
                 archcraftsman.info.ai.system_info.bundles.append(generic_bundle)
 
-        default_timezone_file = f"/usr/share/zoneinfo/{archcraftsman.info.ai.pre_launch_info._detected_timezone}"
+        default_timezone_file = archcraftsman.info.ai.pre_launch_info.timezone_file()
         archcraftsman.info.ai.system_info.timezone = archcraftsman.base.prompt_ln(
             _("Your timezone (%s) : ") % default_timezone_file,
             default=default_timezone_file,

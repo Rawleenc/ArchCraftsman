@@ -49,7 +49,7 @@ def update_mirrorlist():
         if not manual_change:
             archcraftsman.base.print_step(_("Updating mirrors..."), clear=not config)
             archcraftsman.base.update_mirrors(
-                archcraftsman.info.ai.pre_launch_info._detected_country_code
+                archcraftsman.info.ai.pre_launch_info.country_code()
             )
         else:
             manual_change = False

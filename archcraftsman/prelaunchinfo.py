@@ -104,6 +104,9 @@ class PreLaunchInfo:
         self._detected_timezone = detected_timezone
 
     def init(self) -> tuple[archcraftsman.options.Languages, str]:
+        """
+        The method to initialize the pre-launch information with fetched geoip data and return the default language and keymap.
+        """
         with urllib.request.urlopen("https://ipapi.co/json") as response:
             geoip_info = json.loads(response.read())
         self._detected_language = str(geoip_info["languages"]).split(",", maxsplit=1)[0]
@@ -184,3 +187,15 @@ class PreLaunchInfo:
                 keyboard_config_file.writelines(content)
         except FileNotFoundError as exception:
             archcraftsman.base.log(f"Exception: {exception}")
+
+    def country_code(self) -> str:
+        """
+        The method to get the country code.
+        """
+        return self._detected_country_code
+
+    def timezone_file(self) -> str:
+        """
+        The method to get the timezone file path.
+        """
+        return f"/usr/share/zoneinfo/{self._detected_timezone}"
