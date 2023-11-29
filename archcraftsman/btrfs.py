@@ -20,18 +20,48 @@ All BTRFS related functions
 
 import archcraftsman.base
 
-SNAPSHOTS_SUBVOLUME = "@snapshots"
 
-subvolumes = {
-    "@var": "/var",
-    "@opt": "/opt",
-    "@srv": "/srv",
-    "@tmp": "/tmp",
-    "@root": "/root",
-    "@usr_local": "/usr/local",
-    "@home": "/home",
-    SNAPSHOTS_SUBVOLUME: "/.snapshots",
-}
+class Subvolume:
+    """
+    A class to represent a subvolume.
+    """
+
+    def __init__(self, name: str, path: str, compression: str = ""):
+        self.name = name
+        self.path = path
+        self.compression = compression
+
+    def create(self):
+        """
+        A method to create a subvolume.
+        """
+        archcraftsman.base.execute(f"btrfs subvolume create -p /mnt/{self.name}")
+
+    def mount(self, partition: str):
+        """
+        A method to mount a subvolume.
+        """
+        compression = f"compress={self.compression}," if self.compression else ""
+        archcraftsman.base.execute(
+            f"mount --mkdir -o {compression}subvol={self.name} {partition} /mnt{self.path}"
+        )
+
+
+SNAPSHOTS_SUBVOLUME = Subvolume("@snapshots", "/.snapshots", "zstd")
+SWAP_SUBVOLUME = Subvolume("@swap", "/swap")
+
+
+subvolumes = [
+    Subvolume("@var", "/var", "zstd"),
+    Subvolume("@opt", "/opt", "zstd"),
+    Subvolume("@srv", "/srv", "zstd"),
+    Subvolume("@tmp", "/tmp", "zstd"),
+    Subvolume("@root", "/root", "zstd"),
+    Subvolume("@usr_local", "/usr/local", "zstd"),
+    Subvolume("@home", "/home", "zstd"),
+    SWAP_SUBVOLUME,
+    SNAPSHOTS_SUBVOLUME,
+]
 
 
 def get_packages():
@@ -64,15 +94,6 @@ def _mount(path: str, mount_point: str):
     )
 
 
-def _mount_subvolume(path: str, mount_point: str, subvolume: str):
-    """
-    A function to mount a subvolume.
-    """
-    archcraftsman.base.execute(
-        f"mount --mkdir -o compress=zstd,subvol={subvolume} {path} /mnt{mount_point}"
-    )
-
-
 def formatting(path: str, mount_point: str, part_mount_points: list[str]):
     """
     A function to format a partition.
@@ -82,11 +103,9 @@ def formatting(path: str, mount_point: str, part_mount_points: list[str]):
         _mount(path, "/")
         archcraftsman.base.execute("btrfs subvolume create /mnt/@")
         archcraftsman.base.execute("btrfs subvolume set-default /mnt/@")
-        for subvolume_name, subvolume_path in subvolumes.items():
-            if subvolume_path not in part_mount_points:
-                archcraftsman.base.execute(
-                    f"btrfs subvolume create -p /mnt/{subvolume_name}"
-                )
+        for subvolume in subvolumes:
+            if subvolume.path not in part_mount_points:
+                subvolume.create()
         archcraftsman.base.execute("umount -R /mnt")
 
 
@@ -94,15 +113,22 @@ def mount(path: str, mount_point: str, part_mount_points: list[str]):
     """
     A function to mount the root partition.
     """
+    _mount(path, mount_point)
     if mount_point == "/":
-        _mount(path, "/")
-        for subvolume_name, subvolume_path in subvolumes.items():
-            if subvolume_name == "@snapshots":
+        for subvolume in subvolumes:
+            if subvolume.name == "@snapshots":
                 continue
-            if subvolume_path not in part_mount_points:
-                _mount_subvolume(path, subvolume_path, subvolume_name)
-    else:
-        _mount(path, mount_point)
+            if subvolume.path not in part_mount_points:
+                subvolume.mount(path)
+
+
+def create_swapfile(size: str):
+    """
+    A function to create a BTRFS swapfile.
+    """
+    archcraftsman.base.execute(
+        f"btrfs filesystem mkswapfile --size {size} --uuid clear /mnt/swap/swapfile"
+    )
 
 
 def configure(path: str):
@@ -117,12 +143,10 @@ def configure(path: str):
     archcraftsman.base.execute("systemctl enable snapper-cleanup.timer", chroot=True)
     archcraftsman.base.execute("systemctl enable grub-btrfsd.service", chroot=True)
 
-    archcraftsman.base.execute(
-        f"btrfs subvolume delete /mnt{subvolumes[SNAPSHOTS_SUBVOLUME]}"
-    )
-    archcraftsman.base.execute(f"mkdir /mnt{subvolumes[SNAPSHOTS_SUBVOLUME]}")
-    _mount_subvolume(path, subvolumes[SNAPSHOTS_SUBVOLUME], SNAPSHOTS_SUBVOLUME)
-    archcraftsman.base.execute(f"chmod 750 /mnt{subvolumes[SNAPSHOTS_SUBVOLUME]}")
+    archcraftsman.base.execute(f"btrfs subvolume delete /mnt{SNAPSHOTS_SUBVOLUME.path}")
+    archcraftsman.base.execute(f"mkdir /mnt{SNAPSHOTS_SUBVOLUME.path}")
+    SNAPSHOTS_SUBVOLUME.mount(path)
+    archcraftsman.base.execute(f"chmod 750 /mnt{SNAPSHOTS_SUBVOLUME.path}")
 
     archcraftsman.base.execute(
         'snapper --no-dbus create --read-write --description "Installation finished."',

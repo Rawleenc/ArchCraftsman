@@ -53,7 +53,9 @@ def to_iec(size: int) -> str:
         "\\s",
         "",
         archcraftsman.base.execute(
-            f'printf "{size}" | numfmt --to=iec', capture_output=True, force=True
+            f'printf "{size}" | numfmt --to=iec --format="%.0f"',
+            capture_output=True,
+            force=True,
         ).output,
     )
 
@@ -209,24 +211,16 @@ def ask_format_type(
     return format_type if format_type else archcraftsman.options.FSFormats.BTRFS
 
 
-def ask_swap_type(
-    format_type: archcraftsman.options.FSFormats,
-) -> archcraftsman.options.SwapTypes:
+def ask_swap_type() -> archcraftsman.options.SwapTypes:
     """
     The method to ask the user for the swap type.
     """
-    default = archcraftsman.options.SwapTypes.FILE
-    ignores = []
-    if format_type == archcraftsman.options.FSFormats.BTRFS:
-        default = archcraftsman.options.SwapTypes.PARTITION
-        ignores.append(archcraftsman.options.SwapTypes.FILE)
     swap_type = prompt_option(
         _("What type of Swap do you want ? (%s) : "),
         _("Swap type '%s' is not supported."),
         archcraftsman.options.SwapTypes,
         _("Supported Swap types : "),
-        default,
-        *ignores,
+        archcraftsman.options.SwapTypes.FILE,
     )
     return swap_type if swap_type else archcraftsman.options.SwapTypes.NONE
 

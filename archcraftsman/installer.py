@@ -69,6 +69,18 @@ def update_mirrorlist():
                 manual_change = True
 
 
+def create_basic_swapfile():
+    """
+    Create a basic swapfile.
+    """
+    archcraftsman.base.execute("mkdir -p /mnt/swap")
+    archcraftsman.base.execute(
+        f'fallocate -l "{archcraftsman.info.ai.partitioning_info.swapfile_size}" /mnt/swap/swapfile'
+    )
+    archcraftsman.base.execute("chmod 600 /mnt/swap/swapfile")
+    archcraftsman.base.execute("mkswap /mnt/swap/swapfile")
+
+
 def install():
     """
     The main installation method.
@@ -218,12 +230,15 @@ def install():
             archcraftsman.base.print_step(
                 _("Creation and activation of the swapfile..."), clear=False
             )
-            archcraftsman.base.execute("mkdir -p /mnt/swap")
-            archcraftsman.base.execute(
-                f'fallocate -l "{archcraftsman.info.ai.partitioning_info.swapfile_size}" /mnt/swap/swapfile'
-            )
-            archcraftsman.base.execute("chmod 600 /mnt/swap/swapfile")
-            archcraftsman.base.execute("mkswap /mnt/swap/swapfile")
+            if (
+                archcraftsman.info.ai.partitioning_info.root_partition().part_format_type
+                == archcraftsman.options.FSFormats.BTRFS
+            ):
+                archcraftsman.btrfs.create_swapfile(
+                    archcraftsman.info.ai.partitioning_info.swapfile_size
+                )
+            else:
+                create_basic_swapfile()
             archcraftsman.base.execute("swapon /mnt/swap/swapfile")
 
         if (

@@ -119,7 +119,7 @@ class Disk:
         """
         swapfile_ok = False
         swapfile_size = ""
-        swapfile_size_pattern = re.compile("^(\\d*[.,]\\d+|\\d+)([GMk])$")
+        swapfile_size_pattern = re.compile("^(\\d+)([GMk])$")
         default_swapfile_size = archcraftsman.utils.to_iec(int(self.total / 32))
         while not swapfile_ok:
             swapfile_size = archcraftsman.base.prompt(

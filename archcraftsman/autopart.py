@@ -54,7 +54,7 @@ def auto_partitioning() -> bool:
             want_dual_boot = False
 
         part_format_type = archcraftsman.utils.ask_format_type()
-        swap_type = archcraftsman.utils.ask_swap_type(part_format_type)
+        swap_type = archcraftsman.utils.ask_swap_type()
 
         want_home = archcraftsman.utils.prompt_bool(
             _("Do you want a separated Home ?"), default=False

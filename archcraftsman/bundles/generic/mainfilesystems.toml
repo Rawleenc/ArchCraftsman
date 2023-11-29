@@ -9,7 +9,7 @@ packages = [
     "e2fsprogs",
     "jfsutils",
     "nilfs-utils",
-    "ntfs-3g",
     "reiserfsprogs",
     "udftools",
+    "xfsprogs",
 ]
