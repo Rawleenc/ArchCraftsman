@@ -11,13 +11,13 @@
 ### On the Arch Linux live iso :
 
 ```bash
-python <(curl -L rawleenc.dev/acmain)
+python <(curl -L ac.rawleenc.dev/main)
 ```
 
 If you wish to test the latest development version, you can run it with this command :
 
 ```bash
-python <(curl -L rawleenc.dev/acdev)
+python <(curl -L ac.rawleenc.dev/dev)
 ```
 
 _However, this is absolutely not recommended for any other purpose than tests._
