@@ -29,13 +29,3 @@ RUN apt-get update \
     wget \
     && apt-get clean \
     && rm -rf "/var/lib/apt/lists/*"
-
-RUN useradd --groups sudo --shell /bin/bash acm \
-    && echo "acm ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/acm \
-    && chmod 0440 /etc/sudoers.d/acm
-USER acm
-WORKDIR /home/acm
-
-RUN cp /etc/skel/.bashrc . \
-    && cp /etc/skel/.profile . \
-    && cp /etc/skel/.bash_logout .
