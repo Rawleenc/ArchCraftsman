@@ -14,27 +14,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-FROM ubuntu:rolling
+FROM python
 
 RUN apt-get update \
     && apt-get install -y \
+    zsh \
     curl \
     git \
-    golang \
-    python3 \
-    python3-venv \
-    python3-pip \
     sudo \
     vim \
     wget \
     && apt-get clean \
     && rm -rf "/var/lib/apt/lists/*"
 
-RUN useradd --create-home --groups sudo --shell /bin/bash coder \
+RUN useradd --create-home --groups sudo --shell /bin/zsh coder \
     && echo "coder ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/coder \
-    && chmod 0440 /etc/sudoers.d/coder \
-    && cp /etc/skel/.bashrc /home/coder/.bashrc \
-    && cp /etc/skel/.profile /home/coder/.profile \
-    && cp /etc/skel/.bash_logout /home/coder/.bash_logout
+    && chmod 0440 /etc/sudoers.d/coder
 
 USER coder
+
+RUN wget -O /home/coder/.zshrc https://git.grml.org/f/grml-etc-core/etc/zsh/zshrc \
+    && wget -O /home/coder/.zshrc.local  https://git.grml.org/f/grml-etc-core/etc/skel/.zshrc
