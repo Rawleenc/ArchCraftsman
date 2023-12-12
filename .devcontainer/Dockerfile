@@ -30,7 +30,7 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf "/var/lib/apt/lists/*"
 
-RUN useradd --groups sudo --shell /bin/bash coder \
+RUN useradd --create-home --groups sudo --shell /bin/bash coder \
     && echo "coder ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/coder \
     && chmod 0440 /etc/sudoers.d/coder \
     && cp /etc/skel/.bashrc /home/coder/.bashrc \
