@@ -15,12 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+git remote set-url origin git@github.com:Rawleenc/ArchCraftsman.git
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-code-server --install-extension ms-python.python
-code-server --install-extension ms-python.pylint
-code-server --install-extension ms-python.isort
-code-server --install-extension ms-python.flake8
-code-server --install-extension ms-python.black-formatter
-code-server --install-extension ms-python.vscode-pylance
