@@ -33,7 +33,7 @@ RUN apt-get update \
 RUN useradd --groups sudo --shell /bin/bash coder \
     && echo "coder ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/coder \
     && chmod 0440 /etc/sudoers.d/coder \
-    cp /etc/skel/.bashrc /home/coder \
+    && cp /etc/skel/.bashrc /home/coder \
     && cp /etc/skel/.profile /home/coder \
     && cp /etc/skel/.bash_logout /home/coder
 
