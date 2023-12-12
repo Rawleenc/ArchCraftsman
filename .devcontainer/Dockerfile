@@ -30,12 +30,11 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf "/var/lib/apt/lists/*"
 
-ENV USER=coder
-RUN useradd --groups sudo --shell /bin/bash ${USER} \
-    && echo "${USER} ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/${USER} \
-    && chmod 0440 /etc/sudoers.d/${USER}
-USER ${USER}
-WORKDIR /home/${USER}
+RUN useradd --groups sudo --shell /bin/bash acm \
+    && echo "acm ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/acm \
+    && chmod 0440 /etc/sudoers.d/acm
+USER acm
+WORKDIR /home/acm
 
 RUN cp /etc/skel/.bashrc . \
     && cp /etc/skel/.profile . \
