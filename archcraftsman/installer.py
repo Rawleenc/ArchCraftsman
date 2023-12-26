@@ -61,12 +61,11 @@ def update_mirrorlist():
         user_answer = archcraftsman.utils.prompt_bool(
             _("Are you satisfied with the mirrors ?"), default=True
         )
-        if not user_answer:
-            if archcraftsman.utils.prompt_bool(
-                _("Do you want to manually edit the mirrorlist ?"), default=True
-            ):
-                archcraftsman.base.execute("nano /etc/pacman.d/mirrorlist")
-                manual_change = True
+        if not user_answer and archcraftsman.utils.prompt_bool(
+            _("Do you want to manually edit the mirrorlist ?"), default=True
+        ):
+            archcraftsman.base.execute("nano /etc/pacman.d/mirrorlist")
+            manual_change = True
 
 
 def create_basic_swapfile():
@@ -253,6 +252,15 @@ def install():
 
         archcraftsman.base.execute("systemctl enable systemd-timesyncd", chroot=True)
 
+        if (
+            archcraftsman.info.ai.partitioning_info.root_partition().part_format_type
+            == archcraftsman.options.FSFormats.BTRFS
+        ):
+            archcraftsman.base.print_step(_("BTRFS configuration..."), clear=False)
+            archcraftsman.btrfs.configure(
+                archcraftsman.info.ai.partitioning_info.root_partition().real_path()
+            )
+
         archcraftsman.base.print_step(
             _("Installation and configuration of the grub..."), clear=False
         )
@@ -296,15 +304,6 @@ def install():
         )
         for bundle in archcraftsman.info.ai.system_info.others():
             bundle.configure()
-
-        if (
-            archcraftsman.info.ai.partitioning_info.root_partition().part_format_type
-            == archcraftsman.options.FSFormats.BTRFS
-        ):
-            archcraftsman.base.print_step(_("BTRFS configuration..."), clear=False)
-            archcraftsman.btrfs.configure(
-                archcraftsman.info.ai.partitioning_info.root_partition().real_path()
-            )
 
         archcraftsman.base.print_step(_("Generating fstab..."), clear=False)
         archcraftsman.base.execute("genfstab -U /mnt >>/mnt/etc/fstab")

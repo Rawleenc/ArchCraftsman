@@ -18,6 +18,8 @@
 All BTRFS related functions
 """
 
+import datetime
+
 import archcraftsman.base
 
 
@@ -26,8 +28,7 @@ class Subvolume:
     A class to represent a subvolume.
     """
 
-    def __init__(self, name: str, path: str, compression: str = ""):
-        self.name = name
+    def __init__(self, path: str, compression: str = "zstd"):
         self.path = path
         self.compression = compression
 
@@ -35,7 +36,7 @@ class Subvolume:
         """
         A method to create a subvolume.
         """
-        archcraftsman.base.execute(f"btrfs subvolume create -p /mnt/{self.name}")
+        archcraftsman.base.execute(f"btrfs subvolume create -p /mnt/@{self.path}")
 
     def mount(self, partition: str):
         """
@@ -43,22 +44,22 @@ class Subvolume:
         """
         compression = f"compress={self.compression}," if self.compression else ""
         archcraftsman.base.execute(
-            f"mount --mkdir -o {compression}subvol={self.name} {partition} /mnt{self.path}"
+            f"mount --mkdir -o {compression}subvol=@{self.path} {partition} /mnt{self.path}"
         )
 
 
-SNAPSHOTS_SUBVOLUME = Subvolume("@snapshots", "/.snapshots", "zstd")
-SWAP_SUBVOLUME = Subvolume("@swap", "/swap")
+SNAPSHOTS_SUBVOLUME = Subvolume("/.snapshots")
+SWAP_SUBVOLUME = Subvolume("/swap", compression="")
 
 
 subvolumes = [
-    Subvolume("@var", "/var", "zstd"),
-    Subvolume("@opt", "/opt", "zstd"),
-    Subvolume("@srv", "/srv", "zstd"),
-    Subvolume("@tmp", "/tmp", "zstd"),
-    Subvolume("@root", "/root", "zstd"),
-    Subvolume("@usr_local", "/usr/local", "zstd"),
-    Subvolume("@home", "/home", "zstd"),
+    Subvolume("/var"),
+    Subvolume("/opt"),
+    Subvolume("/srv"),
+    Subvolume("/tmp"),
+    Subvolume("/root"),
+    Subvolume("/usr/local"),
+    Subvolume("/home"),
     SWAP_SUBVOLUME,
     SNAPSHOTS_SUBVOLUME,
 ]
@@ -102,10 +103,30 @@ def formatting(path: str, mount_point: str, part_mount_points: list[str]):
     if mount_point == "/":
         _mount(path, "/")
         archcraftsman.base.execute("btrfs subvolume create /mnt/@")
-        archcraftsman.base.execute("btrfs subvolume set-default /mnt/@")
         for subvolume in subvolumes:
             if subvolume.path not in part_mount_points:
                 subvolume.create()
+        archcraftsman.base.execute(
+            f"btrfs subvolume create -p /mnt/@{SNAPSHOTS_SUBVOLUME.path}/1/snapshot"
+        )
+        now = datetime.datetime.now()
+        formatted_date = now.strftime("%Y-%m-%d %H:%M:%S")
+        content = [
+            '<?xml version="1.0"?>\n',
+            "<snapshot>\n",
+            "  <type>single</type>\n",
+            "  <num>1</num>\n",
+            f"  <date>{formatted_date}</date>\n",
+            "  <description>Initial snapshot.</description>\n",
+            "</snapshot>\n",
+        ]
+        with open(
+            f"/mnt/@{SNAPSHOTS_SUBVOLUME.path}/1/info.xml", "w", encoding="UTF-8"
+        ) as first_snapshot_info_file:
+            first_snapshot_info_file.writelines(content)
+        archcraftsman.base.execute(
+            f"btrfs subvolume set-default /mnt/@{SNAPSHOTS_SUBVOLUME.path}/1/snapshot"
+        )
         archcraftsman.base.execute("umount -R /mnt")
 
 
@@ -116,7 +137,7 @@ def mount(path: str, mount_point: str, part_mount_points: list[str]):
     _mount(path, mount_point)
     if mount_point == "/":
         for subvolume in subvolumes:
-            if subvolume.name == "@snapshots":
+            if subvolume.path == SNAPSHOTS_SUBVOLUME.path:
                 continue
             if subvolume.path not in part_mount_points:
                 subvolume.mount(path)
@@ -147,10 +168,3 @@ def configure(path: str):
     archcraftsman.base.execute(f"mkdir /mnt{SNAPSHOTS_SUBVOLUME.path}")
     SNAPSHOTS_SUBVOLUME.mount(path)
     archcraftsman.base.execute(f"chmod 750 /mnt{SNAPSHOTS_SUBVOLUME.path}")
-
-    archcraftsman.base.execute(
-        'snapper --no-dbus create --read-write --description "Installation finished."',
-        chroot=True,
-    )
-
-    archcraftsman.base.execute("grub-mkconfig -o /boot/grub/grub.cfg", chroot=True)
