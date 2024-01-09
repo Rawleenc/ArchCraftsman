@@ -149,7 +149,9 @@ def execute(
             else:
                 command = '/bin/bash -c "' + command.strip().replace('"', '\\"') + '"'
             if user:
-                command = f"HOME=/home/{user} arch-chroot -u {user}:{user} /mnt {command}"
+                command = (
+                    f"HOME=/home/{user} arch-chroot -u {user}:{user} /mnt {command}"
+                )
             else:
                 command = f"arch-chroot /mnt {command}"
 
