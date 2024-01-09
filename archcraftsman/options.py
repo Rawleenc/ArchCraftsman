@@ -120,6 +120,7 @@ class Bundles(OptionEnum):
     TERMINUS = enum.auto()
     ZRAM = enum.auto()
     COPY_ACM = enum.auto()
+    ARCHITECT = enum.auto()
 
 
 class ShellBundles(OptionEnum):

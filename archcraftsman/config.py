@@ -65,6 +65,12 @@ def serialize():
         file.write(json_str)
     with open(file_name, "w", encoding="UTF-8") as file:
         file.write(json_str)
+    if archcraftsman.info.ai.system_info.user_name:
+        archcraftsman.base.execute(
+            f"chown {archcraftsman.info.ai.system_info.user_name}:"
+            f"{archcraftsman.info.ai.system_info.user_name} {file_path.replace('/mnt', '')}",
+            chroot=True,
+        )
 
 
 def dict_to_obj(dict_obj, class_type):

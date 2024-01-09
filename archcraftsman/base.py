@@ -129,8 +129,10 @@ def execute(
     check: bool = True,
     capture_output: bool = False,
     force: bool = False,
+    interactive: bool = False,
     chroot: bool = False,
     sudo: bool = False,
+    user: str = "",
 ) -> ExecutionResult:
     """
     A method to exec a command.
@@ -142,7 +144,14 @@ def execute(
             command = f"sudo {command}"
 
         if chroot:
-            command = f"arch-chroot /mnt /bin/bash <<END\n{command.strip()}\nEND"
+            if not interactive:
+                command = f"/bin/bash <<END\n{command.strip()}\nEND"
+            else:
+                command = '/bin/bash -c "' + command.strip().replace('"', '\\"') + '"'
+            if user:
+                command = f"HOME=/home/{user} arch-chroot -u {user}:{user} /mnt {command}"
+            else:
+                command = f"arch-chroot /mnt {command}"
 
         return ExecutionResult(
             command,

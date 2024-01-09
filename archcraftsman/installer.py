@@ -183,15 +183,15 @@ def install():
         )
         _hostname = archcraftsman.info.ai.system_info.hostname
         archcraftsman.base.execute(f'echo "{_hostname}" >/mnt/etc/hostname')
-        archcraftsman.base.execute(
-            f"""
-            {{
-                echo "127.0.0.1 localhost"
-                echo "::1 localhost"
-                echo "127.0.1.1 {_hostname}.localdomain {_hostname}"
-            }} >>/mnt/etc/hosts
-            """
-        )
+
+        hosts_file_content = [
+            "127.0.0.1 localhost\n",
+            "::1 localhost\n",
+            f"127.0.1.1 {_hostname}.localdomain {_hostname}",
+        ]
+        with open("/mnt/etc/hosts", "w", encoding="UTF-8") as hosts_file:
+            hosts_file.writelines(hosts_file_content)
+
         archcraftsman.base.execute(
             "cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist"
         )
@@ -299,14 +299,14 @@ def install():
                     chroot=True,
                 )
 
+        archcraftsman.base.print_step(_("Generating fstab..."), clear=False)
+        archcraftsman.base.execute("genfstab -U /mnt >>/mnt/etc/fstab")
+
         archcraftsman.base.print_step(
             _("Extra packages configuration if needed..."), clear=False
         )
         for bundle in archcraftsman.info.ai.system_info.others():
             bundle.configure()
-
-        archcraftsman.base.print_step(_("Generating fstab..."), clear=False)
-        archcraftsman.base.execute("genfstab -U /mnt >>/mnt/etc/fstab")
 
         archcraftsman.config.serialize()
         archcraftsman.info.ai.partitioning_info.umount_partitions()
