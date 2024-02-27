@@ -18,8 +18,6 @@
 All BTRFS related functions
 """
 
-import datetime
-
 import archcraftsman.base
 
 
