@@ -51,7 +51,7 @@ class CopyACM(archcraftsman.bundles.bundle.Bundle):
                 user=archcraftsman.info.ai.system_info.user_name,
             )
             archcraftsman.base.execute(
-                "cd ~/Architect && ./architect.sh --no-reboot",
+                "cd ~/Architect && chmod +x architect.sh && ./architect.sh --no-reboot",
                 chroot=True,
                 user=archcraftsman.info.ai.system_info.user_name,
                 interactive=True,
