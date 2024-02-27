@@ -74,7 +74,7 @@ def get_management_packages():
     """
     A function to get the packages needed to manage a BTRFS root filesystem.
     """
-    return ["grub-btrfs", "inotify-tools"]
+    return ["inotify-tools"]
 
 
 def _formatting(path: str):
