@@ -302,8 +302,8 @@ def install():
         archcraftsman.config.serialize()
         archcraftsman.info.ai.partitioning_info.umount_partitions()
 
-        archcraftsman.base.print_step(
-            _("Installation complete ! You can reboot your system."), clear=False
+        archcraftsman.base.print_success(
+            _("Installation complete ! You can reboot your system."), do_pause=False
         )
 
     except KeyboardInterrupt:

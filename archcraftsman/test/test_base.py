@@ -85,8 +85,7 @@ class TestBase(unittest.TestCase):
             self.assertTrue(bool(result1))
             self.assertEqual(str(result1), "A")
             self.assertEqual(repr(result1), "A")
-            self.assertFalse(result1 == result2)
-            self.assertTrue(result1 != result2)
+            self.assertNotEqual(result1, result2)
             self.assertEqual(
                 hash(result1),
                 hash(result1.command) ^ hash(result1.returncode) ^ hash(result1.output),
@@ -119,8 +118,8 @@ class TestBase(unittest.TestCase):
                 unittest.mock.patch("archcraftsman.base.sudo_exist", return_value=True),
                 unittest.mock.patch("archcraftsman.base.is_root", return_value=False),
             ):
-                self.assertTrue(
-                    "sudo" in archcraftsman.base.execute("echo E", sudo=True).command
+                self.assertIn(
+                    "sudo", archcraftsman.base.execute("echo E", sudo=True).command
                 )
 
     @unittest.mock.patch(
@@ -178,21 +177,21 @@ class TestBase(unittest.TestCase):
             archcraftsman.base.pause()
             self.assertEqual(
                 mock_stdout.getvalue(),
-                f"{archcraftsman.base.ORANGE}Press any key to continue...{archcraftsman.base.NOCOLOR}\n",
+                f"{archcraftsman.base.PROMPT}Press any key to continue...{archcraftsman.base.RESET}\n",
             )
 
         with unittest.mock.patch("sys.stdout", new_callable=io.StringIO) as mock_stdout:
             archcraftsman.base.pause(start_newline=True)
             self.assertEqual(
                 mock_stdout.getvalue(),
-                f"\n{archcraftsman.base.ORANGE}Press any key to continue...{archcraftsman.base.NOCOLOR}\n",
+                f"\n{archcraftsman.base.PROMPT}Press any key to continue...{archcraftsman.base.RESET}\n",
             )
 
         with unittest.mock.patch("sys.stdout", new_callable=io.StringIO) as mock_stdout:
             archcraftsman.base.pause(end_newline=True)
             self.assertEqual(
                 mock_stdout.getvalue(),
-                f"{archcraftsman.base.ORANGE}Press any key to continue...{archcraftsman.base.NOCOLOR}\n\n",
+                f"{archcraftsman.base.PROMPT}Press any key to continue...{archcraftsman.base.RESET}\n\n",
             )
 
     @unittest.mock.patch("archcraftsman.base.pause")
@@ -204,7 +203,7 @@ class TestBase(unittest.TestCase):
             archcraftsman.base.print_error("Error")
             self.assertEqual(
                 mock_stdout.getvalue(),
-                f"\n{archcraftsman.base.RED}  /!\\ Error{archcraftsman.base.NOCOLOR}\n\n",
+                f"\n{archcraftsman.base.ERROR}:: Error{archcraftsman.base.RESET}\n\n",
             )
 
     @unittest.mock.patch("archcraftsman.base.execute")
@@ -216,7 +215,7 @@ class TestBase(unittest.TestCase):
             archcraftsman.base.print_step("Step")
             self.assertEqual(
                 mock_stdout.getvalue(),
-                f"\n{archcraftsman.base.GREEN}Step{archcraftsman.base.NOCOLOR}\n",
+                f"\n{archcraftsman.base.STEP}Step{archcraftsman.base.RESET}\n",
             )
 
     @unittest.mock.patch("archcraftsman.base.execute")
@@ -228,7 +227,7 @@ class TestBase(unittest.TestCase):
             archcraftsman.base.print_sub_step("Sub step")
             self.assertEqual(
                 mock_stdout.getvalue(),
-                f"{archcraftsman.base.CYAN}  * Sub step{archcraftsman.base.NOCOLOR}\n",
+                f"{archcraftsman.base.SUBSTEP}+ Sub step{archcraftsman.base.RESET}\n",
             )
 
     @unittest.mock.patch("archcraftsman.arguments.test", return_value=True)
@@ -240,7 +239,7 @@ class TestBase(unittest.TestCase):
             archcraftsman.base.log("Log")
             self.assertEqual(
                 mock_stdout.getvalue(),
-                f"{archcraftsman.base.GRAY}> Log{archcraftsman.base.NOCOLOR}\n",
+                f"{archcraftsman.base.LOG}# Log{archcraftsman.base.RESET}\n",
             )
 
     @unittest.mock.patch("archcraftsman.base.pause")
@@ -252,8 +251,8 @@ class TestBase(unittest.TestCase):
             archcraftsman.base.print_help("Test message", do_pause=True)
             self.assertEqual(
                 mock_stdout.getvalue(),
-                f"\n{archcraftsman.base.GREEN}Help :{archcraftsman.base.NOCOLOR}\n{archcraftsman.base.CYAN}  "
-                f"* Test message{archcraftsman.base.NOCOLOR}\n",
+                f"\n{archcraftsman.base.STEP}Help :{archcraftsman.base.RESET}\n{archcraftsman.base.SUBSTEP}"
+                f"+ Test message{archcraftsman.base.RESET}\n",
             )
 
     def test_input_str(self):

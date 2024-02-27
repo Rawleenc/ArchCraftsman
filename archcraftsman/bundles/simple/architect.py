@@ -58,6 +58,6 @@ class CopyACM(archcraftsman.bundles.bundle.Bundle):
                 check=False,
             )
         else:
-            archcraftsman.base.print_error(
+            archcraftsman.base.print_warning(
                 _("No user found. Architect execution avoided."), do_pause=False
             )

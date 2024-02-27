@@ -75,7 +75,7 @@ def initial_setup(shell_mode: bool = False):
     while not user_answer:
         archcraftsman.base.print_step(_("Welcome to ArchCraftsman !"))
         if archcraftsman.base.is_bios():
-            archcraftsman.base.print_error(
+            archcraftsman.base.print_warning(
                 _(
                     "BIOS detected ! The script will act accordingly. Don't forget to select a DOS label type before "
                     "partitioning."

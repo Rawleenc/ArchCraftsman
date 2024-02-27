@@ -29,12 +29,16 @@ import archcraftsman.i18n
 
 _ = archcraftsman.i18n.translate
 
-RED = "\033[0;31m"
-GREEN = "\033[0;32m"
-CYAN = "\033[0;36m"
-ORANGE = "\033[0;33m"
-GRAY = "\033[0;37m"
-NOCOLOR = "\033[0m"
+ERROR = "\033[91m"
+SUCCESS = "\033[92m"
+WARNING = "\033[93m"
+
+STEP = "\033[94m"
+SUBSTEP = "\033[96m"
+
+PROMPT = "\033[1m"
+LOG = "\033[2m"
+RESET = "\033[0m"
 
 
 def glob_completer(text, state) -> str:
@@ -178,7 +182,7 @@ def pause(start_newline: bool = False, end_newline: bool = False):
     message = _("Press any key to continue...")
     if start_newline:
         print("")
-    print(f"{ORANGE}{message}{NOCOLOR}")
+    print(f"{PROMPT}{message}{RESET}")
     execute("read -n 1 -sr", force=True)
     if end_newline:
         print("")
@@ -188,7 +192,25 @@ def print_error(message: str, do_pause: bool = True):
     """
     A method to print an error.
     """
-    print(f"\n{RED}  /!\\ {message}{NOCOLOR}\n")
+    print(f"\n{ERROR}:: {message}{RESET}\n")
+    if do_pause:
+        pause(end_newline=True)
+
+
+def print_success(message: str, do_pause: bool = True):
+    """
+    A method to print a success message.
+    """
+    print(f"\n{SUCCESS}:: {message}{RESET}\n")
+    if do_pause:
+        pause(end_newline=True)
+
+
+def print_warning(message: str, do_pause: bool = True):
+    """
+    A method to print a warning message.
+    """
+    print(f"\n{WARNING}:: {message}{RESET}\n")
     if do_pause:
         pause(end_newline=True)
 
@@ -199,14 +221,14 @@ def print_step(message: str, clear: bool = True):
     """
     if clear:
         execute("clear", force=True)
-    print(f"\n{GREEN}{message}{NOCOLOR}")
+    print(f"\n{STEP}{message}{RESET}")
 
 
 def print_sub_step(message: str):
     """
     A method to print a sub step message.
     """
-    print(f"{CYAN}  * {message}{NOCOLOR}")
+    print(f"{SUBSTEP}+ {message}{RESET}")
 
 
 def log(message: str):
@@ -214,7 +236,7 @@ def log(message: str):
     A method to print a log message.
     """
     if archcraftsman.arguments.test():
-        print(f"{GRAY}> {message}{NOCOLOR}")
+        print(f"{LOG}# {message}{RESET}")
 
 
 def print_help(message: str, do_pause: bool = False):
@@ -232,8 +254,8 @@ def input_str(message: str, password: bool = False) -> str:
     A method to ask to input something.
     """
     if password:
-        return getpass.getpass(prompt=f"{ORANGE}{message}{NOCOLOR}")
-    return input(f"{ORANGE}{message}{NOCOLOR}")
+        return getpass.getpass(prompt=f"{PROMPT}{message}{RESET}")
+    return input(f"{PROMPT}{message}{RESET}")
 
 
 def prompt(
@@ -249,7 +271,7 @@ def prompt(
     user_input_ok = False
     user_input = ""
     while not user_input_ok:
-        user_input = input_str(f"{ORANGE}{message}{NOCOLOR}", password=password)
+        user_input = input_str(f"{PROMPT}{message}{RESET}", password=password)
         if user_input == "?" and help_msg:
             print_help(help_msg)
             continue
@@ -280,7 +302,7 @@ def prompt_passwd(message: str, required: bool = False):
     """
     A method to prompt for a password without displaying an echo.
     """
-    return prompt(f"{ORANGE}{message}{NOCOLOR}", required=required, password=True)
+    return prompt(f"{PROMPT}{message}{RESET}", required=required, password=True)
 
 
 def update_mirrors(country_code: str):
