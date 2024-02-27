@@ -133,9 +133,9 @@ class PartitioningInfo:
             and partition.part_mount_point
         ]
         not_mounted_partitions.sort(
-            key=lambda part: 0
-            if not part.part_mount_point
-            else len(part.part_mount_point)
+            key=lambda part: (
+                0 if not part.part_mount_point else len(part.part_mount_point)
+            )
         )
 
         count = 0
@@ -174,9 +174,9 @@ class PartitioningInfo:
             partition for partition in self.partitions if partition.is_mounted()
         ]
         mounted_partitions.sort(
-            key=lambda part: 0
-            if not part.part_mount_point
-            else len(part.part_mount_point),
+            key=lambda part: (
+                0 if not part.part_mount_point else len(part.part_mount_point)
+            ),
             reverse=True,
         )
 

@@ -115,9 +115,11 @@ def parse_commits(args) -> list[dict]:
 
     # Sort parts by type based on the TITLES dictionary order
     parts.sort(
-        key=lambda part: len(TITLES) + 1
-        if part[TYPE] not in TITLES
-        else list(TITLES).index(part[TYPE])
+        key=lambda part: (
+            len(TITLES) + 1
+            if part[TYPE] not in TITLES
+            else list(TITLES).index(part[TYPE])
+        )
     )
     return parts
 
