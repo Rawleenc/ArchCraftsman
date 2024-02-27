@@ -153,7 +153,7 @@ For both partitioning options you will have the possibility to choose the partit
 - btrfs
 - ext4
 
-The BTRFS format is the default format and is completely integrated. By default you'll have subvolumes, snapshots configured and enabled to be created upon each pacman transactions, automatic cleaning of old snapshots and integration into grub to easily rollback on an existing snapshot.
+The BTRFS format is the default format and is completely integrated.
 
 In automatic partitioning, the chosen format type will be applied for all partitions except the EFI partition.  
 In manual partitioning you will be able to choose the format type to use for each partition individually except for the EFI partition.

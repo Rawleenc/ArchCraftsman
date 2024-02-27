@@ -252,15 +252,6 @@ def install():
 
         archcraftsman.base.execute("systemctl enable systemd-timesyncd", chroot=True)
 
-        if (
-            archcraftsman.info.ai.partitioning_info.root_partition().part_format_type
-            == archcraftsman.options.FSFormats.BTRFS
-        ):
-            archcraftsman.base.print_step(_("BTRFS configuration..."), clear=False)
-            archcraftsman.btrfs.configure(
-                archcraftsman.info.ai.partitioning_info.root_partition().real_path()
-            )
-
         archcraftsman.base.print_step(
             _("Installation and configuration of the grub..."), clear=False
         )

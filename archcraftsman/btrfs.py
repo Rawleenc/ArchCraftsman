@@ -48,11 +48,12 @@ class Subvolume:
         )
 
 
-SNAPSHOTS_SUBVOLUME = Subvolume("/.snapshots")
+ROOT_SUBVOLUME = Subvolume("/")
 SWAP_SUBVOLUME = Subvolume("/swap", compression="")
 
 
 subvolumes = [
+    ROOT_SUBVOLUME,
     Subvolume("/var"),
     Subvolume("/opt"),
     Subvolume("/srv"),
@@ -61,7 +62,6 @@ subvolumes = [
     Subvolume("/usr/local"),
     Subvolume("/home"),
     SWAP_SUBVOLUME,
-    SNAPSHOTS_SUBVOLUME,
 ]
 
 
@@ -76,7 +76,7 @@ def get_management_packages():
     """
     A function to get the packages needed to manage a BTRFS root filesystem.
     """
-    return ["grub-btrfs", "snapper", "snap-pac", "inotify-tools"]
+    return ["grub-btrfs", "inotify-tools"]
 
 
 def _formatting(path: str):
@@ -107,25 +107,7 @@ def formatting(path: str, mount_point: str, part_mount_points: list[str]):
             if subvolume.path not in part_mount_points:
                 subvolume.create()
         archcraftsman.base.execute(
-            f"btrfs subvolume create -p /mnt/@{SNAPSHOTS_SUBVOLUME.path}/1/snapshot"
-        )
-        now = datetime.datetime.now()
-        formatted_date = now.strftime("%Y-%m-%d %H:%M:%S")
-        content = [
-            '<?xml version="1.0"?>\n',
-            "<snapshot>\n",
-            "  <type>single</type>\n",
-            "  <num>1</num>\n",
-            f"  <date>{formatted_date}</date>\n",
-            "  <description>Initial snapshot.</description>\n",
-            "</snapshot>\n",
-        ]
-        with open(
-            f"/mnt/@{SNAPSHOTS_SUBVOLUME.path}/1/info.xml", "w", encoding="UTF-8"
-        ) as first_snapshot_info_file:
-            first_snapshot_info_file.writelines(content)
-        archcraftsman.base.execute(
-            f"btrfs subvolume set-default /mnt/@{SNAPSHOTS_SUBVOLUME.path}/1/snapshot"
+            f"btrfs subvolume set-default /mnt/@{ROOT_SUBVOLUME.path}"
         )
         archcraftsman.base.execute("umount -R /mnt")
 
@@ -137,8 +119,6 @@ def mount(path: str, mount_point: str, part_mount_points: list[str]):
     _mount(path, mount_point)
     if mount_point == "/":
         for subvolume in subvolumes:
-            if subvolume.path == SNAPSHOTS_SUBVOLUME.path:
-                continue
             if subvolume.path not in part_mount_points:
                 subvolume.mount(path)
 
@@ -150,21 +130,3 @@ def create_swapfile(size: str):
     archcraftsman.base.execute(
         f"btrfs filesystem mkswapfile --size {size} --uuid clear /mnt/swap/swapfile"
     )
-
-
-def configure(path: str):
-    """
-    A function to configure snapshots.
-    """
-    archcraftsman.base.execute("snapper --no-dbus -c root create-config /", chroot=True)
-    archcraftsman.base.execute(
-        "snapper --no-dbus -c root set-config TIMELINE_CREATE=no", chroot=True
-    )
-
-    archcraftsman.base.execute("systemctl enable snapper-cleanup.timer", chroot=True)
-    archcraftsman.base.execute("systemctl enable grub-btrfsd.service", chroot=True)
-
-    archcraftsman.base.execute(f"btrfs subvolume delete /mnt{SNAPSHOTS_SUBVOLUME.path}")
-    archcraftsman.base.execute(f"mkdir /mnt{SNAPSHOTS_SUBVOLUME.path}")
-    SNAPSHOTS_SUBVOLUME.mount(path)
-    archcraftsman.base.execute(f"chmod 750 /mnt{SNAPSHOTS_SUBVOLUME.path}")
