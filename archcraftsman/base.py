@@ -262,6 +262,9 @@ def input_str(message: str, password: bool = False) -> str:
 
 
 def input_char(message: str):
+    """
+    A method to ask to input a single char.
+    """
     print(f"{PROMPT}{message}{RESET}", end="", flush=True)
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)
