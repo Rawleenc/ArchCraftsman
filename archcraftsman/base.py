@@ -22,6 +22,9 @@ import getpass
 import glob
 import os
 import subprocess
+import sys
+import termios
+import tty
 import typing
 
 import archcraftsman.arguments
@@ -256,6 +259,19 @@ def input_str(message: str, password: bool = False) -> str:
     if password:
         return getpass.getpass(prompt=f"{PROMPT}{message}{RESET}")
     return input(f"{PROMPT}{message}{RESET}")
+
+
+def input_char(message: str):
+    print(f"{PROMPT}{message}{RESET}", end="", flush=True)
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
+    try:
+        tty.setcbreak(fd)
+        answer = sys.stdin.read(1)
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    print(answer)
+    return answer
 
 
 def prompt(

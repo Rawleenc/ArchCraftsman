@@ -17,10 +17,14 @@
 """
 The general utility methods and tools module
 """
+import fcntl
 import importlib.resources
+import os
 import re
 import readline
 import subprocess
+import sys
+import termios
 import typing
 
 import archcraftsman.base
@@ -310,12 +314,7 @@ def prompt_bool(
     if help_msg:
         message += "/?"
     message += ") : "
+    choice = archcraftsman.base.input_char(message).upper()
     if not default:
-        return (
-            archcraftsman.base.prompt(f"{message}", help_msg=help_msg).upper()
-            == _("yes").upper()[0]
-        )
-    return (
-        archcraftsman.base.prompt(f"{message}", help_msg=help_msg).upper()
-        != _("no").upper()[0]
-    )
+        return choice == _("yes").upper()[0]
+    return choice != _("no").upper()[0]
