@@ -17,14 +17,10 @@
 """
 The general utility methods and tools module
 """
-import fcntl
 import importlib.resources
-import os
 import re
 import readline
 import subprocess
-import sys
-import termios
 import typing
 
 import archcraftsman.base
