@@ -36,7 +36,6 @@ class Plasma(archcraftsman.bundles.bundle.Bundle):
     def __init__(self):
         super().__init__(archcraftsman.options.Desktops.PLASMA)
         self.minimal = False
-        self.plasma_wayland = False
 
     def packages(self) -> list[str]:
         packages = [
@@ -48,20 +47,16 @@ class Plasma(archcraftsman.bundles.bundle.Bundle):
             "xdg-desktop-portal",
             "xdg-desktop-portal-kde",
         ]
-        if self.plasma_wayland:
-            packages.extend(["plasma-wayland-session", "qt5-wayland"])
-            if (
-                archcraftsman.info.ai.system_info.others()
-                and archcraftsman.options.Bundles.NVIDIA
-                in [
-                    bundle.name for bundle in archcraftsman.info.ai.system_info.others()
-                ]
-            ):
-                packages.append("egl-wayland")
-            if self.minimal is not True:
-                packages.append("kde-applications")
-            else:
-                packages.append("konsole")
+        if (
+            archcraftsman.info.ai.system_info.others()
+            and archcraftsman.options.Bundles.NVIDIA
+            in [bundle.name for bundle in archcraftsman.info.ai.system_info.others()]
+        ):
+            packages.append("egl-wayland")
+        if self.minimal is not True:
+            packages.append("kde-applications")
+        else:
+            packages.append("konsole")
 
         return packages
 
@@ -70,10 +65,6 @@ class Plasma(archcraftsman.bundles.bundle.Bundle):
         archcraftsman.base.print_sub_step(_("Display manager : %s") % "SDDM")
         if self.minimal:
             archcraftsman.base.print_sub_step(_("Install a minimal environment."))
-        if self.plasma_wayland:
-            archcraftsman.base.print_sub_step(
-                _("Install Wayland support for the plasma session.")
-            )
 
     def prompt_extra(self):
         self.minimal = archcraftsman.utils.prompt_bool(
@@ -82,9 +73,6 @@ class Plasma(archcraftsman.bundles.bundle.Bundle):
             help_msg=_(
                 "If yes, the script will not install any extra packages, only base packages."
             ),
-        )
-        self.plasma_wayland = archcraftsman.utils.prompt_bool(
-            _("Install Wayland support for the plasma session ?"), default=False
         )
 
     def configure(self):

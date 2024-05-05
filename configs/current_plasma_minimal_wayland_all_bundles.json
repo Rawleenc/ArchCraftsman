@@ -48,7 +48,6 @@
       },
       {
         "minimal": true,
-        "plasma_wayland": true,
         "name": "plasma"
       },
       {
