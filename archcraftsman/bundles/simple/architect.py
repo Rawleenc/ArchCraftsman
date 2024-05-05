@@ -46,7 +46,7 @@ class CopyACM(archcraftsman.bundles.bundle.Bundle):
         if archcraftsman.info.ai.system_info.user_name:
             path = f"/home/{archcraftsman.info.ai.system_info.user_name}"
             archcraftsman.base.execute(
-                f"git clone https://github.com/Gaming-Linux-FR/Architect.git {path}/Architect",
+                f"git clone https://codeberg.org/Gaming-Linux-FR/Architect.git {path}/Architect",
                 chroot=True,
                 user=archcraftsman.info.ai.system_info.user_name,
             )
