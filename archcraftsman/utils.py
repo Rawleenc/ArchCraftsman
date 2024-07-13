@@ -302,15 +302,18 @@ def prompt_bool(
     """
     A method to prompt for a boolean choice.
     """
-    message += " ("
+    full_message = message + " ("
     if default:
-        message += f"{_('yes').upper()[0]}/{_('no')[0]}"
+        full_message += f"{_('yes').upper()[0]}/{_('no')[0]}"
     else:
-        message += f"{_('yes')[0]}/{_('no').upper()[0]}"
+        full_message += f"{_('yes')[0]}/{_('no').upper()[0]}"
     if help_msg:
-        message += "/?"
-    message += ") : "
-    choice = archcraftsman.base.input_char(message).upper()
+        full_message += "/?"
+    full_message += ") : "
+    choice = archcraftsman.base.input_char(full_message).upper()
+    if choice == "?" and help_msg:
+        archcraftsman.base.print_help(help_msg)
+        return prompt_bool(message, default=default, help_msg=help_msg)
     if not default:
         return choice == _("yes").upper()[0]
     return choice != _("no").upper()[0]
