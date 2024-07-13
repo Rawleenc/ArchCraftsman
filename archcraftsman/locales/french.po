@@ -588,11 +588,11 @@ msgstr "La partition Boot est nécessaire pour l'installation du système."
 
 #: archcraftsman/packages.py:93
 msgid ""
-"Install more packages ? (type extra packages full names, example : 'htop "
-"neofetch', leave blank if none) : "
+"Install more packages ? (type extra packages full names, example : 'btop "
+"fastfetch', leave blank if none) : "
 msgstr ""
 "Installer d'autres paquets ? (tapez les noms complets des paquets "
-"supplémentaires, exemple : 'htop neofetch', laissez vide si vous n'en avez "
+"supplémentaires, exemple : 'btop fastfetch', laissez vide si vous n'en avez "
 "pas) : "
 
 #: archcraftsman/packages.py:104

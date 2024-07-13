@@ -91,7 +91,7 @@ class Packages(metaclass=PackagesMeta):
             more_pkgs = []
             more_pkgs_str = archcraftsman.base.prompt_ln(
                 _(
-                    "Install more packages ? (type extra packages full names, example : 'htop neofetch', "
+                    "Install more packages ? (type extra packages full names, example : 'btop fastfetch', "
                     "leave blank if none) : "
                 )
             )
