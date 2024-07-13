@@ -31,7 +31,7 @@ import urllib.request
 
 OWNER = "Rawleenc"
 REPO = "ArchCraftsman"
-BRANCH = "dev"
+BRANCH = "main"
 CMD = "python -m archcraftsman.installer --install"
 STEP = "\033[94m"
 SUBSTEP = "\033[96m"
