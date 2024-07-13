@@ -38,6 +38,7 @@ SUBSTEP = "\033[96m"
 PROMPT = "\033[1m"
 RESET = "\033[0m"
 
+
 def print_step(message: str, clear: bool = True):
     """
     A method to print a step message.
