@@ -33,11 +33,10 @@ OWNER = "Rawleenc"
 REPO = "ArchCraftsman"
 BRANCH = "dev"
 CMD = "python -m archcraftsman.installer --install"
-GREEN = "\033[0;32m"
-CYAN = "\033[0;36m"
-ORANGE = "\033[0;33m"
-NOCOLOR = "\033[0m"
-
+STEP = "\033[94m"
+SUBSTEP = "\033[96m"
+PROMPT = "\033[1m"
+RESET = "\033[0m"
 
 def print_step(message: str, clear: bool = True):
     """
@@ -45,21 +44,21 @@ def print_step(message: str, clear: bool = True):
     """
     if clear:
         subprocess.run("/bin/clear", shell=True, check=True)
-    print(f"\n{GREEN}{message}{NOCOLOR}")
+    print(f"\n{STEP}{message}{RESET}")
 
 
 def print_sub_step(message: str):
     """
     A method to print a sub step message.
     """
-    print(f"{CYAN}  * {message}{NOCOLOR}")
+    print(f"{SUBSTEP}+ {message}{RESET}")
 
 
 def input_str(message: str) -> str:
     """
     A method to ask to input something.
     """
-    return input(f"{ORANGE}{message}{NOCOLOR}")
+    return input(f"{PROMPT}{message}{RESET}")
 
 
 def glob_completer(text, state) -> str:
