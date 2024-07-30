@@ -25,15 +25,6 @@ curl https://raw.githubusercontent.com/Rawleenc/ArchCraftsman/main/launcher.py
 python -m archcraftsman -i
 ```
 
-If you wish to test the latest development version, you can run it with this command :
-
-```bash
-curl https://raw.githubusercontent.com/Rawleenc/ArchCraftsman/dev/launcher.py
-python -m archcraftsman -i
-```
-
-_However, this is absolutely not recommended for any other purpose than tests._
-
 Answer the questions and let the magic happen ;)
 
 # Test

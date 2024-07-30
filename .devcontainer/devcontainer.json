@@ -1,7 +1,0 @@
-{
-  "name": "ArchCraftsman",
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
-  "postCreateCommand": "./.devcontainer/post-create.sh"
-}
