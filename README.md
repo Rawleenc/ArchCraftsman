@@ -21,8 +21,8 @@ Many thanks to all those who have supported, liked or even used this project. Fa
 ### On the Arch Linux live iso :
 
 ```bash
-curl https://raw.githubusercontent.com/Rawleenc/ArchCraftsman/main/launcher.py
-python -m archcraftsman -i
+curl -O https://raw.githubusercontent.com/Rawleenc/ArchCraftsman/main/launcher.py
+python launcher.py
 ```
 
 Answer the questions and let the magic happen ;)
