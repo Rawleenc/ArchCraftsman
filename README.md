@@ -6,18 +6,30 @@
 [![main workflow](https://github.com/rawleenc/ArchCraftsman/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/rawleenc/ArchCraftsman/actions)
 [![dev workflow](https://github.com/rawleenc/ArchCraftsman/actions/workflows/main.yml/badge.svg?branch=dev)](https://github.com/rawleenc/ArchCraftsman/actions)
 
+# Time to say goodbye
+
+When this installer was created it was primarily intended to be used by myself.
+
+I published it because I believe it can be useful to other people but I'm no longer an Archlinux user.
+
+Moreover, with the development of the official Archinstall project, this kind of installer is not longer very useful. So I took the decision to archive this repository and to shutdown redirection links I setup to quickly run the installer.
+
+Many thanks to all those who have supported, liked or even used this project. Fair winds to you on your linux journey!
+
 # Usage
 
 ### On the Arch Linux live iso :
 
 ```bash
-python <(curl -L ac.rawleenc.dev/main)
+curl https://raw.githubusercontent.com/Rawleenc/ArchCraftsman/main/launcher.py
+python -m archcraftsman -i
 ```
 
 If you wish to test the latest development version, you can run it with this command :
 
 ```bash
-python <(curl -L ac.rawleenc.dev/dev)
+curl https://raw.githubusercontent.com/Rawleenc/ArchCraftsman/dev/launcher.py
+python -m archcraftsman -i
 ```
 
 _However, this is absolutely not recommended for any other purpose than tests._
